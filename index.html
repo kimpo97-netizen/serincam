@@ -5,20 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>핑크렌탈 - 휴대폰 단기 대여</title>
     
+    <!-- 1. 스타일 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. 리액트 (React) 엔진 -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- 3. Babel (코드 변환기) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 4. 카카오 우편번호 서비스 -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         * { font-family: 'Pretendard', sans-serif; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
         .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
         .animate-slide-in-up { animation: slideInUp 0.3s ease-out forwards; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
@@ -31,7 +41,7 @@
         const { useState, useEffect } = React;
 
         // ★★★ [설정] 구글 스크립트 배포 URL을 여기에 입력하세요 ★★★
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzOM1PMQS3ZkmDezJE9dszGgGFbaZc0UwJDW-C01dGNyom911jkHlYPHcIWKIXZZepwhg/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzV0HVSXe7rDOFMgBWzcOSJ8Z6xCF33O2eGAe77O1BgfOgDanMoTHqSSmmuzeDi4veH3Q/exec"; 
 
         // --- 아이콘 컴포넌트 ---
         const Icon = ({ children, size = 24, className = "" }) => (
@@ -40,7 +50,6 @@
             </svg>
         );
 
-        // 아이콘 정의 (누락 방지)
         const Icons = {
             Smartphone: (props) => <Icon {...props}><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></Icon>,
             Calendar: (props) => <Icon {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></Icon>,
@@ -88,7 +97,8 @@
             const [deliveryMethod, setDeliveryMethod] = useState('post'); 
             const [returnMethod, setReturnMethod] = useState('post'); 
             const [discounts, setDiscounts] = useState({ app: false, blog: false });
-            const [userInfo, setUserInfo] = useState({ name: '', phone: '', zipcode: '', address: '', detailAddress: '' });
+            // userInfo에 zipcode, detailAddress, scheduleName 추가
+            const [userInfo, setUserInfo] = useState({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [isSearching, setIsSearching] = useState(false);
             
@@ -228,7 +238,7 @@
                     address: fullAddress,
                     phone: userInfo.phone,
                     startDate: formatDate(startDate),
-                    scheduleName: `${userInfo.name}님 대여`,
+                    scheduleName: userInfo.scheduleName || `${userInfo.name}님 대여`, // 입력된 일정명 사용
                     delivery: deliveryText,
                     returnMethod: returnMethod === 'post' ? '택배' : '방문수거',
                     review: reviewType,
@@ -247,7 +257,7 @@
                     alert(`예약이 완료되었습니다!\n${userInfo.name}님 감사합니다.\n입금 확인 후 확정 문자가 발송됩니다.`);
                     
                     setStep(1); setSelectedPhone(null); setStartDate(null); setEndDate(null); setInsurance('none');
-                    setUserInfo({ name: '', phone: '', zipcode: '', address: '', detailAddress: '' });
+                    setUserInfo({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
                     setViewMode('dashboard');
 
                 } catch (error) {
@@ -648,13 +658,17 @@
                                             </div>
                                         )}
 
-                                        {/* STEP 3 (정보입력) */}
+                                        {/* STEP 3 (정보입력 + 일정명 추가) */}
                                         {step === 3 && (
                                             <div className="space-y-6 animate-slide-in pb-10">
                                                 <div><h2 className="text-2xl font-bold text-gray-800">마지막으로<br/>정보를 확인해주세요 📝</h2></div>
                                                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                                                     <div><label className="text-xs font-bold text-gray-500 ml-1">받으시는 분 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
                                                     <div><label className="text-xs font-bold text-gray-500 ml-1">연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
+                                                    
+                                                    {/* 일정명 추가 */}
+                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">일정명</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Ticket size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="예) 엔시티 콘서트" value={userInfo.scheduleName} onChange={(e) => setUserInfo({...userInfo, scheduleName: e.target.value})} /></div></div>
+
                                                     <div><label className="text-xs font-bold text-gray-500 ml-1">주소</label><div className="flex gap-2 mt-1"><input type="text" placeholder="우편번호" readOnly value={userInfo.zipcode} className="w-1/3 p-3 bg-gray-100 rounded-xl outline-none text-gray-600 text-sm text-center" /><button onClick={handleAddressSearch} className="w-2/3 bg-gray-800 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-700">주소 검색</button></div><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-2"><Icons.MapPin size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="기본 주소" readOnly value={userInfo.address} onClick={handleAddressSearch} /></div><div className="mt-2"><input type="text" className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-gray-800 focus:border-rose-300" placeholder="상세 주소를 입력해주세요" value={userInfo.detailAddress} onChange={(e) => setUserInfo({...userInfo, detailAddress: e.target.value})} /></div></div>
                                                 </div>
                                                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
