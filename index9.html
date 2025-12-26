@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>핑크렌탈 - 휴대폰 단기 대여</title>
+    
+    <!-- 1. 스타일 (Tailwind CSS) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. 리액트 (React) 엔진 -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- 3. Babel (코드 변환기) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 4. 카카오 우편번호 서비스 -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        * { font-family: 'Pretendard', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+        .animate-slide-in-up { animation: slideInUp 0.3s ease-out forwards; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ★★★ [설정] 구글 스크립트 배포 URL을 여기에 입력하세요 ★★★
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzV0HVSXe7rDOFMgBWzcOSJ8Z6xCF33O2eGAe77O1BgfOgDanMoTHqSSmmuzeDi4veH3Q/exec"; 
+
+        // --- 한국 공휴일 데이터 (2025~2026) ---
+        const HOLIDAYS = {
+            '2025-1-1': '신정',
+            '2025-1-28': '설날', '2025-1-29': '설날', '2025-1-30': '설날',
+            '2025-3-1': '삼일절', '2025-3-3': '대체공휴일',
+            '2025-5-5': '어린이날', '2025-5-6': '대체공휴일', // 부처님오신날 겹침
+            '2025-6-6': '현충일',
+            '2025-8-15': '광복절',
+            '2025-10-3': '개천절',
+            '2025-10-5': '추석', '2025-10-6': '추석', '2025-10-7': '추석', '2025-10-8': '대체공휴일',
+            '2025-10-9': '한글날',
+            '2025-12-25': '성탄절',
+            
+            '2026-1-1': '신정',
+            '2026-2-16': '설날', '2026-2-17': '설날', '2026-2-18': '설날',
+            '2026-3-1': '삼일절', '2026-3-2': '대체공휴일',
+            '2026-5-5': '어린이날', '2026-5-24': '부처님오신날', '2026-5-25': '대체공휴일',
+            '2026-6-6': '현충일',
+            '2026-8-15': '광복절', '2026-8-17': '대체공휴일',
+            '2026-9-24': '추석', '2026-9-25': '추석', '2026-9-26': '추석', '2026-9-28': '대체공휴일',
+            '2026-10-3': '개천절',
+            '2026-10-9': '한글날',
+            '2026-12-25': '성탄절'
+        };
+
+        // --- 아이콘 컴포넌트 ---
+        const Icon = ({ children, size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {children}
+            </svg>
+        );
+
+        const Icons = {
+            Smartphone: (props) => <Icon {...props}><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></Icon>,
+            Calendar: (props) => <Icon {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></Icon>,
+            ShieldCheck: (props) => <Icon {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></Icon>,
+            Zap: (props) => <Icon {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></Icon>,
+            Truck: (props) => <Icon {...props}><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></Icon>,
+            ChevronLeft: (props) => <Icon {...props}><polyline points="15 18 9 12 15 6"></polyline></Icon>,
+            CheckCircle: (props) => <Icon {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></Icon>,
+            Gift: (props) => <Icon {...props}><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></Icon>,
+            CreditCard: (props) => <Icon {...props}><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></Icon>,
+            User: (props) => <Icon {...props}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></Icon>,
+            MapPin: (props) => <Icon {...props}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></Icon>,
+            Phone: (props) => <Icon {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></Icon>,
+            Home: (props) => <Icon {...props}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></Icon>,
+            BookOpen: (props) => <Icon {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></Icon>,
+            FileText: (props) => <Icon {...props}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></Icon>,
+            Search: (props) => <Icon {...props}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></Icon>,
+            Headphones: (props) => <Icon {...props}><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></Icon>,
+            HelpCircle: (props) => <Icon {...props}><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></Icon>,
+            Star: (props) => <Icon {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></Icon>,
+            Megaphone: (props) => <Icon {...props}><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></Icon>,
+            Ticket: (props) => <Icon {...props}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></Icon>,
+            Clock: (props) => <Icon {...props}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></Icon>,
+            Cloud: (props) => <Icon {...props}><path d="M17.5 19c0-3.037-2.463-5.5-5.5-5.5S6.5 15.963 6.5 19 6.5 21.5 9 21.5 12 21.5c3.037 0 5.5-2.463 5.5-5.5z"></path><path d="M12 13.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11h.5"></path></Icon>,
+            Settings: (props) => <Icon {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.72l-.15.1a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></Icon>,
+            Android: (props) => <Icon {...props}><path d="M18.2 12.1c.95-.92 1.63-2.18 1.8-3.6.01-.13.01-.26 0-.39-.17-1.42-.85-2.68-1.8-3.6l1.35-1.35a1 1 0 1 0-1.42-1.42l-1.35 1.35c-1.28-.79-2.78-1.25-4.38-1.25s-3.1.46-4.38 1.25L6.67 1.72a1 1 0 0 0-1.42 1.42l1.35 1.35c-.95.92-1.63 2.18-1.8 3.6-.01.13-.01.26 0 .39.17 1.42.85 2.68 1.8 3.6A7.94 7.94 0 0 0 2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1 7.94 7.94 0 0 0-3.8-5.9zM9 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm6 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></Icon>,
+            Apple: (props) => <Icon {...props}><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-8a5.55 5.55 0 0 1 1.6-4C21.72 7 19.34 7 19.34 7c-1.31 0-2.81-.97-4.12-.97-1.31 0-2.91 1-4.06 1C8 7 5.5 9.16 5.5 13.06c0 2.72 1.34 5.94 3.12 8 .88 1 2.22 1.94 3.38 1.94.94 0 2.06-1.06 4-1.06zM15 7a4 4 0 0 0-1-3 4 4 0 0 0 3.8 3.8A3.75 3.75 0 0 0 15 7z"/></Icon>,
+            CalendarPlus: (props) => <Icon {...props}><path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="19" y1="16" x2="19" y2="22"/><line x1="16" y1="19" x2="22" y2="19"/></Icon>
+        };
+
+        const PhoneRentalApp = () => {
+            const [activeNav, setActiveNav] = useState('home'); 
+            const [viewMode, setViewMode] = useState('dashboard'); 
+            const [step, setStep] = useState(1); 
+            const [activeTab, setActiveTab] = useState('galaxy');
+            const [backupTab, setBackupTab] = useState('samsung');
+            
+            // 예약 데이터
+            const [selectedPhone, setSelectedPhone] = useState(null);
+            const [startDate, setStartDate] = useState(null);
+            const [endDate, setEndDate] = useState(null);
+            const [dateWarning, setDateWarning] = useState(null);
+            const [insurance, setInsurance] = useState('none'); 
+            const [batteryCount, setBatteryCount] = useState(0); 
+            const [deliveryMethod, setDeliveryMethod] = useState('post'); 
+            const [returnMethod, setReturnMethod] = useState('post'); 
+            const [dataBackup, setDataBackup] = useState(false); // 데이터 백업 서비스 여부
+            const [discounts, setDiscounts] = useState({ app: false, blog: false });
+            
+            // userInfo
+            const [userInfo, setUserInfo] = useState({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [isSearching, setIsSearching] = useState(false);
+            
+            // 연장 페이지 상태
+            const [extModel, setExtModel] = useState('galaxy');
+            const [extDays, setExtDays] = useState(1);
+            const [extForm, setExtForm] = useState({ name: '', phone: '' }); // 연장 신청자 정보
+
+            // 백업 페이지 상태
+            const [backupForm, setBackupForm] = useState({ name: '', phone: '' }); // 백업 신청자 정보
+
+            const [currentMonth, setCurrentMonth] = useState(new Date());
+            const [lookupName, setLookupName] = useState('');
+            const [lookupPhone, setLookupPhone] = useState('');
+            const [lookupResult, setLookupResult] = useState(null);
+            const [myViewTab, setMyViewTab] = useState('reservation'); // 'reservation' | 'services'
+
+            const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+
+            const phones = {
+                galaxy: [
+                    { id: 'g23', name: '갤럭시 S23 울트라', price: 9400, tag: '가성비' },
+                    { id: 'g24', name: '갤럭시 S24 울트라', price: 10900, tag: '인기' },
+                    { id: 'g25', name: '갤럭시 S25 울트라', price: 13400, tag: '최신상' },
+                ],
+                iphone: [
+                    { id: 'i17p', name: '아이폰 17 프로', price: 16900, tag: '감성' },
+                    { id: 'i17pm', name: '아이폰 17 프로맥스', price: 18900, tag: '끝판왕' },
+                ]
+            };
+
+            const isSameDayStart = startDate && (() => {
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                return startDate.getTime() === today.getTime();
+            })();
+
+            // [추가] 일요일 또는 공휴일 수령 여부 체크
+            const isSundayOrHolidayStart = startDate && (() => {
+                const year = startDate.getFullYear();
+                const month = startDate.getMonth();
+                const day = startDate.getDate();
+                const dateKey = `${year}-${month + 1}-${day}`;
+                // 일요일(0) 이거나 HOLIDAYS 객체에 키가 존재하면 true
+                return startDate.getDay() === 0 || !!HOLIDAYS[dateKey];
+            })();
+
+            const formatPhone = (value) => {
+                const raw = value.replace(/[^0-9]/g, '');
+                if (raw.length < 4) return raw;
+                if (raw.length < 8) return `${raw.slice(0, 3)}-${raw.slice(3)}`;
+                return `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7, 11)}`;
+            };
+
+            const handleAddressSearch = () => {
+                if (!window.daum || !window.daum.Postcode) {
+                    alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+                    return;
+                }
+                new daum.Postcode({
+                    oncomplete: function(data) {
+                        let fullAddress = data.address;
+                        let extraAddress = '';
+                        if (data.addressType === 'R') {
+                            if (data.bname !== '') extraAddress += data.bname;
+                            if (data.buildingName !== '') extraAddress += (extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName);
+                            fullAddress += (extraAddress !== '' ? ` (${extraAddress})` : '');
+                        }
+                        setUserInfo(prev => ({ ...prev, zipcode: data.zonecode, address: fullAddress }));
+                    }
+                }).open();
+            };
+
+            // [수정] 반납일 계산: 선택한 날짜 자체가 반납일이 됨 (기존 D+1 로직 제거)
+            const getReturnDate = (date) => {
+                if (!date) return null;
+                const returnDate = new Date(date);
+                // returnDate.setDate(date.getDate() + 1); // [삭제] D+1 로직 제거
+                
+                // 주말 반납 불가 시 자동 연장 로직 (토/일 -> 월)
+                const dayOfWeek = returnDate.getDay();
+                if (dayOfWeek === 6) returnDate.setDate(returnDate.getDate() + 2); 
+                else if (dayOfWeek === 0) returnDate.setDate(returnDate.getDate() + 1); 
+                return returnDate;
+            };
+
+            const getArrivalDate = (date) => {
+                if (!date) return null;
+                return new Date(date); // [수정] 리뷰 혜택 변경으로 D-1 로직 제거 (수령일 = 시작일)
+            };
+
+            // [수정] 대여일수 계산: (반납일 - 시작일) + 1일 (1박 2일 = 2일 요금)
+            const calculateDays = () => {
+                if (!startDate || !endDate) return 0;
+                const returnDate = getReturnDate(endDate);
+                
+                // 순수 날짜 차이 계산 (밀리초 단위 변환)
+                const diffTime = returnDate.getTime() - startDate.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                // [수정] 날짜 차이에 1을 더해 당일 포함 계산 (예: 1일~2일 = 2일)
+                return Math.max(0, diffDays + 1); 
+            };
+            
+            const getDisplayEndDate = () => {
+                if (!endDate) return null;
+                return getReturnDate(endDate);
+            };
+
+            const calculateTotal = () => {
+                const days = calculateDays();
+                if (days === 0 || !selectedPhone) return 0;
+                let total = selectedPhone.price * days;
+                
+                if (insurance === 'basic') total += 3000;
+                else if (insurance === 'premium') total += 5000;
+                else if (insurance === 'none') total += 0;
+
+                total += batteryCount * 3000;
+                if (deliveryMethod === 'post') total += 4000;
+                if (returnMethod === 'pickup') total += 4000;
+                
+                if (dataBackup) total += 10000; // 데이터 백업 비용 추가
+
+                // [수정] 리뷰 할인 적용
+                if (discounts.app) total -= 3000;
+                if (discounts.blog) total -= 5000;
+
+                return Math.max(0, total);
+            };
+
+            const handleSubmit = async () => {
+                if(!GOOGLE_SCRIPT_URL) {
+                    alert("구글 시트 연동 URL이 설정되지 않았습니다. 개발자에게 문의해주세요.");
+                    return;
+                }
+
+                setIsSubmitting(true);
+
+                const formatDate = (d) => d ? `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}` : '';
+                const reviewType = discounts.app ? '앱리뷰(D-1)' : (discounts.blog ? '블로그(D-1)' : '없음');
+                const fullAddress = `${userInfo.address} ${userInfo.detailAddress}`.trim();
+
+                let insuranceText = '미선택';
+                if(insurance === 'none') insuranceText = '미가입';
+                else if(insurance === 'basic') insuranceText = '베이직';
+                else if(insurance === 'premium') insuranceText = '프리미엄';
+
+                let reviewText = '없음';
+                if (discounts.app) reviewText = '앱리뷰(-3,000원)';
+                else if (discounts.blog) reviewText = '블로그(-5,000원)';
+
+                let deliveryText = '미선택';
+                if (deliveryMethod === 'post') deliveryText = '택배';
+                else if (deliveryMethod === 'quick') deliveryText = '퀵';
+                else if (deliveryMethod === 'venue') deliveryText = '공연장수령';
+
+                const orderData = {
+                    category: '예약신청', // 카테고리 추가
+                    orderTime: new Date().toLocaleString(),
+                    battery: batteryCount,
+                    model: selectedPhone.name,
+                    modelNumber: "",
+                    blank: "",
+                    name: userInfo.name,
+                    zipcode: userInfo.zipcode,
+                    address: fullAddress,
+                    phone: userInfo.phone,
+                    startDate: formatDate(startDate),
+                    scheduleName: userInfo.scheduleName || `${userInfo.name}님 대여`, 
+                    delivery: deliveryText,
+                    returnMethod: returnMethod === 'post' ? '택배' : '방문수거',
+                    review: reviewText,
+                    totalPrice: calculateTotal(),
+                    insurance: insuranceText,
+                    dataBackup: dataBackup ? '신청(+10,000원)' : '미신청'
+                };
+
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(orderData),
+                    });
+                    
+                    alert(`예약이 완료되었습니다!\n${userInfo.name}님 감사합니다.\n입금 확인 후 확정 문자가 발송됩니다.`);
+                    
+                    setStep(1); setSelectedPhone(null); setStartDate(null); setEndDate(null); setInsurance('none');
+                    setUserInfo({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
+                    setDataBackup(false);
+                    setViewMode('dashboard');
+
+                } catch (error) {
+                    console.error("Error submitting order:", error);
+                    alert("주문 전송 중 오류가 발생했습니다. 다시 시도해주세요.");
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            const handleExtensionSubmit = async (extTotal) => {
+                if (!extForm.name || !extForm.phone) {
+                    alert("신청자 성함과 연락처를 입력해주세요.");
+                    return;
+                }
+                if(!GOOGLE_SCRIPT_URL) {
+                    alert("시스템 오류: 연동 URL 미설정");
+                    return;
+                }
+
+                setIsSubmitting(true);
+                const orderData = {
+                    category: '연장신청',
+                    orderTime: new Date().toLocaleString(),
+                    model: extModel === 'galaxy' ? '갤럭시 (연장)' : '아이폰 (연장)',
+                    name: extForm.name,
+                    phone: extForm.phone,
+                    startDate: `(+${extDays}일)`,
+                    totalPrice: extTotal,
+                    scheduleName: `${extForm.name}님 연장신청`
+                };
+
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(orderData),
+                    });
+                    alert(`연장 신청이 접수되었습니다.\n입금 확인 후 확정됩니다.`);
+                    setExtForm({ name: '', phone: '' });
+                    setViewMode('dashboard');
+                } catch (error) {
+                    alert("신청 전송 실패");
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            const handleBackupSubmit = async () => {
+                if (!backupForm.name || !backupForm.phone) {
+                    alert("신청자 성함과 연락처를 입력해주세요.");
+                    return;
+                }
+                if(!GOOGLE_SCRIPT_URL) {
+                    alert("시스템 오류: 연동 URL 미설정");
+                    return;
+                }
+
+                setIsSubmitting(true);
+                const orderData = {
+                    category: '백업신청',
+                    orderTime: new Date().toLocaleString(),
+                    model: '데이터 백업 대행',
+                    name: backupForm.name,
+                    phone: backupForm.phone,
+                    totalPrice: 10000,
+                    scheduleName: `${backupForm.name}님 백업신청`
+                };
+
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(orderData),
+                    });
+                    alert(`데이터 백업 신청이 접수되었습니다.\n입금 확인 후 안내드리겠습니다.`);
+                    setBackupForm({ name: '', phone: '' });
+                    setViewMode('dashboard');
+                } catch (error) {
+                    alert("신청 전송 실패");
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            const handleLookup = async () => {
+                if (!lookupName || lookupPhone.length < 10) { alert('정보를 올바르게 입력해주세요.'); return; }
+                if (!GOOGLE_SCRIPT_URL) { alert("연동 URL이 설정되지 않았습니다."); return; }
+                setIsSearching(true);
+                try {
+                    const response = await fetch(`${GOOGLE_SCRIPT_URL}?name=${encodeURIComponent(lookupName)}&phone=${encodeURIComponent(lookupPhone)}`, { redirect: "follow" });
+                    const result = await response.json();
+                    if (result.result === "success") { 
+                        // 배열로 변환하여 저장
+                        const data = Array.isArray(result.data) ? result.data : [result.data];
+                        setLookupResult(data.reverse()); 
+                    }
+                    else { alert("일치하는 예약 정보가 없습니다."); setLookupResult(null); }
+                } catch (error) { alert("조회 중 오류가 발생했습니다."); } finally { setIsSearching(false); }
+            };
+
+            const handleMonthChange = (increment) => {
+                const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + increment, 1);
+                setCurrentMonth(newDate);
+            };
+
+            // [수정] 날짜 클릭 핸들러 (최소 1박 2일 대여 조건으로 수정)
+            const handleDateClick = (day) => {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                if (clickedDate < today) return;
+                
+                if (!startDate || (startDate && endDate)) { 
+                    setStartDate(clickedDate); 
+                    setEndDate(null); 
+                    setDateWarning(null); 
+                } else {
+                    // 시작일과 종료일 사이의 간격(일수) 계산 (inclusive)
+                    // 예: 1일 클릭, 2일 클릭 -> diffDays = 2 (1박 2일)
+                    const diffTime = Math.abs(clickedDate - startDate); 
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    
+                    if (clickedDate < startDate) { 
+                        setStartDate(clickedDate); 
+                        setDateWarning(null); 
+                    }
+                    else if (diffDays < 2) { // [수정] 최소 1박 2일 이상 (당일 반납 불가)
+                        alert("최소 1박 2일 이상 대여 가능해요!\n(예: 1일 수령 -> 2일 반납)"); 
+                    }
+                    else {
+                        let finalStartDate = startDate; 
+                        let finalEndDate = clickedDate; 
+                        let warningMsg = null;
+                        
+                        // 시작일이 일요일이고 종료일이 월요일인 경우 등 특수 케이스 체크 (필요시)
+                        if (finalStartDate.getDay() === 0 && finalEndDate.getDay() === 1) {
+                            warningMsg = "일요일은 배송 휴무라 토요일 수령으로 자동 변경되었어요!";
+                            const newStart = new Date(finalStartDate); newStart.setDate(finalStartDate.getDate() - 1);
+                            const newEnd = new Date(finalEndDate); // 종료일은 유지하거나 필요시 조정
+                            finalStartDate = newStart; 
+                            finalEndDate = newEnd;
+                        }
+                        
+                        setStartDate(finalStartDate); 
+                        setEndDate(finalEndDate); 
+                        setDateWarning(warningMsg);
+                    }
+                }
+            };
+
+            const handleRentalStart = (method) => {
+                if (method) setDeliveryMethod(method);
+                setViewMode('rental');
+                setStep(1); 
+                setActiveNav('rental'); 
+            };
+
+            const handleNavChange = (nav) => {
+                setActiveNav(nav);
+                if (nav === 'home') {
+                    setViewMode('dashboard');
+                } else if (nav === 'rental') {
+                    setViewMode('rental');
+                    setStep(1);
+                }
+            };
+
+            useEffect(() => { window.scrollTo(0, 0); }, [step, viewMode]);
+            
+            useEffect(() => { 
+                if (step === 2) { // Step 2는 옵션 선택 단계
+                    // 당일 대여거나 일요일/공휴일 수령인 경우 택배 불가 -> 퀵으로 자동 변경
+                    if ((isSameDayStart || isSundayOrHolidayStart) && deliveryMethod === 'post') {
+                        setDeliveryMethod('quick');
+                    }
+                }
+            }, [step, isSameDayStart, isSundayOrHolidayStart, deliveryMethod]);
+
+            const renderCalendarDays = () => {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const year = currentMonth.getFullYear(); const month = currentMonth.getMonth();
+                const days = new Date(year, month + 1, 0).getDate(); const firstDay = new Date(year, month, 1).getDay();
+                const daysArray = [];
+
+                // [수정] 시각적 종료일 계산 로직
+                // 사용자가 선택한 endDate(반납일)를 기준으로 계산
+                // 만약 반납일이 주말이라 연장되었다면, 연장된 날짜까지 달력에 표시
+                let visualEndDate = endDate;
+                if (endDate) {
+                    visualEndDate = getReturnDate(endDate);
+                }
+
+                for (let i = 0; i < firstDay; i++) daysArray.push(<div key={`empty-${i}`} className="h-10"></div>);
+                for (let d = 1; d <= days; d++) {
+                    const thisDate = new Date(year, month, d);
+                    const dayOfWeek = thisDate.getDay();
+                    const dateKey = `${year}-${month + 1}-${d}`;
+                    const holidayName = HOLIDAYS[dateKey];
+
+                    let className = "h-14 flex flex-col items-center justify-center rounded-xl text-sm cursor-pointer transition-all border border-transparent ";
+                    const isPast = thisDate < today;
+                    const isStart = startDate && thisDate.getTime() === startDate.getTime();
+                    
+                    // [수정] visualEndDate(실제 반납일)를 기준으로 종료일 표시
+                    const isEnd = visualEndDate && thisDate.getTime() === visualEndDate.getTime();
+                    const isInRange = startDate && visualEndDate && thisDate > startDate && thisDate < visualEndDate;
+                    
+                    if (isPast) {
+                        className += "text-gray-300 cursor-not-allowed";
+                    } else if (isStart || isEnd) {
+                        className += "bg-rose-500 text-white font-bold shadow-md transform scale-105 z-10";
+                    } else if (isInRange) {
+                        className += "bg-rose-50 text-rose-700";
+                    } else {
+                        className += "hover:bg-gray-50 ";
+                        if (holidayName || dayOfWeek === 0) className += "text-red-500 ";
+                        else if (dayOfWeek === 6) className += "text-blue-500 ";
+                        else className += "text-gray-700 ";
+                    }
+
+                    daysArray.push(
+                        <div key={d} onClick={() => !isPast && handleDateClick(d)} className={className}>
+                            <span className={isStart || isEnd ? "text-lg" : ""}>{d}</span>
+                            {holidayName && !isStart && !isEnd && (
+                                <span className="text-[9px] leading-none mt-0.5 truncate w-full text-center font-normal">{holidayName}</span>
+                            )}
+                        </div>
+                    );
+                }
+                return daysArray;
+            };
+
+            // --- 서브 페이지 렌더링 함수 ---
+            const renderExtensionPage = () => {
+                const extPricePerDay = extModel === 'galaxy' ? 15000 : 20000;
+                const extTotal = extPricePerDay * extDays;
+
+                return (
+                <div className="animate-slide-in space-y-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm">
+                            <Icons.ChevronLeft className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <h2 className="text-xl font-bold text-gray-800">대여 기간 연장</h2>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+                            <Icons.Clock size={32} />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-800 mb-2 text-center">반납일 연장 신청</h3>
+                        
+                        <div className="space-y-4 mt-6">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 ml-1">기종 선택</label>
+                                <div className="flex bg-gray-100 p-1 rounded-xl mt-1">
+                                    <button onClick={() => setExtModel('galaxy')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${extModel === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>갤럭시</button>
+                                    <button onClick={() => setExtModel('iphone')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${extModel === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>아이폰</button>
+                                </div>
+                                <p className="text-xs text-right mt-1 text-gray-400">{extModel === 'galaxy' ? '1일 15,000원' : '1일 20,000원'}</p>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 ml-1">연장 기간</label>
+                                <div className="flex items-center justify-between bg-gray-50 rounded-xl p-2 mt-1 border border-gray-100">
+                                    <button onClick={() => setExtDays(Math.max(1, extDays - 1))} className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center text-gray-600 font-bold">-</button>
+                                    <span className="font-bold text-gray-800">{extDays}일</span>
+                                    <button onClick={() => setExtDays(extDays + 1)} className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center text-gray-600 font-bold">+</button>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 p-4 rounded-xl flex justify-between items-center">
+                                <span className="font-bold text-gray-600">총 연장 금액</span>
+                                <span className="font-bold text-xl text-rose-500">{extTotal.toLocaleString()}원</span>
+                            </div>
+
+                            <div className="pt-2 border-t border-gray-100">
+                                <p className="text-xs font-bold text-gray-500 mb-2">신청자 정보</p>
+                                <div className="space-y-2">
+                                    <input type="text" placeholder="성함" className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm" value={extForm.name} onChange={(e) => setExtForm({...extForm, name: e.target.value})} />
+                                    <input type="text" placeholder="연락처 (010-0000-0000)" className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm" value={extForm.phone} onChange={(e) => setExtForm({...extForm, phone: formatPhone(e.target.value)})} />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-blue-50 p-3 rounded-xl text-left text-xs text-blue-600 mb-4 mt-4 leading-relaxed">
+                            반납일 기준 24시간 전까지 신청 가능합니다.<br/>
+                            연장 신청 후 입금이 확인되면 확정됩니다.
+                        </div>
+
+                        <button 
+                            disabled={isSubmitting}
+                            onClick={() => handleExtensionSubmit(extTotal)}
+                            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                            {isSubmitting ? '처리 중...' : '연장 신청하기'}
+                        </button>
+                    </div>
+                </div>
+                );
+            };
+
+            const renderBackupPage = () => (
+                <div className="animate-slide-in space-y-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm">
+                            <Icons.ChevronLeft className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <h2 className="text-xl font-bold text-gray-800">데이터 백업 가이드</h2>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+                            <button onClick={() => setBackupTab('samsung')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${backupTab === 'samsung' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>삼성 갤럭시</button>
+                            <button onClick={() => setBackupTab('apple')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${backupTab === 'apple' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>애플 아이폰</button>
+                        </div>
+
+                        {backupTab === 'samsung' ? (
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex flex-col items-center mb-4"><div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-2"><Icons.Android size={24} /></div><h3 className="font-bold text-gray-800">Smart Switch 사용하기</h3></div>
+                                <div className="space-y-3 text-sm text-gray-600">
+                                    <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span><p>새 기기와 기존 기기에 <strong>Smart Switch</strong> 앱을 설치하고 실행합니다.</p></div>
+                                    <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span><p>'데이터 보내기'와 '데이터 받기'를 각각 선택합니다.</p></div>
+                                    <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span><p>무선 연결 또는 케이블로 두 기기를 연결하여 전송합니다.</p></div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex flex-col items-center mb-4"><div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-800 mb-2"><Icons.Apple size={24} /></div><h3 className="font-bold text-gray-800">마이그레이션 사용하기</h3></div>
+                                <div className="space-y-3 text-sm text-gray-600">
+                                    <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span><p>새 아이폰을 켜고 기존 아이폰 옆에 둡니다.</p></div>
+                                    <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span><p>'빠른 시작' 화면이 나타나면 Apple ID를 확인하고 계속합니다.</p></div>
+                                    <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span><p>새 기기에 나타난 패턴을 기존 기기 카메라로 스캔합니다.</p></div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* 유료 서비스 안내 추가 */}
+                        <div className="mt-8 pt-6 border-t border-gray-100">
+                            <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Icons.Cloud size={20} className="text-green-600" />
+                                    <h4 className="font-bold text-green-800">귀찮은 백업, 대신 해드려요!</h4>
+                                </div>
+                                <p className="text-xs text-green-700 leading-relaxed mb-3">
+                                    <strong>네이버 마이박스(MYBOX)</strong>로 안전하게 옮겨드립니다.<br/>
+                                    반납 전 데이터 삭제까지 완벽하게 처리해드려요.
+                                </p>
+                                <div className="flex justify-between items-center bg-white p-3 rounded-lg mb-3">
+                                    <span className="text-xs font-bold text-gray-600">이용 요금</span>
+                                    <span className="text-sm font-bold text-green-600">10,000원</span>
+                                </div>
+                                
+                                <div className="space-y-2 mb-3">
+                                    <input type="text" placeholder="성함" className="w-full p-2 bg-white rounded-lg outline-none text-sm border border-green-100 placeholder-green-300" value={backupForm.name} onChange={(e) => setBackupForm({...backupForm, name: e.target.value})} />
+                                    <input type="text" placeholder="연락처" className="w-full p-2 bg-white rounded-lg outline-none text-sm border border-green-100 placeholder-green-300" value={backupForm.phone} onChange={(e) => setBackupForm({...backupForm, phone: formatPhone(e.target.value)})} />
+                                </div>
+
+                                <button 
+                                    disabled={isSubmitting}
+                                    onClick={handleBackupSubmit}
+                                    className="w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm"
+                                >
+                                    {isSubmitting ? '처리 중...' : '데이터 백업 신청하기'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen flex justify-center font-sans">
+                    <div className="w-full max-w-md bg-white shadow-xl min-h-screen relative pb-32">
+                        
+                        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md px-5 py-4 flex justify-between items-center border-b border-gray-100">
+                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavChange('home')}>
+                                <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+                                <h1 className="text-lg font-bold text-gray-800 tracking-tight">핑크렌탈</h1>
+                            </div>
+                            <div className="text-xs text-gray-400 font-medium">1020 여성들을 위한 폰 대여</div>
+                        </header>
+
+                        {/* --- 홈 탭 --- */}
+                        {(activeNav === 'home' || activeNav === 'rental') && (
+                            <div className="p-5">
+                                
+                                {/* 1. 대시보드 */}
+                                {activeNav === 'home' && viewMode === 'dashboard' && (
+                                    <div className="space-y-4 animate-slide-in pb-20">
+                                        <div className="px-1 pt-2">
+                                            <p className="text-gray-400 text-sm font-medium mb-1">오늘도 핑크빛 하루! 🌸</p>
+                                            <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+                                                어떤 추억을 <br/>
+                                                <span className="text-rose-500">남기고 싶으신가요?</span>
+                                            </h2>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div onClick={() => handleRentalStart('post')} className="col-span-2 relative overflow-hidden bg-gradient-to-br from-rose-400 to-pink-600 rounded-[2rem] p-6 text-white shadow-lg cursor-pointer group transition-transform active:scale-[0.98]">
+                                                <div className="relative z-10"><div className="flex justify-between items-start"><div><span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold mb-2 border border-white/10">BEST CHOICE</span><h3 className="text-xl font-bold leading-tight mb-1">최신폰으로<br/>인생샷 남기기</h3><p className="text-rose-100 text-xs opacity-90 font-medium">하루 1만원대부터 시작</p></div><div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-white/10"><Icons.Smartphone size={24} className="text-white" /></div></div><div className="mt-8 flex items-center gap-2 text-sm font-bold"><span>지금 예약하러 가기</span><div className="bg-white text-rose-500 rounded-full p-1"><Icons.ChevronLeft className="transform rotate-180 w-3 h-3" /></div></div></div>
+                                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-300/20 rounded-full -ml-10 -mb-10 blur-xl"></div>
+                                            </div>
+
+                                            <div className="row-span-2 bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-50 rounded-bl-[4rem] -mr-4 -mt-4 z-0"></div>
+                                                <div className="relative z-10"><div className="w-10 h-10 bg-yellow-100 rounded-2xl flex items-center justify-center text-yellow-600 mb-3"><Icons.Star size={20} className="fill-current" /></div><h3 className="font-bold text-gray-800 leading-tight">실시간<br/>인기 랭킹</h3><p className="text-[10px] text-gray-400 mt-1">지금 가장 핫한 모델</p></div>
+                                                <div className="mt-4 space-y-3 relative z-10"><div className="flex items-center gap-2.5"><span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center font-bold shadow-sm">1</span><span className="text-xs text-gray-600 font-bold truncate">S24 울트라</span></div><div className="flex items-center gap-2.5"><span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] flex items-center justify-center font-bold">2</span><span className="text-xs text-gray-500 font-medium truncate">아이폰 15 Pro</span></div><div className="flex items-center gap-2.5"><span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] flex items-center justify-center font-bold">3</span><span className="text-xs text-gray-600 font-medium truncate">Z 플립5</span></div></div>
+                                            </div>
+
+                                            <div className="bg-green-50 p-5 rounded-[2rem] border border-green-100 shadow-sm cursor-pointer hover:bg-green-100 transition-colors flex flex-col justify-center" onClick={() => handleNavChange('manual')}><Icons.BookOpen size={24} className="text-green-600 mb-2" /><h3 className="font-bold text-gray-800 text-sm">이용 방법</h3><p className="text-[10px] text-green-600 font-medium">처음이신가요?</p></div>
+                                            <div className="bg-blue-50 p-5 rounded-[2rem] border border-blue-100 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors flex flex-col justify-center" onClick={() => alert("준비 중입니다.")}><Icons.Headphones size={24} className="text-blue-600 mb-2" /><h3 className="font-bold text-gray-800 text-sm">고객센터</h3><p className="text-[10px] text-blue-600 font-medium">문의하기</p></div>
+                                            <div className="bg-purple-50 p-5 rounded-[2rem] border border-purple-100 shadow-sm cursor-pointer hover:bg-purple-100 transition-colors flex flex-col justify-center" onClick={() => setViewMode('extension')}><Icons.Clock size={24} className="text-purple-600 mb-2" /><h3 className="font-bold text-gray-800 text-sm">기간 연장</h3><p className="text-[10px] text-purple-600 font-medium">반납일 변경</p></div>
+                                            <div className="bg-orange-50 p-5 rounded-[2rem] border border-orange-100 shadow-sm cursor-pointer hover:bg-orange-100 transition-colors flex flex-col justify-center" onClick={() => setViewMode('backup')}><Icons.Settings size={24} className="text-orange-600 mb-2" /><h3 className="font-bold text-gray-800 text-sm">데이터 백업</h3><p className="text-[10px] text-orange-600 font-medium">안전한 저장</p></div>
+                                            <div className="col-span-2 bg-gray-900 p-5 rounded-[2rem] shadow-md flex items-center justify-between cursor-pointer group" onClick={() => alert("반납 시 데이터 초기화 필수!")}><div className="flex items-center gap-4"><div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-yellow-400 group-hover:rotate-12 transition-transform"><Icons.Megaphone size={20} /></div><div><h3 className="font-bold text-white text-sm">반납 전 체크리스트</h3><p className="text-xs text-gray-400">데이터 백업 및 초기화 방법</p></div></div><div className="bg-gray-800 p-1.5 rounded-full"><Icons.ChevronLeft className="transform rotate-180 text-gray-400 w-4 h-4" /></div></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 서브 페이지 */}
+                                {viewMode === 'extension' && renderExtensionPage()}
+                                {viewMode === 'backup' && renderBackupPage()}
+
+                                {/* 2. 예약 프로세스 (3단계로 축소) */}
+                                {(viewMode === 'rental') && (
+                                    <>
+                                        <div className="flex gap-2 mb-6">
+                                            {[1, 2, 3].map(i => (<div key={i} className={`h-1 flex-1 rounded-full ${step >= i ? 'bg-rose-500' : 'bg-gray-200'}`}></div>))}
+                                        </div>
+
+                                        {/* STEP 1: 기종/날짜/리뷰 통합 */}
+                                        {step === 1 && (
+                                            <div className="space-y-6 animate-slide-in">
+                                                <div><h2 className="text-2xl font-bold text-gray-800 leading-tight">어떤 폰으로<br/><span className="text-rose-500">인생샷</span> 남길까요? 📸</h2></div>
+                                                <div className="flex bg-gray-100 p-1 rounded-xl">
+                                                    <button onClick={() => setActiveTab('galaxy')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Galaxy</button>
+                                                    <button onClick={() => setActiveTab('iphone')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>iPhone</button>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {phones[activeTab].map(phone => (
+                                                        <div key={phone.id} onClick={() => setSelectedPhone(phone)} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedPhone?.id === phone.id ? 'border-rose-500 bg-rose-50' : 'border-transparent bg-white shadow-sm'}`}>
+                                                            <div><span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full mb-1 inline-block">{phone.tag}</span><h3 className="font-bold text-gray-800">{phone.name}</h3><p className="text-sm text-gray-500">1일 {phone.price.toLocaleString()}원</p></div>
+                                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedPhone?.id === phone.id ? 'border-rose-500' : 'border-gray-300'}`}>{selectedPhone?.id === phone.id && <div className="w-3 h-3 rounded-full bg-rose-500"></div>}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {selectedPhone && (
+                                                    <div className="animate-fade-in">
+                                                        <h3 className="font-bold text-gray-800 mt-6 mb-2 flex items-center gap-2"><Icons.Calendar size={18} className="text-rose-500" /> 대여 기간 선택</h3>
+                                                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mt-4">
+                                                            <div className="flex justify-between items-center mb-4">
+                                                                <button onClick={() => handleMonthChange(-1)} className="p-1"><Icons.ChevronLeft size={20} className="text-gray-400" /></button>
+                                                                <span className="font-bold text-gray-800">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
+                                                                <button onClick={() => handleMonthChange(1)} className="p-1 transform rotate-180"><Icons.ChevronLeft size={20} className="text-gray-400" /></button>
+                                                            </div>
+                                                            <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2"><div className="text-red-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div className="text-blue-400">토</div></div>
+                                                            <div className="grid grid-cols-7 gap-y-2 gap-x-1">{renderCalendarDays()}</div>
+                                                            <div className="mt-3 text-center text-xs text-rose-500 font-medium">* 최소 1박 2일부터 선택 가능해요</div>
+                                                        </div>
+                                                        {startDate && (
+                                                            <div className="space-y-4 mt-4">
+                                                                {/* 날짜 안내 카드 */}
+                                                                <div className="bg-rose-50 p-4 rounded-xl border border-rose-100 text-sm animate-fade-in">
+                                                                    <div className="flex justify-between items-center mb-2">
+                                                                        <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📦</span> 도착예정일</span>
+                                                                        <span className="font-bold text-gray-800">
+                                                                            {(() => {
+                                                                                const arrival = getArrivalDate(startDate);
+                                                                                return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`;
+                                                                            })()}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📮</span> 반납발송일</span>
+                                                                        {endDate ? (
+                                                                            <span className="font-bold text-rose-500">
+                                                                                {(() => { 
+                                                                                    const returnDate = getReturnDate(endDate); 
+                                                                                    return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; 
+                                                                                })()}
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="font-bold text-rose-500 animate-pulse">반납일을 선택해주세요 ✨</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-rose-200/50 leading-relaxed">
+                                                                        {dateWarning && <span className="text-rose-600 font-bold block mb-2">✨ {dateWarning}</span>}
+                                                                        {/* [추가] 일요일/공휴일 수령 시 퀵서비스 안내 */}
+                                                                        {isSundayOrHolidayStart && <span className="text-blue-600 font-bold block mb-2">🚀 일요일/공휴일 수령은 퀵 서비스만 가능해요!</span>}
+                                                                        
+                                                                        {discounts.app && <span className="text-rose-600 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
+                                                                        {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
+                                                                        {endDate ? (() => {
+                                                                            const returnDate = getReturnDate(endDate);
+                                                                            // 사용자가 선택한 종료일(endDate)과 실제 반납일(returnDate)이 다르면 연장된 것임
+                                                                            if (returnDate.getDate() !== endDate.getDate()) {
+                                                                                return <><span className="text-rose-600 font-bold block mb-1">✨ 반납일이 주말이라 월요일까지 자동 연장되었어요!</span>연장된 기간만큼 대여일수가 추가 계산됩니다.<br/><strong>{returnDate.getMonth() + 1}월 {returnDate.getDate()}일(월) 오전중에 집배원님께서 방문하여 수거할 예정입니다!</strong> 😊</>;
+                                                                            } else {
+                                                                                // [수정] 안내 멘트 변경 (방문 수거 안내)
+                                                                                return <>* <strong>{returnDate.getMonth() + 1}월 {returnDate.getDate()}일({daysOfWeek[returnDate.getDay()]}) 오전중에 집배원님께서 방문하여 수거할 예정입니다!</strong></>;
+                                                                            }
+                                                                        })() : (
+                                                                            <span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* 리뷰 이벤트 선택 섹션 */}
+                                                                <div className="animate-fade-in">
+                                                                    <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-rose-500"/>리뷰 약속하고 혜택 받기</h3>
+                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                        <div onClick={() => setDiscounts({ app: !discounts.app, blog: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-rose-400 bg-rose-50' : 'border-gray-100 bg-white'}`}>
+                                                                            <span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰 약속</span>
+                                                                            <span className="text-[10px] text-rose-500 font-bold">3,000원 할인</span>
+                                                                        </div>
+                                                                        <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}>
+                                                                            <span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰 약속</span>
+                                                                            <span className="text-[10px] text-green-600 font-bold">5,000원 할인</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* STEP 2: 옵션 선택 */}
+                                        {step === 2 && (
+                                            <div className="space-y-8 animate-slide-in">
+                                                <div><h2 className="text-2xl font-bold text-gray-800">안전하고 편리하게<br/>준비해드릴게요 🎁</h2></div>
+                                                
+                                                <div className="space-y-3">
+                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-sky-500" /> 수령 방법</h3>
+                                                    <div onClick={() => { 
+                                                        if (isSameDayStart) { alert("당일 대여는 우체국 택배가 불가능해요. 퀵 서비스를 이용해주세요."); return; } 
+                                                        if (isSundayOrHolidayStart) { alert("일요일 및 공휴일 수령은 퀵 서비스만 가능해요."); return; }
+                                                        setDeliveryMethod('post'); 
+                                                    }} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer mb-2 transition-all ${deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isSundayOrHolidayStart) ? 'opacity-50 grayscale' : ''}`}>
+                                                        <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><Icons.Truck size={20}/></div><div><p className={`font-bold ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-500' : 'text-gray-800'}`}>우체국 택배</p><p className="text-xs text-gray-500">가장 안전하고 저렴해요</p></div></div><p className={`font-bold text-sm ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-500' : 'text-sky-500'}`}>{(isSameDayStart || isSundayOrHolidayStart) ? '마감' : '+4,000원'}</p>
+                                                    </div>
+                                                    <div onClick={() => setDeliveryMethod('quick')} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><Icons.Zap size={20}/></div><div><p className="font-bold text-gray-800">퀵 서비스</p><p className="text-xs text-gray-500">서울/경기/인천 지역 당일 수령</p></div></div><p className="text-gray-500 font-bold text-sm">거리비례(선불)</p></div>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법</h3>
+                                                    <div onClick={() => setReturnMethod('post')} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer mb-2 transition-all ${returnMethod === 'post' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
+                                                        <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600"><Icons.Truck size={20} className="transform scale-x-[-1]"/></div><div><p className="font-bold text-gray-800">우체국 택배</p><p className="text-xs text-gray-500">반납일 '오늘출발 시간 전' 까지</p></div></div><p className="font-bold text-sm text-gray-500">고객부담</p>
+                                                    </div>
+                                                    <div onClick={() => setReturnMethod('pickup')} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all ${returnMethod === 'pickup' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
+                                                        <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600"><Icons.User size={20}/></div><div><p className="font-bold text-gray-800">방문 수거</p><p className="text-xs text-gray-500">기사님이 직접 방문하여 수거</p></div></div><p className="font-bold text-sm text-rose-500">+4,000원</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={18} className="text-green-500" /> 파손 보험 (필수)</h3>
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        <div onClick={() => setInsurance('none')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'none' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">미가입</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>100%</p></div><p className="text-gray-500 font-bold text-xs mt-1">+0원</p></div>
+                                                        <div onClick={() => setInsurance('basic')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'basic' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">베이직</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>50%</p></div><p className="text-green-600 font-bold text-xs mt-1">+3,000원</p></div>
+                                                        <div onClick={() => setInsurance('premium')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'premium' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">프리미엄</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>30%</p></div><p className="text-green-600 font-bold text-xs mt-1">+5,000원</p></div>
+                                                    </div>
+                                                </div>
+
+                                                {/* 보조배터리 및 데이터 백업 */}
+                                                <div className="space-y-3">
+                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Zap size={18} className="text-yellow-500" /> 추가 서비스</h3>
+                                                    
+                                                    {/* 보조배터리 */}
+                                                    <div onClick={() => setBatteryCount(batteryCount === 0 ? 1 : 0)} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all mb-2 ${batteryCount > 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}>
+                                                        <div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full flex items-center justify-center ${batteryCount > 0 ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-400'}`}><Icons.Zap size={20} className={batteryCount > 0 ? 'fill-yellow-400 text-yellow-500' : 'text-gray-600'} /></div><div><p className="font-bold text-gray-800">보조배터리 추가</p><p className="text-xs text-gray-500">C타입 5000mAh (1개)</p></div></div>
+                                                        <div className="flex items-center gap-2"><p className={`font-bold text-sm ${batteryCount > 0 ? 'text-yellow-600' : 'text-gray-500'}`}>+3,000원</p>{batteryCount > 0 && <Icons.CheckCircle size={18} className="text-yellow-500" />}</div>
+                                                    </div>
+
+                                                    {/* 데이터 백업 서비스 (NEW) */}
+                                                    <div onClick={() => setDataBackup(!dataBackup)} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all ${dataBackup ? 'border-blue-500 bg-blue-50' : 'border-gray-100 bg-white'}`}>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${dataBackup ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                                                                <Icons.Cloud size={20} className={dataBackup ? 'text-blue-600' : 'text-gray-600'} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-gray-800">데이터 백업 대행</p>
+                                                                <p className="text-xs text-gray-500">네이버 마이박스로 안전하게 이동</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className={`font-bold text-sm ${dataBackup ? 'text-blue-600' : 'text-gray-500'}`}>+10,000원</p>
+                                                            {dataBackup && <Icons.CheckCircle size={18} className="text-blue-500" />}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* STEP 3 (정보입력 + 일정명 추가) */}
+                                        {step === 3 && (
+                                            <div className="space-y-6 animate-slide-in pb-10">
+                                                <div><h2 className="text-2xl font-bold text-gray-800">마지막으로<br/>정보를 확인해주세요 📝</h2></div>
+                                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">받으시는 분 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
+                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
+                                                    
+                                                    {/* 일정명 추가 */}
+                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">일정명</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Ticket size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="예) 엔시티 콘서트" value={userInfo.scheduleName} onChange={(e) => setUserInfo({...userInfo, scheduleName: e.target.value})} /></div></div>
+
+                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">주소</label><div className="flex gap-2 mt-1"><input type="text" placeholder="우편번호" readOnly value={userInfo.zipcode} className="w-1/3 p-3 bg-gray-100 rounded-xl outline-none text-gray-600 text-sm text-center" /><button onClick={handleAddressSearch} className="w-2/3 bg-gray-800 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-700">주소 검색</button></div><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-2"><Icons.MapPin size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="기본 주소" readOnly value={userInfo.address} onClick={handleAddressSearch} /></div><div className="mt-2"><input type="text" className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-gray-800 focus:border-rose-300" placeholder="상세 주소를 입력해주세요" value={userInfo.detailAddress} onChange={(e) => setUserInfo({...userInfo, detailAddress: e.target.value})} /></div></div>
+                                                </div>
+                                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                                                    <h3 className="font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">결제 상세</h3>
+                                                    <div className="space-y-2 text-sm text-gray-600">
+                                                        <div className="flex justify-between"><span>{selectedPhone.name} ({calculateDays()}일)</span><span>{(selectedPhone.price * calculateDays()).toLocaleString()}원</span></div>
+                                                        <div className="flex justify-between"><span>파손보험 ({insurance === 'basic' ? '베이직' : (insurance === 'premium' ? '프리미엄' : '미가입')})</span><span>+{insurance === 'basic' ? '3,000' : (insurance === 'premium' ? '5,000' : '0')}원</span></div>
+                                                        {batteryCount > 0 && <div className="flex justify-between"><span>보조배터리 ({batteryCount}개)</span><span>+{(batteryCount * 3000).toLocaleString()}원</span></div>}
+                                                        {dataBackup && <div className="flex justify-between"><span>데이터 백업 대행</span><span>+10,000원</span></div>}
+                                                        {deliveryMethod === 'post' && <div className="flex justify-between"><span>우체국 택배비</span><span>+4,000원</span></div>}
+                                                        {returnMethod === 'pickup' && <div className="flex justify-between"><span>반납 방문수거</span><span>+4,000원</span></div>}
+                                                        {discounts.app && <div className="flex justify-between text-rose-500 font-bold"><span>이벤트 할인 (앱 리뷰)</span><span>-3,000원</span></div>}
+                                                        {discounts.blog && <div className="flex justify-between text-green-500 font-bold"><span>이벤트 할인 (블로그)</span><span>-5,000원</span></div>}
+                                                    </div>
+                                                    <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center"><span className="font-bold text-gray-800">최종 결제 금액</span><span className="font-bold text-2xl text-rose-500">{calculateTotal().toLocaleString()}원</span></div>
+                                                </div>
+                                                <div className="bg-gray-100 p-4 rounded-xl flex items-center gap-3"><Icons.CreditCard size={20} className="text-gray-500" /><div><p className="text-xs text-gray-500 font-bold">결제수단 (계좌이체)</p><p className="text-sm text-gray-800">우리은행 1002-000-000000 (핑크렌탈)</p></div></div>
+                                            </div>
+                                        )}
+
+                                        {/* 하단 가격바 */}
+                                        <div className="mt-10 w-full max-w-md mx-auto pt-6"> 
+                                            {selectedPhone && step > 0 && step <= 3 && (
+                                                <div className="px-6 mb-3 animate-slide-in-up">
+                                                    <div className="bg-rose-400 rounded-full py-4 px-6 shadow-xl flex justify-between items-center border border-rose-300/50 ring-2 ring-rose-100/50">
+                                                        <div className="flex flex-col justify-center">
+                                                            {startDate && endDate ? (
+                                                                <>
+                                                                    <span className="text-xs text-rose-100 leading-none mb-1">선택한 날짜</span>
+                                                                    {/* [수정] 하단 날짜 표시도 실제 반납일(returnDate) 기준으로 변경 */}
+                                                                    <span className="text-sm text-white font-bold tracking-tight leading-none drop-shadow-sm">
+                                                                        {(() => {
+                                                                            const returnDate = getReturnDate(endDate);
+                                                                            return `${startDate.getMonth() + 1}.${startDate.getDate()} ~ ${returnDate.getMonth() + 1}.${returnDate.getDate()}`;
+                                                                        })()}
+                                                                    </span>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-xs text-rose-100 font-medium">날짜를 선택해주세요</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            {startDate && endDate && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${step === 1 ? 'bg-white/20 text-white' : 'bg-white text-rose-500 shadow-sm'}`}>{calculateDays()}일</span>}
+                                                            <span className="text-xl font-bold text-white tracking-tight drop-shadow-sm">{calculateTotal().toLocaleString()}원</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="px-4 pb-4 flex gap-2">
+                                                {step > 1 && <button onClick={() => setStep(step - 1)} className="flex-1 py-4 text-lg rounded-xl bg-white border border-gray-200 shadow-lg text-gray-600 font-bold active:scale-95 transition-all">이전</button>}
+                                                <button disabled={isSubmitting} onClick={() => {
+                                                    if (step === 1 && (!startDate || !endDate)) { alert("대여 시작일과 종료일을 모두 선택해주세요!"); return; }
+                                                    if (step === 2) { if (!insurance) { alert("파손 보험 가입 여부를 선택해주세요!"); return; } }
+                                                    if (step === 3) { if(!userInfo.name || !userInfo.phone || !userInfo.address) { alert("예약자 정보를 모두 입력해주세요!"); return; } handleSubmit(); return; }
+                                                    setStep(step + 1);
+                                                }} className="flex-1 py-4 text-lg rounded-xl bg-rose-500 text-white font-bold shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 hover:bg-rose-600">{isSubmitting ? '처리 중...' : (step === 3 ? '입금하고 예약하기' : '다음으로')}</button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {/* --- MY 탭 (조회 - 누락되었던 부분 복구) --- */}
+                        {activeNav === 'my' && (
+                            <div className="p-5 animate-fade-in pb-24">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">나의 예약 확인 🙋‍♀️</h2>
+                                <div className="bg-white p-6 rounded-2xl shadow-lg border border-rose-100 min-h-[400px]">
+                                    {!lookupResult ? (
+                                        <div className="space-y-4">
+                                            <div className="text-center mb-4"><div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-3"><Icons.Search size={32} className="text-rose-400" /></div><p className="text-gray-600 text-sm">예약 시 입력한 정보를 입력해주세요</p></div>
+                                            <input type="text" placeholder="예약자 성함" className="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-rose-200 transition-all" value={lookupName} onChange={(e) => setLookupName(e.target.value)} />
+                                            <input type="text" placeholder="연락처 (010-0000-0000)" className="w-full p-4 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-rose-200 transition-all" value={lookupPhone} onChange={(e) => setLookupPhone(formatPhone(e.target.value))} />
+                                            <button onClick={handleLookup} disabled={isSearching} className="w-full bg-gray-800 text-white py-4 rounded-xl font-bold mt-2 hover:bg-gray-700 transition-colors">{isSearching ? '조회 중...' : '내 예약 찾기'}</button>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {/* 탭 스위치 */}
+                                            <div className="flex bg-gray-100 p-1 rounded-xl mb-4">
+                                                <button onClick={() => setMyViewTab('reservation')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${myViewTab === 'reservation' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>예약 내역</button>
+                                                <button onClick={() => setMyViewTab('services')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${myViewTab === 'services' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>신청 내역</button>
+                                            </div>
+
+                                            <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar">
+                                                {(() => {
+                                                    // 필터링
+                                                    const filteredList = lookupResult.filter(item => {
+                                                        if (myViewTab === 'reservation') {
+                                                            return !item.category || item.category === '예약신청';
+                                                        } else {
+                                                            return item.category === '연장신청' || item.category === '백업신청';
+                                                        }
+                                                    });
+
+                                                    if (filteredList.length === 0) {
+                                                        return <div className="text-center py-10 text-gray-400 text-sm">내역이 없습니다.</div>;
+                                                    }
+
+                                                    return filteredList.map((item, index) => (
+                                                        <div key={index} className="border border-gray-100 rounded-xl p-4 bg-gray-50/50">
+                                                            <div className="border-b border-gray-200 pb-3 mb-3">
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${item.status === '예약확정' ? 'bg-green-100 text-green-600' : 'bg-gray-200 text-gray-500'}`}>{item.status || '접수완료'}</span>
+                                                                    <span className="text-[10px] text-gray-400">{item.orderTime.split(' ')[0]}</span>
+                                                                </div>
+                                                                <h3 className="font-bold text-gray-800">{item.model}</h3>
+                                                                {item.scheduleName && <p className="text-xs text-gray-500 mt-1">{item.scheduleName}</p>}
+                                                            </div>
+                                                            
+                                                            <div className="text-sm space-y-1 text-gray-600">
+                                                                {item.category === '예약신청' || !item.category ? (
+                                                                    <>
+                                                                        <div className="flex justify-between"><span className="text-xs text-gray-400">도착예정일</span><span>{item.startDate}</span></div>
+                                                                        <div className="flex justify-between"><span className="text-xs text-gray-400">반납일</span><span>{item.endDate || '-'}</span></div>
+                                                                    </>
+                                                                ) : (
+                                                                    // 부가서비스용 간소화된 정보
+                                                                    <>
+                                                                        {item.startDate && <div className="flex justify-between"><span className="text-xs text-gray-400">기간</span><span>{item.startDate}</span></div>}
+                                                                        <div className="flex justify-between"><span className="text-xs text-gray-400">구분</span><span>{item.category}</span></div>
+                                                                    </>
+                                                                )}
+                                                                <div className="flex justify-between pt-2 mt-2 border-t border-gray-200"><span className="font-bold text-xs">결제금액</span><span className="font-bold text-rose-500">{parseInt(item.totalPrice).toLocaleString()}원</span></div>
+                                                            </div>
+                                                        </div>
+                                                    ));
+                                                })()}
+                                            </div>
+
+                                            <button onClick={() => { setLookupResult(null); setMyViewTab('reservation'); }} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold hover:bg-gray-700 transition-colors text-sm mt-2">다른 예약 조회하기</button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* --- 매뉴얼 탭 (이용가이드) --- */}
+                        {activeNav === 'manual' && (
+                            <div className="p-5 animate-fade-in pb-24">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">자주 묻는 질문 📘</h2>
+                                {/* (기존 Q&A 내용) */}
+                                <div className="space-y-4">
+                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.FileText size={18} className="text-rose-500" /> 대여는 어떻게 하나요?</h3><p className="text-sm text-gray-600 mt-2 leading-relaxed">홈 화면에서 원하시는 기종과 날짜를 선택 후 예약해주시면 됩니다. 신분증 확인 절차가 있을 수 있습니다.</p></div>
+                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-blue-500" /> 배송은 언제 오나요?</h3><p className="text-sm text-gray-600 mt-2 leading-relaxed">대여 시작일 전날에 우체국 택배로 안전하게 도착합니다. 퀵서비스 선택 시 당일 수령도 가능합니다.</p></div>
+                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={18} className="text-green-500" /> 파손되면 어떡하죠?</h3><p className="text-sm text-gray-600 mt-2 leading-relaxed">가입하신 보험 상품에 따라 자기부담금이 발생합니다. 파손 시 즉시 고객센터로 연락주세요.</p></div>
+                                </div>
+                                <div className="mt-8 bg-gray-100 p-5 rounded-2xl text-center"><p className="font-bold text-gray-700">더 궁금한 점이 있으신가요?</p><button className="mt-3 bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-full text-sm font-bold shadow-sm">카카오톡 상담하기</button></div>
+                            </div>
+                        )}
+
+                        {/* 하단 내비게이션 바 */}
+                        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 flex justify-around items-center h-[70px] z-50 rounded-t-2xl shadow-[0_-5px_10px_rgba(0,0,0,0.02)]">
+                            <button onClick={() => handleNavChange('home')} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'home' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.Home size={activeNav === 'home' ? 26 : 24} strokeWidth={activeNav === 'home' ? 2.5 : 2} /><span className="text-[10px] font-bold">홈</span></button>
+                            <button onClick={() => handleRentalStart('post')} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'rental' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.CalendarPlus size={activeNav === 'rental' ? 26 : 24} strokeWidth={activeNav === 'rental' ? 2.5 : 2} /><span className="text-[10px] font-bold">예약하기</span></button>
+                            <button onClick={() => handleNavChange('manual')} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'manual' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.BookOpen size={activeNav === 'manual' ? 26 : 24} strokeWidth={activeNav === 'manual' ? 2.5 : 2} /><span className="text-[10px] font-bold">매뉴얼</span></button>
+                            <button onClick={() => handleNavChange('my')} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'my' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.User size={activeNav === 'my' ? 26 : 24} strokeWidth={activeNav === 'my' ? 2.5 : 2} /><span className="text-[10px] font-bold">마이</span></button>
+                        </nav>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PhoneRentalApp />);
+    </script>
+</body>
+</html>
