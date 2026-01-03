@@ -466,6 +466,7 @@
             // [추가] 날짜 포맷 변환 함수 (ISO 8601 -> 한국어 형식)
             const formatDisplayDate = (val) => {
                 if (!val) return '-';
+                // 이미 한국어 형식이면 그대로 반환
                 if (String(val).includes('년') || String(val).includes('(')) return val;
                 
                 const date = new Date(val);
@@ -855,22 +856,73 @@
                                             <div key={idx} className="border border-gray-100 rounded-2xl p-4 bg-gray-50 hover:bg-white hover:shadow-sm transition-all">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${item.category === '예약신청' ? 'bg-blue-100 text-blue-500' : 'bg-purple-100 text-purple-500'}`}>{item.category || '예약'}</span>
-                                                    <span className="text-[10px] text-gray-400">{item.orderTime?.split(' ')[0] || '-'}</span>
+                                                    <span className="text-[10px] text-gray-400">
+                                                        {item.orderTime ? (String(item.orderTime).includes('T') ? formatDisplayDate(item.orderTime) : item.orderTime) : '-'}
+                                                    </span>
                                                 </div>
-                                                <h4 className="font-bold text-gray-800 text-sm mb-1">{item.model}</h4>
-                                                <p className="text-xs text-gray-600 mb-2">{item.scheduleName}</p>
-                                                <div className="text-xs text-gray-500 space-y-1 pt-2 border-t border-gray-200/50">
-                                                    {item.startDate && <div className="flex justify-between"><span>기간</span><span className="font-bold">{item.startDate} {item.endDate ? `~ ${item.endDate}` : ''}</span></div>}
-                                                    <div className="flex justify-between"><span>금액</span><span className="font-bold">{Number(item.totalPrice).toLocaleString()}원</span></div>
-                                                    <div className="flex justify-between items-center">
-                                                        <span>상태</span>
-                                                        <span className={`font-bold px-1.5 py-0.5 rounded text-[10px] ${
-                                                            (item.status || '').includes('확정') ? 'bg-green-100 text-green-600' : 
-                                                            (item.status || '').includes('취소') ? 'bg-red-100 text-red-600' : 'bg-gray-200 text-gray-500'
-                                                        }`}>
-                                                            {item.status || '접수대기'}
+                                                
+                                                {/* [수정] 일정명을 모델명 옆으로 이동 */}
+                                                <h4 className="font-bold text-gray-800 text-sm mb-2">
+                                                    {item.model} 
+                                                    {item.scheduleName && <span className="text-xs font-normal text-gray-500 ml-1">| {item.scheduleName}</span>}
+                                                </h4>
+                                                
+                                                <div className="text-xs text-gray-500 space-y-1.5 pt-2 border-t border-gray-200/50">
+                                                    {/* 대여 기간 */}
+                                                    {item.startDate && (
+                                                        <div className="flex justify-between">
+                                                            <span className="text-gray-400 shrink-0">대여 기간</span>
+                                                            <span className="font-bold text-gray-700 truncate ml-2">
+                                                                {formatDisplayDate(item.startDate)} ~ {formatDisplayDate(item.endDate)}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    {/* 수령방법 | 반납방법 한 줄 표시 */}
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400 shrink-0">수령/반납</span>
+                                                        <span className="font-bold text-gray-700 truncate ml-2">
+                                                            {item.delivery || '-'} <span className="text-gray-300 mx-0.5 text-[10px]">|</span> {item.returnMethod || '-'}
                                                         </span>
                                                     </div>
+                                                    
+                                                    {/* 보조배터리 | 리뷰이벤트 한 줄 표시 */}
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400 shrink-0">선택옵션</span>
+                                                        <span className="font-bold text-gray-700 truncate ml-2">
+                                                            {Number(item.battery) > 0 ? `배터리(${item.battery})` : '배터리X'}
+                                                            <span className="text-gray-300 mx-0.5 text-[10px]">|</span>
+                                                            {item.review && item.review !== '없음' ? item.review.split('(')[0] : '리뷰X'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex justify-between pt-1 mt-1 border-t border-gray-100 border-dashed">
+                                                        <span className="font-bold text-gray-600">총 결제금액</span>
+                                                        <span className="font-bold text-blue-500">{Number(item.totalPrice).toLocaleString()}원</span>
+                                                    </div>
+                                                    
+                                                    {/* [수정] 진행 상태 표시 부분 삭제됨 */}
+
+                                                    {/* [추가] 예약신청 상태이고 아직 확정/취소가 아닌 경우 계좌번호 표시 */}
+                                                    {item.category === '예약신청' && !((item.status || '').includes('확정')) && !((item.status || '').includes('취소')) && (
+                                                        <div className="mt-3 pt-3 border-t border-gray-100 border-dashed animate-fade-in">
+                                                            <div className="flex justify-between items-center bg-blue-50 p-3 rounded-xl border border-blue-100">
+                                                                <div>
+                                                                    <p className="text-[10px] text-blue-400 mb-0.5 font-medium">입금계좌 (우리은행)</p>
+                                                                    <p className="text-sm font-bold text-blue-600 tracking-tight">1002-000-000000</p>
+                                                                </div>
+                                                                <button 
+                                                                    onClick={() => copyToClipboard("1002000000000")} 
+                                                                    className="text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
+                                                                >
+                                                                    복사
+                                                                </button>
+                                                            </div>
+                                                            <p className="text-[10px] text-gray-400 mt-2 text-center">
+                                                                * 1시간 이내 미입금 시 자동 취소될 수 있습니다.
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
@@ -1282,7 +1334,7 @@
                                                     <Icons.Search size={20} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-gray-500 mb-0.5">예약 내역이 궁금하신가요?</p>
+                                                    <p className="text-xs text-gray-500 mb-0.5">이미 신청하셨나요?</p>
                                                     <h3 className="text-sm font-bold text-gray-800">나의 예약 내역 조회하기</h3>
                                                 </div>
                                              </div>
@@ -1885,13 +1937,7 @@
                                                 )}
 
                                                 <div className="px-4 pb-4 flex gap-2">
-                                                    {/* [수정] 1단계에서는 '홈으로', 2단계부터는 '이전' 버튼 표시 */}
-                                                    {step === 1 ? (
-                                                        <button onClick={handleGoHome} className="flex-1 py-4 text-lg rounded-xl bg-white border border-gray-200 shadow-lg text-gray-600 font-bold active:scale-95 transition-all hover:bg-gray-50">홈으로</button>
-                                                    ) : (
-                                                        <button onClick={() => setStep(step - 1)} className="flex-1 py-4 text-lg rounded-xl bg-white border border-gray-200 shadow-lg text-gray-600 font-bold active:scale-95 transition-all hover:bg-gray-50">이전</button>
-                                                    )}
-                                                    
+                                                    {step > 1 && <button onClick={() => setStep(step - 1)} className="flex-1 py-4 text-lg rounded-xl bg-white border border-gray-200 shadow-lg text-gray-600 font-bold active:scale-95 transition-all">이전</button>}
                                                     <button disabled={isSubmitting} onClick={() => {
                                                         if (step === 1 && (!startDate || !endDate)) { alert("대여 시작일과 종료일을 모두 선택해주세요!"); return; }
                                                         if (step === 2) { 
