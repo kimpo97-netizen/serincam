@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>핑크렌탈 - 휴대폰 단기 대여</title>
+    <title>세린캠 - 휴대폰 단기 대여</title>
     
     <!-- 1. 스타일 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,8 +14,8 @@
                     colors: {
                         toss: {
                             bg: '#F2F4F6',
-                            blue: '#3182F6',
-                            red: '#F04452',
+                            blue: '#60A5FA', // Blue 400으로 톤 다운
+                            red: '#F43F5E', // Rose 500
                             text: '#191F28',
                             gray: '#4E5968',
                             lightgray: '#8B95A1',
@@ -23,8 +23,9 @@
                             border: '#E5E8EB'
                         },
                         brand: {
-                            500: '#F04452',
-                            50: '#FEF2F3'
+                            500: '#60A5FA', // Blue 400 (메인 컬러 톤 다운)
+                            600: '#3B82F6', // Blue 500 (호버 컬러 톤 다운)
+                            50: '#EFF6FF'   // Blue 50
                         }
                     },
                     borderRadius: {
@@ -75,6 +76,12 @@
         .animate-slide-in-up { animation: slideInUp 0.3s ease-out forwards; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
         .animate-bounce-in { animation: bounceIn 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards; }
+        
+        /* 약관 내용 스크롤바 스타일 */
+        .terms-scroll::-webkit-scrollbar { width: 4px; }
+        .terms-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .terms-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        .terms-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -106,7 +113,7 @@
         };
 
         const INITIAL_REVIEWS = [
-            { id: 1, name: '김*지', model: '갤럭시 S23 울트라', rating: 5, text: '콘서트 직캠 대박... S23U 최고에요 ㅠㅠ 덕분에 인생샷 건졌습니다! 다음에도 무조건 여기서 빌릴게요❤️', date: '2025.12.31' },
+            { id: 1, name: '김*지', model: '갤럭시 S23 울트라', rating: 5, text: '콘서트 직캠 대박... S23U 최고에요 ㅠㅠ 덕분에 인생샷 건졌습니다! 다음에도 무조건 여기서 빌릴게요💙', date: '2025.12.31' },
             { id: 2, name: '이*은', model: '아이폰 17 프로', rating: 5, text: '아이폰 색감 미쳤어요.. 화질도 좋고 배송도 하루 만에 와서 놀랐어요! 상태도 완전 새거같음👍', date: '2025.12.29' },
             { id: 3, name: '박*수', model: '갤럭시 S24 울트라', rating: 5, text: '줌 땡길 때 안 깨지는 거 실화인가요.. 3층이었는데 1열 시야로 보고 왔습니다 ㅋㅋ 강추!!', date: '2025.12.28' },
             { id: 4, name: '최*영', model: '갤럭시 S23 울트라', rating: 5, text: '팬미팅 때문에 급하게 빌렸는데 퀵으로 바로 보내주셔서 살았어요 ㅠㅠ 사장님 적게 일하고 많이 버세요..', date: '2025.12.24' },
@@ -155,7 +162,13 @@
             Check: (props) => <Icon {...props}><polyline points="20 6 9 17 4 12"></polyline></Icon>,
             RefreshCw: (props) => <Icon {...props}><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 12"></path><path d="M21 3v9h-9"></path></Icon>,
             MessageCircle: (props) => <Icon {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></Icon>,
-            ArrowLeft: (props) => <Icon {...props}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></Icon>
+            ArrowLeft: (props) => <Icon {...props}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></Icon>,
+            Box: (props) => <Icon {...props}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></Icon>,
+            ChevronRight: (props) => <Icon {...props}><polyline points="9 18 15 12 9 6"></polyline></Icon>,
+            CheckSquare: (props) => <Icon {...props}><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></Icon>,
+            Square: (props) => <Icon {...props}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></Icon>,
+            // [추가] 카메라 아이콘 (로고용)
+            Camera: (props) => <Icon {...props}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></Icon>
         };
 
         const PhoneRentalApp = () => {
@@ -166,6 +179,14 @@
             const [backupTab, setBackupTab] = useState('samsung');
             const [activeReviewTab, setActiveReviewTab] = useState('all');
             
+            // ★★★ [설정] 이미지 URL 설정 ★★★
+            // 1. 로고 이미지 (비워두면 기본 아이콘)
+            const CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/web/upload/appfiles/ZaReJam3QiELznoZeGGkMG/6dec245d6700959026d702c9034ea872.png"; 
+            
+            // 2. 메인 배너 이미지 (비워두면 기본 파란색 카드)
+            // 여기에 제작하신 배너 이미지 주소를 넣어주세요. (가로가 긴 직사각형 이미지가 좋습니다)
+            const MAIN_BANNER_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/849565a29aa8cc10eeb25f27f74fc7e1.png";
+
             // 예약 데이터
             const [selectedPhone, setSelectedPhone] = useState(null);
             const [startDate, setStartDate] = useState(null);
@@ -176,13 +197,18 @@
             const [deliveryMethod, setDeliveryMethod] = useState(null); 
             const [returnMethod, setReturnMethod] = useState(null); 
             const [dataBackup, setDataBackup] = useState(false);
-            const [discounts, setDiscounts] = useState({ app: false, blog: false });
+            const [discounts, setDiscounts] = useState({ app: false, blog: false, kakao: false });
             
             // userInfo
             const [userInfo, setUserInfo] = useState({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [isSearching, setIsSearching] = useState(false);
             
+            // Agreements
+            const [agreements, setAgreements] = useState({ terms: false, privacy: false });
+            const [showTerms, setShowTerms] = useState(false);
+            const [showPrivacy, setShowPrivacy] = useState(false);
+
             // 연장 페이지 상태
             const [extModel, setExtModel] = useState('galaxy');
             const [extDays, setExtDays] = useState(1);
@@ -207,8 +233,6 @@
             const [lookupName, setLookupName] = useState('');
             const [lookupPhone, setLookupPhone] = useState('');
             const [lookupResult, setLookupResult] = useState(null);
-            // [수정] autoLogin 제거
-            // const [autoLogin, setAutoLogin] = useState(true);
             
             const [isManualAddress, setIsManualAddress] = useState(false);
             const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -232,16 +256,20 @@
             // daysOfWeek 정의
             const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
+            // ★ 자동 로그인 처리 (앱 시작 시 LocalStorage 확인) ★
             useEffect(() => {
                 const savedUser = localStorage.getItem('pink_user');
                 if (savedUser) {
                     const { name, phone } = JSON.parse(savedUser);
                     setLookupName(name);
                     setLookupPhone(phone);
+                    // 저장된 정보로 즉시 조회 실행
                     handleLookup(name, phone);
                 }
             }, []);
 
+            // ... (생략된 함수들은 변경 없음) ...
+            
             // 이름 마스킹 함수
             const formatNameMasking = (name) => {
                 if (!name || name.length < 2) return name;
@@ -249,7 +277,6 @@
                 return name[0] + '*' + name[name.length - 1];
             };
 
-            // 리뷰 모달 등은 생략하지 않고 모두 포함
             const openReviewModal = (item) => {
                 setCurrentReviewItem(item);
                 if (item.myReviewId) {
@@ -352,15 +379,6 @@
                 }).open();
             };
 
-            const formatDateToKorean = (dateStr) => {
-                if (!dateStr) return '-';
-                if (dateStr.includes('(')) return dateStr;
-                
-                const parts = dateStr.split('-');
-                if (parts.length !== 3) return dateStr;
-                return `${parts[0]}년 ${parseInt(parts[1])}월 ${parseInt(parts[2])}일`;
-            };
-
             const copyToClipboard = (text) => {
                 const textArea = document.createElement("textarea");
                 textArea.value = text;
@@ -420,13 +438,20 @@
                 else if (insurance === 'none') total += 0;
 
                 total += batteryCount * 3000;
+                
+                // 수령/반납 비용 계산 로직 수정
                 if (deliveryMethod === 'post') total += 4000;
+                if (deliveryMethod === 'venue') total += 3000; // 공연장 수령 +3000원
+                // 퀵, 사무실수령 = 0원 (선불 or 무료)
+
                 if (returnMethod === 'pickup') total += 4000;
+                // 택배반납, 사무실반납 = 0원
                 
                 if (dataBackup) total += 10000;
 
                 if (discounts.app) total -= 3000;
                 if (discounts.blog) total -= 5000;
+                if (discounts.kakao) total -= 4000;
 
                 return Math.max(0, total);
             };
@@ -437,12 +462,25 @@
                 if (status.includes('취소') || status.includes('환불')) return 'bg-red-100 text-red-600';
                 return 'bg-gray-200 text-gray-500';
             };
+
+            // [추가] 날짜 포맷 변환 함수 (ISO 8601 -> 한국어 형식)
+            const formatDisplayDate = (val) => {
+                if (!val) return '-';
+                if (String(val).includes('년') || String(val).includes('(')) return val;
+                
+                const date = new Date(val);
+                if (isNaN(date.getTime())) return val; 
+
+                const year = date.getFullYear().toString().slice(2);
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                return `${year}년 ${month}월 ${day}일`;
+            };
             
-            const getCategoryBadge = (category) => {
-                if (!category || category === '예약신청') return <span className="text-[10px] bg-rose-100 text-rose-600 px-2 py-0.5 rounded font-bold">예약</span>;
-                if (category === '연장신청') return <span className="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded font-bold">연장</span>;
-                if (category === '백업신청') return <span className="text-[10px] bg-green-100 text-green-600 px-2 py-0.5 rounded font-bold">백업</span>;
-                return <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-bold">{category}</span>;
+            const resetDates = () => {
+                setStartDate(null);
+                setEndDate(null);
+                setDateWarning(null);
             };
 
             const handleSubmit = async () => {
@@ -453,7 +491,8 @@
 
                 setIsSubmitting(true);
 
-                const formatDate = (d) => d ? `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}` : '';
+                // [수정] 한국 날짜 형식으로 변경 (YYYY년 M월 D일)
+                const formatDate = (d) => d ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일` : '';
                 const reviewType = discounts.app ? '앱리뷰(D-1)' : (discounts.blog ? '블로그(D-1)' : '없음');
                 const fullAddress = `${userInfo.address} ${userInfo.detailAddress}`.trim();
 
@@ -465,17 +504,27 @@
                 let reviewText = '없음';
                 if (discounts.app) reviewText = '앱리뷰(-3,000원)';
                 else if (discounts.blog) reviewText = '블로그(-5,000원)';
+                else if (discounts.kakao) reviewText = '카카오맵(-4,000원)';
 
+                // 수령 방법 텍스트 변환
                 let deliveryText = '미선택';
                 if (deliveryMethod === 'post') deliveryText = '택배';
                 else if (deliveryMethod === 'quick') deliveryText = '퀵';
                 else if (deliveryMethod === 'venue') deliveryText = '공연장수령';
+                else if (deliveryMethod === 'office') deliveryText = '사무실수령';
+
+                // 반납 방법 텍스트 변환
+                let returnText = '미선택';
+                if (returnMethod === 'pickup') returnText = '방문수거';
+                else if (returnMethod === 'post') returnText = '택배반납';
+                else if (returnMethod === 'office') returnText = '사무실반납';
 
                 const total = calculateTotal();
 
                 const orderData = {
                     category: '예약신청',
-                    orderTime: new Date().toLocaleString(),
+                    // [수정] 한국 날짜/시간 형식으로 변경
+                    orderTime: new Date().toLocaleString('ko-KR'),
                     battery: batteryCount,
                     model: selectedPhone.name,
                     modelNumber: "",
@@ -488,7 +537,7 @@
                     endDate: formatDate(getReturnDate(endDate)),
                     scheduleName: userInfo.scheduleName || `${userInfo.name}님 대여`, 
                     delivery: deliveryText,
-                    returnMethod: returnMethod === 'post' ? '택배' : '방문수거',
+                    returnMethod: returnText,
                     review: reviewText,
                     totalPrice: total,
                     insurance: insuranceText,
@@ -547,7 +596,8 @@
                 setIsSubmitting(true);
                 const orderData = {
                     category: '연장신청',
-                    orderTime: new Date().toLocaleString(),
+                    // [수정] 한국 날짜/시간 형식으로 변경
+                    orderTime: new Date().toLocaleString('ko-KR'),
                     model: extModel === 'galaxy' ? '갤럭시 (연장)' : '아이폰 (연장)',
                     name: extForm.name,
                     phone: extForm.phone,
@@ -590,7 +640,8 @@
                 setIsSubmitting(true);
                 const orderData = {
                     category: '백업신청',
-                    orderTime: new Date().toLocaleString(),
+                    // [수정] 한국 날짜/시간 형식으로 변경
+                    orderTime: new Date().toLocaleString('ko-KR'),
                     model: '데이터 백업 대행',
                     name: backupForm.name,
                     phone: backupForm.phone,
@@ -620,6 +671,7 @@
                 }
             };
 
+            // ★ 예약 조회 및 로그인 유지 함수 수정됨 ★
             const handleLookup = async (nameParam, phoneParam, isRefresh = false) => {
                 const targetName = nameParam || lookupName;
                 const targetPhone = phoneParam || lookupPhone;
@@ -641,7 +693,8 @@
                         
                         setLookupResult([...dataArray].reverse()); 
                         
-                        // [수정] 내 정보 저장 로직 제거
+                        // ★ [수정 완료] 조회 성공 시 내 정보 저장 (새로고침 해도 유지됨)
+                        localStorage.setItem('pink_user', JSON.stringify({ name: targetName, phone: targetPhone }));
                     }
                     else { 
                         if (!nameParam) {
@@ -737,9 +790,101 @@
                 }
             };
 
-            // [수정1] 메뉴 변경 시에도 스크롤 최상단 이동 (activeNav 의존성 추가)
             useEffect(() => { window.scrollTo(0, 0); }, [step, viewMode, activeNav]);
             
+            // ★★★ [추가] 예약 조회 페이지 렌더링 함수 ★★★
+            const renderLookupPage = () => (
+                <div className="animate-slide-in space-y-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm">
+                            <Icons.ChevronLeft className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <h2 className="text-xl font-bold text-gray-800">예약 조회</h2>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                        {/* 로그인 전 (정보 입력) 또는 결과 없음 */}
+                        {!lookupResult ? (
+                            <div className="space-y-4">
+                                <div className="text-center mb-6">
+                                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500">
+                                        <Icons.User size={32} />
+                                    </div>
+                                    <h3 className="font-bold text-gray-800">예약자 정보를 입력해주세요</h3>
+                                    <p className="text-xs text-gray-500 mt-1">예약 시 입력한 성함과 연락처로 조회됩니다.</p>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    placeholder="성함" 
+                                    className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors" 
+                                    value={lookupName} 
+                                    onChange={(e) => setLookupName(e.target.value)} 
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="연락처 (010-0000-0000)" 
+                                    className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors" 
+                                    value={lookupPhone} 
+                                    onChange={(e) => setLookupPhone(formatPhone(e.target.value))} 
+                                    onKeyPress={(e) => e.key === 'Enter' && handleLookup()}
+                                />
+                                <button 
+                                    onClick={() => handleLookup()} 
+                                    disabled={isSearching}
+                                    className="w-full bg-blue-500 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors mt-2"
+                                >
+                                    {isSearching ? '조회 중...' : '내역 조회하기'}
+                                </button>
+                            </div>
+                        ) : (
+                            /* 로그인 후 (결과 목록) */
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+                                    <h3 className="font-bold text-gray-800"><span className="text-blue-500">{formatNameMasking(lookupName)}</span>님의 예약</h3>
+                                    <button onClick={handleLogoutClick} className="text-xs text-gray-400 underline hover:text-gray-600">로그아웃</button>
+                                </div>
+                                
+                                {lookupResult.length === 0 ? (
+                                    <div className="text-center py-10 text-gray-400 text-sm">
+                                        <p>예약 내역이 없습니다.</p>
+                                        <p className="text-xs mt-1">입력하신 정보를 다시 확인해주세요.</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {lookupResult.map((item, idx) => (
+                                            <div key={idx} className="border border-gray-100 rounded-2xl p-4 bg-gray-50 hover:bg-white hover:shadow-sm transition-all">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${item.category === '예약신청' ? 'bg-blue-100 text-blue-500' : 'bg-purple-100 text-purple-500'}`}>{item.category || '예약'}</span>
+                                                    <span className="text-[10px] text-gray-400">{item.orderTime?.split(' ')[0] || '-'}</span>
+                                                </div>
+                                                <h4 className="font-bold text-gray-800 text-sm mb-1">{item.model}</h4>
+                                                <p className="text-xs text-gray-600 mb-2">{item.scheduleName}</p>
+                                                <div className="text-xs text-gray-500 space-y-1 pt-2 border-t border-gray-200/50">
+                                                    {item.startDate && <div className="flex justify-between"><span>기간</span><span className="font-bold">{item.startDate} {item.endDate ? `~ ${item.endDate}` : ''}</span></div>}
+                                                    <div className="flex justify-between"><span>금액</span><span className="font-bold">{Number(item.totalPrice).toLocaleString()}원</span></div>
+                                                    <div className="flex justify-between items-center">
+                                                        <span>상태</span>
+                                                        <span className={`font-bold px-1.5 py-0.5 rounded text-[10px] ${
+                                                            (item.status || '').includes('확정') ? 'bg-green-100 text-green-600' : 
+                                                            (item.status || '').includes('취소') ? 'bg-red-100 text-red-600' : 'bg-gray-200 text-gray-500'
+                                                        }`}>
+                                                            {item.status || '접수대기'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <button onClick={handleRefresh} className="w-full py-3 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-2 mt-4">
+                                    <Icons.RefreshCw size={14}/> 새로고침
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+
             const renderCalendarDays = () => {
                 const today = new Date(); today.setHours(0,0,0,0);
                 const year = currentMonth.getFullYear(); const month = currentMonth.getMonth();
@@ -768,9 +913,9 @@
                     if (isPast) {
                         className += "text-gray-300 cursor-not-allowed";
                     } else if (isStart || isEnd) {
-                        className += "bg-rose-500 text-white font-bold shadow-md transform scale-105 z-10";
+                        className += "bg-blue-400 text-white font-bold shadow-md transform scale-105 z-10";
                     } else if (isInRange) {
-                        className += "bg-rose-50 text-rose-700";
+                        className += "bg-blue-50 text-blue-600";
                     } else {
                         className += "hover:bg-gray-50 ";
                         if (holidayName || dayOfWeek === 0) className += "text-red-500 ";
@@ -830,7 +975,7 @@
 
                             <div className="bg-gray-50 p-4 rounded-xl flex justify-between items-center">
                                 <span className="font-bold text-gray-600">총 연장 금액</span>
-                                <span className="font-bold text-xl text-rose-500">{extTotal.toLocaleString()}원</span>
+                                <span className="font-bold text-xl text-blue-400">{extTotal.toLocaleString()}원</span>
                             </div>
 
                             <div className="pt-2 border-t border-gray-100">
@@ -850,7 +995,7 @@
                         <button 
                             disabled={isSubmitting}
                             onClick={() => handleExtensionSubmit(extTotal)}
-                            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                            className="w-full bg-blue-500 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
                         >
                             {isSubmitting ? '처리 중...' : '연장 신청하기'}
                         </button>
@@ -876,7 +1021,7 @@
 
                         {backupTab === 'samsung' ? (
                             <div className="space-y-4 animate-fade-in">
-                                <div className="flex flex-col items-center mb-4"><div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-2"><Icons.Android size={24} /></div><h3 className="font-bold text-gray-800">Smart Switch 사용하기</h3></div>
+                                <div className="flex flex-col items-center mb-4"><div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-2"><Icons.Android size={24} /></div><h3 className="font-bold text-gray-800">Smart Switch 사용하기</h3></div>
                                 <div className="space-y-3 text-sm text-gray-600">
                                     <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span><p>새 기기와 기존 기기에 <strong>Smart Switch</strong> 앱을 설치하고 실행합니다.</p></div>
                                     <div className="flex gap-3"><span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span><p>'데이터 보내기'와 '데이터 받기'를 각각 선택합니다.</p></div>
@@ -955,7 +1100,7 @@
                                 <button 
                                     key={tab.id}
                                     onClick={() => setActiveReviewTab(tab.id)}
-                                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${activeReviewTab === tab.id ? 'bg-gray-800 text-white' : 'bg-white text-gray-500 border border-gray-100'}`}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${activeReviewTab === tab.id ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 border border-gray-100'}`}
                                 >
                                     {tab.label}
                                 </button>
@@ -966,20 +1111,20 @@
                             {filteredReviews.length > 0 ? (
                                 filteredReviews.map(review => (
                                     <div key={review.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div className="flex items-center gap-2">
-                                                <span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm border border-white shadow-sm">👩</span>
-                                                <div>
-                                                    <p className="text-[10px] text-rose-500 font-bold">{review.model}</p>
-                                                    <p className="font-bold text-gray-800 text-sm">{review.name}님</p>
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm border border-white shadow-sm">👩</span>
+                                                    <div>
+                                                        <p className="text-[10px] text-blue-400 font-bold">{review.model}</p>
+                                                        <p className="font-bold text-gray-800 text-sm">{review.name}님</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex text-yellow-400 gap-0.5">
+                                                    {[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={12} className="fill-current" />)}
                                                 </div>
                                             </div>
-                                            <div className="flex text-yellow-400 gap-0.5">
-                                                {[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={12} className="fill-current" />)}
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-xl mb-2">"{review.text}"</p>
-                                        <p className="text-[10px] text-gray-400 text-right">{review.date}</p>
+                                            <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-xl mb-2">"{review.text}"</p>
+                                            <p className="text-[10px] text-gray-400 text-right">{review.date}</p>
                                     </div>
                                 ))
                             ) : (
@@ -1013,18 +1158,18 @@
 
                 return (
                     <div className="animate-slide-in h-full flex flex-col justify-center items-center p-6 text-center">
-                        <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mb-6 animate-bounce-in">
-                            <Icons.Check size={48} className="text-rose-500" />
+                        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 animate-bounce-in">
+                            <Icons.Check size={48} className="text-blue-500" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">{titleMsg}</h2>
                         <p className="text-gray-500 mb-8 leading-relaxed">
-                            <span className="text-rose-500 font-bold">{name}</span>님, {statusMsg}
+                            <span className="text-blue-500 font-bold">{name}</span>님, {statusMsg}
                         </p>
                         
                         <div className="bg-gray-50 p-5 rounded-2xl w-full mb-6 border border-gray-100">
                             <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
                                 <span className="text-sm font-bold text-gray-600">입금하실 금액</span>
-                                <span className="text-lg font-bold text-rose-500">{amount.toLocaleString()}원</span>
+                                <span className="text-lg font-bold text-blue-500">{amount.toLocaleString()}원</span>
                             </div>
                             <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200">
                                 <div className="text-left">
@@ -1049,7 +1194,7 @@
                             </div>
                         )}
 
-                        <button onClick={handleGoHome} className="w-full bg-rose-500 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-rose-600 transition-colors">
+                        <button onClick={handleGoHome} className="w-full bg-blue-500 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-600 transition-colors">
                             홈으로 돌아가기
                         </button>
                     </div>
@@ -1060,11 +1205,24 @@
                 <div className="min-h-screen flex justify-center font-sans">
                     <div className="w-full max-w-md bg-white shadow-xl min-h-screen relative pb-32">
                         
-                        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md px-5 py-4 flex justify-between items-center border-b border-gray-100">
+                        {/* [수정] 헤더 여백 조정 (py-4 -> py-3) : 로고가 커졌으므로 전체 높이 균형을 위해 */}
+                        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md px-5 py-3 flex justify-between items-center border-b border-gray-100">
                             <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavChange('home')}>
-                                <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white font-bold">P</div>
-                                <h1 className="text-lg font-bold text-gray-800 tracking-tight">핑크렌탈</h1>
+                                {/* [수정] 로고 크기 확대 (h-8 -> h-12) 및 텍스트 조건부 표시 */}
+                                {CUSTOM_LOGO_URL ? (
+                                    // 이미지가 있으면 이미지를 크게 보여주고 텍스트는 숨깁니다.
+                                    <img src={CUSTOM_LOGO_URL} alt="세린캠 로고" className="h-12 w-auto object-contain max-w-[180px]" />
+                                ) : (
+                                    // 이미지가 없으면 기본 아이콘과 텍스트를 보여줍니다.
+                                    <>
+                                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-400 rounded-lg flex items-center justify-center text-white shadow-md shadow-blue-100">
+                                            <Icons.Camera size={18} />
+                                        </div>
+                                        <h1 className="text-xl font-extrabold text-gray-800 tracking-tight font-sans">세린캠</h1>
+                                    </>
+                                )}
                             </div>
+                            {/* [수정] 우측 상단 버튼 제거 후 슬로건 복구 */}
                             <div className="text-xs text-gray-400 font-medium">1020 여성들을 위한 폰 대여</div>
                         </header>
 
@@ -1072,40 +1230,103 @@
                             <div className="p-5">
                                 
                                 {activeNav === 'home' && viewMode === 'dashboard' && (
-                                    <div className="space-y-8 animate-slide-in pb-24">
+                                    <div className="space-y-6 animate-slide-in pb-24">
                                         
+                                        {/* [수정] 메인 배너 섹션을 최상단으로 이동 */}
                                         <div className="space-y-4">
                                             <div className="px-1 pt-2">
-                                                <span className="inline-block px-2 py-0.5 rounded-full bg-rose-100 text-rose-500 text-[10px] font-bold mb-2">High Quality Rental</span>
+                                                <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-400 text-[10px] font-bold mb-2">High Quality Rental</span>
                                                 <h2 className="text-2xl font-bold text-gray-900 leading-snug">
                                                     최애의 순간을 <br/>
-                                                    <span className="text-rose-500">고화질로 소장</span>하세요 📸
+                                                    <span className="text-blue-400">고화질로 소장</span>하세요 📸
                                                 </h2>
                                             </div>
 
-                                            <div onClick={() => handleRentalStart('post')} className="bg-gradient-to-r from-[#FF8E99] to-[#FF5F6D] rounded-3xl p-6 shadow-xl shadow-rose-200 cursor-pointer group relative overflow-hidden transition-transform hover:scale-[1.02]">
-                                                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-300 opacity-20 rounded-full blur-xl -ml-5 -mb-5"></div>
-                                                
-                                                <div className="relative z-10 flex flex-col justify-between h-full min-h-[140px]">
-                                                    <div>
-                                                        <span className="text-white/90 text-xs font-medium tracking-wider">PREMIUM CAMERA</span>
-                                                        <h3 className="text-white text-2xl font-bold mt-1 leading-tight">지금 바로<br/>대여하기</h3>
-                                                    </div>
-                                                    <div className="flex justify-between items-end">
-                                                        <span className="text-white/80 text-[11px] bg-white/20 px-2 py-1 rounded-lg backdrop-blur-sm">갤럭시 / 아이폰 보유 중</span>
-                                                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-rose-500 shadow-sm group-hover:scale-110 transition-transform">
-                                                            <Icons.ChevronLeft className="transform rotate-180 w-5 h-5" />
+                                            {/* 메인 배너 이미지 적용 (MAIN_BANNER_URL이 있으면 이미지 표시, 없으면 기존 카드 표시) */}
+                                            <div onClick={() => handleRentalStart('post')} className="cursor-pointer group transition-transform hover:scale-[1.02]">
+                                                {MAIN_BANNER_URL ? (
+                                                    <img 
+                                                        src={MAIN_BANNER_URL} 
+                                                        alt="지금 바로 대여하기" 
+                                                        className="w-full h-auto rounded-2xl object-cover min-h-[140px]" 
+                                                    />
+                                                ) : (
+                                                    <div className="bg-gradient-to-r from-[#93C5FD] to-[#3B82F6] rounded-2xl p-4 shadow-xl relative overflow-hidden h-full min-h-[140px]">
+                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                                                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-300 opacity-20 rounded-full blur-xl -ml-5 -mb-5"></div>
+                                                        
+                                                        <div className="relative z-10 flex flex-col justify-between h-full">
+                                                            <div>
+                                                                <span className="text-white/90 text-[10px] font-medium tracking-wider">PREMIUM CAMERA</span>
+                                                                <h3 className="text-white text-lg font-bold mt-0.5 leading-tight">지금 바로<br/>대여하기</h3>
+                                                            </div>
+                                                            <div className="flex justify-between items-end mt-4">
+                                                                <span className="text-white/80 text-[10px] bg-white/20 px-2 py-0.5 rounded-lg backdrop-blur-sm">갤럭시 / 아이폰 보유 중</span>
+                                                                <div className="w-7 h-7 bg-white rounded-full flex items-center justify-center text-blue-400 shadow-sm group-hover:scale-110 transition-transform">
+                                                                    <Icons.ChevronLeft className="transform rotate-180 w-3 h-3" />
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                )}
                                             </div>
                                         </div>
 
+                                        {/* [수정] 예약 조회 카드를 서비스 바로가기 위(메인 배너 아래)로 이동 */}
+                                        <div 
+                                            onClick={() => setViewMode('lookup')} 
+                                            className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-all group"
+                                        >
+                                             <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                                                    <Icons.Search size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 mb-0.5">예약 내역이 궁금하신가요?</p>
+                                                    <h3 className="text-sm font-bold text-gray-800">나의 예약 내역 조회하기</h3>
+                                                </div>
+                                             </div>
+                                             <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                                <Icons.ChevronRight size={16} />
+                                             </div>
+                                        </div>
+
+                                        {/* 서비스 바로가기 섹션 */}
+                                        <div>
+                                            <h3 className="font-bold text-gray-800 text-lg mb-4 px-1">서비스 바로가기</h3>
+                                            <div className="grid grid-cols-4 gap-2">
+                                                <div onClick={() => setViewMode('extension')} className="bg-purple-50 p-3 rounded-2xl shadow-sm border border-purple-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-purple-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                        <Icons.Clock size={16} />
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-800 text-xs">기간연장</h4>
+                                                </div>
+                                                <div onClick={() => setViewMode('backup')} className="bg-orange-50 p-3 rounded-2xl shadow-sm border border-orange-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-orange-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                        <Icons.Cloud size={16} />
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-800 text-xs">백업방법</h4>
+                                                </div>
+                                                <div onClick={() => handleNavChange('manual')} className="bg-green-50 p-3 rounded-2xl shadow-sm border border-green-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-green-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                        <Icons.BookOpen size={16} />
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-800 text-xs">이용방법</h4>
+                                                </div>
+                                                <div onClick={() => alert("준비 중입니다.")} className="bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-400 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                        <Icons.Headphones size={16} />
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-800 text-xs">고객센터</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                        {/* 대여모델 고민 섹션 */}
                                         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                                             <div className="flex items-center gap-2 mb-4">
                                                 <span className="text-xl">🔮</span>
-                                                <h3 className="font-bold text-gray-800 text-base">울트라 대여 어떤 모델로 해야 할지 고민되나요?</h3>
+                                                <h3 className="font-bold text-gray-800 text-base">대여모델 고민되신다면?!</h3>
                                             </div>
                                             
                                             <div className="space-y-4">
@@ -1115,7 +1336,7 @@
                                                         <select 
                                                             value={recVenue}
                                                             onChange={(e) => setRecVenue(e.target.value)}
-                                                            className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm font-bold text-gray-800 appearance-none border border-transparent focus:border-rose-300 transition-colors custom-select"
+                                                            className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm font-bold text-gray-800 appearance-none border border-transparent focus:border-blue-300 transition-colors custom-select"
                                                         >
                                                             <option value="KSPO DOME">KSPO DOME (체조경기장)</option>
                                                             <option value="GOCHEOK">고척 스카이돔</option>
@@ -1133,7 +1354,7 @@
                                                             <button 
                                                                 key={s}
                                                                 onClick={() => { setRecSeat(s); setRecResult(null); }}
-                                                                className={`py-2 rounded-xl text-xs font-bold transition-all ${recSeat === s ? 'bg-rose-500 text-white shadow-md' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                                                                className={`py-2 rounded-xl text-xs font-bold transition-all ${recSeat === s ? 'bg-blue-400 text-white shadow-md' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
                                                             >
                                                                 {s === 'floor' ? '스탠딩' : s === '3f' ? '3층이상' : `${s.toUpperCase()}층`}
                                                             </button>
@@ -1150,9 +1371,9 @@
                                                     </button>
                                                 ) : (
                                                     <div className="mt-4 animate-fade-in">
-                                                        <div className="bg-rose-50 p-5 rounded-2xl border border-rose-100 relative overflow-hidden">
+                                                        <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 relative overflow-hidden">
                                                             <div className="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-40 rounded-full blur-xl"></div>
-                                                            <p className="text-xs text-rose-500 font-bold mb-1">핑크렌탈의 추천!</p>
+                                                            <p className="text-xs text-blue-400 font-bold mb-1">세린캠의 추천!</p>
                                                             <h4 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
                                                                 {recResult.name}
                                                                 <Icons.Android size={20} />
@@ -1162,7 +1383,7 @@
                                                             </p>
                                                             <button 
                                                                 onClick={() => handleRentalStart('post')}
-                                                                className="w-full mt-3 bg-rose-500 text-white py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-rose-600 transition-colors"
+                                                                className="w-full mt-3 bg-blue-400 text-white py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-blue-500 transition-colors"
                                                             >
                                                                 이 모델로 예약하기
                                                             </button>
@@ -1173,59 +1394,26 @@
                                             </div>
                                         </div>
 
-                                        {/* [수정] 서비스 메뉴 가로 1열 정렬 */}
-                                        <div>
-                                            <h3 className="font-bold text-gray-800 text-lg mb-4 px-1">서비스 바로가기</h3>
-                                            <div className="grid grid-cols-4 gap-2">
-                                                <div onClick={() => setViewMode('extension')} className="bg-purple-50 p-3 rounded-2xl shadow-sm border border-purple-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-purple-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.Clock size={16} />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800 text-xs">기간연장</h4>
-                                                </div>
-                                                <div onClick={() => setViewMode('backup')} className="bg-orange-50 p-3 rounded-2xl shadow-sm border border-orange-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-orange-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.Cloud size={16} />
-                                                    </div>
-                                                    {/* [수정2] '백업대행' -> '데이터 백업' 으로 텍스트 변경 */}
-                                                    <h4 className="font-bold text-gray-800 text-xs">데이터 백업</h4>
-                                                </div>
-                                                <div onClick={() => handleNavChange('manual')} className="bg-green-50 p-3 rounded-2xl shadow-sm border border-green-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-green-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.BookOpen size={16} />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800 text-xs">이용방법</h4>
-                                                </div>
-                                                <div onClick={() => alert("준비 중입니다.")} className="bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.Headphones size={16} />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800 text-xs">고객센터</h4>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         <div className="mb-4">
                                             <div className="flex justify-between items-center mb-3 px-1">
                                                 <h3 className="font-bold text-gray-800 text-lg">💬 생생한 리얼 후기</h3>
-                                                <button onClick={() => setViewMode('reviews')} className="text-xs text-gray-400 font-bold hover:text-rose-500 transition-colors">
+                                                <button onClick={() => setViewMode('reviews')} className="text-xs text-gray-400 font-bold hover:text-blue-400 transition-colors">
                                                     전체보기 &gt;
                                                 </button>
                                             </div>
-                                            {/* [수정3] 리뷰 4개 노출, 가로 스크롤(스와이프) 적용 */}
                                             <div className="flex gap-3 px-1 overflow-x-auto no-scrollbar pb-2">
                                                 {reviews.slice(0, 4).map(review => (
-                                                    <div key={review.id} className="min-w-[160px] max-w-[180px] bg-[#FFF5F6] p-4 rounded-3xl shadow-sm border border-rose-100 flex flex-col justify-between h-full hover:shadow-md transition-all">
+                                                    <div key={review.id} className="min-w-[160px] max-w-[180px] bg-[#EFF6FF] p-4 rounded-3xl shadow-sm border border-blue-100 flex flex-col justify-between h-full hover:shadow-md transition-all">
                                                         <div>
                                                             <div className="flex flex-col items-start mb-2">
-                                                                <span className="text-[10px] font-bold text-rose-500 bg-white border border-rose-100 px-1.5 py-0.5 rounded-md mb-1.5 shadow-sm">{review.model}</span>
+                                                                <span className="text-[10px] font-bold text-blue-400 bg-white border border-blue-100 px-1.5 py-0.5 rounded-md mb-1.5 shadow-sm">{review.model}</span>
                                                                 <span className="text-xs font-bold text-gray-700">{review.name}님</span>
                                                             </div>
-                                                            <div className="bg-white/60 p-2.5 rounded-xl mb-2 border border-rose-50">
+                                                            <div className="bg-white/60 p-2.5 rounded-xl mb-2 border border-blue-50">
                                                                 <p className="text-[11px] text-gray-600 leading-relaxed line-clamp-3">"{review.text}"</p>
                                                             </div>
                                                         </div>
-                                                        <div className="flex justify-between items-center pt-1 border-t border-rose-100/50 mt-1">
+                                                        <div className="flex justify-between items-center pt-1 border-t border-blue-100/50 mt-1">
                                                             <div className="flex text-yellow-400 gap-0.5">
                                                                 {[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={11} className="fill-current" />)}
                                                             </div>
@@ -1235,7 +1423,7 @@
                                                 ))}
                                             </div>
                                             <div className="text-right mt-3 px-1">
-                                                <button onClick={() => setViewMode('reviews')} className="text-xs font-bold text-rose-500 bg-rose-50 border border-rose-100 rounded-full px-4 py-2 hover:bg-rose-100 transition-colors inline-flex items-center gap-1 shadow-sm">
+                                                <button onClick={() => setViewMode('reviews')} className="text-xs font-bold text-blue-400 bg-blue-50 border border-blue-100 rounded-full px-4 py-2 hover:bg-blue-100 transition-colors inline-flex items-center gap-1 shadow-sm">
                                                     리뷰 더 보기 <Icons.ChevronLeft className="transform rotate-180 w-3 h-3"/>
                                                 </button>
                                             </div>
@@ -1254,9 +1442,29 @@
                                             <Icons.ArrowLeft className="transform rotate-180 text-gray-500 w-4 h-4" />
                                         </div>
 
+                                        {/* ★★★ [수정] 푸터 영역 (크기 확대) ★★★ */}
+                                        <footer className="mt-10 pt-10 border-t border-gray-100 text-xs text-gray-400 leading-relaxed pb-20">
+                                            <h5 className="font-bold text-gray-500 text-sm mb-3">세린캠</h5>
+                                            <div className="space-y-1">
+                                                <p>대표: 한승윤 | 사업자등록번호: 396-12-02483</p>
+                                                <p>통신판매업신고: 간이과세자</p>
+                                                <p>주소: 인천광역시 서구 이음4로6, KR법조타워 710호</p>
+                                                <p>고객센터: 0507-1484-2386 (평일 10:00 - 17:00)</p>
+                                                <p>개인정보보호책임자: 한승윤 (seungvery@naver.com)</p>
+                                            </div>
+                                            <div className="flex gap-4 mt-5 mb-3">
+                                                <button onClick={() => setShowTerms(true)} className="hover:text-gray-600">이용약관</button>
+                                                <span className="w-px h-3 bg-gray-300 self-center"></span>
+                                                <button onClick={() => setShowPrivacy(true)} className="font-bold hover:text-gray-600">개인정보처리방침</button>
+                                            </div>
+                                            <p className="text-gray-300 mt-2">Copyright © SERINCAM. All rights reserved.</p>
+                                        </footer>
+
                                     </div>
                                 )}
 
+                                {/* [추가] 예약 조회 페이지 렌더링 조건 추가 */}
+                                {viewMode === 'lookup' && renderLookupPage()}
                                 {viewMode === 'extension' && renderExtensionPage()}
                                 {viewMode === 'backup' && renderBackupPage()}
                                 {viewMode === 'success' && renderSuccessPage()}
@@ -1264,541 +1472,522 @@
 
                                 {(viewMode === 'rental') && (
                                     <>
-                                        <div className="flex gap-2 mb-6">
-                                            {[1, 2, 3, 4].map(i => (<div key={i} className={`h-1 flex-1 rounded-full ${step >= i ? 'bg-rose-500' : 'bg-gray-200'}`}></div>))}
-                                        </div>
+                                            <div className="flex gap-2 mb-6">
+                                                {[1, 2, 3, 4].map(i => (<div key={i} className={`h-1 flex-1 rounded-full ${step >= i ? 'bg-blue-400' : 'bg-gray-200'}`}></div>))}
+                                            </div>
 
-                                        {step === 1 && (
-                                            <div className="space-y-6 animate-slide-in">
-                                                <div><h2 className="text-2xl font-bold text-gray-800 leading-tight">어떤 폰으로<br/><span className="text-rose-500">인생샷</span> 남길까요? 📸</h2></div>
-                                                <div className="flex bg-gray-100 p-1 rounded-xl">
-                                                    <button onClick={() => setActiveTab('galaxy')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Galaxy</button>
-                                                    <button onClick={() => setActiveTab('iphone')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>iPhone</button>
-                                                </div>
-                                                <div className="space-y-3">
-                                                    {phones[activeTab].map(phone => (
-                                                        <div key={phone.id} onClick={() => setSelectedPhone(phone)} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedPhone?.id === phone.id ? 'border-rose-500 bg-rose-50' : 'border-transparent bg-white shadow-sm'}`}>
-                                                            <div><span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full mb-1 inline-block">{phone.tag}</span><h3 className="font-bold text-gray-800">{phone.name}</h3><p className="text-sm text-gray-500">1일 {phone.price.toLocaleString()}원</p></div>
-                                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedPhone?.id === phone.id ? 'border-rose-500' : 'border-gray-300'}`}>{selectedPhone?.id === phone.id && <div className="w-3 h-3 rounded-full bg-rose-500"></div>}</div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                {selectedPhone && (
-                                                    <div className="animate-fade-in">
-                                                        <h3 className="font-bold text-gray-800 mt-6 mb-2 flex items-center gap-2"><Icons.Calendar size={18} className="text-rose-500" /> 대여 기간 선택</h3>
-                                                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mt-4">
-                                                            <div className="flex justify-between items-center mb-4">
-                                                                <button onClick={() => handleMonthChange(-1)} className="p-1"><Icons.ChevronLeft size={20} className="text-gray-400" /></button>
-                                                                <span className="font-bold text-gray-800">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
-                                                                <button onClick={() => handleMonthChange(1)} className="p-1 transform rotate-180"><Icons.ChevronLeft size={20} className="text-gray-400" /></button>
+                                            {step === 1 && (
+                                                <div className="space-y-6 animate-slide-in">
+                                                    <div><h2 className="text-2xl font-bold text-gray-800 leading-tight">어떤 폰으로<br/><span className="text-blue-400">인생샷</span> 남길까요? 📸</h2></div>
+                                                    <div className="flex bg-gray-100 p-1 rounded-xl">
+                                                        <button onClick={() => setActiveTab('galaxy')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Galaxy</button>
+                                                        <button onClick={() => setActiveTab('iphone')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>iPhone</button>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {phones[activeTab].map(phone => (
+                                                            <div key={phone.id} onClick={() => setSelectedPhone(phone)} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedPhone?.id === phone.id ? 'border-blue-400 bg-blue-50' : 'border-transparent bg-white shadow-sm'}`}>
+                                                                <div><span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full mb-1 inline-block">{phone.tag}</span><h3 className="font-bold text-gray-800">{phone.name}</h3><p className="text-sm text-gray-500">1일 {phone.price.toLocaleString()}원</p></div>
+                                                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedPhone?.id === phone.id ? 'border-blue-400' : 'border-gray-300'}`}>{selectedPhone?.id === phone.id && <div className="w-3 h-3 rounded-full bg-blue-400"></div>}</div>
                                                             </div>
-                                                            <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2"><div className="text-red-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div className="text-blue-400">토</div></div>
-                                                            <div className="grid grid-cols-7 gap-y-2 gap-x-1">{renderCalendarDays()}</div>
-                                                            <div className="mt-3 text-center text-xs text-rose-500 font-medium">* 최소 1박 2일부터 선택 가능해요</div>
-                                                        </div>
-                                                        {startDate && (
-                                                            <div className="space-y-4 mt-4">
-                                                                <div className="bg-rose-50 p-4 rounded-xl border border-rose-100 text-sm animate-fade-in">
-                                                                    <div className="flex justify-between items-center mb-2">
-                                                                        <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📦</span> 도착예정일</span>
-                                                                        <span className="font-bold text-gray-800">
-                                                                            {(() => {
-                                                                                const arrival = getArrivalDate(startDate);
-                                                                                return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`;
-                                                                            })()}
-                                                                        </span>
-                                                                    </div>
-                                                                    <div className="flex justify-between items-center">
-                                                                        <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📮</span> 반납발송일</span>
-                                                                        {endDate ? (
-                                                                            <span className="font-bold text-rose-500">
-                                                                                {(() => { 
-                                                                                    const returnDate = getReturnDate(endDate); 
-                                                                                    return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; 
-                                                                                })()}
-                                                                            </span>
-                                                                        ) : (
-                                                                            <span className="font-bold text-rose-500 animate-pulse">반납일을 선택해주세요 ✨</span>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-rose-200/50 leading-relaxed">
-                                                                        {dateWarning && <span className="text-rose-600 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
-                                                                        {isSundayOrHolidayStart && <span className="text-blue-600 font-bold block mb-2">🚀 일요일/공휴일 수령은 퀵 서비스만 가능해요!</span>}
-                                                                        
-                                                                        {discounts.app && <span className="text-rose-600 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
-                                                                        {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
-                                                                        {endDate ? (
-                                                                            <span>* <strong>{endDate.getMonth() + 1}월 {endDate.getDate()}일({daysOfWeek[endDate.getDay()]}) 오전중에 집배원님께서 방문하여 수거할 예정입니다!</strong></span>
-                                                                        ) : (
-                                                                            <span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>
-                                                                        )}
-                                                                    </div>
+                                                        ))}
+                                                    </div>
+                                                    {selectedPhone && (
+                                                        <div className="animate-fade-in">
+                                                                <div className="mt-6 mb-2 flex justify-between items-end">
+                                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                                                                        <Icons.Calendar size={18} className="text-blue-400" /> 대여 기간 선택
+                                                                    </h3>
                                                                 </div>
+                                                                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mt-4">
+                                                                    {/* 달력 UI 코드 (기존과 동일) */}
+                                                                    <div className="flex justify-between items-center mb-4">
+                                                                        <button onClick={() => handleMonthChange(-1)} className="p-1"><Icons.ChevronLeft size={20} className="text-gray-400" /></button>
+                                                                        <span className="font-bold text-gray-800">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span>
+                                                                        <button onClick={() => handleMonthChange(1)} className="p-1 transform rotate-180"><Icons.ChevronLeft size={20} className="text-gray-400" /></button>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2"><div className="text-red-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div className="text-blue-400">토</div></div>
+                                                                    <div className="grid grid-cols-7 gap-y-2 gap-x-1">{renderCalendarDays()}</div>
 
-                                                                <div className="animate-fade-in">
-                                                                    <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-rose-500"/>리뷰 약속하고 혜택 받기</h3>
-                                                                    <div className="grid grid-cols-2 gap-2">
-                                                                        <div onClick={() => setDiscounts({ app: !discounts.app, blog: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-rose-400 bg-rose-50' : 'border-gray-100 bg-white'}`}>
-                                                                            <span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰 약속</span>
-                                                                            <span className="text-[10px] text-rose-500 font-bold">3,000원 할인</span>
-                                                                        </div>
-                                                                        <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}>
-                                                                            <span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰 약속</span>
-                                                                            <span className="text-[10px] text-green-600 font-bold">5,000원 할인</span>
-                                                                        </div>
+                                                                    <div className="mt-3 flex justify-between items-center">
+                                                                         <span className="text-xs text-blue-400 font-medium">* 최소 1박 2일부터 선택 가능해요</span>
+                                                                         <button onClick={resetDates} className="text-xs text-gray-400 hover:text-blue-400 flex items-center gap-1 transition-colors bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
+                                                                             <Icons.RefreshCw size={11} /> 날짜 초기화
+                                                                         </button>
                                                                     </div>
                                                                 </div>
+                                                                {/* 선택 결과 및 다음 버튼 */}
+                                                                {startDate && (
+                                                                    <div className="space-y-4 mt-4">
+                                                                                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
+                                                                                        <div className="flex justify-between items-center mb-2">
+                                                                                            <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📦</span> 수령일</span>
+                                                                                            <span className="font-bold text-gray-800">
+                                                                                                {(() => {
+                                                                                                    const arrival = getArrivalDate(startDate);
+                                                                                                    return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`;
+                                                                                                })()}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        <div className="flex justify-between items-center">
+                                                                                            <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📮</span> 반납일</span>
+                                                                                            {endDate ? (
+                                                                                                <span className="font-bold text-blue-400">
+                                                                                                    {(() => { 
+                                                                                                        const returnDate = getReturnDate(endDate); 
+                                                                                                        return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; 
+                                                                                                    })()}
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                <span className="font-bold text-blue-400 animate-pulse">반납일을 선택해주세요 ✨</span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                        <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-blue-200/50 leading-relaxed">
+                                                                                                    {dateWarning && <span className="text-blue-500 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
+                                                                                                    {isSundayOrHolidayStart && <span className="text-blue-500 font-bold block mb-2">🚀 일요일/공휴일 수령은 퀵 서비스만 가능해요!</span>}
+                                                                                                    
+                                                                                                    {discounts.app && <span className="text-blue-500 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
+                                                                                                    {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
+                                                                                                    {discounts.kakao && <span className="text-yellow-600 font-bold block mb-1">🎁 카카오맵 리뷰 약속으로 4,000원 할인 적용!</span>}
+                                                                                                    {endDate ? (
+                                                                                                        <span>* <strong>{endDate.getMonth() + 1}월 {endDate.getDate()}일({daysOfWeek[endDate.getDay()]}) 오전중에 집배원님께서 방문하여 수거할 예정입니다!</strong></span>
+                                                                                                    ) : (
+                                                                                                        <span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>
+                                                                                                    )}
+                                                                                        </div>
+                                                                                </div>
+
+                                                                                <div className="animate-fade-in">
+                                                                                        <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
+                                                                                        <div className="grid grid-cols-3 gap-2">
+                                                                                                    <div onClick={() => setDiscounts({ app: !discounts.app, blog: false, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`}>
+                                                                                                                <span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰</span>
+                                                                                                                <span className="text-[10px] text-blue-400 font-bold">3,000원 할인</span>
+                                                                                                    </div>
+                                                                                                    <div onClick={() => setDiscounts({ app: false, blog: false, kakao: !discounts.kakao })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}>
+                                                                                                                <span className="text-xs font-bold text-gray-800 mb-1 break-keep">카카오맵 리뷰</span>
+                                                                                                                <span className="text-[10px] text-yellow-600 font-bold">4,000원 할인</span>
+                                                                                                    </div>
+                                                                                                    <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}>
+                                                                                                                <span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰</span>
+                                                                                                                <span className="text-[10px] text-green-600 font-bold">5,000원 할인</span>
+                                                                                                    </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                </div>
+                                            )}
+                                            
+                                            {step === 2 && (
+                                                <div className="space-y-8 animate-slide-in">
+                                                    <div><h2 className="text-2xl font-bold text-gray-800">안전하고 편리하게<br/>준비해드릴게요 🎁</h2></div>
+                                                    
+                                                    <div className="space-y-3">
+                                                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-sky-500" /> 수령 방법</h3>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <div onClick={() => { 
+                                                                if (isSameDayStart) { alert("당일 대여는 우체국 택배가 불가능해요. 퀵 서비스를 이용해주세요."); return; } 
+                                                                if (isSundayOrHolidayStart) { alert("일요일 및 공휴일 수령은 퀵 서비스만 가능해요."); return; }
+                                                                setDeliveryMethod(deliveryMethod === 'post' ? null : 'post'); 
+                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isSundayOrHolidayStart) ? 'opacity-50 grayscale' : ''}`}>
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className={`font-bold ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-500' : 'text-gray-800'}`}>우체국 택배</span>
+                                                                    <Icons.Truck size={20} className="text-blue-400" />
+                                                                </div>
+                                                                <p className={`font-bold text-xs text-right ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-400' : 'text-gray-700'}`}>{(isSameDayStart || isSundayOrHolidayStart) ? '마감' : '+4,000원'}</p>
+                                                            </div>
+
+                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'quick' ? null : 'quick')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="font-bold text-gray-800">퀵 서비스</span>
+                                                                    <Icons.Zap size={20} className="text-blue-400" />
+                                                                </div>
+                                                                <p className="font-bold text-xs text-right text-gray-700">거리비례(선불)</p>
+                                                            </div>
+
+                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'venue' ? null : 'venue')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'venue' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="font-bold text-gray-800">공연장 수령</span>
+                                                                    <Icons.Ticket size={20} className="text-blue-400" />
+                                                                </div>
+                                                                <p className="font-bold text-xs text-right text-gray-700">+3,000원</p>
+                                                            </div>
+
+                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="font-bold text-gray-800">사무실 수령</span>
+                                                                    <Icons.MapPin size={20} className="text-blue-400" />
+                                                                </div>
+                                                                <p className="font-bold text-xs text-right text-gray-700">무료</p>
+                                                            </div>
+                                                        </div>
+                                                        {deliveryMethod && (
+                                                            <div className="mt-3 bg-blue-50 p-3 rounded-xl text-xs text-blue-500 border border-blue-100 animate-fade-in">
+                                                                <span className="font-bold mr-1">💡</span>
+                                                                {deliveryMethod === 'post' && "📦 우체국 택배로 안전하게 보내드려요. (발송 후 운송장 번호를 알려드려요)"}
+                                                                {deliveryMethod === 'quick' && "🚀 급할 땐 퀵! 서울/경기/인천 지역 당일 수령 가능해요. (비용은 거리 비례 착불)"}
+                                                                {deliveryMethod === 'venue' && "🏟️ 공연장 현장에서 직원에게 바로 받아보세요! (자세한 만남 장소는 별도 안내)"}
+                                                                {deliveryMethod === 'office' && "🏢 사무실로 방문해서 픽업하세요! (홍대입구역 도보 5분)"}
                                                             </div>
                                                         )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        )}
-                                        
-                                        {step === 2 && (
-                                            <div className="space-y-8 animate-slide-in">
-                                                <div><h2 className="text-2xl font-bold text-gray-800">안전하고 편리하게<br/>준비해드릴게요 🎁</h2></div>
-                                                
-                                                <div className="space-y-3">
-                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-sky-500" /> 수령 방법</h3>
-                                                    <div onClick={() => { 
-                                                        if (isSameDayStart) { alert("당일 대여는 우체국 택배가 불가능해요. 퀵 서비스를 이용해주세요."); return; } 
-                                                        if (isSundayOrHolidayStart) { alert("일요일 및 공휴일 수령은 퀵 서비스만 가능해요."); return; }
-                                                        setDeliveryMethod(deliveryMethod === 'post' ? null : 'post'); 
-                                                    }} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer mb-2 transition-all ${deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isSundayOrHolidayStart) ? 'opacity-50 grayscale' : ''}`}>
-                                                        <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><Icons.Truck size={20}/></div><div><p className={`font-bold ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-500' : 'text-gray-800'}`}>우체국 택배</p><p className="text-xs text-gray-500">가장 안전하고 저렴해요</p></div></div><p className={`font-bold text-sm ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-500' : 'text-sky-500'}`}>{(isSameDayStart || isSundayOrHolidayStart) ? '마감' : '+4,000원'}</p>
-                                                    </div>
-                                                    <div onClick={() => setDeliveryMethod(deliveryMethod === 'quick' ? null : 'quick')} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><Icons.Zap size={20}/></div><div><p className="font-bold text-gray-800">퀵 서비스</p><p className="text-xs text-gray-500">서울/경기/인천 지역 당일 수령</p></div></div><p className="text-gray-500 font-bold text-sm">거리비례(선불)</p></div>
-                                                </div>
 
-                                                <div className="space-y-3">
-                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법</h3>
-                                                    <div onClick={() => setReturnMethod(returnMethod === 'pickup' ? null : 'pickup')} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all ${returnMethod === 'pickup' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
-                                                                <Icons.Truck size={20} className="transform scale-x-[-1]"/>
+                                                    <div className="space-y-3">
+                                                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법</h3>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <div onClick={() => setReturnMethod(returnMethod === 'pickup' ? null : 'pickup')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${returnMethod === 'pickup' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="font-bold text-gray-800">방문 수거</span>
+                                                                    <Icons.Truck size={20} className="text-rose-500 transform scale-x-[-1]" />
+                                                                </div>
+                                                                <p className="font-bold text-xs text-right text-gray-700">+4,000원</p>
                                                             </div>
-                                                            <div>
-                                                                <p className="font-bold text-gray-800">방문 수거</p>
-                                                                <p className="text-xs text-gray-500">기사님이 직접 방문하여 수거</p>
+
+                                                            <div onClick={() => setReturnMethod(returnMethod === 'post' ? null : 'post')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${returnMethod === 'post' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="font-bold text-gray-800">택배 반납</span>
+                                                                    <Icons.Box size={20} className="text-rose-500" />
+                                                                </div>
+                                                                <p className="font-bold text-xs text-right text-gray-700">직접 발송(선불)</p>
+                                                            </div>
+
+                                                            <div onClick={() => setReturnMethod(returnMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${returnMethod === 'office' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="font-bold text-gray-800">사무실 반납</span>
+                                                                    <Icons.MapPin size={20} className="text-rose-500" />
+                                                                </div>
+                                                                <p className="font-bold text-xs text-right text-gray-700">무료</p>
                                                             </div>
                                                         </div>
-                                                        <p className="font-bold text-sm text-rose-500">+4,000원</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={18} className="text-green-500" /> 파손 보험 (필수)</h3>
-                                                    <div className="grid grid-cols-3 gap-2">
-                                                        <div onClick={() => setInsurance('none')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'none' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">미가입</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>100%</p></div><p className="text-gray-500 font-bold text-xs mt-1">+0원</p></div>
-                                                        <div onClick={() => setInsurance('basic')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'basic' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">베이직</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>50%</p></div><p className="text-green-600 font-bold text-xs mt-1">+3,000원</p></div>
-                                                        <div onClick={() => setInsurance('premium')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'premium' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">프리미엄</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>30%</p></div><p className="text-green-600 font-bold text-xs mt-1">+5,000원</p></div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Zap size={18} className="text-yellow-500" /> 추가 서비스</h3>
-                                                    
-                                                    <div onClick={() => setBatteryCount(batteryCount === 0 ? 1 : 0)} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all mb-2 ${batteryCount > 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}>
-                                                        <div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full flex items-center justify-center ${batteryCount > 0 ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-400'}`}><Icons.Zap size={20} className={batteryCount > 0 ? 'fill-yellow-400 text-yellow-500' : 'text-gray-600'} /></div><div><p className="font-bold text-gray-800">보조배터리 추가</p><p className="text-xs text-gray-500">C타입 5000mAh (1개)</p></div></div>
-                                                        <div className="flex items-center gap-2"><p className={`font-bold text-sm ${batteryCount > 0 ? 'text-yellow-600' : 'text-gray-500'}`}>+3,000원</p>{batteryCount > 0 && <Icons.CheckCircle size={18} className="text-yellow-500" />}</div>
-                                                    </div>
-
-                                                    <div onClick={() => setDataBackup(!dataBackup)} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all ${dataBackup ? 'border-blue-500 bg-blue-50' : 'border-gray-100 bg-white'}`}>
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${dataBackup ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
-                                                                <Icons.Cloud size={20} className={dataBackup ? 'text-blue-600' : 'text-gray-600'} />
+                                                        {returnMethod && (
+                                                            <div className="mt-3 bg-rose-50 p-3 rounded-xl text-xs text-rose-600 border border-rose-100 animate-fade-in">
+                                                                <span className="font-bold mr-1">💡</span>
+                                                                {returnMethod === 'pickup' && "🏠 편하게 계세요! 우체국 기사님이 댁으로 방문해서 가져가요."}
+                                                                {returnMethod === 'post' && "📦 반납일에 우체국이나 편의점에서 선불 택배로 보내주세요."}
+                                                                {returnMethod === 'office' && "🏢 반납일에 사무실로 직접 오셔서 반납해주세요."}
                                                             </div>
-                                                            <div>
-                                                                <p className="font-bold text-gray-800">데이터 백업 대행</p>
-                                                                <p className="text-xs text-gray-500">네이버 마이박스로 안전하게 이동</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className={`font-bold text-sm ${dataBackup ? 'text-blue-600' : 'text-gray-500'}`}>+10,000원</p>
-                                                            {dataBackup && <Icons.CheckCircle size={18} className="text-blue-500" />}
+                                                        )}
+                                                    </div>
+
+                                                    <div className="space-y-3">
+                                                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={18} className="text-green-500" /> 파손 보험 (필수)</h3>
+                                                        <div className="grid grid-cols-3 gap-2">
+                                                            <div onClick={() => setInsurance('none')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'none' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">미가입</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>100%</p></div><p className="text-gray-500 font-bold text-xs mt-1">+0원</p></div>
+                                                            <div onClick={() => setInsurance('basic')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'basic' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">베이직</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>50%</p></div><p className="text-green-600 font-bold text-xs mt-1">+3,000원</p></div>
+                                                            <div onClick={() => setInsurance('premium')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'premium' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">프리미엄</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>30%</p></div><p className="text-green-600 font-bold text-xs mt-1">+5,000원</p></div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        )}
 
-                                        {step === 3 && (
-                                            <div className="space-y-6 animate-slide-in pb-10">
-                                                <div><h2 className="text-2xl font-bold text-gray-800">마지막으로<br/>정보를 확인해주세요 📝</h2></div>
-                                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">받으시는 분 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
-                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
-                                                    
-                                                    <div><label className="text-xs font-bold text-gray-500 ml-1">일정명</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Ticket size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="예) 엔시티 콘서트" value={userInfo.scheduleName} onChange={(e) => setUserInfo({...userInfo, scheduleName: e.target.value})} /></div></div>
-
-                                                    <div>
-                                                        <label className="text-xs font-bold text-gray-500 ml-1">주소</label>
-                                                        <div className="flex gap-2 mt-1">
-                                                            <input 
-                                                                type="text" 
-                                                                placeholder="우편번호" 
-                                                                readOnly={!isManualAddress} 
-                                                                value={userInfo.zipcode} 
-                                                                onChange={(e) => setUserInfo({...userInfo, zipcode: e.target.value})}
-                                                                className={`w-1/3 p-3 rounded-xl outline-none text-sm text-center transition-colors ${isManualAddress ? 'bg-white border border-gray-300 text-gray-800' : 'bg-gray-100 text-gray-500'}`} 
-                                                            />
-                                                            <button 
-                                                                onClick={handleAddressSearch} 
-                                                                className="w-2/3 bg-gray-800 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-700"
-                                                            >
-                                                                주소 검색
-                                                            </button>
-                                                        </div>
+                                                    <div className="space-y-3">
+                                                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Zap size={18} className="text-yellow-500" /> 추가 서비스</h3>
                                                         
-                                                        <div className={`flex items-center rounded-xl px-3 mt-2 transition-colors ${isManualAddress ? 'bg-white border border-gray-300' : 'bg-gray-50'}`}>
-                                                            <Icons.MapPin size={18} className="text-gray-400" />
-                                                            <input 
-                                                                type="text" 
-                                                                className="w-full p-3 bg-transparent outline-none text-gray-800" 
-                                                                placeholder="기본 주소" 
-                                                                readOnly={!isManualAddress} 
-                                                                value={userInfo.address} 
-                                                                onClick={!isManualAddress ? handleAddressSearch : undefined}
-                                                                onChange={(e) => setUserInfo({...userInfo, address: e.target.value})}
-                                                            />
-                                                        </div>
-                                                        
-                                                        <div className="mt-2">
-                                                            <input 
-                                                                type="text" 
-                                                                className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-gray-800 focus:border-rose-300" 
-                                                                placeholder="상세 주소를 입력해주세요" 
-                                                                value={userInfo.detailAddress} 
-                                                                onChange={(e) => setUserInfo({...userInfo, detailAddress: e.target.value})} 
-                                                            />
-                                                        </div>
-
-                                                        <div className="text-right mt-2">
-                                                            <button 
-                                                                onClick={() => setIsManualAddress(!isManualAddress)} 
-                                                                className="text-xs text-gray-400 underline hover:text-gray-600"
-                                                            >
-                                                                {isManualAddress ? "다시 주소 검색 사용하기" : "주소 검색이 안 되시나요? (직접 입력)"}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {step === 4 && (
-                                            <div className="space-y-6 animate-slide-in pb-10">
-                                                <div><h2 className="text-2xl font-bold text-gray-800">마지막으로<br/>예약 내용을 확인해주세요 ✅</h2></div>
-                                                
-                                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                                                    <h3 className="font-bold text-gray-800 mb-3 pb-2 border-b border-gray-100 text-sm">예약자 정보</h3>
-                                                    <div className="space-y-2 text-sm text-gray-600">
-                                                        <div className="flex justify-between"><span className="text-gray-400 text-xs">받으시는 분</span><span className="font-medium text-gray-800">{userInfo.name}</span></div>
-                                                        <div className="flex justify-between"><span className="text-gray-400 text-xs">연락처</span><span className="font-medium text-gray-800">{userInfo.phone}</span></div>
-                                                        <div className="flex justify-between"><span className="text-gray-400 text-xs">일정명</span><span className="font-medium text-gray-800">{userInfo.scheduleName}</span></div>
-                                                        <div className="flex flex-col mt-1">
-                                                            <span className="text-gray-400 text-xs mb-1">주소</span>
-                                                            <span className="font-medium text-gray-800 text-right leading-tight break-keep">{userInfo.address} {userInfo.detailAddress}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                                                    <h3 className="font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">결제 상세</h3>
-                                                    <div className="space-y-2 text-sm text-gray-600">
-                                                        <div className="flex justify-between"><span>{selectedPhone.name} ({calculateDays()}일)</span><span>{(selectedPhone.price * calculateDays()).toLocaleString()}원</span></div>
-                                                        <div className="flex justify-between"><span>파손보험 ({insurance === 'basic' ? '베이직' : (insurance === 'premium' ? '프리미엄' : '미가입')})</span><span>+{insurance === 'basic' ? '3,000' : (insurance === 'premium' ? '5,000' : '0')}원</span></div>
-                                                        {batteryCount > 0 && <div className="flex justify-between"><span>보조배터리 ({batteryCount}개)</span><span>+{(batteryCount * 3000).toLocaleString()}원</span></div>}
-                                                        {dataBackup && <div className="flex justify-between"><span>데이터 백업 대행</span><span>+10,000원</span></div>}
-                                                        {deliveryMethod === 'post' && <div className="flex justify-between"><span>우체국 택배비</span><span>+4,000원</span></div>}
-                                                        {returnMethod === 'pickup' && <div className="flex justify-between"><span>반납 방문수거</span><span>+4,000원</span></div>}
-                                                        {discounts.app && <div className="flex justify-between text-rose-500 font-bold"><span>이벤트 할인 (앱 리뷰)</span><span>-3,000원</span></div>}
-                                                        {discounts.blog && <div className="flex justify-between text-green-500 font-bold"><span>이벤트 할인 (블로그)</span><span>-5,000원</span></div>}
-                                                    </div>
-                                                    <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center"><span className="font-bold text-gray-800">최종 결제 금액</span><span className="font-bold text-2xl text-rose-500">{calculateTotal().toLocaleString()}원</span></div>
-                                                </div>
-
-                                                <div className="bg-gray-100 p-4 rounded-xl">
-                                                     <div className="flex justify-between items-center mb-1">
-                                                        <p className="text-xs text-gray-500 font-bold flex items-center gap-1"><Icons.CreditCard size={14} /> 결제수단 (무통장 입금)</p>
-                                                        <button onClick={() => copyToClipboard("1002000000000")} className="text-[10px] bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded flex items-center gap-1 hover:bg-yellow-100">
-                                                            <Icons.Copy size={10} /> 계좌 복사
-                                                        </button>
-                                                    </div>
-                                                    <p className="text-base font-bold text-gray-800 mt-1">우리은행 1002-000-000000</p>
-                                                    <p className="text-xs text-gray-500 mt-0.5">예금주: 핑크렌탈</p>
-                                                </div>
-
-                                                <div className="bg-rose-50 p-4 rounded-xl text-xs text-rose-600 leading-relaxed border border-rose-100">
-                                                    <strong>📢 예약 취소 안내</strong><br/>
-                                                    다음의 경우 예약이 자동으로 취소될 수 있습니다.<br/>
-                                                    <span className="text-rose-500/80 pl-2 block mt-1">• 결제하지 않고 예약만 진행한 경우</span>
-                                                    <span className="text-rose-500/80 pl-2 block">• 입금자명과 예약자명이 다른 경우</span>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="mt-10 w-full max-w-md mx-auto pt-6"> 
-                                            {selectedPhone && step > 0 && step <= 4 && (
-                                                <div className="px-6 mb-3 animate-slide-in-up">
-                                                    <div className="bg-rose-400 rounded-full py-4 px-6 shadow-xl flex justify-between items-center border border-rose-300/50 ring-2 ring-rose-100/50">
-                                                        <div className="flex flex-col justify-center">
-                                                            {startDate && endDate ? (
-                                                                <>
-                                                                    <span className="text-xs text-rose-100 leading-none mb-1">선택한 날짜</span>
-                                                                    <span className="text-sm text-white font-bold tracking-tight leading-none drop-shadow-sm">
-                                                                        {(() => {
-                                                                            const returnDate = getReturnDate(endDate);
-                                                                            return `${startDate.getMonth() + 1}.${startDate.getDate()} ~ ${returnDate.getMonth() + 1}.${returnDate.getDate()}`;
-                                                                        })()}
-                                                                    </span>
-                                                                </>
-                                                            ) : (
-                                                                <span className="text-xs text-rose-100 font-medium">날짜를 선택해주세요</span>
-                                                            )}
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            {startDate && endDate && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${step === 1 ? 'bg-white/20 text-white' : 'bg-white text-rose-500 shadow-sm'}`}>{calculateDays()}일</span>}
-                                                            <span className="text-xl font-bold text-white tracking-tight drop-shadow-sm">{calculateTotal().toLocaleString()}원</span>
+                                                        <div onClick={() => setBatteryCount(batteryCount === 0 ? 1 : 0)} className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all mb-2 ${batteryCount > 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}>
+                                                            <div className="flex items-center gap-3"><div className={`w-10 h-10 rounded-full flex items-center justify-center ${batteryCount > 0 ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-400'}`}><Icons.Zap size={20} className={batteryCount > 0 ? 'fill-yellow-400 text-yellow-500' : 'text-gray-600'} /></div><div><p className="font-bold text-gray-800">보조배터리 추가</p><p className="text-xs text-gray-500">C타입 5000mAh (1개)</p></div></div>
+                                                            <div className="flex items-center gap-2"><p className={`font-bold text-sm ${batteryCount > 0 ? 'text-yellow-600' : 'text-gray-500'}`}>+3,000원</p>{batteryCount > 0 && <Icons.CheckCircle size={18} className="text-yellow-500" />}</div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             )}
 
-                                            <div className="px-4 pb-4 flex gap-2">
-                                                {step > 1 && <button onClick={() => setStep(step - 1)} className="flex-1 py-4 text-lg rounded-xl bg-white border border-gray-200 shadow-lg text-gray-600 font-bold active:scale-95 transition-all">이전</button>}
-                                                <button disabled={isSubmitting} onClick={() => {
-                                                    if (step === 1 && (!startDate || !endDate)) { alert("대여 시작일과 종료일을 모두 선택해주세요!"); return; }
-                                                    if (step === 2) { 
-                                                        if (!deliveryMethod) { alert("수령 방법을 선택해주세요!"); return; }
-                                                        if (!returnMethod) { alert("반납 방법을 선택해주세요!"); return; }
-                                                        if (!insurance) { alert("파손 보험 가입 여부를 선택해주세요!"); return; } 
-                                                    }
-                                                    if (step === 3) { if(!userInfo.name || !userInfo.phone || !userInfo.address) { alert("예약자 정보를 모두 입력해주세요!"); return; } }
-                                                    if (step === 4) { handleSubmit(); return; }
-                                                    setStep(step + 1);
-                                                }} className="flex-1 py-4 text-lg rounded-xl bg-rose-500 text-white font-bold shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 hover:bg-rose-600">{isSubmitting ? '처리 중...' : (step === 4 ? '입금하고 예약하기' : '다음으로')}</button>
+                                            {step === 3 && (
+                                                <div className="space-y-6 animate-slide-in pb-10">
+                                                    <div><h2 className="text-2xl font-bold text-gray-800">마지막으로<br/>정보를 확인해주세요 📝</h2></div>
+                                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                                                        
+                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">받으시는 분 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
+                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
+                                                        
+                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">일정명</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Ticket size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="예) 엔시티 콘서트" value={userInfo.scheduleName} onChange={(e) => setUserInfo({...userInfo, scheduleName: e.target.value})} /></div></div>
+
+                                                        <div>
+                                                            <label className="text-xs font-bold text-gray-500 ml-1">주소</label>
+                                                            <div className="flex gap-2 mt-1">
+                                                                <input 
+                                                                    type="text" 
+                                                                    placeholder="우편번호" 
+                                                                    readOnly={!isManualAddress} 
+                                                                    value={userInfo.zipcode} 
+                                                                    onChange={(e) => setUserInfo({...userInfo, zipcode: e.target.value})}
+                                                                    className={`w-1/3 p-3 rounded-xl outline-none text-sm text-center transition-colors ${isManualAddress ? 'bg-white border border-gray-300 text-gray-800' : 'bg-gray-100 text-gray-500'}`} 
+                                                                />
+                                                                <button 
+                                                                    onClick={handleAddressSearch} 
+                                                                    className="w-2/3 bg-gray-800 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-700"
+                                                                >
+                                                                    주소 검색
+                                                                </button>
+                                                            </div>
+                                                            
+                                                            <div className={`flex items-center rounded-xl px-3 mt-2 transition-colors ${isManualAddress ? 'bg-white border border-gray-300' : 'bg-gray-50'}`}>
+                                                                <Icons.MapPin size={18} className="text-gray-400" />
+                                                                <input 
+                                                                    type="text" 
+                                                                    className="w-full p-3 bg-transparent outline-none text-gray-800" 
+                                                                    placeholder="기본 주소" 
+                                                                    readOnly={!isManualAddress} 
+                                                                    value={userInfo.address} 
+                                                                    onClick={!isManualAddress ? handleAddressSearch : undefined}
+                                                                    onChange={(e) => setUserInfo({...userInfo, address: e.target.value})}
+                                                                />
+                                                            </div>
+                                                            
+                                                            <div className="mt-2">
+                                                                <input 
+                                                                    type="text" 
+                                                                    className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-gray-800 focus:border-blue-300" 
+                                                                    placeholder="상세 주소를 입력해주세요" 
+                                                                    value={userInfo.detailAddress} 
+                                                                    onChange={(e) => setUserInfo({...userInfo, detailAddress: e.target.value})} 
+                                                                />
+                                                            </div>
+
+                                                            <div className="text-right mt-2">
+                                                                <button 
+                                                                    onClick={() => setIsManualAddress(!isManualAddress)} 
+                                                                    className="text-xs text-gray-400 underline hover:text-gray-600"
+                                                                >
+                                                                    {isManualAddress ? "다시 주소 검색 사용하기" : "주소 검색이 안 되시나요? (직접 입력)"}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Agreements Section */}
+                                                        <div className="pt-4 border-t border-gray-100 mt-2">
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-3">약관 동의</h4>
+                                                            
+                                                            <div className="space-y-3">
+                                                                {/* Terms of Service */}
+                                                                <div className="flex items-start justify-between">
+                                                                    <div 
+                                                                        className="flex items-center gap-2 cursor-pointer"
+                                                                        onClick={() => setAgreements({...agreements, terms: !agreements.terms})}
+                                                                    >
+                                                                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${agreements.terms ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`}>
+                                                                            {agreements.terms && <Icons.Check size={14} className="text-white" />}
+                                                                        </div>
+                                                                        <span className="text-sm text-gray-600">이용약관 동의 (필수)</span>
+                                                                    </div>
+                                                                    <button onClick={() => setShowTerms(true)} className="text-xs text-gray-400 underline">내용 보기</button>
+                                                                </div>
+
+                                                                {/* Privacy Policy */}
+                                                                <div className="flex items-start justify-between">
+                                                                    <div 
+                                                                        className="flex items-center gap-2 cursor-pointer"
+                                                                        onClick={() => setAgreements({...agreements, privacy: !agreements.privacy})}
+                                                                    >
+                                                                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${agreements.privacy ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`}>
+                                                                            {agreements.privacy && <Icons.Check size={14} className="text-white" />}
+                                                                        </div>
+                                                                        <span className="text-sm text-gray-600">개인정보 수집 및 이용 동의 (필수)</span>
+                                                                    </div>
+                                                                    <button onClick={() => setShowPrivacy(true)} className="text-xs text-gray-400 underline">내용 보기</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* ★★★ [추가] 4단계: 최종 확인 페이지 (누락된 부분 추가됨) ★★★ */}
+                                            {step === 4 && (
+                                                <div className="space-y-6 animate-slide-in pb-10">
+                                                    <div>
+                                                        <h2 className="text-2xl font-bold text-gray-800">예약 내용을<br/>확인해주세요 ✅</h2>
+                                                    </div>
+                                                    
+                                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                                                        <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                                                            <span className="font-bold text-gray-800 text-lg">{selectedPhone?.name}</span>
+                                                            <span className="text-xs text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded-lg">{selectedPhone?.tag}</span>
+                                                        </div>
+
+                                                        <div className="space-y-3 text-sm">
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-500">대여 기간</span>
+                                                                <span className="font-bold text-gray-800">
+                                                                    {startDate && `${startDate.getMonth()+1}.${startDate.getDate()}`} ~ {endDate && `${getReturnDate(endDate).getMonth()+1}.${getReturnDate(endDate).getDate()}`} 
+                                                                    <span className="text-blue-500 ml-1">({calculateDays()}일)</span>
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-500">수령 방법</span>
+                                                                <span className="font-bold text-gray-800">
+                                                                    {deliveryMethod === 'post' ? '택배' : deliveryMethod === 'quick' ? '퀵' : deliveryMethod === 'venue' ? '공연장' : '사무실'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-500">반납 방법</span>
+                                                                <span className="font-bold text-gray-800">
+                                                                    {returnMethod === 'pickup' ? '방문수거' : returnMethod === 'post' ? '택배반납' : '사무실반납'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span className="text-gray-500">신청자</span>
+                                                                <span className="font-bold text-gray-800">{userInfo.name} ({userInfo.phone})</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-start">
+                                                                <span className="text-gray-500 shrink-0">주소</span>
+                                                                <span className="font-bold text-gray-800 text-right">{userInfo.address} {userInfo.detailAddress}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
+                                                            <span className="font-bold text-gray-600">총 결제 금액</span>
+                                                            <span className="text-xl font-bold text-blue-500">{calculateTotal().toLocaleString()}원</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                                        <p className="text-xs text-blue-500 font-bold mb-2">입금 계좌 안내</p>
+                                                        <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-blue-200 mb-2">
+                                                            <div>
+                                                                <p className="text-[10px] text-gray-400 mb-0.5">우리은행 (예금주: 세린캠)</p>
+                                                                <p className="text-sm font-bold text-blue-600">1002-000-000000</p>
+                                                            </div>
+                                                            <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-200 transition-colors">복사</button>
+                                                        </div>
+                                                        <p className="text-[10px] text-blue-400 mt-2 leading-relaxed">
+                                                            * 아래 '입금하고 예약하기' 버튼을 누르신 후,<br/>
+                                                            1시간 이내에 입금해주시면 확정됩니다.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="mt-10 w-full max-w-md mx-auto pt-6"> 
+                                                {selectedPhone && step > 0 && step <= 4 && (
+                                                    <div className="px-6 mb-3 animate-slide-in-up">
+                                                        <div className="bg-blue-400 rounded-full py-4 px-6 shadow-xl flex justify-between items-center border border-blue-300/50 ring-2 ring-blue-100/50">
+                                                            <div className="flex flex-col justify-center">
+                                                                {startDate && endDate ? (
+                                                                    <>
+                                                                        <span className="text-xs text-blue-100 leading-none mb-1">선택한 날짜</span>
+                                                                        <span className="text-sm text-white font-bold tracking-tight leading-none drop-shadow-sm">
+                                                                            {(() => {
+                                                                                const returnDate = getReturnDate(endDate);
+                                                                                return `${startDate.getMonth() + 1}.${startDate.getDate()} ~ ${returnDate.getMonth() + 1}.${returnDate.getDate()}`;
+                                                                            })()}
+                                                                        </span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="text-xs text-blue-100 font-medium">날짜를 선택해주세요</span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                {startDate && endDate && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${step === 1 ? 'bg-white/20 text-white' : 'bg-white text-blue-500 shadow-sm'}`}>{calculateDays()}일</span>}
+                                                                <span className="text-xl font-bold text-white tracking-tight drop-shadow-sm">{calculateTotal().toLocaleString()}원</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div className="px-4 pb-4 flex gap-2">
+                                                    {/* [수정] 1단계에서는 '홈으로', 2단계부터는 '이전' 버튼 표시 */}
+                                                    {step === 1 ? (
+                                                        <button onClick={handleGoHome} className="flex-1 py-4 text-lg rounded-xl bg-white border border-gray-200 shadow-lg text-gray-600 font-bold active:scale-95 transition-all hover:bg-gray-50">홈으로</button>
+                                                    ) : (
+                                                        <button onClick={() => setStep(step - 1)} className="flex-1 py-4 text-lg rounded-xl bg-white border border-gray-200 shadow-lg text-gray-600 font-bold active:scale-95 transition-all hover:bg-gray-50">이전</button>
+                                                    )}
+                                                    
+                                                    <button disabled={isSubmitting} onClick={() => {
+                                                        if (step === 1 && (!startDate || !endDate)) { alert("대여 시작일과 종료일을 모두 선택해주세요!"); return; }
+                                                        if (step === 2) { 
+                                                            if (!deliveryMethod) { alert("수령 방법을 선택해주세요!"); return; }
+                                                            if (!returnMethod) { alert("반납 방법을 선택해주세요!"); return; }
+                                                            if (!insurance) { alert("파손 보험 가입 여부를 선택해주세요!"); return; } 
+                                                        }
+                                                        if (step === 3) { 
+                                                            if(!userInfo.name || !userInfo.phone || !userInfo.address) { alert("예약자 정보를 모두 입력해주세요!"); return; } 
+                                                            if(!agreements.terms || !agreements.privacy) { alert("필수 약관에 모두 동의해주세요!"); return; }
+                                                        }
+                                                        if (step === 4) { handleSubmit(); return; }
+                                                        setStep(step + 1);
+                                                    }} className="flex-1 py-4 text-lg rounded-xl bg-blue-400 text-white font-bold shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 hover:bg-blue-500">{isSubmitting ? '처리 중...' : (step === 4 ? '입금하고 예약하기' : '다음으로')}</button>
+                                                </div>
                                             </div>
-                                        </div>
                                     </>
                                 )}
                             </div>
                         )}
 
-                        {activeNav === 'my' && (
-                            <div className="p-5 animate-fade-in pb-24 h-full flex flex-col bg-gray-50/50">
-                                {!lookupResult ? (
-                                    <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
-                                        <div className="text-center mb-6"> 
-                                            <h2 className="text-xl font-bold text-gray-800">예약 조회</h2>
-                                            <p className="text-xs text-gray-500 mt-1">예약 정보를 확인하고 싶으신가요?</p>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3 mb-6">
-                                            <button onClick={() => handleNavChange('manual')} className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:bg-blue-50 transition-colors flex flex-col items-center justify-center gap-1 group">
-                                                <div className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-1 group-hover:bg-white group-hover:shadow-sm transition-all">
-                                                    <Icons.BookOpen size={16} />
-                                                </div>
-                                                <span className="text-xs font-bold text-gray-700">자주 묻는 질문</span>
-                                            </button>
-                                            
-                                            <button onClick={() => alert("카카오톡 상담으로 연결됩니다.")} className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:bg-yellow-50 transition-colors flex flex-col items-center justify-center gap-1 group">
-                                                <div className="w-8 h-8 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mb-1 group-hover:bg-white group-hover:shadow-sm transition-all">
-                                                    <Icons.MessageCircle size={18} />
-                                                </div>
-                                                <span className="text-xs font-bold text-gray-700">1:1 문의하기</span>
-                                            </button>
-                                        </div>
-
-                                        <div className="bg-white p-6 rounded-3xl shadow-lg border border-rose-100/50 space-y-5">
-                                            <div className="space-y-1.5">
-                                                <label className="text-xs font-bold text-gray-400 ml-1">이름</label>
-                                                <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-gray-100 focus-within:border-rose-300 focus-within:bg-white transition-all">
-                                                    <Icons.User size={18} className="text-gray-400" />
-                                                    <input type="text" placeholder="예약자 성함" className="w-full p-3.5 bg-transparent outline-none text-gray-800 text-sm font-medium" value={lookupName} onChange={(e) => setLookupName(e.target.value)} />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-xs font-bold text-gray-400 ml-1">휴대폰 번호</label>
-                                                <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-gray-100 focus-within:border-rose-300 focus-within:bg-white transition-all">
-                                                    <Icons.Phone size={18} className="text-gray-400" />
-                                                    <input type="text" placeholder="010-0000-0000" className="w-full p-3.5 bg-transparent outline-none text-gray-800 text-sm font-medium" value={lookupPhone} onChange={(e) => setLookupPhone(formatPhone(e.target.value))} />
-                                                </div>
-                                            </div>
-                                            
-                                            {/* [수정] 내 정보 기억하기 체크박스 제거 */}
-
-                                            <button onClick={() => handleLookup()} disabled={isSearching} className="w-full bg-rose-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-rose-200 hover:bg-rose-600 transition-all active:scale-95 flex justify-center items-center gap-2">
-                                                {isSearching ? <span className="animate-spin-slow"><Icons.RefreshCw size={18}/></span> : '조회하기'}
-                                            </button>
-                                        </div>
+                        {/* Terms Modal */}
+                        {showTerms && (
+                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowTerms(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                                        <h3 className="text-lg font-bold text-gray-800">이용약관</h3>
+                                        <button onClick={() => setShowTerms(false)} className="text-gray-400 hover:text-gray-600">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        </button>
                                     </div>
-                                ) : (
-                                    <div>
-                                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4 flex justify-between items-center">
-                                            <div>
-                                                <div className="flex items-baseline gap-1">
-                                                    <span className="text-lg font-bold text-gray-800">{lookupName}님</span>
-                                                    <span className="text-xs text-gray-500">반가워요! 🌸</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button onClick={handleRefresh} className="text-[10px] text-gray-500 bg-gray-50 border border-gray-200 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
-                                                    <Icons.RefreshCw size={10} /> 새로고침
-                                                </button>
-                                                <button onClick={handleLogoutClick} className="text-[10px] text-gray-400 border border-gray-200 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">로그아웃</button>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3 mb-6">
-                                            <button onClick={() => handleNavChange('manual')} className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:bg-blue-50 transition-colors flex flex-col items-center justify-center gap-1 group">
-                                                <div className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-1 group-hover:bg-white group-hover:shadow-sm transition-all">
-                                                    <Icons.BookOpen size={16} />
-                                                </div>
-                                                <span className="text-xs font-bold text-gray-700">자주 묻는 질문</span>
-                                            </button>
-                                            
-                                            <button onClick={() => alert("카카오톡 상담으로 연결됩니다.")} className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:bg-yellow-50 transition-colors flex flex-col items-center justify-center gap-1 group">
-                                                <div className="w-8 h-8 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mb-1 group-hover:bg-white group-hover:shadow-sm transition-all">
-                                                    <Icons.MessageCircle size={18} />
-                                                </div>
-                                                <span className="text-xs font-bold text-gray-700">1:1 문의하기</span>
-                                            </button>
-                                        </div>
-
-                                        <div className="bg-white p-5 rounded-2xl shadow-lg border border-rose-100">
-                                            <h3 className="text-base font-bold text-gray-800 mb-3 px-1 flex items-center gap-1">
-                                                📋 신청 내역
-                                                {lookupResult && <span className="text-[10px] font-normal text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{lookupResult.length}</span>}
-                                            </h3>
-                                            
-                                            {isSearching && (
-                                                <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-2xl">
-                                                    <div className="w-8 h-8 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin-slow"></div>
-                                                </div>
-                                            )}
-
-                                            <div className={`space-y-3 transition-opacity duration-200 ${isSearching ? 'opacity-50' : 'opacity-100'}`}>
-                                                {(() => {
-                                                    if (!lookupResult || lookupResult.length === 0) {
-                                                        return <div className="text-center py-12 flex flex-col items-center justify-center text-gray-400">
-                                                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3 text-2xl">📭</div>
-                                                            <span className="text-sm">아직 내역이 없어요</span>
-                                                        </div>;
-                                                    }
-
-                                                    return lookupResult.map((item, index) => (
-                                                        <div key={index} className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 hover:border-rose-200 transition-colors">
-                                                            <div className="border-b border-gray-200 pb-3 mb-3">
-                                                                <div className="flex justify-between items-start mb-2">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusClass(item.status)}`}>{item.status || '접수완료'}</span>
-                                                                    </div>
-                                                                    <span className="text-[10px] text-gray-400">{item.orderTime}</span>
-                                                                </div>
-                                                                <h3 className="font-bold text-gray-800">{item.model}</h3>
-                                                                {item.scheduleName && <p className="text-xs text-gray-500 mt-1">{item.scheduleName}</p>}
-                                                            </div>
-                                                            
-                                                            <div className="text-sm space-y-1 text-gray-600">
-                                                                {(item.category === '예약신청' || !item.category) ? (
-                                                                    <>
-                                                                        {/* [수정] 날짜 형식을 구글 시트 데이터 그대로 노출 */}
-                                                                        <div className="flex justify-between"><span className="text-xs text-gray-400">도착예정일</span><span>{item.startDate}</span></div>
-                                                                        <div className="flex justify-between"><span className="text-xs text-gray-400">반납일</span><span>{item.endDate || '-'}</span></div>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        {item.startDate && <div className="flex justify-between"><span className="text-xs text-gray-400">기간/내용</span><span>{item.startDate}</span></div>}
-                                                                    </>
-                                                                )}
-                                                                <div className="flex justify-between pt-2 mt-2 border-t border-gray-200"><span className="font-bold text-xs">결제금액</span><span className="font-bold text-rose-500">{parseInt(item.totalPrice).toLocaleString()}원</span></div>
-                                                            </div>
-
-                                                            {/* [수정] "확정" 상태가 아닐 때만 입금 계좌 노출 */}
-                                                            {(!item.status || !item.status.includes('확정')) && (
-                                                                <div className="mt-3 bg-yellow-50 p-3 rounded-lg border border-yellow-100">
-                                                                    <div className="flex justify-between items-center mb-1">
-                                                                        <span className="text-xs font-bold text-yellow-700">입금 대기중</span>
-                                                                        <button onClick={() => copyToClipboard("1002000000000")} className="text-[10px] bg-white border border-yellow-200 text-yellow-700 px-2 py-0.5 rounded flex items-center gap-1 hover:bg-yellow-100">
-                                                                            <Icons.Copy size={10} /> 복사
-                                                                        </button>
-                                                                    </div>
-                                                                    <p className="text-xs text-gray-600">우리은행 1002-000-000000 (핑크렌탈)</p>
-                                                                </div>
-                                                            )}
-
-                                                            {item.status && item.status.includes('확정') && (
-                                                                <div className="mt-3 pt-3 border-t border-gray-100 flex justify-end items-center gap-2">
-                                                                    {myReviews.some(r => r.id === item.id || (item.myReviewId && r.id === item.myReviewId)) || item.myReviewId ? (
-                                                                        <>
-                                                                            <span className="text-xs text-gray-400 font-bold px-2 py-1 bg-gray-50 rounded-lg">작성 완료</span>
-                                                                            <button 
-                                                                                onClick={(e) => { e.stopPropagation(); openReviewModal(item); }}
-                                                                                className="text-xs text-gray-500 underline hover:text-gray-800"
-                                                                            >
-                                                                                수정
-                                                                            </button>
-                                                                        </>
-                                                                    ) : (
-                                                                        <button 
-                                                                            onClick={(e) => { e.stopPropagation(); openReviewModal(item); }} 
-                                                                            className="text-xs font-bold text-rose-500 border border-rose-200 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-colors flex items-center gap-1"
-                                                                        >
-                                                                            <Icons.Star size={12} className="fill-current" /> 리뷰 남기기
-                                                                        </button>
-                                                                    )}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ));
-                                                })()}
-                                            </div>
-                                        </div>
+                                    <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-3 pr-2 terms-scroll">
+                                        <p><strong>제1조 (목적)</strong><br/>본 약관은 세린캠(이하 "회사")이 제공하는 대여 서비스 이용과 관련하여 회사와 이용자의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+                                        <p><strong>제2조 (계약의 성립)</strong><br/>이용자가 본 약관에 동의하고 대여료를 입금함으로써 계약이 성립됩니다.</p>
+                                        <p><strong>제3조 (대여 및 반납)</strong><br/>이용자는 약정된 반납일까지 기기를 반납해야 하며, 지연 시 추가 요금이 발생할 수 있습니다. 반납은 택배 또는 방문 수거 등 회사가 지정한 방식을 따릅니다.</p>
+                                        <p><strong>제4조 (책임 및 배상)</strong><br/>이용자 부주의로 인한 파손, 분실, 침수 시 수리비 또는 단말기 잔존가액 전액을 배상해야 합니다. 대여 기간 중 발생한 모든 법적 책임은 이용자에게 있습니다.</p>
+                                        <p><strong>제5조 (데이터 삭제)</strong><br/>반납 전 기기의 모든 데이터는 이용자가 직접 삭제해야 하며, 미삭제로 인한 정보 유출 피해에 대해 회사는 책임지지 않습니다.</p>
                                     </div>
-                                )}
-                            </div>
-                        )}
-
-                        {activeNav === 'manual' && (
-                            <div className="p-5 animate-fade-in pb-24">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-6">자주 묻는 질문 📘</h2>
-                                <div className="space-y-4">
-                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.FileText size={18} className="text-rose-500" /> 대여는 어떻게 하나요?</h3><p className="text-sm text-gray-600 mt-2 leading-relaxed">홈 화면에서 원하시는 기종과 날짜를 선택 후 예약해주시면 됩니다. 신분증 확인 절차가 있을 수 있습니다.</p></div>
-                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-blue-500" /> 배송은 언제 오나요?</h3><p className="text-sm text-gray-600 mt-2 leading-relaxed">대여 시작일 전날에 우체국 택배로 안전하게 도착합니다. 퀵서비스 선택 시 당일 수령도 가능합니다.</p></div>
-                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={18} className="text-green-500" /> 파손되면 어떡하죠?</h3><p className="text-sm text-gray-600 mt-2 leading-relaxed">가입하신 보험 상품에 따라 자기부담금이 발생합니다. 파손 시 즉시 고객센터로 연락주세요.</p></div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100">
+                                        <button onClick={() => { setAgreements({...agreements, terms: true}); setShowTerms(false); }} className="w-full bg-blue-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-500 transition-colors text-sm">
+                                            동의하고 닫기
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="mt-8 bg-gray-100 p-5 rounded-2xl text-center"><p className="font-bold text-gray-700">더 궁금한 점이 있으신가요?</p><button className="mt-3 bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-full text-sm font-bold shadow-sm">카카오톡 상담하기</button></div>
                             </div>
                         )}
 
-                        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 flex justify-around items-center h-[70px] z-50 rounded-t-2xl shadow-[0_-5px_10px_rgba(0,0,0,0.02)]">
-                            <button onClick={() => handleNavChange('home')} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'home' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.Home size={activeNav === 'home' ? 26 : 24} strokeWidth={activeNav === 'home' ? 2.5 : 2} /><span className="text-[10px] font-bold">홈</span></button>
-                            <button onClick={handleRentalStart} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'rental' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.CalendarPlus size={activeNav === 'rental' ? 26 : 24} strokeWidth={activeNav === 'rental' ? 2.5 : 2} /><span className="text-[10px] font-bold">예약하기</span></button>
-                            <button onClick={() => handleNavChange('manual')} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'manual' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.BookOpen size={activeNav === 'manual' ? 26 : 24} strokeWidth={activeNav === 'manual' ? 2.5 : 2} /><span className="text-[10px] font-bold">매뉴얼</span></button>
-                            <button onClick={() => handleNavChange('my')} className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeNav === 'my' ? 'text-rose-500' : 'text-gray-400 hover:text-gray-500'}`}><Icons.User size={activeNav === 'my' ? 26 : 24} strokeWidth={activeNav === 'my' ? 2.5 : 2} /><span className="text-[10px] font-bold">마이</span></button>
-                        </nav>
+                        {/* Privacy Modal */}
+                        {showPrivacy && (
+                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowPrivacy(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                                        <h3 className="text-lg font-bold text-gray-800">개인정보 수집·이용</h3>
+                                        <button onClick={() => setShowPrivacy(false)} className="text-gray-400 hover:text-gray-600">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        </button>
+                                    </div>
+                                    <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-3 pr-2 terms-scroll">
+                                        <p>세린캠은 원활한 서비스 제공을 위해 아래와 같이 개인정보를 수집·이용합니다.</p>
+                                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                            <ul className="list-disc pl-4 space-y-1">
+                                                <li><strong>수집 항목:</strong> 이름, 연락처, 주소, 환불계좌정보</li>
+                                                <li><strong>수집 목적:</strong> 대여 기기 배송/회수, 본인 확인, 해피콜, 파손/분실 시 연락</li>
+                                                <li><strong>보유 기간:</strong> 이용 완료 후 1년 (법적 분쟁 대비 및 재이용 편의, 이후 파기)</li>
+                                            </ul>
+                                        </div>
+                                        <p>귀하는 동의를 거부할 권리가 있으나, 거부 시 서비스 이용이 제한됩니다.</p>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100">
+                                        <button onClick={() => { setAgreements({...agreements, privacy: true}); setShowPrivacy(false); }} className="w-full bg-blue-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-500 transition-colors text-sm">
+                                            동의하고 닫기
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {isReviewModalOpen && (
                             <div className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative">
                                      <button onClick={() => setIsReviewModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                    </button>
+                                     </button>
                                     <h3 className="text-lg font-bold text-gray-800 mb-1">리뷰 쓰기 ✍️</h3>
                                     <p className="text-xs text-gray-500 mb-6">{currentReviewItem?.model}</p>
 
                                     <div className="flex justify-center gap-2 mb-6">
-                                        {[1, 2, 3, 4, 5].map(star => (
-                                            <div key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className="cursor-pointer transition-transform hover:scale-110">
-                                                <Icons.Star 
-                                                    size={32} 
-                                                    className={star <= reviewForm.rating ? "text-yellow-400 fill-current" : "text-gray-200"} 
-                                                    strokeWidth={star <= reviewForm.rating ? 0 : 2}
-                                                />
-                                            </div>
-                                        ))}
+                                            {[1, 2, 3, 4, 5].map(star => (
+                                                <div key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className="cursor-pointer transition-transform hover:scale-110">
+                                                    <Icons.Star 
+                                                        size={32} 
+                                                        className={star <= reviewForm.rating ? "text-yellow-400 fill-current" : "text-gray-200"} 
+                                                        strokeWidth={star <= reviewForm.rating ? 0 : 2}
+                                                    />
+                                                </div>
+                                            ))}
                                     </div>
                                     
                                     <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4">
@@ -1814,7 +2003,7 @@
                                         ></textarea>
                                     </div>
 
-                                    <button onClick={handleReviewSubmit} className="w-full bg-rose-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-rose-200 hover:bg-rose-600 transition-colors">
+                                    <button onClick={handleReviewSubmit} className="w-full bg-blue-400 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-500 transition-colors">
                                         {currentReviewItem.myReviewId ? '수정하기' : '등록하기'}
                                     </button>
                                 </div>
@@ -1824,14 +2013,14 @@
                         {isLogoutModalOpen && (
                             <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
                                 <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
-                                    <div className="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <div className="w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Icons.User size={24} />
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-2">로그아웃 하시겠어요?</h3>
                                     <p className="text-sm text-gray-500 mb-6">저장된 예약자 정보가 기기에서 삭제됩니다.</p>
                                     <div className="flex gap-2">
                                         <button onClick={() => setIsLogoutModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button>
-                                        <button onClick={handleLogoutConfirm} className="flex-1 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition-colors text-sm">로그아웃</button>
+                                        <button onClick={handleLogoutConfirm} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">로그아웃</button>
                                     </div>
                                 </div>
                             </div>
