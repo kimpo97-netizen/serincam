@@ -178,7 +178,7 @@
             const [viewMode, setViewMode] = useState('dashboard'); 
             const [step, setStep] = useState(1); 
             const [activeTab, setActiveTab] = useState('galaxy');
-            // [수정] backupTab 상태 제거 (샌드애니웨어 단일 사용)
+            const [backupTab, setBackupTab] = useState('samsung');
             const [activeReviewTab, setActiveReviewTab] = useState('all');
             
             // ★★★ [설정] 이미지 URL 설정 ★★★
@@ -186,8 +186,9 @@
             const CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/web/upload/appfiles/ZaReJam3QiELznoZeGGkMG/6dec245d6700959026d702c9034ea872.png"; 
             
             // 2. 메인 배너 이미지 (비워두면 기본 파란색 카드)
-            // 권장 사이즈: 400px x 360px (가로 x 세로)
-            const MAIN_BANNER_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/849565a29aa8cc10eeb25f27f74fc7e1.png";
+            // 방금 만들어드린 이미지를 저장 후 업로드하여 주소를 여기에 넣어주세요!
+            // 예: "https://i.imgur.com/example.png"
+            const MAIN_BANNER_URL = "";
 
             // 예약 데이터
             const [selectedPhone, setSelectedPhone] = useState(null);
@@ -218,8 +219,6 @@
 
             // 백업 페이지 상태
             const [backupForm, setBackupForm] = useState({ name: '', phone: '' });
-            // [수정] backupTab 상태 변수 복구 (탭 전환 기능 사용)
-            const [backupTab, setBackupTab] = useState('mybox');
 
             // 리뷰 작성 관련 상태
             const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -257,6 +256,11 @@
             const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
             // [추가] 유의사항 확인 모달 상태
             const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+            
+            // [추가] 예약 취소 관련 상태
+            const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+            const [cancelTargetItem, setCancelTargetItem] = useState(null);
+            const [cancelMessage, setCancelMessage] = useState({ title: '', msg: '', type: 'normal' }); // type: full, penalty, impossible
             
             // 성공 화면 정보
             const [successData, setSuccessData] = useState(null);
@@ -760,6 +764,103 @@
                 }
             };
 
+            // [추가] 날짜 문자열 파싱 헬퍼 함수
+            const parseDateString = (dateStr) => {
+                if (!dateStr) return new Date();
+                // 다양한 날짜 형식 대응 (YYYY. M. D. 오후 h:mm:ss 등)
+                let date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    // 파싱 실패 시 숫자만 추출하여 재구성
+                    const parts = dateStr.match(/\d+/g);
+                    if (parts && parts.length >= 3) {
+                        let year = parseInt(parts[0]);
+                        let month = parseInt(parts[1]) - 1;
+                        let day = parseInt(parts[2]);
+                        let hour = parts.length > 3 ? parseInt(parts[3]) : 0;
+                        let min = parts.length > 4 ? parseInt(parts[4]) : 0;
+                        
+                        // 오후/PM 처리
+                        if (dateStr.includes('오후') || dateStr.includes('PM')) {
+                            if (hour < 12) hour += 12;
+                        }
+                        // 오전 12시는 0시로
+                        if ((dateStr.includes('오전') || dateStr.includes('AM')) && hour === 12) {
+                            hour = 0;
+                        }
+                        date = new Date(year, month, day, hour, min);
+                    }
+                }
+                return date;
+            };
+
+            // [추가] 환불 규정 계산 함수
+            const checkRefundStatus = (item) => {
+                const now = new Date();
+                
+                // [수정] 예약시간(orderTime)을 결제시간으로 간주하여 파싱
+                const orderTime = parseDateString(item.orderTime);
+                
+                // 대여 시작일 파싱
+                const startDateStr = item.startDate.replace(/\. /g, '-').replace('.', ''); 
+                const startDate = new Date(startDateStr);
+                startDate.setHours(0, 0, 0, 0);
+
+                // 1. 송장번호가 있으면 환불 불가
+                if (item.trackingNumber) {
+                    return { type: 'impossible', title: '환불 불가', msg: '이미 택배가 발송되어 취소가 불가능합니다.' };
+                }
+
+                // 2. 대여 시작일 2일 전부터는 환불 불가
+                const diffTimeStart = startDate - now;
+                const diffDaysStart = Math.ceil(diffTimeStart / (1000 * 60 * 60 * 24)); 
+                if (diffDaysStart <= 2) {
+                    return { type: 'impossible', title: '환불 불가', msg: '대여 시작일 2일 전 이내에는 취소가 불가능합니다.' };
+                }
+
+                // 3. 결제(예약) 후 24시간 이내인지 확인
+                const diffTimeOrder = now - orderTime;
+                const diffHoursOrder = diffTimeOrder / (1000 * 60 * 60);
+
+                if (diffHoursOrder <= 24) {
+                    return { type: 'full', title: '전액 환불 가능', msg: '예약(결제) 후 24시간 이내로 위약금 없이 100% 환불됩니다.' };
+                } else {
+                    return { type: 'penalty', title: '위약금 발생', msg: '예약(결제) 후 24시간이 경과하여 위약금 10,000원을 제외하고 환불됩니다.' };
+                }
+            };
+
+            // [추가] 예약 취소 요청 함수
+            const handleCancelRequest = async () => {
+                if (!cancelTargetItem) return;
+
+                setIsSubmitting(true);
+                // 기존 데이터에 상태만 변경하여 전송 (관리자 확인용)
+                const cancelData = {
+                    ...cancelTargetItem,
+                    category: '예약취소',
+                    status: '환불진행중', // 요청대로 상태 변경
+                    orderTime: new Date().toLocaleString('ko-KR') // 취소 요청 시간으로 덮어씌우거나 별도 필드 사용 가능
+                };
+
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(cancelData),
+                    });
+                    
+                    alert("취소 요청이 접수되었습니다. 담당자 확인 후 처리됩니다.");
+                    setIsCancelModalOpen(false);
+                    setCancelTargetItem(null);
+                    // 목록 갱신
+                    handleLookup();
+                } catch (error) {
+                    alert("취소 요청 전송 중 오류가 발생했습니다.");
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
             // ★ 예약 조회 및 로그인 유지 함수 수정됨 ★
             const handleLookup = async (nameParam, phoneParam, isRefresh = false) => {
                 const targetName = nameParam || lookupName;
@@ -929,8 +1030,7 @@
                             /* 로그인 후 (결과 목록) */
                             <div className="space-y-4 animate-fade-in">
                                 <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
-                                    {/* [수정] 예약 조회 시 마스킹 제거하고 실명 표시 */}
-                                    <h3 className="font-bold text-gray-800"><span className="text-blue-500">{lookupName}</span>님의 예약내역</h3>
+                                    <h3 className="font-bold text-gray-800"><span className="text-blue-500">{formatNameMasking(lookupName)}</span>님의 예약</h3>
                                     <div className="flex items-center gap-3">
                                         <button onClick={handleRefresh} className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1 transition-colors">
                                             <Icons.RefreshCw size={11} /> 새로고침
@@ -953,7 +1053,7 @@
                                                 <div className="flex justify-between items-start mb-2">
                                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                                                         (item.status || '').includes('확정') ? 'bg-green-100 text-green-600' : 
-                                                        (item.status || '').includes('취소') ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-500'
+                                                        (item.status || '').includes('취소') || (item.status || '').includes('환불') ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-500'
                                                     }`}>
                                                         {item.status || '접수대기'}
                                                     </span>
@@ -1003,7 +1103,7 @@
                                                     
                                                     {/* [추가] 송장번호 (값이 있을 때만 표시) */}
                                                     {item.trackingNumber && (
-                                                        <div className="flex justify-between items-center bg-yellow-50 p-2 rounded-lg mt-1">
+                                                        <div className="flex justify-between items-center bg-yellow-50 p-1.5 rounded-lg">
                                                             <div className="flex items-center gap-1.5">
                                                                 <span className="text-yellow-600 font-bold text-xs">📦 우체국택배</span>
                                                                 <span className="font-bold text-gray-800 text-sm select-all">{item.trackingNumber}</span>
@@ -1012,18 +1112,18 @@
                                                         </div>
                                                     )}
 
-                                                    {/* 6. 선택 옵션 (배터리, 보험, 리뷰) - 스타일 수정됨 */}
-                                                    <div className="mt-2 pt-2 border-t border-gray-100 border-dashed space-y-1">
+                                                    {/* 6. 선택 옵션 (배터리, 보험, 리뷰) */}
+                                                    <div className="bg-gray-100 p-2 rounded-lg mt-1 space-y-1">
                                                         <div className="flex justify-between">
-                                                            <span className="text-gray-400">보조배터리</span>
+                                                            <span className="text-gray-500">보조배터리</span>
                                                             <span className="font-bold text-gray-700">{item.battery || '미선택'}</span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-gray-400">파손보험</span>
+                                                            <span className="text-gray-500">파손보험</span>
                                                             <span className="font-bold text-gray-700">{item.insurance || '미가입'}</span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-gray-400">리뷰이벤트</span>
+                                                            <span className="text-gray-500">리뷰이벤트</span>
                                                             <span className="font-bold text-gray-700">{item.review && item.review !== '선택안함' ? item.review : '미참여'}</span>
                                                         </div>
                                                     </div>
@@ -1034,19 +1134,32 @@
                                                         <span className="text-lg font-bold text-blue-500">{Number(item.totalPrice).toLocaleString()}원</span>
                                                     </div>
 
-                                                    {/* [추가] '확정' 상태인 경우 리뷰 남기기 버튼 표시 */}
+                                                    {/* [수정] '확정' 상태인 경우 리뷰 버튼 + 취소 버튼 (2열 배치) */}
                                                     {(item.status || '').includes('확정') && (
-                                                        <button 
-                                                            onClick={() => openReviewModal(item)}
-                                                            className="w-full mt-2 py-2.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                                                        >
-                                                            <Icons.Star size={14} className="fill-blue-600" /> 
-                                                            리뷰 남기기
-                                                        </button>
+                                                        <div className="flex gap-2 mt-2">
+                                                            <button 
+                                                                onClick={() => openReviewModal(item)}
+                                                                className="flex-1 py-2.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                                                            >
+                                                                <Icons.Star size={14} className="fill-blue-600" /> 
+                                                                리뷰 남기기
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setCancelTargetItem(item);
+                                                                    const status = checkRefundStatus(item);
+                                                                    setCancelMessage(status);
+                                                                    setIsCancelModalOpen(true);
+                                                                }}
+                                                                className="flex-1 py-2.5 bg-white text-gray-400 border border-gray-200 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm"
+                                                            >
+                                                                예약취소
+                                                            </button>
+                                                        </div>
                                                     )}
 
-                                                    {/* 예약신청 상태이고 아직 확정/취소가 아닌 경우 계좌번호 표시 */}
-                                                    {(!item.status || item.status === '예약신청') && !((item.status || '').includes('확정')) && !((item.status || '').includes('취소')) && (
+                                                    {/* 예약신청 상태이고 아직 확정/취소/환불이 아닌 경우 계좌번호 표시 및 취소 버튼 */}
+                                                    {(!item.status || item.status === '예약신청') && !((item.status || '').includes('확정')) && !((item.status || '').includes('취소')) && !((item.status || '').includes('환불')) && (
                                                         <div className="mt-3 pt-3 border-t border-gray-100 border-dashed animate-fade-in">
                                                             <div className="flex justify-between items-center bg-blue-50 p-3 rounded-xl border border-blue-100">
                                                                 <div>
@@ -1063,6 +1176,19 @@
                                                             <p className="text-[10px] text-gray-400 mt-2 text-center">
                                                                 * 1시간 이내 미입금 시 자동 취소될 수 있습니다.
                                                             </p>
+                                                            
+                                                            {/* 예약 신청 상태일 때의 취소 버튼 */}
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setCancelTargetItem(item);
+                                                                    // 신청 단계에서는 즉시 취소 가능하므로 별도 계산 없이 안내
+                                                                    setCancelMessage({ type: 'full', title: '예약 취소', msg: '아직 입금 전이시라면 위약금 없이 취소 가능합니다.' });
+                                                                    setIsCancelModalOpen(true);
+                                                                }}
+                                                                className="w-full mt-3 py-2 text-xs text-gray-400 underline hover:text-gray-600 transition-colors"
+                                                            >
+                                                                예약 취소하기
+                                                            </button>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1218,7 +1344,6 @@
                                     <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500 mb-2">
                                         <Icons.Cloud size={24} />
                                     </div>
-                                    {/* [수정] 타이틀 변경: 자동 백업 -> 필요한 것만 골라 백업 */}
                                     <h3 className="font-bold text-gray-800">필요한 것만 골라 백업!</h3>
                                     <p className="text-xs text-gray-400 mt-1">네이버 아이디만 있으면 OK 👌</p>
                                 </div>
@@ -1227,7 +1352,6 @@
                                         <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
                                         <p>대여한 폰에 <strong>네이버 MYBOX</strong> 앱을 설치하고 로그인해주세요.</p>
                                     </div>
-                                    {/* [수정] 자가 백업 방법으로 내용 변경 */}
                                     <div className="flex gap-3">
                                         <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
                                         <p>앱 하단의 <strong>파란색 '+' 버튼</strong>을 누르고 <strong>'갤러리'</strong>를 선택하세요.</p>
@@ -2124,6 +2248,13 @@
                                                                     {isManualAddress ? "다시 주소 검색 사용하기" : "주소 검색이 안 되시나요? (직접 입력)"}
                                                                 </button>
                                                             </div>
+
+                                                            {/* [수정] 공연장 수령일 때만 안내 메시지 노출 & 문구 변경 */}
+                                                            {deliveryMethod === 'venue' && (
+                                                                <p className="text-[11px] text-red-500 mt-2.5 bg-red-50 p-2.5 rounded-xl leading-snug break-keep border border-red-100">
+                                                                    <span className="font-bold">📢 필독!</span> 일정에 따라 수령방식이 변경될 수 있으니, 수령 가능한 주소를 입력해 주세요.
+                                                                </p>
+                                                            )}
                                                         </div>
 
                                                         {/* Agreements Section */}
@@ -2450,6 +2581,36 @@
                                         <button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button>
                                         <button onClick={() => { setIsConfirmModalOpen(false); handleSubmit(); }} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">네, 확인했어요</button>
                                     </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* [추가] 예약 취소 확인 모달 (환불 규정 안내 포함) */}
+                        {isCancelModalOpen && (
+                            <div className="fixed inset-0 z-[90] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${cancelMessage.type === 'impossible' ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}>
+                                        <Icons.X size={24} />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">{cancelMessage.title}</h3>
+                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep">
+                                        {cancelMessage.msg}
+                                    </p>
+                                    
+                                    {cancelMessage.type === 'impossible' ? (
+                                        <button onClick={() => setIsCancelModalOpen(false)} className="w-full py-3 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors text-sm">확인</button>
+                                    ) : (
+                                        <div className="flex gap-2">
+                                            <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
+                                            <button 
+                                                onClick={handleCancelRequest} 
+                                                disabled={isSubmitting}
+                                                className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm"
+                                            >
+                                                {isSubmitting ? '처리 중...' : '네, 취소할게요'}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
