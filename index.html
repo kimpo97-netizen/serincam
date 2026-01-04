@@ -545,8 +545,19 @@
 
                 setIsSubmitting(true);
 
-                // [수정] 한국 날짜 형식으로 변경 (YYYY년 M월 D일)
-                const formatDate = (d) => d ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일` : '';
+                // [수정] 날짜 포맷 변경 (YYYY. M. D)
+                const formatDateDot = (d) => d ? `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}` : '';
+                
+                // [수정] 모델명 축약 함수
+                const getShortModelName = (fullName) => {
+                    if (fullName.includes('S23')) return '23U';
+                    if (fullName.includes('S24')) return '24U';
+                    if (fullName.includes('S25')) return '25U';
+                    if (fullName.includes('17 프로맥스')) return '17Max';
+                    if (fullName.includes('17 프로')) return '17Pro';
+                    return fullName;
+                };
+
                 const reviewType = discounts.app ? '앱리뷰(D-1)' : (discounts.blog ? '블로그(D-1)' : '없음');
                 const fullAddress = `${userInfo.address} ${userInfo.detailAddress}`.trim();
 
@@ -555,10 +566,11 @@
                 else if(insurance === 'basic') insuranceText = '베이직';
                 else if(insurance === 'premium') insuranceText = '프리미엄';
 
-                let reviewText = '없음';
-                if (discounts.app) reviewText = '앱리뷰(-3,000원)';
-                else if (discounts.blog) reviewText = '블로그(-5,000원)';
-                else if (discounts.kakao) reviewText = '카카오맵(-4,000원)';
+                let reviewText = '';
+                if (discounts.app) reviewText = '앱리뷰';
+                else if (discounts.blog) reviewText = '블로그';
+                else if (discounts.kakao) reviewText = '카카오맵';
+                else reviewText = '선택안함';
 
                 // 수령 방법 텍스트 변환
                 let deliveryText = '미선택';
@@ -575,27 +587,49 @@
 
                 const total = calculateTotal();
 
+                // [수정] 요청하신 순서대로 데이터 객체 구성
                 const orderData = {
-                    category: '예약신청',
-                    // [수정] 한국 날짜/시간 형식으로 변경
+                    // 1. 예약시간 (한국 기준)
                     orderTime: new Date().toLocaleString('ko-KR'),
-                    battery: batteryCount,
-                    model: selectedPhone.name,
-                    modelNumber: "",
-                    blank: "",
+                    // 2. 상태 (초기값: 예약신청)
+                    status: '예약신청',
+                    // 3. 대여모델 간략히 (예: 23U)
+                    model: getShortModelName(selectedPhone.name),
+                    // 4. 배정된 모델 (공란)
+                    assignedModel: '',
+                    // 5. 예약자 이름
                     name: userInfo.name,
+                    // 6. 우편번호 (' 붙여서 0 잘림 방지)
                     zipcode: `'${userInfo.zipcode}`, 
+                    // 7. 주소
                     address: fullAddress,
+                    // 8. 연락처
                     phone: userInfo.phone,
-                    startDate: formatDate(startDate),
-                    endDate: formatDate(getReturnDate(endDate)),
+                    // 9. 일정명
                     scheduleName: userInfo.scheduleName || `${userInfo.name}님 대여`, 
+                    // 10. 대여시작일 (2026. 1. 4)
+                    startDate: formatDateDot(startDate),
+                    // 11. 수령방법
                     delivery: deliveryText,
+                    // 12. 반납일 (2026. 1. 4)
+                    endDate: formatDateDot(getReturnDate(endDate)),
+                    // 13. 반납방법
                     returnMethod: returnText,
+                    // 14. 리뷰 선택 여부
                     review: reviewText,
-                    totalPrice: total,
+                    // 15. 보조배터리 선택 여부 (있다면 '보조배터리' 표시)
+                    battery: batteryCount > 0 ? '보조배터리' : '',
+                    // 16. 파손보험 가입 여부
                     insurance: insuranceText,
-                    dataBackup: dataBackup ? '신청(+10,000원)' : '미신청'
+                    // 17. 총 결제금액
+                    totalPrice: total,
+                    // 18. 송장번호 (공란)
+                    trackingNumber: '',
+                    
+                    // (참고) 구글 시트 스크립트에서 위 순서대로 데이터를 가져가도록 설정되어야 합니다.
+                    // 추가 정보 (백업 신청 여부 등은 필요 시 19번 이후로 추가)
+                    dataBackup: dataBackup ? '신청' : '',
+                    category: '예약신청' // 조회 시 필터링용
                 };
 
                 try {
