@@ -218,7 +218,9 @@
 
             // 백업 페이지 상태
             const [backupForm, setBackupForm] = useState({ name: '', phone: '' });
-            
+            // [수정] backupTab 상태 변수 복구 (탭 전환 기능 사용)
+            const [backupTab, setBackupTab] = useState('mybox');
+
             // 리뷰 작성 관련 상태
             const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
             const [currentReviewItem, setCurrentReviewItem] = useState(null);
@@ -927,7 +929,8 @@
                             /* 로그인 후 (결과 목록) */
                             <div className="space-y-4 animate-fade-in">
                                 <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
-                                    <h3 className="font-bold text-gray-800"><span className="text-blue-500">{formatNameMasking(lookupName)}</span>님의 예약</h3>
+                                    {/* [수정] 예약 조회 시 마스킹 제거하고 실명 표시 */}
+                                    <h3 className="font-bold text-gray-800"><span className="text-blue-500">{lookupName}</span>님의 예약내역</h3>
                                     <div className="flex items-center gap-3">
                                         <button onClick={handleRefresh} className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1 transition-colors">
                                             <Icons.RefreshCw size={11} /> 새로고침
@@ -1038,7 +1041,7 @@
                                                             className="w-full mt-2 py-2.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                                                         >
                                                             <Icons.Star size={14} className="fill-blue-600" /> 
-                                                            이 기기 리뷰 남기기
+                                                            리뷰 남기기
                                                         </button>
                                                     )}
 
@@ -1202,31 +1205,65 @@
                     </div>
 
                     <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                        {/* 탭 삭제됨: 샌드애니웨어 단일 안내로 변경 */}
-                        
-                        <div className="space-y-4 animate-fade-in">
-                            <div className="flex flex-col items-center mb-4">
-                                <div className="w-12 h-12 bg-pink-50 rounded-full flex items-center justify-center text-pink-500 mb-2">
-                                    <Icons.Zap size={24} />
-                                </div>
-                                <h3 className="font-bold text-gray-800">대용량도 한번에 전송!</h3>
-                                <p className="text-xs text-gray-400 mt-1">샌드애니웨어로 원본 화질 그대로 ⚡️</p>
-                            </div>
-                            <div className="space-y-3 text-sm text-gray-600">
-                                <div className="flex gap-3">
-                                    <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                                    <p>두 기기(대여폰, 내 폰) 모두 <strong>샌드애니웨어</strong> 앱을 설치해주세요.</p>
-                                </div>
-                                <div className="flex gap-3">
-                                    <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                                    <p>대여폰에서 사진/영상을 선택하고 <strong>'보내기'</strong>를 누르면 6자리 숫자가 뜹니다.</p>
-                                </div>
-                                <div className="flex gap-3">
-                                    <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                                    <p>내 폰의 <strong>'받기'</strong> 입력창에 그 숫자를 입력하면 전송 시작!</p>
-                                </div>
-                            </div>
+                        {/* [수정] 탭 버튼 추가: 네이버 마이박스 / 샌드애니웨어 */}
+                        <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+                            <button onClick={() => setBackupTab('mybox')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${backupTab === 'mybox' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>네이버 마이박스</button>
+                            <button onClick={() => setBackupTab('sendanywhere')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${backupTab === 'sendanywhere' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>샌드애니웨어</button>
                         </div>
+                        
+                        {/* [추가] 네이버 마이박스 가이드 내용 */}
+                        {backupTab === 'mybox' ? (
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex flex-col items-center mb-4">
+                                    <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-500 mb-2">
+                                        <Icons.Cloud size={24} />
+                                    </div>
+                                    {/* [수정] 타이틀 변경: 자동 백업 -> 필요한 것만 골라 백업 */}
+                                    <h3 className="font-bold text-gray-800">필요한 것만 골라 백업!</h3>
+                                    <p className="text-xs text-gray-400 mt-1">네이버 아이디만 있으면 OK 👌</p>
+                                </div>
+                                <div className="space-y-3 text-sm text-gray-600">
+                                    <div className="flex gap-3">
+                                        <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                                        <p>대여한 폰에 <strong>네이버 MYBOX</strong> 앱을 설치하고 로그인해주세요.</p>
+                                    </div>
+                                    {/* [수정] 자가 백업 방법으로 내용 변경 */}
+                                    <div className="flex gap-3">
+                                        <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                                        <p>앱 하단의 <strong>파란색 '+' 버튼</strong>을 누르고 <strong>'갤러리'</strong>를 선택하세요.</p>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                                        <p>백업할 사진과 영상을 콕콕 선택한 후 <strong>'올리기'</strong>를 누르면 끝!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            /* 샌드애니웨어 가이드 내용 */
+                            <div className="space-y-4 animate-fade-in">
+                                <div className="flex flex-col items-center mb-4">
+                                    <div className="w-12 h-12 bg-pink-50 rounded-full flex items-center justify-center text-pink-500 mb-2">
+                                        <Icons.Zap size={24} />
+                                    </div>
+                                    <h3 className="font-bold text-gray-800">대용량도 한번에 전송!</h3>
+                                    <p className="text-xs text-gray-400 mt-1">샌드애니웨어로 원본 화질 그대로 ⚡️</p>
+                                </div>
+                                <div className="space-y-3 text-sm text-gray-600">
+                                    <div className="flex gap-3">
+                                        <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                                        <p>두 기기(대여폰, 내 폰) 모두 <strong>샌드애니웨어</strong> 앱을 설치해주세요.</p>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                                        <p>대여폰에서 사진/영상을 선택하고 <strong>'보내기'</strong>를 누르면 6자리 숫자가 뜹니다.</p>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <span className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                                        <p>내 폰의 <strong>'받기'</strong> 입력창에 그 숫자를 입력하면 전송 시작!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="mt-8 pt-6 border-t border-gray-100">
                             {/* Paid service section remains */}
