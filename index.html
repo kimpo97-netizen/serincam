@@ -90,8 +90,8 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // ★★★ [설정] 구글 스크립트 배포 URL ★★★
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyy_kO8_yDhgINrvOTvzNa4eGnbRzdcKB9rnRrcBJ2LsN2uEednxcJR9eOLBr7hEGifLA/exec"; 
+        // ★★★ [설정] 구글 스크립트 배포 URL (업데이트됨) ★★★
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1PKmQbmyd9Rupo2FnrJpFxlpCppzyQ0LnazG9QDlCrnhJjMXnhx8m8bBTPzgStUNuaA/exec"; 
 
         // --- 데이터 ---
         const HOLIDAYS = {
@@ -178,7 +178,8 @@
             const [viewMode, setViewMode] = useState('dashboard'); 
             const [step, setStep] = useState(1); 
             const [activeTab, setActiveTab] = useState('galaxy');
-            const [backupTab, setBackupTab] = useState('samsung');
+            // [수정] 백업방법 탭 초기값을 'mybox'로 변경 (기존 'samsung' -> 'mybox')
+            const [backupTab, setBackupTab] = useState('mybox');
             const [activeReviewTab, setActiveReviewTab] = useState('all');
             
             // ★★★ [설정] 이미지 URL 설정 ★★★
@@ -592,16 +593,17 @@
 
                 const total = calculateTotal();
 
-                // [수정] 요청하신 순서대로 데이터 객체 구성
+                // [수정] 요청하신 순서대로 데이터 객체 구성 (2025-01-07 수정)
+                // 순서: 예약시간/상태/보조배터리/대여모델/이름/우편번호/주소/연락처/일정명/수령일/수령방법/반납일/반납방법/리뷰/보험/총 결제금액/송장번호
                 const orderData = {
                     // 1. 예약시간 (한국 기준)
                     orderTime: new Date().toLocaleString('ko-KR'),
                     // 2. 상태 (초기값: 예약신청)
                     status: '예약신청',
-                    // 3. 대여모델 간략히 (예: 23U)
+                    // 3. 보조배터리 (순서 이동됨)
+                    battery: batteryCount > 0 ? '보조배터리' : '',
+                    // 4. 대여모델 간략히 (예: 23U)
                     model: getShortModelName(selectedPhone.name),
-                    // 4. 배정된 모델 (공란)
-                    assignedModel: '',
                     // 5. 예약자 이름
                     name: userInfo.name,
                     // 6. 우편번호 (' 붙여서 0 잘림 방지)
@@ -612,27 +614,25 @@
                     phone: userInfo.phone,
                     // 9. 일정명
                     scheduleName: userInfo.scheduleName || `${userInfo.name}님 대여`, 
-                    // 10. 대여시작일 (2026. 1. 4)
+                    // 10. 수령일 (대여시작일)
                     startDate: formatDateDot(startDate),
                     // 11. 수령방법
                     delivery: deliveryText,
-                    // 12. 반납일 (2026. 1. 4)
+                    // 12. 반납일
                     endDate: formatDateDot(getReturnDate(endDate)),
                     // 13. 반납방법
                     returnMethod: returnText,
-                    // 14. 리뷰 선택 여부
+                    // 14. 리뷰 선택 여부 (리뷰보험의 앞부분)
                     review: reviewText,
-                    // 15. 보조배터리 선택 여부 (있다면 '보조배터리' 표시)
-                    battery: batteryCount > 0 ? '보조배터리' : '',
-                    // 16. 파손보험 가입 여부
+                    // 15. 파손보험 가입 여부 (리뷰보험의 뒷부분)
                     insurance: insuranceText,
-                    // 17. 총 결제금액
+                    // 16. 총 결제금액
                     totalPrice: total,
-                    // 18. 송장번호 (공란)
+                    // 17. 송장번호 (공란)
                     trackingNumber: '',
                     
                     // (참고) 구글 시트 스크립트에서 위 순서대로 데이터를 가져가도록 설정되어야 합니다.
-                    // 추가 정보 (백업 신청 여부 등은 필요 시 19번 이후로 추가)
+                    // 추가 정보 (백업 신청 여부 등은 필요 시 끝에 추가)
                     dataBackup: dataBackup ? '신청' : '',
                     category: '예약신청' // 조회 시 필터링용
                 };
@@ -1684,261 +1684,259 @@
                                 
                                 {activeNav === 'home' && viewMode === 'dashboard' && (
                                     <div className="space-y-6 animate-slide-in pb-24">
-                                        
-                                        {/* [수정] 메인 배너 섹션 레이아웃 변경 (2열 구성) */}
-                                        <div className="space-y-4">
-                                            <div className="px-1 pt-2">
-                                                <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-400 text-[10px] font-bold mb-2">High Quality Rental</span>
-                                                <h2 className="text-2xl font-bold text-gray-900 leading-snug">
-                                                    최애의 순간을 <br/>
-                                                    <span className="text-blue-400">고화질로 소장</span>하세요 📸
-                                                </h2>
-                                            </div>
+                                            
+                                            {/* [수정] 메인 배너 섹션 레이아웃 변경 (2열 구성) */}
+                                            <div className="space-y-4">
+                                                {/* [수정] 타이틀 영역과 예약 조회 버튼을 같은 열에 배치 */}
+                                                <div className="px-1 pt-2 flex justify-between items-start">
+                                                    <div>
+                                                        <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-400 text-[10px] font-bold mb-2">High Quality Rental</span>
+                                                        <h2 className="text-2xl font-bold text-gray-900 leading-snug">
+                                                            최애의 순간을 <br/>
+                                                            <span className="text-blue-400">고화질로 소장</span>하세요 📸
+                                                        </h2>
+                                                    </div>
+                                                    
+                                                    {/* [이동됨] 예약 조회 버튼 (우측 상단) - 크기 확대 적용 */}
+                                                    <button 
+                                                        onClick={() => setViewMode('lookup')}
+                                                        className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors group flex flex-col items-center justify-center gap-1.5"
+                                                        style={{minWidth: '76px', height: '76px'}}
+                                                    >
+                                                        <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                                                            <Icons.Search size={16} />
+                                                        </div>
+                                                        <span className="text-[11px] font-bold text-gray-600">예약조회</span>
+                                                    </button>
+                                                </div>
 
-                                            {/* 그리드 레이아웃: 좌측 예약하기 / 우측 문의&FAQ */}
-                                            <div className="grid grid-cols-2 gap-3 h-44">
-                                                {/* 좌측: 예약하기 버튼 (세로로 김) */}
-                                                <div onClick={() => handleRentalStart('post')} className="cursor-pointer group relative rounded-2xl overflow-hidden shadow-md shadow-blue-100 transition-transform hover:scale-[1.02] h-full">
-                                                    {MAIN_BANNER_URL ? (
-                                                        <img 
-                                                            src={MAIN_BANNER_URL} 
-                                                            alt="지금 바로 대여하기" 
-                                                            className="w-full h-full object-cover" 
-                                                        />
-                                                    ) : (
-                                                        <div className="bg-gradient-to-br from-[#93C5FD] to-[#3B82F6] p-4 h-full relative">
-                                                            <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full blur-xl -mr-5 -mt-5"></div>
-                                                            <div className="absolute bottom-0 left-0 w-20 h-20 bg-yellow-300 opacity-20 rounded-full blur-lg -ml-5 -mb-5"></div>
-                                                            
-                                                            <div className="relative z-10 flex flex-col justify-between h-full">
-                                                                <div>
-                                                                    <span className="text-white/90 text-[10px] font-medium tracking-wider">RENTAL</span>
-                                                                    <h3 className="text-white text-xl font-bold mt-1 leading-tight break-keep">지금 바로<br/>예약하기</h3>
-                                                                </div>
-                                                                <div className="flex justify-end">
-                                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-400 shadow-sm group-hover:scale-110 transition-transform">
-                                                                        <Icons.ChevronLeft className="transform rotate-180 w-4 h-4" />
+                                                {/* 그리드 레이아웃: 좌측 예약하기 / 우측 문의&FAQ */}
+                                                <div className="grid grid-cols-2 gap-3 h-44">
+                                                    {/* 좌측: 예약하기 버튼 (세로로 김) */}
+                                                    <div onClick={() => handleRentalStart('post')} className="cursor-pointer group relative rounded-2xl overflow-hidden shadow-md shadow-blue-100 transition-transform hover:scale-[1.02] h-full">
+                                                        {MAIN_BANNER_URL ? (
+                                                            <img 
+                                                                src={MAIN_BANNER_URL} 
+                                                                alt="지금 바로 대여하기" 
+                                                                className="w-full h-full object-cover" 
+                                                            />
+                                                        ) : (
+                                                            <div className="bg-gradient-to-br from-[#93C5FD] to-[#3B82F6] p-4 h-full relative">
+                                                                <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full blur-xl -mr-5 -mt-5"></div>
+                                                                <div className="absolute bottom-0 left-0 w-20 h-20 bg-yellow-300 opacity-20 rounded-full blur-lg -ml-5 -mb-5"></div>
+                                                                
+                                                                <div className="relative z-10 flex flex-col justify-between h-full">
+                                                                    <div>
+                                                                        <span className="text-white/90 text-[10px] font-medium tracking-wider">RENTAL</span>
+                                                                        <h3 className="text-white text-xl font-bold mt-1 leading-tight break-keep">지금 바로<br/>예약하기</h3>
+                                                                    </div>
+                                                                    <div className="flex justify-end">
+                                                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-400 shadow-sm group-hover:scale-110 transition-transform">
+                                                                                <Icons.ChevronLeft className="transform rotate-180 w-4 h-4" />
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* 우측: 1:1 문의 & FAQ (가로로 나뉨) */}
+                                                    <div className="flex flex-col gap-3 h-full">
+                                                        {/* 상단: 1:1 문의하기 */}
+                                                        <div onClick={() => alert("카카오톡 상담으로 연결됩니다.")} className="flex-1 bg-yellow-50 rounded-2xl border border-yellow-100 flex flex-col justify-center items-center p-3 cursor-pointer hover:bg-yellow-100 transition-colors relative overflow-hidden group shadow-sm">
+                                                            <div className="absolute right-[-5px] top-[-5px] opacity-10 text-yellow-500">
+                                                                <Icons.MessageCircle size={40} />
+                                                            </div>
+                                                            <Icons.MessageCircle size={24} className="text-yellow-500 mb-1.5" />
+                                                            <span className="font-bold text-gray-800 text-xs">1:1 문의하기</span>
+                                                        </div>
+
+                                                        {/* 하단: 자주 묻는 질문 */}
+                                                        <div onClick={() => alert("준비 중입니다.")} className="flex-1 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col justify-center items-center p-3 cursor-pointer hover:bg-gray-100 transition-colors relative overflow-hidden group shadow-sm">
+                                                            <div className="absolute right-[-5px] bottom-[-5px] opacity-10 text-gray-500">
+                                                                <Icons.HelpCircle size={40} />
+                                                            </div>
+                                                            <Icons.HelpCircle size={24} className="text-gray-500 mb-1.5" />
+                                                            <span className="font-bold text-gray-800 text-xs">자주 묻는 질문</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* [삭제됨] 기존 예약 조회 카드 위치 */}
+
+                                            {/* 서비스 바로가기 섹션 */}
+                                            <div>
+                                                <h3 className="font-bold text-gray-800 text-lg mb-4 px-1">서비스 바로가기</h3>
+                                                <div className="grid grid-cols-4 gap-2">
+                                                    <div onClick={() => setViewMode('extension')} className="bg-purple-50 p-3 rounded-2xl shadow-sm border border-purple-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-purple-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                            <Icons.Clock size={16} />
+                                                        </div>
+                                                        <h4 className="font-bold text-gray-800 text-xs">기간연장</h4>
+                                                    </div>
+                                                    <div onClick={() => setViewMode('backup')} className="bg-orange-50 p-3 rounded-2xl shadow-sm border border-orange-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-orange-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                            <Icons.Cloud size={16} />
+                                                        </div>
+                                                        <h4 className="font-bold text-gray-800 text-xs">백업방법</h4>
+                                                    </div>
+                                                    {/* [수정] 이용방법 버튼 연결 (handleNavChange -> setViewMode('manual')) */}
+                                                    <div onClick={() => setViewMode('manual')} className="bg-green-50 p-3 rounded-2xl shadow-sm border border-green-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-green-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                            <Icons.BookOpen size={16} />
+                                                        </div>
+                                                        <h4 className="font-bold text-gray-800 text-xs">이용방법</h4>
+                                                    </div>
+                                                    <div onClick={() => alert("준비 중입니다.")} className="bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
+                                                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-400 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
+                                                            <Icons.Headphones size={16} />
+                                                        </div>
+                                                        <h4 className="font-bold text-gray-800 text-xs">고객센터</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        
+                                            {/* 대여모델 고민 섹션 */}
+                                            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <span className="text-xl">🔮</span>
+                                                    <h3 className="font-bold text-gray-800 text-base">대여모델 고민되신다면?!</h3>
+                                                </div>
+                                                
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어디서 보시나요?</label>
+                                                        <div className="relative">
+                                                            <select 
+                                                                value={recVenue}
+                                                                onChange={(e) => setRecVenue(e.target.value)}
+                                                                className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm font-bold text-gray-800 appearance-none border border-transparent focus:border-blue-300 transition-colors custom-select"
+                                                            >
+                                                                <option value="KSPO DOME">KSPO DOME (체조경기장)</option>
+                                                                <option value="GOCHEOK">고척 스카이돔</option>
+                                                                <option value="JAMSIL">잠실 주경기장</option>
+                                                                <option value="INSPRIE">인스파이어 아레나</option>
+                                                                <option value="OTHER">기타 공연장</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어느 좌석인가요?</label>
+                                                        <div className="grid grid-cols-4 gap-2">
+                                                            {['floor', '1f', '2f', '3f'].map((s) => (
+                                                                <button 
+                                                                    key={s}
+                                                                    onClick={() => { setRecSeat(s); setRecResult(null); }}
+                                                                    className={`py-2 rounded-xl text-xs font-bold transition-all ${recSeat === s ? 'bg-blue-400 text-white shadow-md' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
+                                                                >
+                                                                    {/* [수정] 1F층 -> 1층, 2F층 -> 2층으로 표시 변경 (f제거) */}
+                                                                    {s === 'floor' ? '스탠딩' : s === '3f' ? '3층이상' : `${s.replace('f', '')}층`}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {!recResult ? (
+                                                        <button 
+                                                            onClick={handleRecommendation}
+                                                            className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 mt-2"
+                                                        >
+                                                            <Icons.Search size={16} /> 추천 받기
+                                                        </button>
+                                                    ) : (
+                                                        <div className="mt-4 animate-fade-in">
+                                                            <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 relative overflow-hidden">
+                                                                <div className="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-40 rounded-full blur-xl"></div>
+                                                                <p className="text-xs text-blue-400 font-bold mb-1">세린캠의 추천!</p>
+                                                                <h4 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                                                    {recResult.name}
+                                                                    <Icons.Android size={20} />
+                                                                </h4>
+                                                                <p className="text-xs text-gray-600 leading-relaxed bg-white/60 p-3 rounded-xl">
+                                                                    "{recResult.reason}"
+                                                                </p>
+                                                                <button 
+                                                                    onClick={() => handleRentalStart('post')}
+                                                                    className="w-full mt-3 bg-blue-400 text-white py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-blue-500 transition-colors"
+                                                                >
+                                                                    이 모델로 예약하기
+                                                                </button>
+                                                            </div>
+                                                            <button onClick={() => setRecResult(null)} className="text-xs text-gray-400 underline mt-3 w-full text-center">다시 선택하기</button>
                                                         </div>
                                                     )}
                                                 </div>
-
-                                                {/* 우측: 1:1 문의 & FAQ (가로로 나뉨) */}
-                                                <div className="flex flex-col gap-3 h-full">
-                                                    {/* 상단: 1:1 문의하기 */}
-                                                    <div onClick={() => alert("카카오톡 상담으로 연결됩니다.")} className="flex-1 bg-yellow-50 rounded-2xl border border-yellow-100 flex flex-col justify-center items-center p-3 cursor-pointer hover:bg-yellow-100 transition-colors relative overflow-hidden group shadow-sm">
-                                                        <div className="absolute right-[-5px] top-[-5px] opacity-10 text-yellow-500">
-                                                            <Icons.MessageCircle size={40} />
-                                                        </div>
-                                                        <Icons.MessageCircle size={24} className="text-yellow-500 mb-1.5" />
-                                                        <span className="font-bold text-gray-800 text-xs">1:1 문의하기</span>
-                                                    </div>
-
-                                                    {/* 하단: 자주 묻는 질문 */}
-                                                    <div onClick={() => alert("준비 중입니다.")} className="flex-1 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col justify-center items-center p-3 cursor-pointer hover:bg-gray-100 transition-colors relative overflow-hidden group shadow-sm">
-                                                        <div className="absolute right-[-5px] bottom-[-5px] opacity-10 text-gray-500">
-                                                            <Icons.HelpCircle size={40} />
-                                                        </div>
-                                                        <Icons.HelpCircle size={24} className="text-gray-500 mb-1.5" />
-                                                        <span className="font-bold text-gray-800 text-xs">자주 묻는 질문</span>
-                                                    </div>
-                                                </div>
                                             </div>
-                                        </div>
 
-                                        {/* 예약 조회 카드를 서비스 바로가기 위(메인 배너 아래)로 이동 */}
-                                        <div 
-                                            onClick={() => setViewMode('lookup')} 
-                                            className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-all group"
-                                        >
-                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
-                                                    <Icons.Search size={20} />
+                                            <div className="mb-4">
+                                                <div className="flex justify-between items-center mb-3 px-1">
+                                                    <h3 className="font-bold text-gray-800 text-lg">💬 생생한 리얼 후기</h3>
                                                 </div>
-                                                <div>
-                                                    <p className="text-xs text-gray-500 mb-0.5">이미 신청하셨나요?</p>
-                                                    <h3 className="text-sm font-bold text-gray-800">나의 예약 내역 조회하기</h3>
-                                                </div>
-                                             </div>
-                                             <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:shadow-sm transition-all">
-                                                <Icons.ChevronRight size={16} />
-                                             </div>
-                                        </div>
-
-                                        {/* 서비스 바로가기 섹션 */}
-                                        <div>
-                                            <h3 className="font-bold text-gray-800 text-lg mb-4 px-1">서비스 바로가기</h3>
-                                            <div className="grid grid-cols-4 gap-2">
-                                                <div onClick={() => setViewMode('extension')} className="bg-purple-50 p-3 rounded-2xl shadow-sm border border-purple-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-purple-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.Clock size={16} />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800 text-xs">기간연장</h4>
-                                                </div>
-                                                <div onClick={() => setViewMode('backup')} className="bg-orange-50 p-3 rounded-2xl shadow-sm border border-orange-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-orange-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.Cloud size={16} />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800 text-xs">백업방법</h4>
-                                                </div>
-                                                {/* [수정] 이용방법 버튼 연결 (handleNavChange -> setViewMode('manual')) */}
-                                                <div onClick={() => setViewMode('manual')} className="bg-green-50 p-3 rounded-2xl shadow-sm border border-green-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-green-500 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.BookOpen size={16} />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800 text-xs">이용방법</h4>
-                                                </div>
-                                                <div onClick={() => alert("준비 중입니다.")} className="bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-100 cursor-pointer hover:shadow-md transition-all group flex flex-col items-center justify-center text-center h-24">
-                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-blue-400 mb-1.5 shadow-sm group-hover:scale-110 transition-transform">
-                                                        <Icons.Headphones size={16} />
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800 text-xs">고객센터</h4>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    
-                                        {/* 대여모델 고민 섹션 */}
-                                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <span className="text-xl">🔮</span>
-                                                <h3 className="font-bold text-gray-800 text-base">대여모델 고민되신다면?!</h3>
-                                            </div>
-                                            
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어디서 보시나요?</label>
-                                                    <div className="relative">
-                                                        <select 
-                                                            value={recVenue}
-                                                            onChange={(e) => setRecVenue(e.target.value)}
-                                                            className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm font-bold text-gray-800 appearance-none border border-transparent focus:border-blue-300 transition-colors custom-select"
-                                                        >
-                                                            <option value="KSPO DOME">KSPO DOME (체조경기장)</option>
-                                                            <option value="GOCHEOK">고척 스카이돔</option>
-                                                            <option value="JAMSIL">잠실 주경기장</option>
-                                                            <option value="INSPRIE">인스파이어 아레나</option>
-                                                            <option value="OTHER">기타 공연장</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어느 좌석인가요?</label>
-                                                    <div className="grid grid-cols-4 gap-2">
-                                                        {['floor', '1f', '2f', '3f'].map((s) => (
-                                                            <button 
-                                                                key={s}
-                                                                onClick={() => { setRecSeat(s); setRecResult(null); }}
-                                                                className={`py-2 rounded-xl text-xs font-bold transition-all ${recSeat === s ? 'bg-blue-400 text-white shadow-md' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}
-                                                            >
-                                                                {/* [수정] 1F층 -> 1층, 2F층 -> 2층으로 표시 변경 (f제거) */}
-                                                                {s === 'floor' ? '스탠딩' : s === '3f' ? '3층이상' : `${s.replace('f', '')}층`}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                {!recResult ? (
-                                                    <button 
-                                                        onClick={handleRecommendation}
-                                                        className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 mt-2"
-                                                    >
-                                                        <Icons.Search size={16} /> 추천 받기
-                                                    </button>
-                                                ) : (
-                                                    <div className="mt-4 animate-fade-in">
-                                                        <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 relative overflow-hidden">
-                                                            <div className="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-40 rounded-full blur-xl"></div>
-                                                            <p className="text-xs text-blue-400 font-bold mb-1">세린캠의 추천!</p>
-                                                            <h4 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                                                                {recResult.name}
-                                                                <Icons.Android size={20} />
-                                                            </h4>
-                                                            <p className="text-xs text-gray-600 leading-relaxed bg-white/60 p-3 rounded-xl">
-                                                                "{recResult.reason}"
-                                                            </p>
-                                                            <button 
-                                                                onClick={() => handleRentalStart('post')}
-                                                                className="w-full mt-3 bg-blue-400 text-white py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-blue-500 transition-colors"
-                                                            >
-                                                                이 모델로 예약하기
-                                                            </button>
-                                                        </div>
-                                                        <button onClick={() => setRecResult(null)} className="text-xs text-gray-400 underline mt-3 w-full text-center">다시 선택하기</button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <div className="flex justify-between items-center mb-3 px-1">
-                                                <h3 className="font-bold text-gray-800 text-lg">💬 생생한 리얼 후기</h3>
-                                            </div>
-                                            <div className="flex gap-3 px-1 overflow-x-auto no-scrollbar pb-2">
-                                                {reviews.slice(0, 4).map(review => (
-                                                    <div key={review.id} className="min-w-[160px] max-w-[180px] bg-[#EFF6FF] p-4 rounded-3xl shadow-sm border border-blue-100 flex flex-col justify-between h-full hover:shadow-md transition-all">
-                                                        <div>
-                                                            <div className="flex flex-col items-start mb-2">
-                                                                <span className="text-[10px] font-bold text-blue-400 bg-white border border-blue-100 px-1.5 py-0.5 rounded-md mb-1.5 shadow-sm">{review.model}</span>
-                                                                <span className="text-xs font-bold text-gray-700">{review.name}님</span>
-                                                            </div>
-                                                            {/* [수정] 리뷰 이미지 표시 (있는 경우에만) */}
-                                                            {review.image && (
-                                                                <div className="mb-3 rounded-xl overflow-hidden h-24 bg-gray-100 border border-gray-100">
-                                                                    <img src={review.image} alt="리뷰 이미지" className="w-full h-full object-cover" />
+                                                <div className="flex gap-3 px-1 overflow-x-auto no-scrollbar pb-2">
+                                                    {reviews.slice(0, 4).map(review => (
+                                                        <div key={review.id} className="min-w-[160px] max-w-[180px] bg-[#EFF6FF] p-4 rounded-3xl shadow-sm border border-blue-100 flex flex-col justify-between h-full hover:shadow-md transition-all">
+                                                            <div>
+                                                                <div className="flex flex-col items-start mb-2">
+                                                                    <span className="text-[10px] font-bold text-blue-400 bg-white border border-blue-100 px-1.5 py-0.5 rounded-md mb-1.5 shadow-sm">{review.model}</span>
+                                                                    <span className="text-xs font-bold text-gray-700">{review.name}님</span>
                                                                 </div>
-                                                            )}
-                                                            <div className="bg-white/60 p-2.5 rounded-xl mb-2 border border-blue-50">
-                                                                <p className="text-[11px] text-gray-600 leading-relaxed line-clamp-3">"{review.text}"</p>
+                                                                {/* [수정] 리뷰 이미지 표시 (있는 경우에만) */}
+                                                                {review.image && (
+                                                                    <div className="mb-3 rounded-xl overflow-hidden h-24 bg-gray-100 border border-gray-100">
+                                                                        <img src={review.image} alt="리뷰 이미지" className="w-full h-full object-cover" />
+                                                                    </div>
+                                                                )}
+                                                                <div className="bg-white/60 p-2.5 rounded-xl mb-2 border border-blue-50">
+                                                                    <p className="text-[11px] text-gray-600 leading-relaxed line-clamp-3">"{review.text}"</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex justify-between items-center pt-1 border-t border-blue-100/50 mt-1">
+                                                                <div className="flex text-yellow-400 gap-0.5">
+                                                                    {[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={11} className="fill-current" />)}
+                                                                </div>
+                                                                <span className="text-[9px] text-gray-400 font-medium">{review.date}</span>
                                                             </div>
                                                         </div>
-                                                        <div className="flex justify-between items-center pt-1 border-t border-blue-100/50 mt-1">
-                                                            <div className="flex text-yellow-400 gap-0.5">
-                                                                {[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={11} className="fill-current" />)}
-                                                            </div>
-                                                            <span className="text-[9px] text-gray-400 font-medium">{review.date}</span>
-                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="text-right mt-3 px-1">
+                                                    <button onClick={() => setViewMode('reviews')} className="text-xs font-bold text-blue-400 bg-blue-50 border border-blue-100 rounded-full px-4 py-2 hover:bg-blue-100 transition-colors inline-flex items-center gap-1 shadow-sm">
+                                                        리뷰 더 보기 <Icons.ChevronLeft className="transform rotate-180 w-3 h-3"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-gray-900 rounded-3xl p-5 shadow-lg flex items-center justify-between cursor-pointer group" onClick={() => alert("반납 시 데이터 초기화 필수!")}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-yellow-400 group-hover:rotate-12 transition-transform">
+                                                        <Icons.Megaphone size={20} />
                                                     </div>
-                                                ))}
-                                            </div>
-                                            <div className="text-right mt-3 px-1">
-                                                <button onClick={() => setViewMode('reviews')} className="text-xs font-bold text-blue-400 bg-blue-50 border border-blue-100 rounded-full px-4 py-2 hover:bg-blue-100 transition-colors inline-flex items-center gap-1 shadow-sm">
-                                                    리뷰 더 보기 <Icons.ChevronLeft className="transform rotate-180 w-3 h-3"/>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-gray-900 rounded-3xl p-5 shadow-lg flex items-center justify-between cursor-pointer group" onClick={() => alert("반납 시 데이터 초기화 필수!")}>
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-yellow-400 group-hover:rotate-12 transition-transform">
-                                                    <Icons.Megaphone size={20} />
+                                                    <div>
+                                                        <p className="text-white font-bold text-sm">반납 전 체크리스트</p>
+                                                        <p className="text-gray-400 text-[10px] mt-0.5">데이터 백업 및 초기화 방법</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-white font-bold text-sm">반납 전 체크리스트</p>
-                                                    <p className="text-gray-400 text-[10px] mt-0.5">데이터 백업 및 초기화 방법</p>
-                                                </div>
+                                                <Icons.ArrowLeft className="transform rotate-180 text-gray-500 w-4 h-4" />
                                             </div>
-                                            <Icons.ArrowLeft className="transform rotate-180 text-gray-500 w-4 h-4" />
-                                        </div>
 
-                                        {/* ★★★ [수정] 푸터 영역 (크기 확대) ★★★ */}
-                                        <footer className="mt-10 pt-10 border-t border-gray-100 text-xs text-gray-400 leading-relaxed pb-20">
-                                            <h5 className="font-bold text-gray-500 text-sm mb-3">세린캠</h5>
-                                            <div className="space-y-1">
-                                                <p>대표: 한승윤 | 사업자등록번호: 396-12-02483</p>
-                                                <p>주소: 인천광역시 서구 이음4로6, KR법조타워 710호</p>
-                                                <p>고객센터: 0507-1484-2386 (평일 10:00 - 17:00)</p>
-                                                <p>개인정보보호책임자: 한승윤 (seungvery@naver.com)</p>
-                                            </div>
-                                            <div className="flex gap-4 mt-5 mb-3">
-                                                <button onClick={() => setShowTerms(true)} className="hover:text-gray-600">이용약관</button>
-                                                <span className="w-px h-3 bg-gray-300 self-center"></span>
-                                                <button onClick={() => setShowPrivacy(true)} className="font-bold hover:text-gray-600">개인정보처리방침</button>
-                                            </div>
-                                            <p className="text-gray-300 mt-2">Copyright © SERINCAM. All rights reserved.</p>
-                                        </footer>
+                                            {/* ★★★ [수정] 푸터 영역 (크기 확대) ★★★ */}
+                                            <footer className="mt-10 pt-10 border-t border-gray-100 text-xs text-gray-400 leading-relaxed pb-20">
+                                                <h5 className="font-bold text-gray-500 text-sm mb-3">세린캠</h5>
+                                                <div className="space-y-1">
+                                                    <p>대표: 한승윤 | 사업자등록번호: 396-12-02483</p>
+                                                    <p>주소: 인천광역시 서구 이음4로6, KR법조타워 710호</p>
+                                                    <p>고객센터: 0507-1484-2386 (평일 10:00 - 17:00)</p>
+                                                    <p>개인정보보호책임자: 한승윤 (seungvery@naver.com)</p>
+                                                </div>
+                                                <div className="flex gap-4 mt-5 mb-3">
+                                                    <button onClick={() => setShowTerms(true)} className="hover:text-gray-600">이용약관</button>
+                                                    <span className="w-px h-3 bg-gray-300 self-center"></span>
+                                                    <button onClick={() => setShowPrivacy(true)} className="font-bold hover:text-gray-600">개인정보처리방침</button>
+                                                </div>
+                                                <p className="text-gray-300 mt-2">Copyright © SERINCAM. All rights reserved.</p>
+                                            </footer>
 
                                     </div>
                                 )}
@@ -2007,14 +2005,14 @@
                                                                     <div className="mt-3 flex justify-between items-center">
                                                                          <span className="text-xs text-blue-400 font-medium">* 최소 1박 2일부터 선택 가능해요</span>
                                                                          <button onClick={resetDates} className="text-xs text-gray-400 hover:text-blue-400 flex items-center gap-1 transition-colors bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
-                                                                             <Icons.RefreshCw size={11} /> 날짜 초기화
+                                                                              <Icons.RefreshCw size={11} /> 날짜 초기화
                                                                          </button>
                                                                     </div>
                                                                 </div>
                                                                 {/* 선택 결과 및 다음 버튼 */}
                                                                 {startDate && (
                                                                     <div className="space-y-4 mt-4">
-                                                                                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
+                                                                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
                                                                                         <div className="flex justify-between items-center mb-2">
                                                                                             <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📦</span> 수령일</span>
                                                                                             <span className="font-bold text-gray-800">
@@ -2038,41 +2036,41 @@
                                                                                             )}
                                                                                         </div>
                                                                                         <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-blue-200/50 leading-relaxed">
-                                                                                                    {dateWarning && <span className="text-blue-500 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
-                                                                                                    {isSundayOrHolidayStart && <span className="text-blue-500 font-bold block mb-2">🚀 일요일/공휴일 수령은 퀵 서비스만 가능해요!</span>}
-                                                                                                    
-                                                                                                    {discounts.app && <span className="text-blue-500 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
-                                                                                                    {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
-                                                                                                    {discounts.kakao && <span className="text-yellow-600 font-bold block mb-1">🎁 카카오맵 리뷰 약속으로 4,000원 할인 적용!</span>}
-                                                                                                    {endDate ? (
-                                                                                                        <span>* <strong>{endDate.getMonth() + 1}월 {endDate.getDate()}일({daysOfWeek[endDate.getDay()]}) 오전중에 집배원님께서 방문하여 수거할 예정입니다!</strong></span>
-                                                                                                    ) : (
-                                                                                                        <span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>
-                                                                                                    )}
+                                                                                                {dateWarning && <span className="text-blue-500 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
+                                                                                                {isSundayOrHolidayStart && <span className="text-blue-500 font-bold block mb-2">🚀 일요일/공휴일 수령은 퀵 서비스만 가능해요!</span>}
+                                                                                                
+                                                                                                {discounts.app && <span className="text-blue-500 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
+                                                                                                {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
+                                                                                                {discounts.kakao && <span className="text-yellow-600 font-bold block mb-1">🎁 카카오맵 리뷰 약속으로 4,000원 할인 적용!</span>}
+                                                                                                {endDate ? (
+                                                                                                    <span>* <strong>{endDate.getMonth() + 1}월 {endDate.getDate()}일({daysOfWeek[endDate.getDay()]}) 오전중에 집배원님께서 방문하여 수거할 예정입니다!</strong></span>
+                                                                                                ) : (
+                                                                                                    <span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>
+                                                                                                )}
                                                                                         </div>
-                                                                                </div>
+                                                                                    </div>
 
-                                                                                <div className="animate-fade-in">
+                                                                                    <div className="animate-fade-in">
                                                                                         <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
                                                                                         <div className="grid grid-cols-3 gap-2">
-                                                                                                    <div onClick={() => setDiscounts({ app: !discounts.app, blog: false, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`}>
-                                                                                                                <span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰</span>
-                                                                                                                <span className="text-[10px] text-blue-400 font-bold">3,000원 할인</span>
-                                                                                                    </div>
-                                                                                                    <div onClick={() => setDiscounts({ app: false, blog: false, kakao: !discounts.kakao })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}>
-                                                                                                                <span className="text-xs font-bold text-gray-800 mb-1 break-keep">카카오맵 리뷰</span>
-                                                                                                                <span className="text-[10px] text-yellow-600 font-bold">4,000원 할인</span>
-                                                                                                    </div>
-                                                                                                    <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}>
-                                                                                                                <span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰</span>
-                                                                                                                <span className="text-[10px] text-green-600 font-bold">5,000원 할인</span>
-                                                                                                    </div>
+                                                                                                <div onClick={() => setDiscounts({ app: !discounts.app, blog: false, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`}>
+                                                                                                    <span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰</span>
+                                                                                                    <span className="text-[10px] text-blue-400 font-bold">3,000원 할인</span>
+                                                                                                </div>
+                                                                                                <div onClick={() => setDiscounts({ app: false, blog: false, kakao: !discounts.kakao })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}>
+                                                                                                    <span className="text-xs font-bold text-gray-800 mb-1 break-keep">카카오맵 리뷰</span>
+                                                                                                    <span className="text-[10px] text-yellow-600 font-bold">4,000원 할인</span>
+                                                                                                </div>
+                                                                                                <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}>
+                                                                                                    <span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰</span>
+                                                                                                    <span className="text-[10px] text-green-600 font-bold">5,000원 할인</span>
+                                                                                                </div>
                                                                                         </div>
-                                                                                </div>
-                                                                        </div>
+                                                                                    </div>
+                                                                    </div>
                                                                 )}
-                                                            </div>
-                                                        )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                             
@@ -2225,7 +2223,7 @@
                                                                     readOnly={!isManualAddress} 
                                                                     value={userInfo.address} 
                                                                     onClick={!isManualAddress ? handleAddressSearch : undefined}
-                                                                    onChange={(e) => setUserInfo({...userInfo, address: e.target.value})}
+                                                                    onChange={(e) => setUserInfo({...userInfo, address: e.target.value})} 
                                                                 />
                                                             </div>
                                                             
@@ -2251,7 +2249,7 @@
                                                             {/* [수정] 공연장 수령일 때만 안내 메시지 노출 & 문구 변경 */}
                                                             {deliveryMethod === 'venue' && (
                                                                 <p className="text-[11px] text-red-500 mt-2.5 bg-red-50 p-2.5 rounded-xl leading-snug break-keep border border-red-100">
-                                                                    <span className="font-bold">📢 필독!</span> 일정에 따라 수령방식이 변경될 수 있으니, 수령 가능한 주소를 입력해 주세요.
+                                                                        <span className="font-bold">📢 필독!</span> 일정에 따라 수령방식이 변경될 수 있으니, 수령 가능한 주소를 입력해 주세요.
                                                                 </p>
                                                             )}
                                                         </div>
