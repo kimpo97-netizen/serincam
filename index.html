@@ -90,7 +90,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // ★★★ [설정] 구글 스크립트 배포 URL (업데이트됨) ★★★
+        // ★★★ [설정] 구글 스크립트 배포 URL ★★★
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1PKmQbmyd9Rupo2FnrJpFxlpCppzyQ0LnazG9QDlCrnhJjMXnhx8m8bBTPzgStUNuaA/exec"; 
 
         // --- 데이터 ---
@@ -187,8 +187,6 @@
             const CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/web/upload/appfiles/ZaReJam3QiELznoZeGGkMG/6dec245d6700959026d702c9034ea872.png"; 
             
             // 2. 메인 배너 이미지 (비워두면 기본 파란색 카드)
-            // 방금 만들어드린 이미지를 저장 후 업로드하여 주소를 여기에 넣어주세요!
-            // 예: "https://i.imgur.com/example.png"
             const MAIN_BANNER_URL = "";
 
             // 예약 데이터
@@ -212,6 +210,12 @@
             const [agreements, setAgreements] = useState({ terms: false, privacy: false });
             const [showTerms, setShowTerms] = useState(false);
             const [showPrivacy, setShowPrivacy] = useState(false);
+            
+            // [추가] 수령/반납 방법 안내 모달 상태
+            const [showDeliveryInfo, setShowDeliveryInfo] = useState(false);
+            const [showReturnInfo, setShowReturnInfo] = useState(false);
+            // [추가] 파손 보험 안내 모달 상태
+            const [showInsuranceInfo, setShowInsuranceInfo] = useState(false);
 
             // 연장 페이지 상태
             const [extModel, setExtModel] = useState('galaxy');
@@ -383,7 +387,6 @@
                 setIsReviewModalOpen(false);
             };
 
-            // ... (rest of the functions remain the same) ...
             const handleRecommendation = () => {
                 let rec = { name: '', reason: '', icon: '' };
                 if (recSeat === 'floor') {
@@ -935,24 +938,21 @@
                     let finalEndDate = new Date(clickedDate);
                     let warningMsg = null;
 
-                    if (isHoliday(finalEndDate)) {
-                        const originalDate = new Date(finalEndDate);
-                        finalEndDate = getNextBusinessDay(finalEndDate);
-                        warningMsg = `반납일이 휴일이라 ${finalEndDate.getMonth() + 1}월 ${finalEndDate.getDate()}일로 자동 연장 되었어요!`;
-                    }
+                    // [수정] 주말/공휴일 자동 연장 로직 삭제
+                    // if (isHoliday(finalEndDate)) {
+                    //     const originalDate = new Date(finalEndDate);
+                    //     finalEndDate = getNextBusinessDay(finalEndDate);
+                    //     warningMsg = `반납일이 휴일이라 ${finalEndDate.getMonth() + 1}월 ${finalEndDate.getDate()}일로 자동 연장 되었어요!`;
+                    // }
 
-                    const diffTime = Math.abs(finalEndDate - startDate); 
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    
                     if (finalEndDate < startDate) { 
+                        // 종료일을 시작일보다 이전 날짜로 선택한 경우 -> 새로운 시작일로 설정
                         setStartDate(finalEndDate); 
                         setEndDate(null);
                         setDateWarning(null); 
                     }
-                    else if (diffDays < 2) {
-                        alert("최소 1박 2일 이상 대여 가능해요!\n(예: 1일 수령 -> 2일 반납)"); 
-                    }
                     else {
+                        // 정상적인 기간 선택 (당일 포함)
                         setStartDate(startDate); 
                         setEndDate(finalEndDate); 
                         setDateWarning(warningMsg);
@@ -1450,7 +1450,7 @@
                                     <p className="text-xs text-gray-500 leading-relaxed bg-gray-50 p-3 rounded-xl">
                                         원하시는 휴대폰(갤럭시/아이폰)과<br/>
                                         대여 시작일~종료일을 선택해주세요.<br/>
-                                        <span className="text-blue-500 font-bold">* 최소 1박 2일부터 가능해요!</span>
+                                        <span className="text-blue-500 font-bold">* 실제 사용할 날짜를 선택해 주세요</span>
                                     </p>
                                 </div>
                             </div>
@@ -1763,8 +1763,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* [삭제됨] 기존 예약 조회 카드 위치 */}
-
                                             {/* 서비스 바로가기 섹션 */}
                                             <div>
                                                 <h3 className="font-bold text-gray-800 text-lg mb-4 px-1">서비스 바로가기</h3>
@@ -2003,7 +2001,7 @@
                                                                     <div className="grid grid-cols-7 gap-y-2 gap-x-1">{renderCalendarDays()}</div>
 
                                                                     <div className="mt-3 flex justify-between items-center">
-                                                                         <span className="text-xs text-blue-400 font-medium">* 최소 1박 2일부터 선택 가능해요</span>
+                                                                         <span className="text-xs text-blue-400 font-medium">* 실제 사용할 날짜를 선택해 주세요</span>
                                                                          <button onClick={resetDates} className="text-xs text-gray-400 hover:text-blue-400 flex items-center gap-1 transition-colors bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
                                                                               <Icons.RefreshCw size={11} /> 날짜 초기화
                                                                          </button>
@@ -2014,8 +2012,10 @@
                                                                     <div className="space-y-4 mt-4">
                                                                                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
                                                                                         <div className="flex justify-between items-center mb-2">
-                                                                                            <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📦</span> 수령일</span>
-                                                                                            <span className="font-bold text-gray-800">
+                                                                                            {/* [수정] 대여시작일 아이콘 변경: 📦 -> 🚀 */}
+                                                                                            <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">🚀</span> 대여시작일</span>
+                                                                                            {/* [수정] 대여시작일 날짜 색상 변경: text-gray-800 -> text-blue-500 */}
+                                                                                            <span className="font-bold text-blue-500">
                                                                                                 {(() => {
                                                                                                     const arrival = getArrivalDate(startDate);
                                                                                                     return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`;
@@ -2023,27 +2023,65 @@
                                                                                             </span>
                                                                                         </div>
                                                                                         <div className="flex justify-between items-center">
-                                                                                            <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📮</span> 반납일</span>
+                                                                                            {/* [수정] 대여종료일 아이콘 변경: 📮 -> 🏁 */}
+                                                                                            <span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">🏁</span> 대여종료일</span>
                                                                                             {endDate ? (
-                                                                                                <span className="font-bold text-blue-400">
+                                                                                                // [수정] 대여종료일 날짜 색상 변경: text-blue-400 -> text-red-500
+                                                                                                <span className="font-bold text-red-500">
                                                                                                     {(() => { 
                                                                                                         const returnDate = getReturnDate(endDate); 
                                                                                                         return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; 
                                                                                                     })()}
                                                                                                 </span>
                                                                                             ) : (
-                                                                                                <span className="font-bold text-blue-400 animate-pulse">반납일을 선택해주세요 ✨</span>
+                                                                                                <span className="font-bold text-blue-400 animate-pulse">종료일을 선택해주세요 ✨</span>
                                                                                             )}
                                                                                         </div>
                                                                                         <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-blue-200/50 leading-relaxed">
                                                                                                 {dateWarning && <span className="text-blue-500 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
-                                                                                                {isSundayOrHolidayStart && <span className="text-blue-500 font-bold block mb-2">🚀 일요일/공휴일 수령은 퀵 서비스만 가능해요!</span>}
+                                                                                                {/* [수정] 일요일/공휴일 수령 안내 문구 삭제 */}
                                                                                                 
                                                                                                 {discounts.app && <span className="text-blue-500 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
                                                                                                 {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
                                                                                                 {discounts.kakao && <span className="text-yellow-600 font-bold block mb-1">🎁 카카오맵 리뷰 약속으로 4,000원 할인 적용!</span>}
+                                                                                                
+                                                                                                {/* [수정] 안내 문구 로직 변경 - 자동 추천일 계산 */}
                                                                                                 {endDate ? (
-                                                                                                    <span>* <strong>{endDate.getMonth() + 1}월 {endDate.getDate()}일({daysOfWeek[endDate.getDay()]}) 오전중에 집배원님께서 방문하여 수거할 예정입니다!</strong></span>
+                                                                                                    (() => {
+                                                                                                        // 금(5), 토(6), 일(0) 또는 공휴일인지 확인 (isHoliday는 토,일,공휴일 포함)
+                                                                                                        if (endDate.getDay() === 5 || isHoliday(endDate)) {
+                                                                                                            // 다음 평일(월~목 & 비공휴일) 찾기 로직
+                                                                                                            let nextValid = new Date(endDate);
+                                                                                                            nextValid.setDate(nextValid.getDate() + 1);
+                                                                                                            
+                                                                                                            while (true) {
+                                                                                                                const d = nextValid.getDay();
+                                                                                                                const y = nextValid.getFullYear();
+                                                                                                                const m = nextValid.getMonth() + 1;
+                                                                                                                const day = nextValid.getDate();
+                                                                                                                const dateKey = `${y}-${m}-${day}`;
+                                                                                                                const isH = !!HOLIDAYS[dateKey];
+                                                                                                                
+                                                                                                                // 금(5), 토(6), 일(0), 공휴일(isH)이 아니면 유효한 반납일(월~목)
+                                                                                                                if (d !== 5 && d !== 6 && d !== 0 && !isH) {
+                                                                                                                    break;
+                                                                                                                }
+                                                                                                                nextValid.setDate(nextValid.getDate() + 1);
+                                                                                                            }
+                                                                                                            
+                                                                                                            const dateStr = `${nextValid.getMonth() + 1}월 ${nextValid.getDate()}일(${daysOfWeek[nextValid.getDay()]})`;
+                                                                                                            
+                                                                                                            return (
+                                                                                                                // [수정] font-bold 제거 ("진하게 풀어줘" 반영)
+                                                                                                                <span className="text-red-500 block mt-2 break-keep bg-red-50 p-2.5 rounded-xl border border-red-100 text-[11px] leading-relaxed shadow-sm animate-bounce-in">
+                                                                                                                    🚨 대여종료일이 공휴일 또는 금,토,일인 경우 택배반납이 불가해요!<br/>
+                                                                                                                    {/* [수정] 문구 변경: 가장 빠른 평일인 -> 택배반납을 원하시면 */}
+                                                                                                                    택배반납을 원하시면 <strong className="text-red-600 bg-white px-1.5 py-0.5 rounded border border-red-200 mx-0.5 inline-block mt-1">{dateStr}</strong>로 선택해주세요.
+                                                                                                                </span>
+                                                                                                            );
+                                                                                                        }
+                                                                                                        return null;
+                                                                                                    })()
                                                                                                 ) : (
                                                                                                     <span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>
                                                                                                 )}
@@ -2078,17 +2116,24 @@
                                                 <div className="space-y-8 animate-slide-in">
                                                     <div><h2 className="text-2xl font-bold text-gray-800">안전하고 편리하게<br/>준비해드릴게요 🎁</h2></div>
                                                     
+                                                    {/* 1. 수령 방법 섹션 */}
                                                     <div className="space-y-3">
-                                                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-sky-500" /> 수령 방법</h3>
+                                                        <div className="flex items-center gap-2">
+                                                            <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-sky-500" /> 수령 방법</h3>
+                                                            <button onClick={() => setShowDeliveryInfo(true)} className="text-gray-400 hover:text-sky-500 transition-colors">
+                                                                <Icons.HelpCircle size={16} />
+                                                            </button>
+                                                        </div>
+                                                        
                                                         <div className="grid grid-cols-2 gap-2">
                                                             <div onClick={() => { 
                                                                 if (isSameDayStart) { alert("당일 대여는 우체국 택배가 불가능해요. 퀵 서비스를 이용해주세요."); return; } 
                                                                 if (isSundayOrHolidayStart) { alert("일요일 및 공휴일 수령은 퀵 서비스만 가능해요."); return; }
                                                                 setDeliveryMethod(deliveryMethod === 'post' ? null : 'post'); 
-                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isSundayOrHolidayStart) ? 'opacity-50 grayscale' : ''}`}>
+                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isSundayOrHolidayStart) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
                                                                 <div className="flex justify-between items-start">
                                                                     <span className={`font-bold ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-500' : 'text-gray-800'}`}>우체국 택배</span>
-                                                                    <Icons.Truck size={20} className="text-blue-400" />
+                                                                    <Icons.Truck size={20} className={(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-400' : 'text-blue-400'} />
                                                                 </div>
                                                                 <p className={`font-bold text-xs text-right ${(isSameDayStart || isSundayOrHolidayStart) ? 'text-gray-400' : 'text-gray-700'}`}>{(isSameDayStart || isSundayOrHolidayStart) ? '마감' : '+4,000원'}</p>
                                                             </div>
@@ -2128,24 +2173,67 @@
                                                         )}
                                                     </div>
 
+                                                    {/* 2. 반납 방법 섹션 (복구됨) */}
                                                     <div className="space-y-3">
-                                                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법</h3>
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            <div onClick={() => setReturnMethod(returnMethod === 'pickup' ? null : 'pickup')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${returnMethod === 'pickup' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
-                                                                <div className="flex justify-between items-start">
-                                                                    <span className="font-bold text-gray-800">방문 수거</span>
-                                                                    <Icons.Truck size={20} className="text-rose-500 transform scale-x-[-1]" />
-                                                                </div>
-                                                                <p className="font-bold text-xs text-right text-gray-700">+4,000원</p>
-                                                            </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법</h3>
+                                                            <button onClick={() => setShowReturnInfo(true)} className="text-gray-400 hover:text-rose-500 transition-colors">
+                                                                <Icons.HelpCircle size={16} />
+                                                            </button>
+                                                        </div>
 
-                                                            <div onClick={() => setReturnMethod(returnMethod === 'post' ? null : 'post')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${returnMethod === 'post' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
-                                                                <div className="flex justify-between items-start">
-                                                                    <span className="font-bold text-gray-800">택배 반납</span>
-                                                                    <Icons.Box size={20} className="text-rose-500" />
-                                                                </div>
-                                                                <p className="font-bold text-xs text-right text-gray-700">직접 발송(선불)</p>
-                                                            </div>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            {(() => {
+                                                                // 금, 토, 일, 공휴일 체크
+                                                                const isWeekendOrHolidayEnd = endDate && (
+                                                                    endDate.getDay() === 0 || // 일
+                                                                    endDate.getDay() === 5 || // 금
+                                                                    endDate.getDay() === 6 || // 토
+                                                                    isHoliday(endDate)
+                                                                );
+
+                                                                return (
+                                                                    <>
+                                                                        <div 
+                                                                            onClick={() => {
+                                                                                if (isWeekendOrHolidayEnd) { alert("선택하신 반납일(금/토/일/공휴일)에는 방문수거가 불가능해요. 사무실 반납을 이용하시거나 대여 기간을 조정해주세요."); return; }
+                                                                                setReturnMethod(returnMethod === 'pickup' ? null : 'pickup');
+                                                                            }} 
+                                                                            className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] 
+                                                                                ${returnMethod === 'pickup' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}
+                                                                                ${isWeekendOrHolidayEnd ? 'opacity-40 grayscale cursor-not-allowed bg-gray-50' : ''}
+                                                                            `}
+                                                                        >
+                                                                            <div className="flex justify-between items-start">
+                                                                                <span className={`font-bold ${isWeekendOrHolidayEnd ? 'text-gray-400' : 'text-gray-800'}`}>방문 수거</span>
+                                                                                <Icons.Truck size={20} className={isWeekendOrHolidayEnd ? 'text-gray-400' : "text-rose-500 transform scale-x-[-1]"} />
+                                                                            </div>
+                                                                            <p className={`font-bold text-xs text-right ${isWeekendOrHolidayEnd ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                                                {isWeekendOrHolidayEnd ? '이용불가' : '+4,000원'}
+                                                                            </p>
+                                                                        </div>
+
+                                                                        <div 
+                                                                            onClick={() => {
+                                                                                if (isWeekendOrHolidayEnd) { alert("선택하신 반납일(금/토/일/공휴일)에는 택배반납이 불가능해요. 사무실 반납을 이용하시거나 대여 기간을 조정해주세요."); return; }
+                                                                                setReturnMethod(returnMethod === 'post' ? null : 'post');
+                                                                            }} 
+                                                                            className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] 
+                                                                                ${returnMethod === 'post' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}
+                                                                                ${isWeekendOrHolidayEnd ? 'opacity-40 grayscale cursor-not-allowed bg-gray-50' : ''}
+                                                                            `}
+                                                                        >
+                                                                            <div className="flex justify-between items-start">
+                                                                                <span className={`font-bold ${isWeekendOrHolidayEnd ? 'text-gray-400' : 'text-gray-800'}`}>택배 반납</span>
+                                                                                <Icons.Box size={20} className={isWeekendOrHolidayEnd ? 'text-gray-400' : "text-rose-500"} />
+                                                                            </div>
+                                                                            <p className={`font-bold text-xs text-right ${isWeekendOrHolidayEnd ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                                                {isWeekendOrHolidayEnd ? '이용불가' : '직접 발송(선불)'}
+                                                                            </p>
+                                                                        </div>
+                                                                    </>
+                                                                );
+                                                            })()}
 
                                                             <div onClick={() => setReturnMethod(returnMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${returnMethod === 'office' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start">
@@ -2155,6 +2243,41 @@
                                                                 <p className="font-bold text-xs text-right text-gray-700">무료</p>
                                                             </div>
                                                         </div>
+
+                                                        {/* 반납 제한일 경고 문구 (2단계에도 표시) */}
+                                                        {endDate && (
+                                                            (() => {
+                                                                if (endDate.getDay() === 5 || endDate.getDay() === 6 || endDate.getDay() === 0 || isHoliday(endDate)) {
+                                                                    let nextValid = new Date(endDate);
+                                                                    nextValid.setDate(nextValid.getDate() + 1);
+                                                                    
+                                                                    while (true) {
+                                                                        const d = nextValid.getDay();
+                                                                        const y = nextValid.getFullYear();
+                                                                        const m = nextValid.getMonth() + 1;
+                                                                        const day = nextValid.getDate();
+                                                                        const dateKey = `${y}-${m}-${day}`;
+                                                                        const isH = !!HOLIDAYS[dateKey];
+                                                                        
+                                                                        if (d !== 5 && d !== 6 && d !== 0 && !isH) {
+                                                                            break;
+                                                                        }
+                                                                        nextValid.setDate(nextValid.getDate() + 1);
+                                                                    }
+                                                                    
+                                                                    const dateStr = `${nextValid.getMonth() + 1}월 ${nextValid.getDate()}일(${daysOfWeek[nextValid.getDay()]})`;
+                                                                    
+                                                                    return (
+                                                                        <span className="text-red-500 block mt-2 break-keep bg-red-50 p-2.5 rounded-xl border border-red-100 text-[11px] leading-relaxed shadow-sm animate-bounce-in">
+                                                                            🚨 대여종료일이 공휴일 또는 금,토,일인 경우 택배반납이 불가해요!<br/>
+                                                                            택배반납을 원하시면 <strong className="text-red-600 bg-white px-1.5 py-0.5 rounded border border-red-200 mx-0.5 inline-block mt-1">{dateStr}</strong>로 선택해주세요.
+                                                                        </span>
+                                                                    );
+                                                                }
+                                                                return null;
+                                                            })()
+                                                        )}
+
                                                         {returnMethod && (
                                                             <div className="mt-3 bg-rose-50 p-3 rounded-xl text-xs text-rose-600 border border-rose-100 animate-fade-in">
                                                                 <span className="font-bold mr-1">💡</span>
@@ -2165,8 +2288,15 @@
                                                         )}
                                                     </div>
 
+                                                    {/* 3. 파손 보험 섹션 */}
                                                     <div className="space-y-3">
-                                                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={18} className="text-green-500" /> 파손 보험 (필수)</h3>
+                                                        <div className="flex items-center gap-2">
+                                                            <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={18} className="text-green-500" /> 파손 보험</h3>
+                                                            <button onClick={() => setShowInsuranceInfo(true)} className="text-gray-400 hover:text-green-500 transition-colors">
+                                                                <Icons.HelpCircle size={16} />
+                                                            </button>
+                                                        </div>
+                                                        
                                                         <div className="grid grid-cols-3 gap-2">
                                                             <div onClick={() => setInsurance('none')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'none' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">미가입</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>100%</p></div><p className="text-gray-500 font-bold text-xs mt-1">+0원</p></div>
                                                             <div onClick={() => setInsurance('basic')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'basic' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">베이직</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>50%</p></div><p className="text-green-600 font-bold text-xs mt-1">+3,000원</p></div>
@@ -2174,6 +2304,7 @@
                                                         </div>
                                                     </div>
 
+                                                    {/* 4. 추가 서비스 섹션 */}
                                                     <div className="space-y-3">
                                                         <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Zap size={18} className="text-yellow-500" /> 추가 서비스</h3>
                                                         
@@ -2420,6 +2551,131 @@
                             </div>
                         )}
 
+                        {/* [추가] 수령 방법 안내 모달 */}
+                        {showDeliveryInfo && (
+                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowDeliveryInfo(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                            <Icons.Truck size={20} className="text-sky-500" /> 수령 방법 안내
+                                        </h3>
+                                        <button onClick={() => setShowDeliveryInfo(false)} className="text-gray-400 hover:text-gray-600">
+                                            <Icons.X size={20} />
+                                        </button>
+                                    </div>
+                                    <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">추천</span> 우체국 택배</h4>
+                                            <p className="text-xs">대여 시작일 1~2일 전에 미리 발송해 드려요. 가장 안전하고 확실한 방법입니다. (발송 후 운송장 번호 문자 전송)</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">🚀 퀵 서비스</h4>
+                                            <p className="text-xs">급하게 필요하실 때 이용하세요! 서울/경기/인천 지역 당일 수령 가능하며, 요금은 거리 비례 착불입니다.</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">🏟️ 공연장 수령</h4>
+                                            <p className="text-xs">콘서트/팬미팅 현장에서 직원을 만나 직접 수령합니다. (+3,000원 / 만남 장소 별도 안내)</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">🏢 사무실 수령</h4>
+                                            <p className="text-xs">사무실로 직접 방문하여 수령합니다. (배송비 무료)</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100">
+                                        <button onClick={() => setShowDeliveryInfo(false)} className="w-full bg-blue-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-500 transition-colors text-sm">
+                                            확인했어요
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* [추가] 반납 방법 안내 모달 */}
+                        {showReturnInfo && (
+                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowReturnInfo(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                            <Icons.Truck size={20} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법 안내
+                                        </h3>
+                                        <button onClick={() => setShowReturnInfo(false)} className="text-gray-400 hover:text-gray-600">
+                                            <Icons.X size={20} />
+                                        </button>
+                                    </div>
+                                    <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-rose-50 text-rose-500 px-1.5 py-0.5 rounded">편리</span> 방문 수거</h4>
+                                            <p className="text-xs">반납일 다음 평일에 우체국 기사님이 댁으로 방문하여 수거해 갑니다. 포장만 해두시면 돼요! (+4,000원)</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">📦 택배 반납</h4>
+                                            <p className="text-xs">반납일에 직접 우체국이나 편의점에서 <strong>선불</strong>로 택배를 부쳐주세요. (운송장 번호 전달 필수)</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">🏢 사무실 반납</h4>
+                                            <p className="text-xs">반납일에 사무실로 직접 방문하여 반납합니다. (배송비 무료)</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded-lg">
+                                            <p className="text-[11px] text-gray-500">※ 금/토/일/공휴일이 반납일인 경우 방문 수거 및 택배 반납이 어려울 수 있습니다.</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100">
+                                        <button onClick={() => setShowReturnInfo(false)} className="w-full bg-rose-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-rose-500 transition-colors text-sm">
+                                            확인했어요
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* [추가] 파손 보험 안내 모달 */}
+                        {showInsuranceInfo && (
+                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowInsuranceInfo(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                            <Icons.ShieldCheck size={20} className="text-green-500" /> 보험 안내
+                                        </h3>
+                                        <button onClick={() => setShowInsuranceInfo(false)} className="text-gray-400 hover:text-gray-600">
+                                            <Icons.X size={20} />
+                                        </button>
+                                    </div>
+                                    <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">🛡️ 미가입 (+0원)</h4>
+                                            <p className="text-xs">파손 시 수리비의 <strong className="text-red-500">100%</strong>를 고객님이 부담합니다.</p>
+                                            <div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">
+                                                예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 30만원 전액 청구
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded">추천</span> 베이직 (+3,000원)</h4>
+                                            <p className="text-xs">파손 시 수리비의 <strong className="text-blue-500">50%</strong>만 부담하시면 됩니다.</p>
+                                            <div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">
+                                                예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 15만원만 청구 (50% 절약)
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">👑 프리미엄 (+5,000원)</h4>
+                                            <p className="text-xs">파손 시 수리비의 <strong className="text-blue-500">30%</strong>만 부담하시면 됩니다.</p>
+                                            <div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">
+                                                예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 9만원만 청구 (70% 절약)
+                                            </div>
+                                        </div>
+                                        <div className="bg-red-50 p-2 rounded-lg border border-red-100">
+                                            <p className="text-[11px] text-red-500 font-bold">⚠️ 주의사항</p>
+                                            <p className="text-[10px] text-red-400">단말기 분실, 도난, 침수(물에 빠짐)의 경우에는 보험 적용이 불가하며, 단말기 가액 전액을 변상해야 합니다.</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100">
+                                        <button onClick={() => setShowInsuranceInfo(false)} className="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm">
+                                            확인했어요
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Terms Modal */}
                         {showTerms && (
                             <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowTerms(false)}>
@@ -2438,8 +2694,9 @@
                                         <p><strong>제5조 (데이터 삭제)</strong><br/>반납 전 기기의 모든 데이터는 이용자가 직접 삭제해야 하며, 미삭제로 인한 정보 유출 피해에 대해 회사는 책임지지 않습니다.</p>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100">
-                                        <button onClick={() => { setAgreements({...agreements, terms: true}); setShowTerms(false); }} className="w-full bg-blue-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-500 transition-colors text-sm">
-                                            동의하고 닫기
+                                        {/* [수정] 동의하고 닫기 -> 닫기 (자동 동의 로직 제거) */}
+                                        <button onClick={() => setShowTerms(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">
+                                            닫기
                                         </button>
                                     </div>
                                 </div>
@@ -2468,8 +2725,9 @@
                                         <p>귀하는 동의를 거부할 권리가 있으나, 거부 시 서비스 이용이 제한됩니다.</p>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100">
-                                        <button onClick={() => { setAgreements({...agreements, privacy: true}); setShowPrivacy(false); }} className="w-full bg-blue-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-500 transition-colors text-sm">
-                                            동의하고 닫기
+                                        {/* [수정] 동의하고 닫기 -> 닫기 (자동 동의 로직 제거) */}
+                                        <button onClick={() => setShowPrivacy(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">
+                                            닫기
                                         </button>
                                     </div>
                                 </div>
