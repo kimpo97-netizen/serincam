@@ -2113,8 +2113,8 @@
                                                         >
                                                             <Icons.ChevronLeft size={28} />
                                                         </button>
-                                                        {/* [수정] 문구 변경: 어떤 폰으로 인생샷... -> 대여모델을 선택해주세요! (한줄) */}
-                                                        <h2 className="text-2xl font-bold text-gray-800 leading-tight">대여모델을 선택해주세요!</h2>
+                                                        {/* [수정] 문구 변경: 대여모델을 선택해주세요! -> 대여모델 및 일정 고르기 */}
+                                                        <h2 className="text-2xl font-bold text-gray-800 leading-tight">대여모델 및 일정 고르기</h2>
                                                     </div>
 
                                                     <div className="flex bg-gray-100 p-1 rounded-xl">
@@ -2279,7 +2279,8 @@
                                             
                                             {step === 2 && (
                                                 <div className="space-y-8 animate-slide-in">
-                                                    <div><h2 className="text-2xl font-bold text-gray-800">안전하고 편리하게<br/>준비해드릴게요 🎁</h2></div>
+                                                    {/* [수정] 문구 변경: 이용방법과 옵션을 골라주세요 📌 -> 이용방법 및 옵션 고르기 */}
+                                                    <div><h2 className="text-2xl font-bold text-gray-800 whitespace-nowrap tracking-tight">이용방법 및 옵션 고르기</h2></div>
                                                     
                                                     {/* 1. 수령 방법 섹션 */}
                                                     <div className="space-y-3">
@@ -2618,7 +2619,8 @@
 
                                             {step === 3 && (
                                                 <div className="space-y-6 animate-slide-in pb-10">
-                                                    <div><h2 className="text-2xl font-bold text-gray-800">마지막으로<br/>정보를 확인해주세요 📝</h2></div>
+                                                    {/* [수정] 문구 변경: 마지막으로 정보를 확인해주세요 📝 -> 예약자 정보 입력하기 */}
+                                                    <div><h2 className="text-2xl font-bold text-gray-800">예약자 정보 입력하기</h2></div>
                                                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                                                         
                                                         <div><label className="text-xs font-bold text-gray-500 ml-1">받으시는 분 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
@@ -2727,7 +2729,8 @@
                                             {step === 4 && (
                                                 <div className="space-y-6 animate-slide-in pb-10">
                                                     <div>
-                                                        <h2 className="text-2xl font-bold text-gray-800">예약 내용을<br/>확인해주세요 ✅</h2>
+                                                        {/* [수정] 문구 변경: 예약 내용을 확인해주세요 ✅ -> 예약내역 확인하기 */}
+                                                        <h2 className="text-2xl font-bold text-gray-800">예약내역 확인하기</h2>
                                                     </div>
                                                     
                                                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
@@ -3074,47 +3077,41 @@
                                             </h4>
                                             <p className="text-xs ml-7">
                                                 현재 고객님의 총 대여료는 <br/>
-                                                <strong className="text-blue-500 text-lg">{calculateTotal().toLocaleString()}원</strong> 입니다.
+                                                <strong className="text-blue-500 text-lg">{successData?.amount ? successData.amount.toLocaleString() : calculateTotal().toLocaleString()}원</strong> 입니다.
                                             </p>
                                         </div>
 
+                                        {/* [수정] 2번 단계 삭제 및 스토어 결제 안내 통합 */}
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
                                                 <span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span>
-                                                예약 내역 저장하기
-                                            </h4>
-                                            <p className="text-xs ml-7">
-                                                이 창을 닫고 하단의 <strong className="text-blue-500">'예약신청'</strong> 버튼을 눌러<br/>
-                                                예약 정보를 먼저 접수해주세요.
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
-                                                <span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">3</span>
                                                 스토어에서 결제하기
                                             </h4>
-                                            <div className="ml-7 text-xs space-y-1">
-                                                <p>① 아래 버튼을 눌러 네이버 스토어로 이동</p>
-                                                <p>② 상품 옵션에서 <strong>[금액조정]</strong> 선택</p>
-                                                <p>③ 수량을 조절하여 <strong>{calculateTotal().toLocaleString()}원</strong>을 맞춘 뒤 결제!</p>
-                                                <div className="mt-2 text-gray-400 text-[10px]">
-                                                    (예: 1,000원 옵션 x {Math.floor(calculateTotal()/1000)}개 = {calculateTotal().toLocaleString()}원)
+                                            <div className="ml-7 text-xs space-y-2">
+                                                <p>① 아래 버튼을 눌러 네이버 스토어로 이동하세요.</p>
+                                                {/* [수정] 모델명에서 앞쪽 약어([23U] 등) 제거하고 표시 */}
+                                                <p>② 예약하신 <strong>[{selectedPhone?.name ? selectedPhone.name.replace(/^\[[^\]]+\]\s*/, '') : '대여하신 기종'}]</strong> 상품을 선택해주세요.</p>
+                                                <p>③ 상품 옵션에서 <strong>[금액조정]</strong>을 선택하여 총 결제금액(<strong>{successData?.amount ? successData.amount.toLocaleString() : calculateTotal().toLocaleString()}원</strong>)을 맞춰주세요!</p>
+                                                
+                                                <div className="bg-gray-50 p-2 rounded-lg text-[10px] text-gray-500 mt-2 border border-gray-100">
+                                                    예) 1,000원 옵션 x {(successData?.amount || calculateTotal()) / 1000}개 = {(successData?.amount || calculateTotal()).toLocaleString()}원
                                                 </div>
                                             </div>
-                                            <a 
-                                                href="https://smartstore.naver.com/serincam" 
-                                                target="_blank" 
-                                                rel="noreferrer"
-                                                className="block w-full text-center mt-3 bg-green-500 text-white py-2.5 rounded-xl font-bold shadow-sm hover:bg-green-600 transition-colors text-xs"
-                                            >
-                                                세린캠 네이버 스토어 바로가기 ↗
-                                            </a>
                                         </div>
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-gray-100">
-                                        <button onClick={() => setShowCardInfo(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">
-                                            확인했어요
+                                    
+                                    {/* [수정] 하단 버튼 영역 변경 (스토어 바로가기(초록색) + 닫기) */}
+                                    <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
+                                        <a 
+                                            href="https://smartstore.naver.com/serincam" 
+                                            target="_blank" 
+                                            rel="noreferrer"
+                                            className="flex items-center justify-center w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm"
+                                        >
+                                            세린캠 네이버 스토어 바로가기 ↗
+                                        </a>
+                                        <button onClick={() => setShowCardInfo(false)} className="w-full bg-gray-100 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm">
+                                            닫기
                                         </button>
                                     </div>
                                 </div>
