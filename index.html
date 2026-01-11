@@ -288,10 +288,19 @@
             };
             
             // daysOfWeek 정의
-            const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+        const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
-            // ★ 자동 로그인 처리 (앱 시작 시 LocalStorage 확인) ★
-            useEffect(() => {
+        // ★★★ [설정] 현장 반납(당일/공연장) 가능 날짜 설정 ★★★
+        // 예: 콘서트가 있는 날짜들을 'YYYY-M-D' 형식으로 입력해주세요.
+        // 이 날짜가 '대여 종료일(반납일)'인 경우에만 현장 반납 옵션이 활성화됩니다.
+        const AVAILABLE_ONSITE_DATES = [
+            '2025-5-5',
+            '2025-12-25', 
+            '2026-1-1'
+        ];
+
+        // ★ 자동 로그인 처리 (앱 시작 시 LocalStorage 확인) ★
+        useEffect(() => {
                 const savedUser = localStorage.getItem('pink_user');
                 if (savedUser) {
                     const { name, phone } = JSON.parse(savedUser);
@@ -539,7 +548,9 @@
                 // 퀵, 사무실수령 = 0원 (선불 or 무료)
 
                 if (returnMethod === 'pickup') total += 4000;
-                // 택배반납, 사무실반납 = 0원
+                // [추가] 당일 반납 비용 추가
+                if (returnMethod === 'sameday') total += 10000;
+                // 택배반납, 사무실반납, 공연장반납(venue) = 0원
                 
                 if (dataBackup) total += 10000;
 
@@ -625,6 +636,9 @@
                 if (returnMethod === 'pickup') returnText = '방문수거';
                 else if (returnMethod === 'post') returnText = '택배반납';
                 else if (returnMethod === 'office') returnText = '사무실반납';
+                // [추가] 새로운 반납 방법 매핑
+                else if (returnMethod === 'sameday') returnText = '당일반납';
+                else if (returnMethod === 'venue') returnText = '공연장반납';
 
                 const total = calculateTotal();
 
@@ -2271,6 +2285,7 @@
                                                     <div className="space-y-3">
                                                         <div className="flex items-center gap-2">
                                                             <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-sky-500" /> 수령 방법</h3>
+                                                            {/* [수정] '자세히 보기' 텍스트 -> 물음표 아이콘으로 복구 */}
                                                             <button onClick={() => setShowDeliveryInfo(true)} className="text-gray-400 hover:text-sky-500 transition-colors">
                                                                 <Icons.HelpCircle size={16} />
                                                             </button>
@@ -2283,47 +2298,87 @@
                                                                 // [수정] 일요일/공휴일 제한 제거 -> 영업일 기준 마감 체크로 변경
                                                                 if (isPostDeadlinePassed) { alert("택배 수령은 영업일 기준 최소 2일 전(하루 전 예약 불가)에만 가능해요. 퀵이나 방문 수령을 이용해주세요."); return; }
                                                                 setDeliveryMethod(deliveryMethod === 'post' ? null : 'post'); 
-                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isPostDeadlinePassed) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
+                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isPostDeadlinePassed) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
                                                                 <div className="flex justify-between items-start">
-                                                                    {/* [수정] 명칭 변경: 우체국 택배 -> 택배 수령 */}
                                                                     <span className={`font-bold ${(isSameDayStart || isPostDeadlinePassed) ? 'text-gray-500' : 'text-gray-800'}`}>택배 수령</span>
                                                                     <Icons.Truck size={20} className={(isSameDayStart || isPostDeadlinePassed) ? 'text-gray-400' : 'text-blue-400'} />
                                                                 </div>
-                                                                <p className={`font-bold text-xs text-right ${(isSameDayStart || isPostDeadlinePassed) ? 'text-gray-400' : 'text-gray-700'}`}>{(isSameDayStart || isPostDeadlinePassed) ? '마감' : '+4,000원'}</p>
+                                                                {/* [추가] 버튼 내 간단 설명 */}
+                                                                <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">대여시작일 1일전 도착예정이에요</p>
+                                                                <p className={`font-bold text-xs text-right mt-auto ${(isSameDayStart || isPostDeadlinePassed) ? 'text-gray-400' : 'text-gray-700'}`}>{(isSameDayStart || isPostDeadlinePassed) ? '마감' : '+4,000원'}</p>
                                                             </div>
 
-                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'quick' ? null : 'quick')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
+                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'quick' ? null : 'quick')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start">
                                                                     <span className="font-bold text-gray-800">퀵 서비스</span>
                                                                     <Icons.Zap size={20} className="text-blue-400" />
                                                                 </div>
-                                                                <p className="font-bold text-xs text-right text-gray-700">거리비례(선불)</p>
+                                                                {/* [추가] 버튼 내 간단 설명 */}
+                                                                <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">원하는 장소에서 바로 수령해요</p>
+                                                                <p className="font-bold text-xs text-right mt-auto text-gray-700">거리비례(선불)</p>
                                                             </div>
 
-                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'venue' ? null : 'venue')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'venue' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
+                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'venue' ? null : 'venue')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'venue' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start">
                                                                     <span className="font-bold text-gray-800">공연장 수령</span>
                                                                     <Icons.Ticket size={20} className="text-blue-400" />
                                                                 </div>
-                                                                <p className="font-bold text-xs text-right text-gray-700">+3,000원</p>
+                                                                {/* [추가] 버튼 내 간단 설명 */}
+                                                                <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">공연장 근처에서 수령해요</p>
+                                                                <p className="font-bold text-xs text-right mt-auto text-gray-700">+3,000원</p>
                                                             </div>
 
-                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
+                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start">
                                                                     <span className="font-bold text-gray-800">사무실 수령</span>
                                                                     <Icons.MapPin size={20} className="text-blue-400" />
                                                                 </div>
-                                                                <p className="font-bold text-xs text-right text-gray-700">무료</p>
+                                                                {/* [추가] 버튼 내 간단 설명 */}
+                                                                <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">사무실로 직접 방문해요</p>
+                                                                <p className="font-bold text-xs text-right mt-auto text-gray-700">무료</p>
                                                             </div>
                                                         </div>
+                                                        
+                                                        {/* [수정] 수령 방법 선택 시 하단 상세 안내 문구 변경 (멀티라인 지원) */}
                                                         {deliveryMethod && (
-                                                            <div className="mt-3 bg-blue-50 p-3 rounded-xl text-xs text-blue-500 border border-blue-100 animate-fade-in">
-                                                                <span className="font-bold mr-1">💡</span>
-                                                                {/* [수정] 안내 문구 명칭 변경 */}
-                                                                {deliveryMethod === 'post' && "📦 우체국 택배로 안전하게 보내드려요. (발송 후 운송장 번호를 알려드려요)"}
-                                                                {deliveryMethod === 'quick' && "🚀 급할 땐 퀵! 서울/경기/인천 지역 당일 수령 가능해요. (비용은 거리 비례 착불)"}
-                                                                {deliveryMethod === 'venue' && "🏟️ 공연장 현장에서 직원에게 바로 받아보세요! (자세한 만남 장소는 별도 안내)"}
-                                                                {deliveryMethod === 'office' && "🏢 사무실로 방문해서 픽업하세요! (홍대입구역 도보 5분)"}
+                                                            <div className="mt-3 bg-blue-50 p-3 rounded-xl text-xs text-blue-600 border border-blue-100 animate-fade-in leading-relaxed">
+                                                                <div className="flex gap-2 items-start">
+                                                                    <span className="font-bold text-lg mt-0.5">💡</span>
+                                                                    <div className="w-full">
+                                                                        {deliveryMethod === 'post' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">우체국 택배로 대여 기기를 수령하는 방법</p>
+                                                                                <p>👉 대여시작일 1일전에 도착예정이에요.</p>
+                                                                            </>
+                                                                        )}
+                                                                        {deliveryMethod === 'quick' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">원하는 장소에서 수령하는 방법</p>
+                                                                                <p className="mb-1 text-blue-500">주로 긴급으로 필요하신분들 추천!</p>
+                                                                                <p>👉 지역마다 상이하지만, 평균 2만원</p>
+                                                                            </>
+                                                                        )}
+                                                                        {deliveryMethod === 'venue' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">공연장 근처에서 수령하는 방법</p>
+                                                                                <p>👉 보통 사운드체크 1시간~30분전, 공연시작 2~3시간 전 진행</p>
+                                                                            </>
+                                                                        )}
+                                                                        {deliveryMethod === 'office' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">세린캠 사무실에 당일 날 직접 방문하여 수령하는 방법</p>
+                                                                                <p className="mb-2">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p>
+                                                                                {/* [추가] 네이버 지도 보기 버튼 */}
+                                                                                <button 
+                                                                                    onClick={() => window.open('https://map.naver.com/p/search/인천 서구 이음4로6', '_blank')}
+                                                                                    className="w-full bg-white border border-blue-200 text-blue-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
+                                                                                >
+                                                                                    네이버 지도로 위치 보기 <Icons.MapPin size={12} />
+                                                                                </button>
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>
@@ -2332,11 +2387,13 @@
                                                     <div className="space-y-3">
                                                         <div className="flex items-center gap-2">
                                                             <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={18} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법</h3>
+                                                            {/* [수정] '자세히 보기' 텍스트 -> 물음표 아이콘으로 복구 */}
                                                             <button onClick={() => setShowReturnInfo(true)} className="text-gray-400 hover:text-rose-500 transition-colors">
                                                                 <Icons.HelpCircle size={16} />
                                                             </button>
                                                         </div>
 
+                                                        {/* [수정] 반납 방법 그리드 2x2로 확장 및 현장 반납 제한 로직 적용 */}
                                                         <div className="grid grid-cols-2 gap-2">
                                                             {(() => {
                                                                 // 금, 토, 일, 공휴일 체크
@@ -2347,16 +2404,32 @@
                                                                     isHoliday(endDate)
                                                                 );
 
+                                                                // [추가] 현장 반납(당일/공연장) 가능 여부 체크
+                                                                const isOnsiteAvailable = endDate && (() => {
+                                                                    const year = endDate.getFullYear();
+                                                                    const month = endDate.getMonth() + 1;
+                                                                    const day = endDate.getDate();
+                                                                    const dateKey = `${year}-${month}-${day}`;
+                                                                    return AVAILABLE_ONSITE_DATES.includes(dateKey);
+                                                                })();
+
+                                                                const handleOnsiteClick = (method) => {
+                                                                    if (!isOnsiteAvailable) {
+                                                                        alert("현장 운영팀이 파견되는 '특정 공연일'에만 이용 가능한 스페셜 옵션이에요! 😭\n(오늘은 현장 스케줄이 없어 선택할 수 없어요 🙏)");
+                                                                        return;
+                                                                    }
+                                                                    setReturnMethod(returnMethod === method ? null : method);
+                                                                };
+
                                                                 return (
                                                                     <>
-                                                                        {/* [수정] 방문 수거 옵션 삭제됨 */}
-                                                                        
+                                                                        {/* 1. 택배 반납 */}
                                                                         <div 
                                                                             onClick={() => {
                                                                                 if (isWeekendOrHolidayEnd) { alert("선택하신 반납일(금/토/일/공휴일)에는 택배반납이 불가능해요. 사무실 반납을 이용하시거나 대여 기간을 조정해주세요."); return; }
                                                                                 setReturnMethod(returnMethod === 'post' ? null : 'post');
                                                                             }} 
-                                                                            className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] 
+                                                                            className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] 
                                                                                 ${returnMethod === 'post' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}
                                                                                 ${isWeekendOrHolidayEnd ? 'opacity-40 grayscale cursor-not-allowed bg-gray-50' : ''}
                                                                             `}
@@ -2365,21 +2438,66 @@
                                                                                 <span className={`font-bold ${isWeekendOrHolidayEnd ? 'text-gray-400' : 'text-gray-800'}`}>택배 반납</span>
                                                                                 <Icons.Box size={20} className={isWeekendOrHolidayEnd ? 'text-gray-400' : "text-rose-500"} />
                                                                             </div>
-                                                                            <p className={`font-bold text-xs text-right ${isWeekendOrHolidayEnd ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                                            {/* [수정] 버튼 내 간단 설명 변경: 우체국/편의점 -> 우체국 */}
+                                                                            <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">우체국 택배로 반납해요</p>
+                                                                            <p className={`font-bold text-xs text-right mt-auto ${isWeekendOrHolidayEnd ? 'text-gray-400' : 'text-gray-700'}`}>
                                                                                 {isWeekendOrHolidayEnd ? '이용불가' : '직접 발송(선불)'}
+                                                                            </p>
+                                                                        </div>
+
+                                                                        {/* 2. 사무실 반납 */}
+                                                                        <div onClick={() => setReturnMethod(returnMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${returnMethod === 'office' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
+                                                                            <div className="flex justify-between items-start">
+                                                                                <span className="font-bold text-gray-800">사무실 반납</span>
+                                                                                <Icons.MapPin size={20} className="text-rose-500" />
+                                                                            </div>
+                                                                            {/* [추가] 버튼 내 간단 설명 */}
+                                                                            <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">사무실로 직접 반납해요</p>
+                                                                            <p className="font-bold text-xs text-right mt-auto text-gray-700">무료</p>
+                                                                        </div>
+
+                                                                        {/* 3. [추가] 당일 반납 (제한 로직 적용) */}
+                                                                        <div 
+                                                                            onClick={() => handleOnsiteClick('sameday')} 
+                                                                            className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] 
+                                                                                ${returnMethod === 'sameday' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}
+                                                                                ${!isOnsiteAvailable ? 'opacity-50 bg-gray-50' : ''}
+                                                                            `}
+                                                                        >
+                                                                            <div className="flex justify-between items-start">
+                                                                                <span className={`font-bold ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-800'}`}>당일 반납</span>
+                                                                                <Icons.Zap size={20} className={!isOnsiteAvailable ? 'text-gray-400' : "text-rose-500"} />
+                                                                            </div>
+                                                                            {/* [추가] 버튼 내 간단 설명 */}
+                                                                            <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">공연 종료 직후 현장 반납해요</p>
+                                                                            {/* [수정] 불가 시 '인원부족' 표시 */}
+                                                                            <p className={`font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                                                {!isOnsiteAvailable ? '인원부족' : '+10,000원'}
+                                                                            </p>
+                                                                        </div>
+
+                                                                        {/* 4. [추가] 공연장 반납 (제한 로직 적용) */}
+                                                                        <div 
+                                                                            onClick={() => handleOnsiteClick('venue')} 
+                                                                            className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] 
+                                                                                ${returnMethod === 'venue' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}
+                                                                                ${!isOnsiteAvailable ? 'opacity-50 bg-gray-50' : ''}
+                                                                            `}
+                                                                        >
+                                                                            <div className="flex justify-between items-start">
+                                                                                <span className={`font-bold ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-800'}`}>공연장 반납</span>
+                                                                                <Icons.Ticket size={20} className={!isOnsiteAvailable ? 'text-gray-400' : "text-rose-500"} />
+                                                                            </div>
+                                                                            {/* [추가] 버튼 내 간단 설명 */}
+                                                                            <p className="text-[10px] text-gray-400 mt-2 text-left leading-tight break-keep">다음날 공연장에서 반납해요</p>
+                                                                            {/* [수정] 불가 시 '인원부족' 표시 */}
+                                                                            <p className={`font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                                                {!isOnsiteAvailable ? '인원부족' : '무료'}
                                                                             </p>
                                                                         </div>
                                                                     </>
                                                                 );
                                                             })()}
-
-                                                            <div onClick={() => setReturnMethod(returnMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[100px] ${returnMethod === 'office' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`}>
-                                                                <div className="flex justify-between items-start">
-                                                                    <span className="font-bold text-gray-800">사무실 반납</span>
-                                                                    <Icons.MapPin size={20} className="text-rose-500" />
-                                                                </div>
-                                                                <p className="font-bold text-xs text-right text-gray-700">무료</p>
-                                                            </div>
                                                         </div>
 
                                                         {/* 반납 제한일 경고 문구 */}
@@ -2416,12 +2534,54 @@
                                                             })()
                                                         )}
 
+                                                        {/* [수정] 반납 방법 선택 시 하단 상세 안내 문구 변경 + 버튼 추가 */}
                                                         {returnMethod && (
-                                                            <div className="mt-3 bg-rose-50 p-3 rounded-xl text-xs text-rose-600 border border-rose-100 animate-fade-in">
-                                                                <span className="font-bold mr-1">💡</span>
-                                                                {/* [수정] 방문 수거 안내 삭제됨 */}
-                                                                {returnMethod === 'post' && "📦 반납일에 우체국이나 편의점에서 선불 택배로 보내주세요."}
-                                                                {returnMethod === 'office' && "🏢 반납일에 사무실로 직접 오셔서 반납해주세요."}
+                                                            <div className="mt-3 bg-rose-50 p-3 rounded-xl text-xs text-rose-600 border border-rose-100 animate-fade-in leading-relaxed">
+                                                                <div className="flex gap-2 items-start">
+                                                                    <span className="font-bold text-lg mt-0.5">💡</span>
+                                                                    <div className="w-full">
+                                                                        {returnMethod === 'post' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">우체국 택배를 이용하여 대여기기 반납</p>
+                                                                                <div className="bg-white/60 p-2 rounded-lg mb-2 border border-rose-100/50">
+                                                                                    <p className="mb-1">👉 우체국 방문이 어려우신 경우,<br/><strong>방문택배접수 서비스</strong>를 이용해주세요!</p>
+                                                                                    <p>현관 문 앞에 놓으시면 기사님께서 수거해요!</p>
+                                                                                </div>
+                                                                                {/* [삭제] 우체국 방문접수 신청하기 버튼 제거됨 */}
+                                                                            </>
+                                                                        )}
+                                                                        {returnMethod === 'office' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">세린캠 사무실에 직접 방문하여 반납하는 방법</p>
+                                                                                <p className="mb-2">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p>
+                                                                                <button 
+                                                                                    onClick={() => window.open('https://map.naver.com/p/search/인천 서구 이음4로6', '_blank')}
+                                                                                    className="w-full bg-white border border-rose-200 text-rose-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-rose-50 transition-colors flex items-center justify-center gap-1"
+                                                                                >
+                                                                                    네이버 지도로 위치 보기 <Icons.MapPin size={12} />
+                                                                                </button>
+                                                                            </>
+                                                                        )}
+                                                                        {/* [수정] 당일 반납 안내 (버튼 삭제됨) */}
+                                                                        {returnMethod === 'sameday' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">공연 종료 직 후, 공연장에서 바로 반납하는 방법</p>
+                                                                                <div className="bg-white/60 p-2 rounded-lg border border-rose-100/50">
+                                                                                    <p className="font-bold text-rose-500">👉 반납 시 데이터 백업 서비스 제공</p>
+                                                                                </div>
+                                                                            </>
+                                                                        )}
+                                                                        {/* [수정] 공연장 반납 안내 (버튼 삭제됨) */}
+                                                                        {returnMethod === 'venue' && (
+                                                                            <>
+                                                                                <p className="font-bold mb-1">다음날 또는 다다음날 공연장에서 직접 반납하는 방법</p>
+                                                                                <div className="bg-white/60 p-2 rounded-lg border border-rose-100/50">
+                                                                                    <p>👉 보통 공연시작 2~3시간전 반납 진행</p>
+                                                                                </div>
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>
@@ -2440,6 +2600,8 @@
                                                             <div onClick={() => setInsurance('basic')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'basic' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">베이직</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>50%</p></div><p className="text-green-600 font-bold text-xs mt-1">+3,000원</p></div>
                                                             <div onClick={() => setInsurance('premium')} className={`p-3 rounded-xl border-2 cursor-pointer text-center flex flex-col justify-between h-28 transition-all ${insurance === 'premium' ? 'border-green-500 bg-green-50' : 'border-gray-100 bg-white'}`}><div className="flex flex-col items-center"><p className="font-bold text-gray-800 text-sm mb-1">프리미엄</p><p className="text-[10px] text-gray-500 leading-tight">파손 시<br/>고객부담금<br/>30%</p></div><p className="text-green-600 font-bold text-xs mt-1">+5,000원</p></div>
                                                         </div>
+
+                                                        {/* [삭제] 파손 보험 선택 시 상세 안내 문구 제거됨 */}
                                                     </div>
 
                                                     {/* 4. 추가 서비스 섹션 */}
@@ -2749,21 +2911,25 @@
                                     </div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
                                         <div>
-                                            {/* [수정] 안내 모달 명칭 변경: 우체국 택배 -> 택배 수령 */}
+                                            {/* [수정] 안내 모달 내용도 동일하게 업데이트 */}
                                             <h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">추천</span> 택배 수령</h4>
-                                            <p className="text-xs">대여 시작일 1~2일 전에 미리 발송해 드려요. 가장 안전하고 확실한 방법입니다. (발송 후 운송장 번호 문자 전송)</p>
+                                            <p className="text-xs mb-1">우체국 택배로 대여 기기를 수령하는 방법</p>
+                                            <p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 대여시작일 1일전에 도착예정이에요.</p>
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-1">🚀 퀵 서비스</h4>
-                                            <p className="text-xs">급하게 필요하실 때 이용하세요! 서울/경기/인천 지역 당일 수령 가능하며, 요금은 거리 비례 착불입니다.</p>
+                                            <p className="text-xs mb-1">원하는 장소에서 수령하는 방법 (긴급 추천!)</p>
+                                            <p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 지역마다 상이하지만, 평균 2만원</p>
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-1">🏟️ 공연장 수령</h4>
-                                            <p className="text-xs">콘서트/팬미팅 현장에서 직원을 만나 직접 수령합니다. (+3,000원 / 만남 장소 별도 안내)</p>
+                                            <p className="text-xs mb-1">공연장 근처에서 수령하는 방법</p>
+                                            <p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 보통 사운드체크 1시간~30분전, 공연시작 2~3시간 전 진행</p>
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-1">🏢 사무실 수령</h4>
-                                            <p className="text-xs">사무실로 직접 방문하여 픽업하세요! (홍대입구역 도보 5분)</p>
+                                            <p className="text-xs mb-1">세린캠 사무실에 당일 날 직접 방문하여 수령하는 방법</p>
+                                            <p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p>
                                         </div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100">
@@ -2788,16 +2954,38 @@
                                         </button>
                                     </div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
-                                        {/* [수정] 방문 수거 안내 삭제됨 */}
                                         
+                                        {/* [수정] 모달 내용 업데이트 */}
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-1">📦 택배 반납</h4>
-                                            <p className="text-xs">반납일에 직접 우체국이나 편의점에서 <strong>선불</strong>로 택배를 부쳐주세요. (운송장 번호 전달 필수)</p>
+                                            <p className="text-xs mb-1">우체국 택배를 이용하여 대여기기 반납</p>
+                                            {/* [수정] 스타일 변경: bg-gray-50 text-gray-500 -> bg-rose-50 text-rose-500 */}
+                                            <div className="bg-rose-50 p-2 rounded text-[11px] text-rose-500 leading-relaxed">
+                                                👉 우체국 방문이 어려우신 경우, <strong>방문택배접수 서비스</strong>를 이용해주세요!<br/>
+                                                현관 문 앞에 놓으시면 기사님께서 수거해요!
+                                            </div>
                                         </div>
+
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-1">🏢 사무실 반납</h4>
-                                            <p className="text-xs">반납일에 사무실로 직접 방문하여 반납합니다. (배송비 무료)</p>
+                                            <p className="text-xs mb-1">세린캠 사무실에 직접 방문하여 반납하는 방법</p>
+                                            <p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p>
                                         </div>
+
+                                        {/* [수정] 당일 반납 (버튼 제거) */}
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5">⚡ 당일 반납 <span className="text-[10px] text-rose-500 border border-rose-200 px-1 rounded">+1.0만</span></h4>
+                                            <p className="text-xs mb-1">공연 종료 직 후, 공연장에서 바로 반납하는 방법</p>
+                                            <p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 반납 시 데이터 백업 서비스 제공</p>
+                                        </div>
+
+                                        {/* [수정] 공연장 반납 (버튼 제거) */}
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1">🏟️ 공연장 반납</h4>
+                                            <p className="text-xs mb-1">다음날 또는 다다음날 공연장에서 직접 반납하는 방법</p>
+                                            <p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 보통 공연시작 2~3시간전 반납 진행</p>
+                                        </div>
+
                                         <div className="bg-gray-50 p-2 rounded-lg">
                                             <p className="text-[11px] text-gray-500">※ 금/토/일/공휴일이 반납일인 경우 택배 반납이 어려울 수 있습니다.</p>
                                         </div>
