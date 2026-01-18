@@ -2037,17 +2037,17 @@
                                             <>
                                                 <div className="bg-red-50 p-3 rounded-xl border border-red-100"><p className="text-xs text-red-700 font-bold mb-1">💡 우체국 갈 시간이 없다면?</p><p className="text-[11px] text-red-600">집배원님이 집으로 오셔서 수거해가는 <strong>방문접수 소포</strong> 서비스를 이용해보세요!</p></div>
                                                 <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 인터넷우체국 접속</h4><p className="text-xs ml-7">인터넷우체국 홈페이지 또는 앱에서 <strong>[방문접수소포]</strong> 메뉴를 클릭하세요.</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 정보 입력</h4><p className="text-xs ml-7">보내는 분(본인), 받는 분(세린캠) 정보를 입력하고 <strong>착불/선불 여부</strong>를 선택하세요.</p></div>
-                                                <div className="mt-4"><a href="https://m.epost.go.kr/mobile/sub/sub_100.jsp" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors text-sm gap-2">인터넷우체국 바로가기 <Icons.ExternalLink size={14}/></a></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 정보 입력</h4><p className="text-xs ml-7">보내는 분(본인), 받는 분(세린캠) 정보를 입력하고 <strong>신청하시면</strong>다음날 기사님께서 픽업해요.</p></div>
+                                                <div className="mt-4"><a href="https://parcel.epost.go.kr/auth.EpostLogin.parcel" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors text-sm gap-2">우체국방문택배 신청하기 <Icons.ExternalLink size={14}/></a></div>
                                             </>
                                         )}
 
                                         {/* 로그아웃 방법 내용 */}
                                         {blogModal.type === 'logout' && (
                                             <>
-                                                <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100"><p className="text-xs text-yellow-700 font-bold mb-1">🔒 개인정보 보호 필수!</p><p className="text-[11px] text-yellow-600">반납 전 로그인된 계정을 삭제하지 않으면 개인정보 유출 위험이 있습니다.</p></div>
+                                                <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100"><p className="text-xs text-yellow-700 font-bold mb-1">🔒 개인정보 보호 필수!</p><p className="text-[11px] text-yellow-600">삼성계정은 세린캠 계정이라 삭제할 수 없어요.</p></div>
                                                 <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 설정 진입</h4><p className="text-xs ml-7">휴대폰 <strong>[설정]</strong> 앱을 실행하고 <strong>[계정 및 백업]</strong> 메뉴로 이동하세요.</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 계정 삭제</h4><p className="text-xs ml-7"><strong>[계정 관리]</strong>를 누른 후, 로그인된 구글/네이버/삼성 계정을 선택하여 <strong>[계정 삭제]</strong>를 눌러주세요.</p></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 계정 삭제</h4><p className="text-xs ml-7"><strong>[계정 관리]</strong>를 누른 후, 로그인된 구글/네이버 계정을 선택하여 <strong>[계정 삭제]</strong>를 눌러주세요.</p></div>
                                                 <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ '계정 삭제'는 기기에서 로그아웃 되는 것이며, 실제 계정이 탈퇴되는 것은 아니니 안심하세요!</div>
                                             </>
                                         )}
@@ -2137,3 +2137,4 @@
     </script>
 </body>
 </html>
+
