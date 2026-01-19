@@ -240,15 +240,27 @@
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
+            // [NEW] 후기 모델명 약어 변환 함수 추가
+            const getReviewTag = (modelName) => {
+                if (modelName.includes('S23')) return '23U';
+                if (modelName.includes('S24')) return '24U';
+                if (modelName.includes('S25')) return '25U';
+                if (modelName.includes('17 프로맥스')) return '17PM';
+                if (modelName.includes('17 프로')) return '17P';
+                return modelName;
+            };
+
+            // [수정] 요금제 데이터 변경 (basePrice: 2일 기본요금, addPrice: 3일차부터 1일 추가요금)
+            // [수정] 추가요금 전체적으로 3,000원 할인 적용
             const phones = {
                 galaxy: [
-                    { id: 'g23', name: 'S23울트라', price: 8000, tag: '23U', reviews: 842 },
-                    { id: 'g24', name: 'S24울트라', price: 10000, tag: '24U', reviews: 523 },
-                    { id: 'g25', name: 'S25울트라', price: 12000, tag: '25U', reviews: 328 },
+                    { id: 'g23', name: 'S23울트라', basePrice: 25000, addPrice: 5000, tag: '23U', reviews: 842 },
+                    { id: 'g24', name: 'S24울트라', basePrice: 30000, addPrice: 6000, tag: '24U', reviews: 523 },
+                    { id: 'g25', name: 'S25울트라', basePrice: 40000, addPrice: 7000, tag: '25U', reviews: 328 },
                 ],
                 iphone: [
-                    { id: 'i17p', name: '아이폰 17프로', price: 17000, tag: '17P', reviews: 102 },
-                    { id: 'i17pm', name: '아이폰 17프로맥스', price: 19000, tag: '17PM', reviews: 41 },
+                    { id: 'i17p', name: '아이폰 17프로', basePrice: 50000, addPrice: 12000, tag: '17P', reviews: 102 },
+                    { id: 'i17pm', name: '아이폰 17프로맥스', basePrice: 55000, addPrice: 14000, tag: '17PM', reviews: 41 },
                 ]
             };
             
@@ -497,7 +509,14 @@
             const calculateTotal = () => {
                 const days = calculateDays();
                 if (days === 0 || !selectedPhone) return 0;
-                let total = selectedPhone.price * days;
+                
+                // [수정] 요금 계산 로직 변경 (2일 이하 기본요금, 3일 이상 추가요금)
+                let total = 0;
+                if (days <= 2) {
+                    total = selectedPhone.basePrice;
+                } else {
+                    total = selectedPhone.basePrice + ((days - 2) * selectedPhone.addPrice);
+                }
                 
                 if (insurance === 'basic') total += 3000;
                 else if (insurance === 'premium') total += 5000;
@@ -506,7 +525,8 @@
                 total += batteryCount * 3000;
                 
                 if (deliveryMethod === 'post') total += 4000;
-                if (deliveryMethod === 'venue') total += 3000; 
+                // [수정] 공연장 수령 비용 변경: 3000 -> 4000
+                if (deliveryMethod === 'venue') total += 4000; 
 
                 if (returnMethod === 'pickup') total += 4000;
                 if (returnMethod === 'sameday') total += 10000;
@@ -1190,7 +1210,7 @@
                 <div className="animate-slide-in space-y-6 pb-20">
                     <div className="flex items-center gap-3 mb-6">
                         <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm"><Icons.ChevronLeft className="w-5 h-5 text-gray-600" /></button>
-                        <h2 className="text-xl font-bold text-gray-800">세린캠 꿀팁 블로그 🍯</h2>
+                        <h2 className="text-xl font-bold text-gray-800">세린캠 꿀팁 🍯</h2>
                     </div>
                     
                     <div className="space-y-4">
@@ -1446,8 +1466,8 @@
                     { id: '갤럭시 S23 울트라', label: 'S23U' },
                     { id: '갤럭시 S24 울트라', label: 'S24U' },
                     { id: '갤럭시 S25 울트라', label: 'S25U' },
-                    { id: '아이폰 17 프로', label: '17Pro' },
-                    { id: '아이폰 17 프로맥스', label: '17Max' },
+                    { id: '아이폰 17 프로', label: '17P' }, // [수정] 17Pro -> 17P
+                    { id: '아이폰 17 프로맥스', label: '17PM' }, // [수정] 17Max -> 17PM
                 ];
                 const filteredReviews = activeReviewTab === 'all' ? reviews : reviews.filter(r => r.model === activeReviewTab);
                 return (
@@ -1464,7 +1484,7 @@
                                 filteredReviews.map(review => (
                                     <div key={review.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                                             <div className="flex justify-between items-start mb-3">
-                                                <div className="flex items-center gap-2"><span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm border border-white shadow-sm">👩</span><div><p className="text-[10px] text-blue-400 font-bold">{review.model}</p><p className="font-bold text-gray-800 text-sm">{review.name}님</p></div></div>
+                                                <div className="flex items-center gap-2"><span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm border border-white shadow-sm">👩</span><div><p className="text-[10px] text-blue-400 font-bold">{getReviewTag(review.model)}</p><p className="font-bold text-gray-800 text-sm">{review.name}님</p></div></div>
                                                 <div className="flex text-yellow-400 gap-0.5">{[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={12} className="fill-current" />)}</div>
                                             </div>
                                             {review.image && (<div className="mb-3 rounded-xl overflow-hidden h-40 bg-gray-100 border border-gray-100"><img src={review.image} alt="리뷰 이미지" className="w-full h-full object-cover" /></div>)}
@@ -1569,10 +1589,10 @@
                                                         <h4 className="font-bold text-gray-800 text-xs tracking-tight">기간연장</h4>
                                                     </div>
 
-                                                    {/* 7. 꿀팁블로그 */}
+                                                    {/* 7. 블로그 */}
                                                     <div onClick={() => setViewMode('blog')} className="flex flex-col items-center justify-center text-center h-24 cursor-pointer group rounded-2xl hover:bg-gray-50 transition-all">
                                                         <div className="w-12 h-12 bg-white border border-gray-100 rounded-[20px] flex items-center justify-center mb-2 shadow-[0_2px_8px_rgba(0,0,0,0.05)] group-hover:scale-110 transition-transform text-2xl">🍯</div>
-                                                        <h4 className="font-bold text-gray-800 text-xs tracking-tight">꿀팁블로그</h4>
+                                                        <h4 className="font-bold text-gray-800 text-xs tracking-tight">꿀팁</h4>
                                                     </div>
 
                                                     {/* 8. 반납체크 */}
@@ -1598,7 +1618,8 @@
                                                     {reviews.slice(0, 5).map(review => (
                                                         <div key={review.id} className="min-w-[200px] bg-white p-4 rounded-2xl shadow-sm border border-gray-100 snap-center cursor-pointer hover:shadow-md transition-all flex flex-col justify-between" onClick={() => setViewMode('reviews')}>
                                                             <div><div className="flex justify-between items-start mb-2"><div className="flex text-yellow-400 gap-0.5">{[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={10} className="fill-current" />)}</div><span className="text-[10px] text-gray-300">{review.date}</span></div><p className="text-xs text-gray-600 line-clamp-2 mb-3 leading-relaxed">"{review.text}"</p></div>
-                                                            <div className="flex items-center justify-between pt-2 border-t border-gray-50"><span className="text-[9px] bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded font-bold">{review.model.split(' ').slice(0, 2).join(' ')}</span><span className="text-[10px] text-gray-400 font-bold">{review.name}님</span></div>
+                                                            {/* [수정] 모델명 약어 표시 적용 (getReviewTag 함수 사용) */}
+                                                            <div className="flex items-center justify-between pt-2 border-t border-gray-50"><span className="text-[9px] bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded font-bold">{getReviewTag(review.model)}</span><span className="text-[10px] text-gray-400 font-bold">{review.name}님</span></div>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -1635,7 +1656,21 @@
                                                     <div className="space-y-3">
                                                         {phones[activeTab].map(phone => (
                                                             <div key={phone.id} onClick={() => setSelectedPhone(phone)} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${selectedPhone?.id === phone.id ? 'border-blue-400 bg-blue-50' : 'border-transparent bg-white shadow-sm'}`}>
-                                                                <div><span className="text-[10px] font-bold bg-blue-100 text-blue-500 px-2 py-0.5 rounded-full mb-1 inline-block">{phone.tag}</span><div className="flex items-center gap-1.5 mb-0.5"><h3 className="font-bold text-gray-800">{phone.name}</h3><div className="flex items-center gap-0.5 text-[11px]"><Icons.Star size={10} className="text-yellow-400 fill-current" /><span className="font-bold text-gray-800">5.0</span><span className="text-gray-500">({(phone.reviews + myReviews.filter(r => r.model === phone.name).length).toLocaleString()})</span></div></div><p className="text-sm text-gray-500">1일 {phone.price.toLocaleString()}원</p></div>
+                                                                <div>
+                                                                    <span className="text-[10px] font-bold bg-blue-100 text-blue-500 px-2 py-0.5 rounded-full mb-1 inline-block">{phone.tag}</span>
+                                                                    <div className="flex items-center gap-1.5 mb-0.5">
+                                                                        <h3 className="font-bold text-gray-800">{phone.name}</h3>
+                                                                        <div className="flex items-center gap-0.5 text-[11px]"><Icons.Star size={10} className="text-yellow-400 fill-current" /><span className="font-bold text-gray-800">5.0</span><span className="text-gray-500">({(phone.reviews + myReviews.filter(r => r.model === phone.name).length).toLocaleString()})</span></div>
+                                                                    </div>
+                                                                    {/* [수정] 가격 표시 변경: 기본 2일 요금 및 추가 요금 표시 */}
+                                                                    <p className="text-sm text-gray-600">
+                                                                        기본(2일) <span className="font-bold text-blue-600">{phone.basePrice.toLocaleString()}원</span>
+                                                                    </p>
+                                                                    {/* [수정] 글씨 크기 확대: text-[10px] -> text-xs (약 12px), 색상 조금 더 진하게 변경 */}
+                                                                    <p className="text-xs text-gray-500 mt-1 font-medium">
+                                                                        * 3일째부터 1일 +{phone.addPrice.toLocaleString()}원
+                                                                    </p>
+                                                                </div>
                                                                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedPhone?.id === phone.id ? 'border-blue-400' : 'border-gray-300'}`}>{selectedPhone?.id === phone.id && <div className="w-3 h-3 rounded-full bg-blue-400"></div>}</div>
                                                             </div>
                                                         ))}
@@ -1718,7 +1753,8 @@
                                                                 <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                     {startDate ? <span className="text-sky-600 font-bold">{startDate.getMonth() + 1}월 {startDate.getDate()}일({daysOfWeek[startDate.getDay()]}) 공연장 픽업</span> : '공연장 근처에서 픽업'}
                                                                 </p>
-                                                                <p className="font-bold text-xs text-right mt-auto text-gray-700">+3,000원</p>
+                                                                {/* [수정] 공연장 수령 비용 표시 변경: +3,000원 -> +4,000원 */}
+                                                                <p className="font-bold text-xs text-right mt-auto text-gray-700">+4,000원</p>
                                                             </div>
                                                             <div onClick={() => setDeliveryMethod(deliveryMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start"><span className="font-bold text-gray-800">사무실 수령</span><Icons.MapPin size={20} className="text-blue-400" /></div>
@@ -1836,8 +1872,8 @@
                                                 <div className="space-y-6 animate-slide-in pb-10">
                                                     <div><h2 className="text-2xl font-bold text-gray-800">예약자 정보 입력하기</h2></div>
                                                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">받으시는 분 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
-                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
+                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">예약자 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
+                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">예약자 연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
                                                         <div><label className="text-xs font-bold text-gray-500 ml-1">일정명</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Ticket size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="예) 엔시티 콘서트" value={userInfo.scheduleName} onChange={(e) => setUserInfo({...userInfo, scheduleName: e.target.value})} /></div></div>
                                                         <div>
                                                             <label className="text-xs font-bold text-gray-500 ml-1">주소</label>
@@ -2137,5 +2173,3 @@
     </script>
 </body>
 </html>
-
-
