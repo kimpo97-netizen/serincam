@@ -574,7 +574,7 @@
                     if (fullName.includes('S23')) return '23U';
                     if (fullName.includes('S24')) return '24U';
                     if (fullName.includes('S25')) return '25U';
-                    if (fullName.includes('17 프로맥스')) return '17PM';
+                    if (fullName.includes('17 프로맥스')) return '17Max';
                     if (fullName.includes('17 프로')) return '17Pro';
                     return fullName;
                 };
@@ -792,21 +792,11 @@
                 const totalAmount = Number(item.totalPrice) || 0;
                 let penalty = 0;
                 let refundAmount = 0;
-                let statusType = 'confirm_24h';
+                let statusType = 'full';
                 let title = '';
                 let message = '';
+                let elapsedText = '';
 
-                // 예약신청 상태(입금 확인 전)일 때
-                if (item.status === '예약신청' || !item.status) {
-                    return {
-                        type: 'confirm_simple',
-                        title: '예약 취소 확인 💰',
-                        msg: '정말로 예약 취소를 하시겠어요?',
-                        refundAmount: totalAmount
-                    };
-                }
-
-                // 확정 이후 조건
                 if (item.trackingNumber) {
                     return {
                         type: 'impossible',
@@ -819,41 +809,32 @@
                 if (startDate) {
                     const diffTimeStart = startDate - now;
                     const diffDaysStart = Math.ceil(diffTimeStart / (1000 * 60 * 60 * 24));
-                    if (diffDaysStart <= 0) {
+                    if (diffDaysStart <= 2) {
                         return {
                             type: 'impossible',
-                            title: '🚫 취소 불가',
-                            msg: '대여 시작일 당일 및 이후에는 취소가 불가능합니다.',
+                            title: '⏳ 취소 불가 기간',
+                            msg: '대여 시작일 2일 전부터는 예약 취소가 불가능합니다.\n(기기 준비 및 포장이 완료된 상태입니다)',
                             refundAmount: 0
-                        };
-                    }
-                    if (diffDaysStart <= 2) {
-                        statusType = 'penalty_table';
-                        title = '환불 규정 안내 ⚠️';
-                        penalty = totalAmount; 
-                        refundAmount = 0;
-                        return {
-                            type: statusType,
-                            title: title,
-                            totalAmount: totalAmount,
-                            penalty: penalty,
-                            refundAmount: refundAmount
                         };
                     }
                 }
 
                 const diffMs = now - orderTime;
                 const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                elapsedText = `예약 후 ${diffHours}시간 ${diffMinutes}분 경과`;
 
                 if (diffHours < 24) {
-                    statusType = 'confirm_24h';
-                    title = '예약 취소 확인 💰';
-                    message = '예약 후 24시간 이전: 택배가 발송되었거나, 대여 시작일 당일이면 환불은 어렵습니다.\n그래도 예약 취소하시겠습니까?';
+                    statusType = 'full';
+                    title = '전액 환불 가능 💰';
+                    message = '결제 후 24시간 이내라 위약금이 없습니다.';
                     penalty = 0;
                     refundAmount = totalAmount;
                 } else {
-                    statusType = 'penalty_table';
-                    title = '환불 규정 안내 ⚠️';
+                    statusType = 'penalty';
+                    title = '위약금 발생 ⚠️';
+                    message = '결제 후 24시간이 경과하여 위약금이 발생했습니다.';
                     penalty = 10000;
                     refundAmount = Math.max(0, totalAmount - penalty);
                 }
@@ -862,9 +843,11 @@
                     type: statusType,
                     title: title,
                     msg: message,
+                    elapsedText: elapsedText,
                     totalAmount: totalAmount,
                     penalty: penalty,
-                    refundAmount: refundAmount
+                    refundAmount: refundAmount,
+                    model: item.model 
                 };
             };
 
@@ -1096,7 +1079,7 @@
                                                                 <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50">복사</button>
                                                             </div>
                                                             <p className="text-[10px] text-gray-400 mt-2 text-center">* 1시간 이내 미입금 시 자동 취소될 수 있습니다.</p>
-                                                            <button onClick={() => { setCancelTargetItem(item); const status = checkRefundStatus(item); setCancelMessage(status); setIsCancelModalOpen(true); }} className="w-full mt-3 py-2 text-xs text-gray-400 underline hover:text-gray-600 transition-colors">예약 취소하기</button>
+                                                            <button onClick={() => { setCancelTargetItem(item); setCancelMessage({ type: 'full', title: '예약 취소', msg: '아직 입금 전이시라면 위약금 없이 취소 가능합니다.' }); setIsCancelModalOpen(true); }} className="w-full mt-3 py-2 text-xs text-gray-400 underline hover:text-gray-600 transition-colors">예약 취소하기</button>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1233,7 +1216,7 @@
                                 <Icons.ChevronRight size={16} className="text-gray-300 group-hover:text-blue-500 transition-colors"/>
                             </div>
                             <h3 className="font-bold text-gray-800 text-base mb-1 flex items-center gap-2"><Icons.CheckSquare size={18} className="text-blue-400"/> 반납 전 필수 체크리스트 ✅</h3>
-                            <p className="text-xs text-gray-500 LED-snug">데이터 백업부터 로그아웃까지! <br/>안전한 반납을 위해 1분만 투자하세요.</p>
+                            <p className="text-xs text-gray-500 leading-snug">데이터 백업부터 로그아웃까지! <br/>안전한 반납을 위해 1분만 투자하세요.</p>
                         </div>
 
                         <div onClick={() => setBlogModal({ open: true, type: 'mybox' })} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all group">
@@ -1410,7 +1393,7 @@
                                         </div>
                                         <div className="flex gap-3">
                                             <div className="w-6 h-6 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">2</div>
-                                            <div><p className="text-sm font-bold text-gray-800">보내기 (대여 폰)</p><p className="text-xs text-gray-500 mt-1">사진/영상 선택하고 '보내기'를 누르면 6자리 숫자가 나옵니다.</p></div>
+                                            <div><p className="text-sm font-bold text-gray-800">보내기 (대여 폰)</p><p className="text-xs text-gray-500 mt-1">사진/영상을 선택하고 '보내기'를 누르면 6자리 숫자가 나옵니다.</p></div>
                                         </div>
                                         <div className="flex gap-3">
                                             <div className="w-6 h-6 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">3</div>
@@ -1980,7 +1963,7 @@
                                 <Icons.CalendarPlus size={20} className={activeNav === 'rental' ? 'fill-blue-100' : ''} />
                                 <span className="text-[9px] font-bold mt-0.5">예약</span>
                             </button>
-                            <button onClick={() => { setShowKakaoModal(true); handleNavChange('qna'); }} className={`flex flex-col items-center justify-center w-full py-1 transition-colors ${activeNav === 'qna' ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'}`}>
+                            <button onClick={() => handleNavChange('qna')} className={`flex flex-col items-center justify-center w-full py-1 transition-colors ${activeNav === 'qna' ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'}`}>
                                 <Icons.MessageCircle size={20} className={activeNav === 'qna' ? 'fill-blue-100' : ''} />
                                 <span className="text-[9px] font-bold mt-0.5">문의</span>
                             </button>
@@ -1993,7 +1976,7 @@
                         {/* 모달 섹션들 */}
                         {showKakaoModal && (
                             <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
-                                <div className="bg-white rounded-3xl p-6 w-[90%] max-w-[320px] shadow-2xl text-center transform scale-100 transition-all">
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
                                     <div className="w-14 h-14 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Icons.MessageHeart size={28} />
                                     </div>
@@ -2012,7 +1995,7 @@
                         
                         {showDeliveryInfo && (
                              <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowDeliveryInfo(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-[90%] max-w-[340px] shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={20} className="text-sky-500" /> 수령 방법 안내</h3><button onClick={() => setShowDeliveryInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
                                         <div><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">추천</span> 택배 수령</h4><p className="text-xs mb-1">우체국택배로 대여 기기를 수령하는 방법</p><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 대여시작일 1일전에 도착예정이에요.</p></div>
@@ -2026,7 +2009,7 @@
                         )}
                         {showReturnInfo && (
                             <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowReturnInfo(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-[90%] max-w-[340px] shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={20} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법 안내</h3><button onClick={() => setShowReturnInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
                                         <div><h4 className="font-bold text-gray-800 mb-1">📦 택배 반납</h4><p className="text-xs mb-1">우체국 택배를 이용하여 대여기기 반납</p><div className="bg-rose-50 p-2 rounded text-[11px] text-rose-500 leading-relaxed">👉 우체국 방문이 어려우신 경우, <strong>방문택배접수 서비스</strong>를 이용해주세요!<br/>현관 문 앞에 놓으시면 기사님께서 수거해요!</div></div>
@@ -2041,7 +2024,7 @@
                         )}
                         {showInsuranceInfo && (
                             <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowInsuranceInfo(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-[90%] max-w-[340px] shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={20} className="text-green-500" /> 보험 안내</h3><button onClick={() => setShowInsuranceInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
                                         <div><h4 className="font-bold text-gray-800 mb-1">🛡️ 미가입 (+0원)</h4><p className="text-xs">파손 시 수리비의 <strong className="text-red-500">100%</strong>를 고객님이 부담합니다.</p><div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 30만원 전액 청구</div></div>
@@ -2055,7 +2038,7 @@
                         )}
                         {showCardInfo && (
                             <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowCardInfo(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-[90%] max-w-[340px] shadow-2xl relative flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">💳 카드 결제 안내</h3><button onClick={() => setShowCardInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-5 pr-1 terms-scroll">
                                         <div className="bg-green-50 p-3 rounded-xl border border-green-100"><p className="text-xs text-green-700 font-bold mb-1">💡 네이버 스토어 결제 방식</p><p className="text-[11px] text-green-600">세린캠 네이버 스토어에서 <strong>'금액 조정 옵션'</strong>을 통해 총 금액을 맞춰서 결제하는 방식입니다.</p></div>
@@ -2068,7 +2051,7 @@
                         )}
                         {showTerms && (
                             <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowTerms(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-[90%] max-w-[340px] shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800">이용약관</h3><button onClick={() => setShowTerms(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
                                         <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제1조 (목적 및 정의)</h4><p className="mb-2">본 약관은 세린캠(이하 "회사")의 렌탈 서비스 이용에 관한 권리와 의무를 규정합니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li><strong>이용자:</strong> 홈페이지/카카오채널을 통해 서비스를 신청한 고객</li><li><strong>렌탈 기기/부속품:</strong> 회사가 제공하는 대여용 스마트폰 및 액세서리(충전기, 배터리 등)</li><li><strong>계약:</strong> 약관 동의 및 결제 완료 시 성립되는 법적 약정</li><li><strong>반납일:</strong> 대여 기기를 반환해야 하는 약속된 날짜</li></ul></div>
@@ -2079,170 +2062,100 @@
                                         <div><h4 className="font-bold text-red-500 mb-1.5 text-sm">제6조 (연체료 규정) 😡</h4><p className="mb-2 text-[11px]">사전 협의 없는 반납 지연은 다음 예약자에게 피해를 줍니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-600 font-bold"><li>연체료: 1일당 50,000원 부과</li><li>고지 후 6시간 내 미납 시 법적 조치 진행</li></ul><div className="bg-gray-50 p-2 mt-2 rounded text-[10px] text-gray-500">* 택배: 마감시간 이후 접수 / 방문택배 미수거 포함<br/>* 현장: 약속 시간 30분 이상 초과 시</div></div>
                                         <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제7조 (계약 해지)</h4><p className="text-[11px] text-gray-500">허위 정보, 심사 미달, 연락 두절, 폭언/협박 등의 경우 회사는 계약을 해지할 수 있습니다.</p></div>
                                         <div><h4 className="font-bold text-purple-600 mb-1.5 text-sm">제8조 (공연장 수령/반납 특약)</h4><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li>신청 인원 5명 이하 시 수령 방법이 변경될 수 있습니다.</li><li><span className="text-red-500 font-bold">지각비: 10분당 2,000원</span> (30분 초과 시 노쇼 간주)</li><li>임의로 장소를 변경하거나 시간을 준수하지 않아 발생하는 불이익은 회사가 책임지지 않습니다.</li></ul></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제10조 (면책)</h4><p className="text-[11px] text-gray-500">천재지변 등 불가항력적 사유로 인한 서비스 불가 시 회사는 책임을 지지 않습니다.</p></div>
+                                        <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제9조 (면책)</h4><p className="text-[11px] text-gray-500">천재지변 등 불가항력적 사유로 인한 서비스 불가 시 회사는 책임을 지지 않습니다.</p></div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowTerms(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button></div>
                                 </div>
                             </div>
                         )}
-                        {showPrivacy && (
-                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowPrivacy(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-[90%] max-w-[340px] shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+                        {blogModal.open && (
+                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setBlogModal({open: false, type: null})}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-                                        <h3 className="text-lg font-bold text-gray-800">개인정보처리방침</h3>
-                                        <button onClick={() => setShowPrivacy(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
+                                        <h3 className="text-lg font-bold text-gray-800">
+                                            {blogModal.type === 'mybox' && '네이버 MYBOX 이용권'}
+                                            {blogModal.type === 'post' && '방문택배 신청방법'}
+                                            {blogModal.type === 'logout' && '기기 로그아웃 방법'}
+                                        </h3>
+                                        <button onClick={() => setBlogModal({open: false, type: null})} className="text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
                                     </div>
-                                    <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
-                                        <p className="text-[11px] font-medium text-gray-500">세린캠은 개인정보 수집 목적을 위하여 아래와 같이 개인정보를 수집∙이용 및 제3자에게 제공하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주십시오.</p>
-                                        
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">1. 수집하는 개인정보 항목</h4>
-                                            <p className="mb-1 font-bold text-gray-700">필수 수집항목:</p>
-                                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-gray-500 mb-2">
-                                                <li>이름, 휴대전화번호, 주소(기기 배송용)</li>
-                                                <li>신분증 사본(본인 확인용), 계좌번호(환급용)</li>
-                                                <li>결제 정보 (카드사명, 결제승인 정보 등)</li>
-                                            </ul>
-                                            <p className="mb-1 font-bold text-gray-700">자동 수집 항목:</p>
-                                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-gray-500">
-                                                <li>서비스 이용 기록, 접속 IP, 쿠키 등</li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 개인정보 수집 및 이용 목적</h4>
-                                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-gray-500">
-                                                <li>렌탈 서비스 신청, 배송, 반납 및 환불 처리</li>
-                                                <li>본인확인 및 신분 확인 (대여 악용 방지 목적)</li>
-                                                <li>고객상담, 민원 처리 및 고지사항 전달</li>
-                                                <li>계약 이행 및 서비스 제공을 위한 연락</li>
-                                                <li>불량 이용자 제재 및 법적 대응 시 증빙 자료</li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">3. 개인정보 보유 및 이용기간</h4>
-                                            <p className="mb-2">이용자의 개인정보는 수집 및 이용 목적이 달성된 후 즉시 파기합니다. 단, 관련 법령에 따라 아래 기간 동안 안전하게 보관됩니다:</p>
-                                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-gray-500">
-                                                <li>계약 또는 청약철회 등에 관한 기록: <span className="font-bold text-gray-700">5년</span></li>
-                                                <li>대금 결제 및 재화 등의 공급에 관한 기록: <span className="font-bold text-gray-700">5년</span></li>
-                                                <li>소비자 불만 또는 분쟁처리에 관한 기록: <span className="font-bold text-gray-700">3년</span></li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">4. 개인정보의 파격절차 및 방법</h4>
-                                            <p className="text-[11px] text-gray-500">회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다. 전자적 파일 형태의 정보는 기록을 재생할 수 없는 기술적 방법을 사용하며, 종이 문서에 출력된 개인정보는 분쇄기로 분쇄하거나 소각하여 파기합니다.</p>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">5. 개인정보 제3자 제공</h4>
-                                            <p className="mb-1 text-[11px]">회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 다음의 경우에는 예외로 합니다:</p>
-                                            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-gray-500">
-                                                <li>이용자가 사전에 동의한 경우</li>
-                                                <li>법령에 의거하거나, 수사기관의 요청이 있는 경우</li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">6. 개인정보 처리 위탁</h4>
-                                            <p className="text-[11px] text-gray-500">회사는 원활한 서비스 제공을 위해 일부 업무를 외부에 위탁할 수 있으며, 위탁 시 위탁사와 계약을 통해 개인정보 보호를 철저히 관리합니다. (예: 우체국택배, 결제대행사 등)</p>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">7. 이용자의 권리와 행사 방법</h4>
-                                            <p className="text-[11px] text-gray-500">이용자는 언제든지 본인의 개인정보를 열람, 정정, 삭제, 처리정지 요청을 할 수 있으며, 개인정보 수집에 대한 동의를 철회할 수 있습니다. 관련 요청은 카카오채널 [세린]을 통해 접수 가능합니다.</p>
-                                        </div>
-
-                                        <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200">
-                                            <h4 className="font-bold text-gray-800 mb-1 text-[11px]">8. 개인정보 보호책임자</h4>
-                                            <p className="text-[10px] text-gray-500">담당자: 한승윤<br/>문의처: 카카오톡 채널 [세린]</p>
-                                        </div>
-
-                                        <p className="text-[10px] text-gray-400">※ 대여자는 위의 개인정보 수집∙이용에 대한 동의를 거부할 권리가 있으며, 동의를 거부할 경우 개인정보가 필요한 서비스의 이용에 제한을 받을 수 있습니다.</p>
+                                    <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
+                                        {blogModal.type === 'mybox' && (
+                                            <>
+                                                <div className="bg-green-50 p-3 rounded-xl border border-green-100"><p className="text-xs text-green-700 font-bold mb-1">📢 이런 분들께 추천!</p><p className="text-[11px] text-green-600">30GB 이상 고화질 영상을 많이 촬영하실 예정이라면 미리 구매하시는 게 좋아요.</p></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> MYBOX 앱 접속</h4><p className="text-xs ml-7">네이버 MYBOX 앱 실행 후, 우측 상단 <strong>프로필 아이콘</strong>을 클릭하세요.</p></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 이용권 구매</h4><p className="text-xs ml-7"><strong>'내 이용권'</strong> 또는 <strong>'용량 늘리기'</strong> 메뉴에서 필요한 용량을 선택해 결제하세요.</p></div>
+                                                <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ 설정 > 디바이스 케어 > 저장공간에서 촬영한 용량을 확인하세요<br/>※ 첫 달 무료 이벤트가 있는지 확인해보세요!</div>
+                                            </>
+                                        )}
+                                        {blogModal.type === 'post' && (
+                                            <>
+                                                <div className="bg-red-50 p-3 rounded-xl border border-red-100"><p className="text-xs text-red-700 font-bold mb-1">💡 우체국 갈 시간이 없다면?</p><p className="text-[11px] text-red-600">집배원님이 집으로 오셔서 수거해가는 <strong>방문접수 소포</strong> 서비스를 이용해보세요!</p></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 인터넷우체국 접속</h4><p className="text-xs ml-7">인터넷우체국 홈페이지 또는 앱에서 <strong>[방문접수소포]</strong> 메뉴를 클릭하세요.</p></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 정보 입력</h4><p className="text-xs ml-7">보내는 분(본인), 받는 분(세린캠) 정보를 입력하고 <strong>신청하시면</strong>다음날 기사님께서 픽업해요.</p></div>
+                                                <div className="mt-4"><a href="https://parcel.epost.go.kr/auth.EpostLogin.parcel" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors text-sm gap-2">우체국방문택배 신청하기 <Icons.ExternalLink size={14}/></a></div>
+                                            </>
+                                        )}
+                                        {blogModal.type === 'logout' && (
+                                            <>
+                                                <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100"><p className="text-xs text-yellow-700 font-bold mb-1">🔒 개인정보 보호 필수!</p><p className="text-[11px] text-yellow-600">삼성계정은 세린캠 계정이라 삭제할 수 없어요.</p></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 설정 진입</h4><p className="text-xs ml-7">휴대폰 <strong>[설정]</strong> 앱을 실행하고 <strong>[계정 및 백업]</strong> 메뉴로 이동하세요.</p></div>
+                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 계정 삭제</h4><p className="text-xs ml-7"><strong>[계정 관리]</strong>를 누른 후, 로그인된 고객님 계정을 선택하여 <strong>[계정 삭제]</strong>를 눌러주세요.</p></div>
+                                                <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ '계정 삭제'는 기기에서 로그아웃 되는 것이며, 실제 계정이 탈퇴되는 것은 아니니 안심하세요!</div>
+                                            </>
+                                        )}
                                     </div>
-                                    <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowPrivacy(false)} className="w-full bg-blue-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors text-sm">확인했습니다</button></div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setBlogModal({open: false, type: null})} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button></div>
+                                </div>
+                            </div>
+                        )}
+                        {isReviewModalOpen && (
+                            <div className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative">
+                                     <button onClick={() => setIsReviewModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-1">리뷰 쓰기 ✍️</h3>
+                                    <p className="text-xs text-gray-500 mb-6">{currentReviewItem?.model}</p>
+                                    <div className="flex justify-center gap-2 mb-6">{[1, 2, 3, 4, 5].map(star => (<div key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className="cursor-pointer transition-transform hover:scale-110"><Icons.Star size={32} className={star <= reviewForm.rating ? "text-yellow-400 fill-current" : "text-gray-200"} strokeWidth={star <= reviewForm.rating ? 0 : 2} /></div>))}</div>
+                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4">
+                                        <div className="flex justify-between mb-2"><span className="text-xs font-bold text-gray-700">{formatNameMasking(lookupName)}님</span><span className="text-xs font-bold text-yellow-500">별점 {reviewForm.rating}점</span></div>
+                                        <textarea className="w-full bg-transparent text-sm text-gray-800 outline-none resize-none h-20 placeholder-gray-400" placeholder="대여하신 기기는 어떠셨나요?&#13;&#10;솔직한 후기를 남겨주세요!" value={reviewForm.text} onChange={(e) => setReviewForm({...reviewForm, text: e.target.value})}></textarea>
+                                        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200">
+                                            <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
+                                            <button onClick={() => fileInputRef.current.click()} className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500 transition-colors"><Icons.Camera size={16} /> 사진 추가</button>
+                                            {reviewForm.image && (<div className="relative group"><img src={reviewForm.image} alt="미리보기" className="w-8 h-8 rounded object-cover border border-gray-200" /><button onClick={() => setReviewForm(prev => ({...prev, image: null}))} className="absolute -top-1 -right-1 bg-gray-800 text-white rounded-full p-0.5 w-3 h-3 flex items-center justify-center hover:bg-red-500"><Icons.X size={8} /></button></div>)}
+                                        </div>
+                                    </div>
+                                    <button onClick={handleReviewSubmit} className="w-full bg-blue-400 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-500 transition-colors">{currentReviewItem.myReviewId ? '수정하기' : '등록하기'}</button>
+                                </div>
+                            </div>
+                        )}
+                        {isLogoutModalOpen && (
+                            <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
+                                    <div className="w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.User size={24} /></div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">로그아웃 하시겠어요?</h3>
+                                    <p className="text-sm text-gray-500 mb-6">저장된 예약자 정보가 기기에서 삭제됩니다.</p>
+                                    <div className="flex gap-2"><button onClick={() => setIsLogoutModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button><button onClick={handleLogoutConfirm} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">로그아웃</button></div>
+                                </div>
+                            </div>
+                        )}
+                        {isConfirmModalOpen && (
+                            <div className="fixed inset-0 z-[90] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
+                                    <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.ShieldCheck size={24} /></div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">유의사항을 모두<br/>확인하셨나요?</h3>
+                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">개인정보 자동 폐기 및<br/>금융 사기 주의 내용을 확인해주세요.</p>
+                                    <div className="flex gap-2"><button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button><button onClick={() => { setIsConfirmModalOpen(false); handleSubmit(); }} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">네, 확인했어요</button></div>
                                 </div>
                             </div>
                         )}
                         {isCancelModalOpen && (
                             <div className="fixed inset-0 z-[90] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
-                                <div className="bg-white rounded-2xl p-6 w-[92%] max-w-[340px] shadow-2xl text-center transform scale-100 transition-all overflow-hidden">
+                                <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${cancelMessage.type === 'impossible' ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}><Icons.X size={24} /></div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-2">{cancelMessage.title}</h3>
-                                    
-                                    {cancelMessage.type === 'impossible' ? (
-                                        <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep px-2">{cancelMessage.msg}</p>
-                                    ) : cancelMessage.type === 'confirm_simple' ? (
-                                        <div className="space-y-4 mb-6">
-                                            <p className="text-sm text-gray-600 leading-relaxed break-keep bg-blue-50 p-5 rounded-2xl border border-blue-100 font-semibold">
-                                                {cancelMessage.msg}
-                                            </p>
-                                        </div>
-                                    ) : cancelMessage.type === 'confirm_24h' ? (
-                                        <div className="space-y-4 mb-6">
-                                            <p className="text-sm text-gray-500 leading-relaxed break-keep bg-blue-50 p-4 rounded-xl border border-blue-100">
-                                                {cancelMessage.msg}
-                                            </p>
-                                            <div className="flex justify-between items-center py-3 px-1 border-t border-b border-gray-100">
-                                                <span className="text-sm font-bold text-gray-600">환불 예상 금액</span>
-                                                <span className="text-lg font-bold text-blue-500">{cancelMessage.refundAmount?.toLocaleString()}원</span>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-4 mb-6">
-                                            <p className="text-[11px] text-red-500 font-medium leading-tight">결제 후 24시간이 경과하여 규정에 따라 위약금이 발생합니다.</p>
-                                            
-                                            <div className="rounded-xl border border-gray-200 overflow-hidden">
-                                                <table className="w-full text-[10px] text-center">
-                                                    <thead className="bg-gray-50 text-gray-500 font-bold border-b border-gray-200">
-                                                        <tr>
-                                                            <th className="p-2 border-r border-gray-200">구분</th>
-                                                            <th className="p-2">환불 금액</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="text-gray-600">
-                                                        <tr className="border-b border-gray-100">
-                                                            <td className="p-1.5 border-r border-gray-200">24시간 이내</td>
-                                                            <td className="p-1.5 text-blue-500 font-bold">100% 환불</td>
-                                                        </tr>
-                                                        <tr className="border-b border-gray-100 bg-yellow-50/40">
-                                                            <td className="p-1.5 border-r border-gray-200 font-bold">24시간 이후</td>
-                                                            <td className="p-1.5 font-bold">1만원 차감</td>
-                                                        </tr>
-                                                        <tr className="text-red-400 bg-red-50/20">
-                                                            <td className="p-1.5 border-r border-gray-200">대여 2일 전 ~</td>
-                                                            <td className="p-1.5 font-bold">환불 불가</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            <div className="bg-gray-50 p-3 rounded-xl space-y-1.5 border border-gray-100">
-                                                <div className="flex justify-between text-[11px] text-gray-500">
-                                                    <span>결제 금액</span>
-                                                    <span>{cancelMessage.totalAmount?.toLocaleString()}원</span>
-                                                </div>
-                                                <div className="flex justify-between text-[11px] text-red-400">
-                                                    <span>위약금 차감</span>
-                                                    <span>- {cancelMessage.penalty?.toLocaleString()}원</span>
-                                                </div>
-                                                <div className="flex justify-between items-center pt-2 border-t border-gray-200 mt-1">
-                                                    <span className="text-sm font-bold text-gray-700">환불 예상 금액</span>
-                                                    <span className="text-lg font-bold text-blue-500">{cancelMessage.refundAmount?.toLocaleString()}원</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {cancelMessage.type === 'impossible' ? (
-                                        <button onClick={() => setIsCancelModalOpen(false)} className="w-full py-3.5 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors text-sm shadow-md">확인</button>
-                                    ) : (
-                                        <div className="flex gap-2.5">
-                                            <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3.5 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
-                                            <button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3.5 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm shadow-md">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button>
-                                        </div>
-                                    )}
+                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep">{cancelMessage.msg}</p>
+                                    {cancelMessage.type === 'impossible' ? (<button onClick={() => setIsCancelModalOpen(false)} className="w-full py-3 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors text-sm">확인</button>) : (<div className="flex gap-2"><button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button><button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button></div>)}
                                 </div>
                             </div>
                         )}
