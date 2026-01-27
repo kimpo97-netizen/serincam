@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>세린캠 - 휴대폰 단기 대여 (버전 1)</title>
+    <title>세린캠 - 휴대폰 단기 대여 (버전 1.2)</title>
     
     <!-- 1. 스타일 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -311,12 +311,12 @@
             const openReviewModal = (item) => {
                 setCurrentReviewItem(item);
                 if (item.myReviewId) {
-                     const existingReview = reviews.find(r => r.id === item.myReviewId);
-                     if (existingReview) {
-                         setReviewForm({ rating: existingReview.rating, text: existingReview.text, image: existingReview.image });
-                     }
+                    const existingReview = reviews.find(r => r.id === item.myReviewId);
+                    if (existingReview) {
+                        setReviewForm({ rating: existingReview.rating, text: existingReview.text, image: existingReview.image });
+                    }
                 } else {
-                     setReviewForm({ rating: 5, text: '', image: null });
+                    setReviewForm({ rating: 5, text: '', image: null });
                 }
                 setIsReviewModalOpen(true);
             };
@@ -632,7 +632,6 @@
                 try {
                     await fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
-                        mode: "no-cors",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
                         body: JSON.stringify(orderData),
                     });
@@ -693,7 +692,6 @@
                 try {
                     await fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
-                        mode: "no-cors",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
                         body: JSON.stringify(orderData),
                     });
@@ -735,7 +733,6 @@
                 try {
                     await fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
-                        mode: "no-cors",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
                         body: JSON.stringify(orderData),
                     });
@@ -750,133 +747,6 @@
 
                 } catch (error) {
                     alert("신청 전송 실패");
-                    setIsSubmitting(false);
-                }
-            };
-
-            const parseDateString = (dateStr) => {
-                if (!dateStr) return new Date();
-                let date = new Date(dateStr);
-                if (isNaN(date.getTime())) {
-                    const parts = dateStr.match(/\d+/g);
-                    if (parts && parts.length >= 3) {
-                        let year = parseInt(parts[0]);
-                        let month = parseInt(parts[1]) - 1;
-                        let day = parseInt(parts[2]);
-                        let hour = parts.length > 3 ? parseInt(parts[3]) : 0;
-                        let min = parts.length > 4 ? parseInt(parts[4]) : 0;
-                        
-                        if (dateStr.includes('오후') || dateStr.includes('PM')) {
-                            if (hour < 12) hour += 12;
-                        }
-                        if ((dateStr.includes('오전') || dateStr.includes('AM')) && hour === 12) {
-                            hour = 0;
-                        }
-                        date = new Date(year, month, day, hour, min);
-                    }
-                }
-                return date;
-            };
-
-            const checkRefundStatus = (item) => {
-                const now = new Date();
-                const orderTime = typeof item.orderTime === 'string' ? parseDateString(item.orderTime) : new Date(item.orderTime);
-                
-                let startDate = null;
-                if (item.startDate) {
-                     const startDateStr = item.startDate.replace(/\. /g, '-').replace('.', '');
-                     startDate = new Date(startDateStr);
-                     startDate.setHours(0, 0, 0, 0);
-                }
-
-                const totalAmount = Number(item.totalPrice) || 0;
-                let penalty = 0;
-                let refundAmount = 0;
-                let statusType = 'full';
-                let title = '';
-                let message = '';
-                let elapsedText = '';
-
-                if (item.trackingNumber) {
-                    return {
-                        type: 'impossible',
-                        title: '🚫 취소 불가',
-                        msg: '이미 택배가 발송되어 취소가 불가능합니다.\n반납 절차를 진행해주세요.',
-                        refundAmount: 0
-                    };
-                }
-
-                if (startDate) {
-                    const diffTimeStart = startDate - now;
-                    const diffDaysStart = Math.ceil(diffTimeStart / (1000 * 60 * 60 * 24));
-                    if (diffDaysStart <= 2) {
-                        return {
-                            type: 'impossible',
-                            title: '⏳ 취소 불가 기간',
-                            msg: '대여 시작일 2일 전부터는 예약 취소가 불가능합니다.\n(기기 준비 및 포장이 완료된 상태입니다)',
-                            refundAmount: 0
-                        };
-                    }
-                }
-
-                const diffMs = now - orderTime;
-                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                
-                elapsedText = `예약 후 ${diffHours}시간 ${diffMinutes}분 경과`;
-
-                if (diffHours < 24) {
-                    statusType = 'full';
-                    title = '전액 환불 가능 💰';
-                    message = '결제 후 24시간 이내라 위약금이 없습니다.';
-                    penalty = 0;
-                    refundAmount = totalAmount;
-                } else {
-                    statusType = 'penalty';
-                    title = '위약금 발생 ⚠️';
-                    message = '결제 후 24시간이 경과하여 위약금이 발생했습니다.';
-                    penalty = 10000;
-                    refundAmount = Math.max(0, totalAmount - penalty);
-                }
-
-                return {
-                    type: statusType,
-                    title: title,
-                    msg: message,
-                    elapsedText: elapsedText,
-                    totalAmount: totalAmount,
-                    penalty: penalty,
-                    refundAmount: refundAmount,
-                    model: item.model 
-                };
-            };
-
-            const handleCancelRequest = async () => {
-                if (!cancelTargetItem) return;
-
-                setIsSubmitting(true);
-                const cancelData = {
-                    ...cancelTargetItem,
-                    category: '예약취소',
-                    status: '예약취소', 
-                    orderTime: new Date().toLocaleString('ko-KR'),
-                };
-
-                try {
-                    await fetch(GOOGLE_SCRIPT_URL, {
-                        method: "POST",
-                        mode: "no-cors",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify(cancelData),
-                    });
-                    
-                    alert("취소 요청이 접수되었습니다.\n담당자가 확인 후 영업일 기준 1~2일 내로 환불해 드립니다.");
-                    setIsCancelModalOpen(false);
-                    setCancelTargetItem(null);
-                    handleLookup();
-                } catch (error) {
-                    alert("취소 요청 전송 중 오류가 발생했습니다. 고객센터로 문의해주세요.");
-                } finally {
                     setIsSubmitting(false);
                 }
             };
@@ -1519,7 +1389,7 @@
                             <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200"><span className="text-sm font-bold text-gray-600">결제하실 금액</span><span className="text-lg font-bold text-blue-500">{amount.toLocaleString()}원</span></div>
                             <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200">
                                 <div className="text-left"><p className="text-[10px] text-gray-400 mb-0.5">우리은행</p><p className="text-sm font-bold text-gray-800">1002-000-000000</p></div>
-                                <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-bold hover:bg-gray-200">복사</button>
+                                <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50">복사</button>
                             </div>
                         </div>
                         <button onClick={() => setShowCardInfo(true)} className="w-full mt-2 mb-6 py-3 bg-white border border-green-500 text-green-600 rounded-xl font-bold text-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm"><span className="text-lg">💳</span> 카드/네이버페이로 결제하시나요?</button>
@@ -2068,6 +1938,107 @@
                                 </div>
                             </div>
                         )}
+                        
+                        {/* --- 업데이트된 개인정보처리방침 (동의서 형식) --- */}
+                        {showPrivacy && (
+                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowPrivacy(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                                        <h3 className="text-lg font-bold text-gray-800 leading-tight">개인 정보 수집∙이용 동의서</h3>
+                                        <button onClick={() => setShowPrivacy(false)} className="text-gray-400 hover:text-gray-600 shrink-0 ml-2"><Icons.X size={24} /></button>
+                                    </div>
+                                    <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
+                                        <p className="text-[11px] bg-blue-50 p-3 rounded-xl text-blue-600 font-medium">
+                                            세린캠은 개인정보 수집 목적을 위하여 아래와 같이 개인정보를 수집∙이용 및 제3자에게 제공하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주십시오.
+                                        </p>
+                                        
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">1. 수집하는 개인정보 항목</h4>
+                                            <p className="font-bold text-gray-700 mb-1">[필수 수집항목]</p>
+                                            <ul className="list-disc pl-4 space-y-1 mb-2">
+                                                <li>이름, 휴대전화번호, 주소(기기 배송용), 신분증 사본, 계좌번호(환급용)</li>
+                                                <li>결제 정보 (카드사명, 결제승인 정보 등)</li>
+                                            </ul>
+                                            <p className="font-bold text-gray-700 mb-1">[자동 수집 항목]</p>
+                                            <ul className="list-disc pl-4 space-y-1">
+                                                <li>서비스 이용 기록, 접속 IP, 쿠키 등</li>
+                                            </ul>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 개인정보 수집 및 이용 목적</h4>
+                                            <ul className="list-disc pl-4 space-y-1">
+                                                <li>렌탈 서비스 신청, 배송, 반납 및 환불 처리</li>
+                                                <li>본인확인 및 신분 확인 (대여 악용 방지 목적)</li>
+                                                <li>고객상담, 민원 처리 및 고지사항 전달</li>
+                                                <li>계약 이행 및 서비스 제공을 위한 연락</li>
+                                                <li>불량 이용자 제재 및 법적 대응 시 증빙 자료</li>
+                                            </ul>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">3. 개인정보 보유 및 이용기간</h4>
+                                            <p className="mb-2">이용자의 개인정보는 수집 및 이용 목적이 달성된 후 <span className="font-bold text-blue-500">지체 없이 파기</span>합니다.</p>
+                                            <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-100 text-[11px]">
+                                                <p className="font-bold mb-1">단, 관련 법령에 따라 아래 기간 동안 보관됩니다:</p>
+                                                <ul className="space-y-0.5">
+                                                    <li>• 계약 또는 청약철회 등에 관한 기록: 5년</li>
+                                                    <li>• 대금 결제 및 재화 등의 공급에 관한 기록: 5년</li>
+                                                    <li>• 소비자 불만 또는 분쟁처리에 관한 기록: 3년</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">4. 개인정보 제3자 제공</h4>
+                                            <p className="mb-1">회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 다음의 경우에는 예외로 합니다:</p>
+                                            <ul className="list-disc pl-4 space-y-0.5">
+                                                <li>이용자가 사전에 동의한 경우</li>
+                                                <li>법령에 의거하거나, 수사기관의 요청이 있는 경우</li>
+                                            </ul>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">5. 개인정보 처리 위탁</h4>
+                                            <p className="mb-2">회사는 원활한 서비스 제공을 위해 일부 업무를 외부에 위탁하고 있으며, 위탁 시 위탁사와 계약을 통해 개인정보 보호를 철저히 관리합니다.</p>
+                                            <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-2">
+                                                <p className="font-bold text-blue-600 text-[11px]">📦 배송 서비스 (정보 제공 및 수거)</p>
+                                                <ul className="text-[11px] text-blue-500 space-y-1">
+                                                    <li>• <span className="font-bold underline">우체국택배</span>: 기기 배송 및 택배 반납 접수</li>
+                                                    <li>• <span className="font-bold underline">카카오 T퀵 (카카오모빌리티)</span>: 퀵 서비스 이용 시 정보 제공</li>
+                                                </ul>
+                                                <p className="font-bold text-blue-600 text-[11px] border-t border-blue-200 pt-1 mt-1">💳 결제 서비스</p>
+                                                <p className="text-[11px] text-blue-500">• 결제대행사: 결제 처리 및 승인 정보 확인</p>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">6. 이용자의 권리와 행사 방법</h4>
+                                            <p>이용자는 언제든지 본인의 개인정보를 열람, 정정, 삭제, 처리정지 요청할 수 있습니다. 관련 요청은 아래 개인정보 보호책임자 혹은 카카오채널을 통해 접수 가능합니다.</p>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">7. 개인정보 보호책임자</h4>
+                                            <p>담당자: 한승윤</p>
+                                            <p>문의처: 카카오톡 채널 [세린]</p>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">8. 정책 변경에 대한 안내</h4>
+                                            <p>본 개인정보처리방침은 변경될 수 있으며, 변경 시 홈페이지 또는 카카오채널을 통해 사전 고지합니다.</p>
+                                        </div>
+
+                                        <p className="text-[11px] text-red-500 font-medium border-t border-gray-100 pt-3">
+                                            ※ 대여자는 위의 개인정보 수집∙이용에 대한 동의를 거부할 권리가 있으며, 동의를 거부할 경우 개인정보가 필요한 서비스의 이용에 제한을 받을 수 있습니다.
+                                        </p>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-gray-100">
+                                        <button onClick={() => setShowPrivacy(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">내용을 확인했습니다</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {blogModal.open && (
                             <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setBlogModal({open: false, type: null})}>
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
