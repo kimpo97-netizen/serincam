@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>세린캠 - 휴대폰 단기 대여 (버전 1.2)</title>
+    <title>세린캠 - 휴대폰 단기 대여 (일반)</title>
     
     <!-- 1. 스타일 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -241,30 +241,97 @@
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
-            // --- 안전장치 추가: 예약취소 상태 확인 함수 ---
             const checkRefundStatus = (item) => {
-                // item이 없더라도 기본 객체를 반환하여 크래시 방지
                 if (!item) return { title: '예약 취소', msg: '취소하시겠습니까?', type: 'normal' };
                 
-                // 실제 취소 로직 (예시: 배송 시작 전인지 확인 등)
-                // 지금은 무조건 취소 가능 메시지 반환
-                return { title: '예약 취소', msg: '정말로 예약을 취소하시겠습니까?\n(입금 전이라면 위약금 없음)', type: 'normal' };
+                if (!item.status || item.status === '예약신청') {
+                     return {
+                        title: '예약 취소',
+                        msg: '아직 예약이 확정되지 않았습니다.\n신청을 취소하시겠습니까?',
+                        type: 'simple_cancel'
+                    };
+                }
+
+                const total = parseInt(item.totalPrice) || 0;
+                const now = new Date();
+
+                let rentalStartDate = null;
+                try {
+                    if (item.startDate) {
+                        const dateParts = item.startDate.split('.').map(p => parseInt(p.trim())).filter(n => !isNaN(n));
+                        if (dateParts.length >= 3) {
+                            rentalStartDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+                            rentalStartDate.setHours(0, 0, 0, 0);
+                        }
+                    }
+                } catch(e) {}
+
+                if (rentalStartDate) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const diffTime = rentalStartDate.getTime() - today.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays <= 2) {
+                        return {
+                            title: '예약 취소 및 환불 안내',
+                            type: 'refund_calc',
+                            total: total,
+                            penalty: total, 
+                            refund: 0,
+                            reason: 'rental_imminent' 
+                        };
+                    }
+                }
+
+                let orderDate = new Date(); 
+                
+                try {
+                    const timeStr = item.orderTime || '';
+                    const parts = timeStr.match(/(\d+)\.\s*(\d+)\.\s*(\d+)\.\s*(오전|오후)\s*(\d+):(\d+):(\d+)/);
+                    if (parts) {
+                        let year = parseInt(parts[1]);
+                        let month = parseInt(parts[2]) - 1;
+                        let day = parseInt(parts[3]);
+                        let hour = parseInt(parts[5]);
+                        let minute = parseInt(parts[6]);
+                        let second = parseInt(parts[7]);
+                        if (parts[4] === '오후' && hour !== 12) hour += 12;
+                        if (parts[4] === '오전' && hour === 12) hour = 0;
+                        orderDate = new Date(year, month, day, hour, minute, second);
+                    } else {
+                        const parsed = new Date(timeStr);
+                        if (!isNaN(parsed.getTime())) orderDate = parsed;
+                    }
+                } catch(e) {}
+
+                const diffHours = (now - orderDate) / (1000 * 60 * 60);
+                const isWithin24Hours = diffHours < 24;
+
+                const penalty = isWithin24Hours ? 0 : 10000;
+                const refundAmount = Math.max(0, total - penalty);
+
+                return {
+                    title: '예약 취소 및 환불 안내',
+                    type: 'refund_calc',
+                    total: total,
+                    penalty: penalty,
+                    refund: refundAmount,
+                    reason: isWithin24Hours ? 'within_24h' : 'after_24h',
+                    isWithin24Hours: isWithin24Hours
+                };
             };
 
             const handleCancelRequest = async () => {
                 if (!cancelTargetItem) return;
                 
                 setIsSubmitting(true);
-                // 여기에 실제 취소 API 호출 로직이 들어갈 수 있습니다.
-                // 현재는 시뮬레이션만 수행
                 setTimeout(() => {
                     setIsSubmitting(false);
                     setIsCancelModalOpen(false);
-                    alert("취소 요청이 접수되었습니다.\n담당자가 확인 후 처리해드립니다.");
-                    // 리스트 갱신 등의 로직 추가 가능
+                    alert("취소 요청이 정상적으로 접수되었어요! 😢\n담당자가 확인 후 빠르게 처리해 드릴게요.");
                 }, 1000);
             };
-            // -----------------------------------------------------------
 
             const getReviewTag = (modelName) => {
                 if (modelName.includes('S23')) return '23U';
@@ -961,20 +1028,6 @@
                                                             <button onClick={() => openReviewModal(item)} className="flex-1 py-2.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1.5 shadow-sm">
                                                                 <Icons.Star size={14} className="fill-blue-600" /> 리뷰 남기기
                                                             </button>
-                                                            {/* 안전장치 적용된 예약취소 버튼 */}
-                                                            <button onClick={() => { 
-                                                                try {
-                                                                    setCancelTargetItem(item); 
-                                                                    const status = checkRefundStatus(item); 
-                                                                    setCancelMessage(status || { title: '취소', msg: '취소하시겠습니까?', type: 'normal' }); 
-                                                                    setIsCancelModalOpen(true); 
-                                                                } catch (e) {
-                                                                    console.error("Cancel error", e);
-                                                                    alert("일시적인 오류입니다. 다시 시도해주세요.");
-                                                                }
-                                                            }} className="flex-1 py-2.5 bg-white text-gray-400 border border-gray-200 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm">
-                                                                예약취소
-                                                            </button>
                                                         </div>
                                                     )}
 
@@ -985,7 +1038,6 @@
                                                                 <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50">복사</button>
                                                             </div>
                                                             <p className="text-[10px] text-gray-400 mt-2 text-center">* 1시간 이내 미입금 시 자동 취소될 수 있습니다.</p>
-                                                            <button onClick={() => { setCancelTargetItem(item); setCancelMessage({ type: 'full', title: '예약 취소', msg: '아직 입금 전이시라면 위약금 없이 취소 가능합니다.' }); setIsCancelModalOpen(true); }} className="w-full mt-3 py-2 text-xs text-gray-400 underline hover:text-gray-600 transition-colors">예약 취소하기</button>
                                                         </div>
                                                     )}
                                                 </div>
@@ -1050,7 +1102,36 @@
                     { q: "직접 수령할 수 있나요?", a: "네, 인천 서구 사무실로 방문하시면 직접 수령 및 반납이 가능합니다. (평일 10:00~17:00)\n* 점심시간(12:00~13:00) 제외" },
                     { q: "사진 옮기는 거 도와주시나요?", a: "기본적으로 직접 백업하셔야 하지만, 어려우신 경우 '데이터 백업 대행 서비스(1만원)'를 신청하시면 도와드립니다.\n(홈 화면 > 백업방법 메뉴 참고)" },
                     { q: "보증금은 언제 돌려받나요?", a: "기기 반납 후 검수(파손, 잠금 해제 확인 등)가 완료되면 즉시 계좌로 환급해 드립니다.\n보통 반납 도착일 기준 1~2일 내로 입금됩니다." },
-                    { q: "예약 취소하고 싶어요.", a: "마이페이지 > 예약 내역에서 직접 취소 요청이 가능합니다.\n\n[환불 규정]\n- 결제 24시간 이내: 100% 환불\n- 대여 2일 전: 환불 불가\n* 이미 택배가 발송된 경우 취소가 불가능합니다." },
+                    { 
+                        q: "예약 취소하고 싶어요.", 
+                        a: (
+                            <div className="space-y-3">
+                                <p>약관에 명시된 규정에 따라 취소 및 환불이 진행됩니다.</p>
+                                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden text-center text-[11px]">
+                                    <div className="bg-gray-50 py-2 font-bold border-b border-gray-100">환불 규정표</div>
+                                    <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+                                        <div className="p-2 bg-gray-50/50">결제 24시간 이내</div>
+                                        <div className="p-2 font-bold text-blue-500">100% 환불</div>
+                                    </div>
+                                    <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+                                        <div className="p-2 bg-gray-50/50">결제 24시간 이후</div>
+                                        <div className="p-2 font-bold text-gray-700">위약금 1만원 차감</div>
+                                    </div>
+                                    <div className="grid grid-cols-2 divide-x divide-gray-100">
+                                        <div className="p-2 bg-red-50 text-red-600 font-bold">대여 2일 전 ~</div>
+                                        <div className="p-2 font-bold text-red-500">환불 불가</div>
+                                    </div>
+                                </div>
+                                <div className="bg-red-50 p-3 rounded-xl border border-red-100 text-[11px] text-red-600 font-bold text-center whitespace-nowrap">
+                                    🚨 택배 발송 이후 또는 당일 예약은 환불이 불가합니다.
+                                </div>
+                                <p className="text-center text-[11px] whitespace-nowrap mt-2 text-gray-500">취소를 원하신다면 아래 버튼을 눌러 카카오톡 채널로 문의해주세요.</p>
+                                <button onClick={() => setShowKakaoModal(true)} className="w-full bg-yellow-400 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2">
+                                    <Icons.MessageHeart size={18} /> 카카오톡 채널 문의하기
+                                </button>
+                            </div>
+                        )
+                    },
                     { q: "미성년자도 대여 가능한가요?", a: "네, 가능합니다! 다만, 고가 기기이므로 보호자 동의가 필요할 수 있으며, 신분증(학생증, 여권 등) 확인이 필요합니다." }
                 ];
 
@@ -1082,7 +1163,7 @@
                                     </button>
                                     
                                     <div 
-                                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === idx ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}
+                                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === idx ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}
                                     >
                                         <div className="p-5 pt-0 text-xs text-gray-600 leading-relaxed bg-gray-50/50 border-t border-gray-100">
                                             <div className="pt-4 whitespace-pre-line">
@@ -1747,7 +1828,7 @@
                                                                                     <span className="font-bold block mb-0.5 text-red-600">🚨 택배 반납 이용 제한</span>
                                                                                     {isSameDayRental 
                                                                                         ? "1일 대여로는 택배반납을 할 수 없어요 대여종료일을 다른 날짜로 변경해 주세요."
-                                                                                        : "선택하신 반납일이 주말(토/일) 또는 공휴일인 경우, 우체국 휴무로 인해 택배 접수가 불가해요."}
+                                                                                        : "선택하신 반납일(토/일) 또는 공휴일인 경우, 우체국 휴무로 인해 택배 접수가 불가해요."}
                                                                                 </div>
                                                                             </div>
                                                                         )}
@@ -2157,12 +2238,64 @@
                             </div>
                         )}
                         {isCancelModalOpen && (
-                            <div className="fixed inset-0 z-[90] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
-                                <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${cancelMessage.type === 'impossible' ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}><Icons.X size={24} /></div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">{cancelMessage.title}</h3>
-                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep">{cancelMessage.msg}</p>
-                                    {cancelMessage.type === 'impossible' ? (<button onClick={() => setIsCancelModalOpen(false)} className="w-full py-3 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors text-sm">확인</button>) : (<div className="flex gap-2"><button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button><button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button></div>)}
+                            <div className="fixed inset-0 z-[90] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setIsCancelModalOpen(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all" onClick={(e) => e.stopPropagation()}>
+                                    {cancelMessage.type === 'refund_calc' ? (
+                                        <>
+                                             <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.X size={24} /></div>
+                                            <h3 className="text-lg font-bold text-gray-800 mb-4">{cancelMessage.title}</h3>
+                                            
+                                            <div className="text-left bg-gray-50 p-4 rounded-xl mb-4 text-xs space-y-2">
+                                                <div className="flex justify-between"><span className="text-gray-500">결제 금액</span><span className="font-bold text-gray-700">{cancelMessage.total.toLocaleString()}원</span></div>
+                                                <div className="flex justify-between"><span className="text-gray-500">위약금 (결제 24시간 후)</span><span className="font-bold text-red-500">-{cancelMessage.penalty.toLocaleString()}원</span></div>
+                                                <div className="border-t border-gray-200 pt-2 flex justify-between mt-2"><span className="font-bold text-gray-800">환불 예정 금액</span><span className={`font-bold text-sm ${cancelMessage.refund === 0 ? 'text-red-500' : 'text-blue-500'}`}>{cancelMessage.refund.toLocaleString()}원</span></div>
+                                                {cancelMessage.refund === 0 && cancelMessage.penalty > 0 && <div className="mt-2 bg-red-100 text-red-600 text-[10px] p-2 rounded-lg font-bold text-center">환불 불가 (위약금 100% 적용)</div>}
+                                            </div>
+
+                                            <div className="text-left text-[11px] text-gray-500 bg-white border border-gray-100 p-3 rounded-xl mb-6">
+                                                <p className="font-bold mb-1 text-gray-700">📢 환불 규정 안내</p>
+                                                <ul className="list-disc pl-3 space-y-0.5">
+                                                    <li>결제 24시간 이내: 100% 환불</li>
+                                                    <li className={cancelMessage.reason === 'after_24h' && cancelMessage.reason !== 'rental_imminent' ? "text-red-500 font-bold" : ""}>결제 24시간 이후: 위약금 1만원 차감</li>
+                                                    <li className={cancelMessage.reason === 'rental_imminent' ? "text-red-500 font-bold" : ""}>대여일 2일 전: 환불 불가</li>
+                                                </ul>
+                                            </div>
+
+                                            <div className="flex gap-2">
+                                                <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
+                                                {/* Allow cancel request even if refund is 0, just to confirm user knows. But usually refund 0 means no cancel needed or just notify. Let's allow it to 'cancel' the booking record. */}
+                                                <button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {cancelMessage.type === 'simple_cancel' ? (
+                                                 <>
+                                                    <div className="w-12 h-12 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.HelpCircle size={24} /></div>
+                                                    <h3 className="text-lg font-bold text-gray-800 mb-2">{cancelMessage.title}</h3>
+                                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep whitespace-pre-wrap">{cancelMessage.msg}</p>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
+                                                        <button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button>
+                                                    </div>
+                                                 </>
+                                            ) : (
+                                                <>
+                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${cancelMessage.type === 'impossible' ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}><Icons.X size={24} /></div>
+                                                    <h3 className="text-lg font-bold text-gray-800 mb-2">{cancelMessage.title}</h3>
+                                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep whitespace-pre-wrap">{cancelMessage.msg}</p>
+                                                    {cancelMessage.type === 'impossible' ? (
+                                                        <button onClick={() => setIsCancelModalOpen(false)} className="w-full py-3 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors text-sm">확인</button>
+                                                    ) : (
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
+                                                            <button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         )}
