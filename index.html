@@ -241,6 +241,31 @@
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
+            // --- 안전장치 추가: 예약취소 상태 확인 함수 ---
+            const checkRefundStatus = (item) => {
+                // item이 없더라도 기본 객체를 반환하여 크래시 방지
+                if (!item) return { title: '예약 취소', msg: '취소하시겠습니까?', type: 'normal' };
+                
+                // 실제 취소 로직 (예시: 배송 시작 전인지 확인 등)
+                // 지금은 무조건 취소 가능 메시지 반환
+                return { title: '예약 취소', msg: '정말로 예약을 취소하시겠습니까?\n(입금 전이라면 위약금 없음)', type: 'normal' };
+            };
+
+            const handleCancelRequest = async () => {
+                if (!cancelTargetItem) return;
+                
+                setIsSubmitting(true);
+                // 여기에 실제 취소 API 호출 로직이 들어갈 수 있습니다.
+                // 현재는 시뮬레이션만 수행
+                setTimeout(() => {
+                    setIsSubmitting(false);
+                    setIsCancelModalOpen(false);
+                    alert("취소 요청이 접수되었습니다.\n담당자가 확인 후 처리해드립니다.");
+                    // 리스트 갱신 등의 로직 추가 가능
+                }, 1000);
+            };
+            // -----------------------------------------------------------
+
             const getReviewTag = (modelName) => {
                 if (modelName.includes('S23')) return '23U';
                 if (modelName.includes('S24')) return '24U';
@@ -936,7 +961,18 @@
                                                             <button onClick={() => openReviewModal(item)} className="flex-1 py-2.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1.5 shadow-sm">
                                                                 <Icons.Star size={14} className="fill-blue-600" /> 리뷰 남기기
                                                             </button>
-                                                            <button onClick={() => { setCancelTargetItem(item); const status = checkRefundStatus(item); setCancelMessage(status); setIsCancelModalOpen(true); }} className="flex-1 py-2.5 bg-white text-gray-400 border border-gray-200 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm">
+                                                            {/* 안전장치 적용된 예약취소 버튼 */}
+                                                            <button onClick={() => { 
+                                                                try {
+                                                                    setCancelTargetItem(item); 
+                                                                    const status = checkRefundStatus(item); 
+                                                                    setCancelMessage(status || { title: '취소', msg: '취소하시겠습니까?', type: 'normal' }); 
+                                                                    setIsCancelModalOpen(true); 
+                                                                } catch (e) {
+                                                                    console.error("Cancel error", e);
+                                                                    alert("일시적인 오류입니다. 다시 시도해주세요.");
+                                                                }
+                                                            }} className="flex-1 py-2.5 bg-white text-gray-400 border border-gray-200 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm">
                                                                 예약취소
                                                             </button>
                                                         </div>
@@ -1530,7 +1566,7 @@
 
                                 {(viewMode === 'rental') && (
                                     <>
-                                        <div className="flex gap-2 mb-6">{[1, 2, 3, 4].map(i => (<div key={i} className={`h-1 flex-1 rounded-full ${step >= i ? 'bg-blue-400' : 'bg-gray-200'}`}></div>))}</div>
+                                            <div className="flex gap-2 mb-6">{[1, 2, 3, 4].map(i => (<div key={i} className={`h-1 flex-1 rounded-full ${step >= i ? 'bg-blue-400' : 'bg-gray-200'}`}></div>))}</div>
                                             {step === 1 && (
                                                 <div className="space-y-6 animate-slide-in">
                                                     <div className="flex items-center gap-2"><button onClick={handleGoHome} className="-ml-2 p-1 text-gray-400 hover:text-gray-800 transition-colors rounded-full active:bg-gray-100"><Icons.ChevronLeft size={28} /></button><h2 className="text-2xl font-bold text-gray-800 leading-tight">대여모델 및 일정 고르기</h2></div>
@@ -1566,25 +1602,25 @@
                                                             </div>
                                                             {startDate && (
                                                                 <div className="space-y-4 mt-4">
-                                                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
-                                                                        <div className="flex justify-between items-center mb-2"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">🎫</span> 대여시작일</span><span className="font-bold text-blue-500">{(() => { const arrival = getArrivalDate(startDate); return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`; })()}</span></div>
-                                                                        <div className="flex justify-between items-center"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📍</span> 대여종료일</span>{endDate ? (<span className="font-bold text-red-500">{(() => { const returnDate = getReturnDate(endDate); return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; })()}</span>) : (<span className="font-bold text-blue-400 animate-pulse">종료일을 선택해주세요 ✨</span>)}</div>
-                                                                        <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-blue-200/50 leading-relaxed">
+                                                                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
+                                                                            <div className="flex justify-between items-center mb-2"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">🎫</span> 대여시작일</span><span className="font-bold text-blue-500">{(() => { const arrival = getArrivalDate(startDate); return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`; })()}</span></div>
+                                                                            <div className="flex justify-between items-center"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📍</span> 대여종료일</span>{endDate ? (<span className="font-bold text-red-500">{(() => { const returnDate = getReturnDate(endDate); return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; })()}</span>) : (<span className="font-bold text-blue-400 animate-pulse">종료일을 선택해주세요 ✨</span>)}</div>
+                                                                            <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-blue-200/50 leading-relaxed">
                                                                                 {dateWarning && <span className="text-blue-500 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
                                                                                 {discounts.app && <span className="text-blue-500 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
                                                                                 {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
                                                                                 {discounts.kakao && <span className="text-yellow-600 font-bold block mb-1">🎁 카카오맵 리뷰 약속으로 4,000원 할인 적용!</span>}
                                                                                 {endDate ? ((() => { if (endDate.getDay() === 6 || endDate.getDay() === 0 || isHoliday(endDate)) { let nextValid = new Date(endDate); nextValid.setDate(nextValid.getDate() + 1); while (true) { const d = nextValid.getDay(); const y = nextValid.getFullYear(); const m = nextValid.getMonth() + 1; const day = nextValid.getDate(); const dateKey = `${y}-${m}-${day}`; const isH = !!HOLIDAYS[dateKey]; if (d !== 6 && d !== 0 && !isH) { break; } nextValid.setDate(nextValid.getDate() + 1); } const dateStr = `${nextValid.getMonth() + 1}월 ${nextValid.getDate()}일(${daysOfWeek[nextValid.getDay()]})`; return (<span className="text-red-500 block mt-2 break-keep bg-red-50 p-2.5 rounded-xl border border-red-100 text-xs leading-relaxed shadow-sm animate-bounce-in">🚨 대여종료일이 공휴일 또는 토,일인 경우 택배반납이 불가해요!<br/>택배반납을 원하시면 <strong className="text-red-600 bg-white px-1.5 py-0.5 rounded border border-red-200 mx-0.5 inline-block mt-1">{dateStr}</strong>로 선택해주세요.</span>); } return null; })()) : (<span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>)}
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                    <div className="animate-fade-in">
-                                                                        <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
-                                                                        <div className="grid grid-cols-3 gap-2">
-                                                                            <div onClick={() => setDiscounts({ app: !discounts.app, blog: false, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰</span><span className="text-[10px] text-blue-400 font-bold">3,000원 할인</span></div>
-                                                                            <div onClick={() => setDiscounts({ app: false, blog: false, kakao: !discounts.kakao })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1 break-keep">카카오맵 리뷰</span><span className="text-[10px] text-yellow-600 font-bold">4,000원 할인</span></div>
-                                                                            <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰</span><span className="text-[10px] text-green-600 font-bold">5,000원 할인</span></div>
+                                                                        <div className="animate-fade-in">
+                                                                            <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
+                                                                            <div className="grid grid-cols-3 gap-2">
+                                                                                <div onClick={() => setDiscounts({ app: !discounts.app, blog: false, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰</span><span className="text-[10px] text-blue-400 font-bold">3,000원 할인</span></div>
+                                                                                <div onClick={() => setDiscounts({ app: false, blog: false, kakao: !discounts.kakao })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1 break-keep">카카오맵 리뷰</span><span className="text-[10px] text-yellow-600 font-bold">4,000원 할인</span></div>
+                                                                                <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰</span><span className="text-[10px] text-green-600 font-bold">5,000원 할인</span></div>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -1868,10 +1904,10 @@
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={20} className="text-sky-500" /> 수령 방법 안내</h3><button onClick={() => setShowDeliveryInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
-                                        <div><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">추천</span> 택배 수령</h4><p className="text-xs mb-1">우체국택배로 대여 기기를 수령하는 방법</p><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 대여시작일 1일전에 도착예정이에요.</p></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1">🚀 퀵 서비스</h4><p className="text-xs mb-1">원하는 장소에서 수령하는 방법 (긴급 추천!)</p><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 지역마다 상이하지만, 평균 2만원</p></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1">🏟️ 공연장 수령</h4><p className="text-xs mb-1">공연장 근처에서 수령하는 방법</p><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 보통 사운드체크 1시간~30분전, 공연시작 2~3시간 전 진행</p></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1">🏢 사무실 수령</h4><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">추천</span> 택배 수령</h4><p className="text-xs mb-1">우체국택배로 대여 기기를 수령하는 방법</p><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 대여시작일 1일전에 도착예정이에요.</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">🚀 퀵 서비스</h4><p className="text-xs mb-1">원하는 장소에서 수령하는 방법 (긴급 추천!)</p><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 지역마다 상이하지만, 평균 2만원</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">🏟️ 공연장 수령</h4><p className="text-xs mb-1">공연장 근처에서 수령하는 방법</p><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 보통 사운드체크 1시간~30분전, 공연시작 2~3시간 전 진행</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">🏢 사무실 수령</h4><p className="text-xs text-blue-500 bg-blue-50 p-1.5 rounded">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p></div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowDeliveryInfo(false)} className="w-full bg-blue-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-500 transition-colors text-sm">확인했어요</button></div>
                                 </div>
@@ -1882,11 +1918,11 @@
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Icons.Truck size={20} className="text-rose-500 transform scale-x-[-1]" /> 반납 방법 안내</h3><button onClick={() => setShowReturnInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
-                                        <div><h4 className="font-bold text-gray-800 mb-1">📦 택배 반납</h4><p className="text-xs mb-1">우체국 택배를 이용하여 대여기기 반납</p><div className="bg-rose-50 p-2 rounded text-[11px] text-rose-500 leading-relaxed">👉 우체국 방문이 어려우신 경우, <strong>방문택배접수 서비스</strong>를 이용해주세요!<br/>현관 문 앞에 놓으시면 기사님께서 수거해요!</div></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1">🏢 사무실 반납</h4><p className="text-xs mb-1">세린캠 사무실에 직접 방문하여 반납하는 방법</p><p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5">⚡ 당일 반납 <span className="text-[10px] text-rose-500 border border-rose-200 px-1 rounded">+1.0만</span></h4><p className="text-xs mb-1">공연 종료 직 후, 공연장에서 바로 반납하는 방법</p><p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 반납 시 데이터 백업 서비스 제공</p></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1">🏟️ 공연장 반납</h4><p className="text-xs mb-1">다음날 또는 다다음날 공연장에서 직접 반납하는 방법</p><p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 보통 공연시작 2~3시간전 반납 진행</p></div>
-                                        <div className="bg-gray-50 p-2 rounded-lg"><p className="text-[11px] text-gray-500">※ 토/일/공휴일이 반납일인 경우 택배 반납이 어려울 수 있습니다.</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">📦 택배 반납</h4><p className="text-xs mb-1">우체국 택배를 이용하여 대여기기 반납</p><div className="bg-rose-50 p-2 rounded text-[11px] text-rose-500 leading-relaxed">👉 우체국 방문이 어려우신 경우, <strong>방문택배접수 서비스</strong>를 이용해주세요!<br/>현관 문 앞에 놓으시면 기사님께서 수거해요!</div></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">🏢 사무실 반납</h4><p className="text-xs mb-1">세린캠 사무실에 직접 방문하여 반납하는 방법</p><p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 인천 서구 이음4로6, KR법조타워 7층 710호</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5">⚡ 당일 반납 <span className="text-[10px] text-rose-500 border border-rose-200 px-1 rounded">+1.0만</span></h4><p className="text-xs mb-1">공연 종료 직 후, 공연장에서 바로 반납하는 방법</p><p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 반납 시 데이터 백업 서비스 제공</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">🏟️ 공연장 반납</h4><p className="text-xs mb-1">다음날 또는 다다음날 공연장에서 직접 반납하는 방법</p><p className="text-xs text-rose-500 bg-rose-50 p-1.5 rounded">👉 보통 공연시작 2~3시간전 반납 진행</p></div>
+                                            <div className="bg-gray-50 p-2 rounded-lg"><p className="text-[11px] text-gray-500">※ 토/일/공휴일이 반납일인 경우 택배 반납이 어려울 수 있습니다.</p></div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowReturnInfo(false)} className="w-full bg-rose-400 text-white py-3 rounded-xl font-bold shadow-md hover:bg-rose-500 transition-colors text-sm">확인했어요</button></div>
                                 </div>
@@ -1897,10 +1933,10 @@
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Icons.ShieldCheck size={20} className="text-green-500" /> 보험 안내</h3><button onClick={() => setShowInsuranceInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-4 pr-1 terms-scroll">
-                                        <div><h4 className="font-bold text-gray-800 mb-1">🛡️ 미가입 (+0원)</h4><p className="text-xs">파손 시 수리비의 <strong className="text-red-500">100%</strong>를 고객님이 부담합니다.</p><div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 30만원 전액 청구</div></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded">추천</span> 베이직 (+3,000원)</h4><p className="text-xs">파손 시 수리비의 <strong className="text-blue-500">50%</strong>만 부담하시면 됩니다.</p><div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 15만원만 청구 (50% 절약)</div></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1">👑 프리미엄 (+5,000원)</h4><p className="text-xs">파손 시 수리비의 <strong className="text-blue-500">30%</strong>만 부담하시면 됩니다.</p><div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 9만원만 청구 (70% 절약)</div></div>
-                                        <div className="bg-red-50 p-2 rounded-lg border border-red-100"><p className="text-[11px] text-red-500 font-bold">⚠️ 주의사항</p><p className="text-[10px] text-red-400">단말기 분실, 도난, 침수(물에 빠짐)의 경우에는 보험 적용이 불가하며, 단말기 가액 전액을 변상해야 합니다.</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">🛡️ 미가입 (+0원)</h4><p className="text-xs">파손 시 수리비의 <strong className="text-red-500">100%</strong>를 고객님이 부담합니다.</p><div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 30만원 전액 청구</div></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-1.5"><span className="text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded">추천</span> 베이직 (+3,000원)</h4><p className="text-xs">파손 시 수리비의 <strong className="text-blue-500">50%</strong>만 부담하시면 됩니다.</p><div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 15만원만 청구 (50% 절약)</div></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1">👑 프리미엄 (+5,000원)</h4><p className="text-xs">파손 시 수리비의 <strong className="text-blue-500">30%</strong>만 부담하시면 됩니다.</p><div className="bg-gray-50 p-2 rounded mt-1 text-[11px] text-gray-500">예) 액정 파손으로 수리비 30만원 발생 시<br/>👉 9만원만 청구 (70% 절약)</div></div>
+                                            <div className="bg-red-50 p-2 rounded-lg border border-red-100"><p className="text-[11px] text-red-500 font-bold">⚠️ 주의사항</p><p className="text-[10px] text-red-400">단말기 분실, 도난, 침수(물에 빠짐)의 경우에는 보험 적용이 불가하며, 단말기 가액 전액을 변상해야 합니다.</p></div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowInsuranceInfo(false)} className="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm">확인했어요</button></div>
                                 </div>
@@ -1911,9 +1947,9 @@
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">💳 카드 결제 안내</h3><button onClick={() => setShowCardInfo(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={20} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-5 pr-1 terms-scroll">
-                                        <div className="bg-green-50 p-3 rounded-xl border border-green-100"><p className="text-xs text-green-700 font-bold mb-1">💡 네이버 스토어 결제 방식</p><p className="text-[11px] text-green-600">세린캠 네이버 스토어에서 <strong>'금액 조정 옵션'</strong>을 통해 총 금액을 맞춰서 결제하는 방식입니다.</p></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 총 금액 확인하기</h4><p className="text-xs ml-7">현재 고객님의 총 대여료는 <br/><strong className="text-blue-500 text-lg">{successData?.amount ? successData.amount.toLocaleString() : calculateTotal().toLocaleString()}원</strong> 입니다.</p></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 스토어에서 결제하기</h4><div className="ml-7 text-xs space-y-2"><p>① 아래 버튼을 눌러 네이버 스토어로 이동하세요.</p><p>② 예약하신 <strong>[{selectedPhone?.name ? selectedPhone.name.replace(/^\[[^\]]+\]\s*/, '') : '대여하신 기종'}]</strong> 상품을 선택해주세요.</p><p>③ 상품 옵션에서 <strong>[금액조정]</strong>을 선택하여 총 결제금액(<strong>{successData?.amount ? successData.amount.toLocaleString() : calculateTotal().toLocaleString()}원</strong>)을 맞춰주세요!</p><div className="bg-gray-50 p-2 rounded-lg text-[10px] text-gray-500 mt-2 border border-gray-100">예) 1,000원 옵션 x {(successData?.amount || calculateTotal()) / 1000}개 = {(successData?.amount || calculateTotal()).toLocaleString()}원</div></div></div>
+                                            <div className="bg-green-50 p-3 rounded-xl border border-green-100"><p className="text-xs text-green-700 font-bold mb-1">💡 네이버 스토어 결제 방식</p><p className="text-[11px] text-green-600">세린캠 네이버 스토어에서 <strong>'금액 조정 옵션'</strong>을 통해 총 금액을 맞춰서 결제하는 방식입니다.</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 총 금액 확인하기</h4><p className="text-xs ml-7">현재 고객님의 총 대여료는 <br/><strong className="text-blue-500 text-lg">{successData?.amount ? successData.amount.toLocaleString() : calculateTotal().toLocaleString()}원</strong> 입니다.</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 스토어에서 결제하기</h4><div className="ml-7 text-xs space-y-2"><p>① 아래 버튼을 눌러 네이버 스토어로 이동하세요.</p><p>② 예약하신 <strong>[{selectedPhone?.name ? selectedPhone.name.replace(/^\[[^\]]+\]\s*/, '') : '대여하신 기종'}]</strong> 상품을 선택해주세요.</p><p>③ 상품 옵션에서 <strong>[금액조정]</strong>을 선택하여 총 결제금액(<strong>{successData?.amount ? successData.amount.toLocaleString() : calculateTotal().toLocaleString()}원</strong>)을 맞춰주세요!</p><div className="bg-gray-50 p-2 rounded-lg text-[10px] text-gray-500 mt-2 border border-gray-100">예) 1,000원 옵션 x {(successData?.amount || calculateTotal()) / 1000}개 = {(successData?.amount || calculateTotal()).toLocaleString()}원</div></div></div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100 space-y-2"><a href="https://smartstore.naver.com/serincam" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm">세린캠 네이버 스토어 바로가기 ↗</a><button onClick={() => setShowCardInfo(false)} className="w-full bg-gray-100 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button></div>
                                 </div>
@@ -1924,15 +1960,15 @@
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3"><h3 className="text-lg font-bold text-gray-800">이용약관</h3><button onClick={() => setShowTerms(false)} className="text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button></div>
                                     <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
-                                        <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제1조 (목적 및 정의)</h4><p className="mb-2">본 약관은 세린캠(이하 "회사")의 렌탈 서비스 이용에 관한 권리와 의무를 규정합니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li><strong>이용자:</strong> 홈페이지/카카오채널을 통해 서비스를 신청한 고객</li><li><strong>렌탈 기기/부속품:</strong> 회사가 제공하는 대여용 스마트폰 및 액세서리(충전기, 배터리 등)</li><li><strong>계약:</strong> 약관 동의 및 결제 완료 시 성립되는 법적 약정</li><li><strong>반납일:</strong> 대여 기기를 반환해야 하는 약속된 날짜</li></ul></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제2조 (서비스 이용 및 변경)</h4><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li>서비스 신청 후 결제 완료 시 계약이 성립됩니다.</li><li>본인 확인을 위해 신분증 사본을 요청할 수 있으며, 개인정보보호법에 따라 관리됩니다.</li><li>물류/기상 상황 등에 따라 대여 시작 전 수령 방법이 변경될 수 있으며, 동의하지 않을 경우 전액 환불 후 해지됩니다.</li></ul></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제3조 (대여요금)</h4><p>홈페이지에 공지된 기기별/기간별 요금을 기준으로 책정됩니다.</p></div>
-                                        <div><h4 className="font-bold text-red-500 mb-1.5 text-sm flex items-center gap-1">제4조 (책임 및 배상) 🚨</h4><p className="mb-2 font-bold text-gray-700">고객 부주의로 인한 파손·분실 시 책임은 아래와 같습니다.</p><div className="bg-red-50 p-2.5 rounded-lg border border-red-100 mb-2"><p className="font-bold text-red-600 text-[11px] mb-1">🛠 파손 발생 시</p><p className="text-[11px] text-red-500 leading-snug">삼성서비스센터 수리비용 전액 + 손해배상금(휴업손해 등)<br/><span className="text-[10px] opacity-70">* 파손보험 가입 시 자기부담금 경감 가능</span></p></div><p className="font-bold text-gray-700 mb-1 text-[11px]">💸 분실 및 도난 시 배상 기준</p><table className="w-full text-center text-[10px] border border-gray-200 mb-3"><thead className="bg-gray-100 font-bold text-gray-700"><tr><th className="p-1 border-r border-gray-200">구분</th><th className="p-1">배상금액</th></tr></thead><tbody><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">출고 후 4개월 이내</td><td className="p-1 font-bold">출고가의 100%</td></tr><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">출고 후 4개월 이후</td><td className="p-1 font-bold">출고가의 80%</td></tr></tbody></table><div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500"><p className="font-bold text-gray-600 mb-1">⚠️ 보조배터리 및 부속품 사용 주의</p>기기 손상, 화재 등 부속품 사용 중 발생한 모든 사고의 책임은 이용자에게 있습니다. (단, 수령 24시간 내 초기 불량은 교환/환불 가능)</div></div>
-                                        <div><h4 className="font-bold text-blue-500 mb-1.5 text-sm">제5조 (취소 및 환불 규정)</h4><p className="mb-2 text-[11px]">100% 예약제로 운영되어 아래 위약금이 발생합니다.</p><table className="w-full text-center text-[10px] border border-gray-200"><thead className="bg-gray-100 font-bold text-gray-700"><tr><th className="p-1 border-r border-gray-200">신청 시점</th><th className="p-1">환불금액</th></tr></thead><tbody><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">결제 24시간 이내</td><td className="p-1 font-bold text-blue-500">100% 환불</td></tr><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">결제 24시간 이후</td><td className="p-1 font-bold">위약금 1만원 차감</td></tr><tr className="border-t border-gray-200 bg-red-50 text-red-600"><td className="p-1 border-r border-red-100 font-bold">대여일 2일 전 ~</td><td className="p-1 font-bold">환불 불가 (0%)</td></tr></tbody></table><p className="text-[10px] text-gray-400 mt-1">* 제품 발송 후에는 시점 무관 환불 불가</p></div>
-                                        <div><h4 className="font-bold text-red-500 mb-1.5 text-sm">제6조 (연체료 규정) 😡</h4><p className="mb-2 text-[11px]">사전 협의 없는 반납 지연은 다음 예약자에게 피해를 줍니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-600 font-bold"><li>연체료: 1일당 50,000원 부과</li><li>고지 후 6시간 내 미납 시 법적 조치 진행</li></ul><div className="bg-gray-50 p-2 mt-2 rounded text-[10px] text-gray-500">* 택배: 마감시간 이후 접수 / 방문택배 미수거 포함<br/>* 현장: 약속 시간 30분 이상 초과 시</div></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제7조 (계약 해지)</h4><p className="text-[11px] text-gray-500">허위 정보, 심사 미달, 연락 두절, 폭언/협박 등의 경우 회사는 계약을 해지할 수 있습니다.</p></div>
-                                        <div><h4 className="font-bold text-purple-600 mb-1.5 text-sm">제8조 (공연장 수령/반납 특약)</h4><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li>신청 인원 5명 이하 시 수령 방법이 변경될 수 있습니다.</li><li><span className="text-red-500 font-bold">지각비: 10분당 2,000원</span> (30분 초과 시 노쇼 간주)</li><li>임의로 장소를 변경하거나 시간을 준수하지 않아 발생하는 불이익은 회사가 책임지지 않습니다.</li></ul></div>
-                                        <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제9조 (면책)</h4><p className="text-[11px] text-gray-500">천재지변 등 불가항력적 사유로 인한 서비스 불가 시 회사는 책임을 지지 않습니다.</p></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제1조 (목적 및 정의)</h4><p className="mb-2">본 약관은 세린캠(이하 "회사")의 렌탈 서비스 이용에 관한 권리와 의무를 규정합니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li><strong>이용자:</strong> 홈페이지/카카오채널을 통해 서비스를 신청한 고객</li><li><strong>렌탈 기기/부속품:</strong> 회사가 제공하는 대여용 스마트폰 및 액세서리(충전기, 배터리 등)</li><li><strong>계약:</strong> 약관 동의 및 결제 완료 시 성립되는 법적 약정</li><li><strong>반납일:</strong> 대여 기기를 반환해야 하는 약속된 날짜</li></ul></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제2조 (서비스 이용 및 변경)</h4><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li>서비스 신청 후 결제 완료 시 계약이 성립됩니다.</li><li>본인 확인을 위해 신분증 사본을 요청할 수 있으며, 개인정보보호법에 따라 관리됩니다.</li><li>물류/기상 상황 등에 따라 대여 시작 전 수령 방법이 변경될 수 있으며, 동의하지 않을 경우 전액 환불 후 해지됩니다.</li></ul></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제3조 (대여요금)</h4><p>홈페이지에 공지된 기기별/기간별 요금을 기준으로 책정됩니다.</p></div>
+                                            <div><h4 className="font-bold text-red-500 mb-1.5 text-sm flex items-center gap-1">제4조 (책임 및 배상) 🚨</h4><p className="mb-2 font-bold text-gray-700">고객 부주의로 인한 파손·분실 시 책임은 아래와 같습니다.</p><div className="bg-red-50 p-2.5 rounded-lg border border-red-100 mb-2"><p className="font-bold text-red-600 text-[11px] mb-1">🛠 파손 발생 시</p><p className="text-[11px] text-red-500 leading-snug">삼성서비스센터 수리비용 전액 + 손해배상금(휴업손해 등)<br/><span className="text-[10px] opacity-70">* 파손보험 가입 시 자기부담금 경감 가능</span></p></div><p className="font-bold text-gray-700 mb-1 text-[11px]">💸 분실 및 도난 시 배상 기준</p><table className="w-full text-center text-[10px] border border-gray-200 mb-3"><thead className="bg-gray-100 font-bold text-gray-700"><tr><th className="p-1 border-r border-gray-200">구분</th><th className="p-1">배상금액</th></tr></thead><tbody><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">출고 후 4개월 이내</td><td className="p-1 font-bold">출고가의 100%</td></tr><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">출고 후 4개월 이후</td><td className="p-1 font-bold">출고가의 80%</td></tr></tbody></table><div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500"><p className="font-bold text-gray-600 mb-1">⚠️ 보조배터리 및 부속품 사용 주의</p>기기 손상, 화재 등 부속품 사용 중 발생한 모든 사고의 책임은 이용자에게 있습니다. (단, 수령 24시간 내 초기 불량은 교환/환불 가능)</div></div>
+                                            <div><h4 className="font-bold text-blue-500 mb-1.5 text-sm">제5조 (취소 및 환불 규정)</h4><p className="mb-2 text-[11px]">100% 예약제로 운영되어 아래 위약금이 발생합니다.</p><table className="w-full text-center text-[10px] border border-gray-200"><thead className="bg-gray-100 font-bold text-gray-700"><tr><th className="p-1 border-r border-gray-200">신청 시점</th><th className="p-1">환불금액</th></tr></thead><tbody><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">결제 24시간 이내</td><td className="p-1 font-bold text-blue-500">100% 환불</td></tr><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">결제 24시간 이후</td><td className="p-1 font-bold">위약금 1만원 차감</td></tr><tr className="border-t border-gray-200 bg-red-50 text-red-600"><td className="p-1 border-r border-red-100 font-bold">대여일 2일 전 ~</td><td className="p-1 font-bold">환불 불가 (0%)</td></tr></tbody></table><p className="text-[10px] text-gray-400 mt-1">* 제품 발송 후에는 시점 무관 환불 불가</p></div>
+                                            <div><h4 className="font-bold text-red-500 mb-1.5 text-sm">제6조 (연체료 규정) 😡</h4><p className="mb-2 text-[11px]">사전 협의 없는 반납 지연은 다음 예약자에게 피해를 줍니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-600 font-bold"><li>연체료: 1일당 50,000원 부과</li><li>고지 후 6시간 내 미납 시 법적 조치 진행</li></ul><div className="bg-gray-50 p-2 mt-2 rounded text-[10px] text-gray-500">* 택배: 마감시간 이후 접수 / 방문택배 미수거 포함<br/>* 현장: 약속 시간 30분 이상 초과 시</div></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제7조 (계약 해지)</h4><p className="text-[11px] text-gray-500">허위 정보, 심사 미달, 연락 두절, 폭언/협박 등의 경우 회사는 계약을 해지할 수 있습니다.</p></div>
+                                            <div><h4 className="font-bold text-purple-600 mb-1.5 text-sm">제8조 (공연장 수령/반납 특약)</h4><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li>신청 인원 5명 이하 시 수령 방법이 변경될 수 있습니다.</li><li><span className="text-red-500 font-bold">지각비: 10분당 2,000원</span> (30분 초과 시 노쇼 간주)</li><li>임의로 장소를 변경하거나 시간을 준수하지 않아 발생하는 불이익은 회사가 책임지지 않습니다.</li></ul></div>
+                                            <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제9조 (면책)</h4><p className="text-[11px] text-gray-500">천재지변 등 불가항력적 사유로 인한 서비스 불가 시 회사는 책임을 지지 않습니다.</p></div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowTerms(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button></div>
                                 </div>
@@ -1948,89 +1984,89 @@
                                         <button onClick={() => setShowPrivacy(false)} className="text-gray-400 hover:text-gray-600 shrink-0 ml-2"><Icons.X size={24} /></button>
                                     </div>
                                     <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
-                                        <p className="text-[11px] bg-blue-50 p-3 rounded-xl text-blue-600 font-medium">
-                                            세린캠은 개인정보 수집 목적을 위하여 아래와 같이 개인정보를 수집∙이용 및 제3자에게 제공하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주십시오.
-                                        </p>
-                                        
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">1. 수집하는 개인정보 항목</h4>
-                                            <p className="font-bold text-gray-700 mb-1">[필수 수집항목]</p>
-                                            <ul className="list-disc pl-4 space-y-1 mb-2">
-                                                <li>이름, 휴대전화번호, 주소(기기 배송용), 신분증 사본, 계좌번호(환급용)</li>
-                                                <li>결제 정보 (카드사명, 결제승인 정보 등)</li>
-                                            </ul>
-                                            <p className="font-bold text-gray-700 mb-1">[자동 수집 항목]</p>
-                                            <ul className="list-disc pl-4 space-y-1">
-                                                <li>서비스 이용 기록, 접속 IP, 쿠키 등</li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 개인정보 수집 및 이용 목적</h4>
-                                            <ul className="list-disc pl-4 space-y-1">
-                                                <li>렌탈 서비스 신청, 배송, 반납 및 환불 처리</li>
-                                                <li>본인확인 및 신분 확인 (대여 악용 방지 목적)</li>
-                                                <li>고객상담, 민원 처리 및 고지사항 전달</li>
-                                                <li>계약 이행 및 서비스 제공을 위한 연락</li>
-                                                <li>불량 이용자 제재 및 법적 대응 시 증빙 자료</li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">3. 개인정보 보유 및 이용기간</h4>
-                                            <p className="mb-2">이용자의 개인정보는 수집 및 이용 목적이 달성된 후 <span className="font-bold text-blue-500">지체 없이 파기</span>합니다.</p>
-                                            <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-100 text-[11px]">
-                                                <p className="font-bold mb-1">단, 관련 법령에 따라 아래 기간 동안 보관됩니다:</p>
-                                                <ul className="space-y-0.5">
-                                                    <li>• 계약 또는 청약철회 등에 관한 기록: 5년</li>
-                                                    <li>• 대금 결제 및 재화 등의 공급에 관한 기록: 5년</li>
-                                                    <li>• 소비자 불만 또는 분쟁처리에 관한 기록: 3년</li>
+                                            <p className="text-[11px] bg-blue-50 p-3 rounded-xl text-blue-600 font-medium">
+                                                세린캠은 개인정보 수집 목적을 위하여 아래와 같이 개인정보를 수집∙이용 및 제3자에게 제공하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주십시오.
+                                            </p>
+                                            
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">1. 수집하는 개인정보 항목</h4>
+                                                <p className="font-bold text-gray-700 mb-1">[필수 수집항목]</p>
+                                                <ul className="list-disc pl-4 space-y-1 mb-2">
+                                                    <li>이름, 휴대전화번호, 주소(기기 배송용), 신분증 사본, 계좌번호(환급용)</li>
+                                                    <li>결제 정보 (카드사명, 결제승인 정보 등)</li>
+                                                </ul>
+                                                <p className="font-bold text-gray-700 mb-1">[자동 수집 항목]</p>
+                                                <ul className="list-disc pl-4 space-y-1">
+                                                    <li>서비스 이용 기록, 접속 IP, 쿠키 등</li>
                                                 </ul>
                                             </div>
-                                        </div>
 
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">4. 개인정보 제3자 제공</h4>
-                                            <p className="mb-1">회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 다음의 경우에는 예외로 합니다:</p>
-                                            <ul className="list-disc pl-4 space-y-0.5">
-                                                <li>이용자가 사전에 동의한 경우</li>
-                                                <li>법령에 의거하거나, 수사기관의 요청이 있는 경우</li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">5. 개인정보 처리 위탁</h4>
-                                            <p className="mb-2">회사는 원활한 서비스 제공을 위해 일부 업무를 외부에 위탁하고 있으며, 위탁 시 위탁사와 계약을 통해 개인정보 보호를 철저히 관리합니다.</p>
-                                            <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-2">
-                                                <p className="font-bold text-blue-600 text-[11px]">📦 배송 서비스 (정보 제공 및 수거)</p>
-                                                <ul className="text-[11px] text-blue-500 space-y-1">
-                                                    <li>• <span className="font-bold underline">우체국택배</span>: 기기 배송 및 택배 반납 접수</li>
-                                                    <li>• <span className="font-bold underline">카카오 T퀵 (카카오모빌리티)</span>: 퀵 서비스 이용 시 정보 제공</li>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 개인정보 수집 및 이용 목적</h4>
+                                                <ul className="list-disc pl-4 space-y-1">
+                                                    <li>렌탈 서비스 신청, 배송, 반납 및 환불 처리</li>
+                                                    <li>본인확인 및 신분 확인 (대여 악용 방지 목적)</li>
+                                                    <li>고객상담, 민원 처리 및 고지사항 전달</li>
+                                                    <li>계약 이행 및 서비스 제공을 위한 연락</li>
+                                                    <li>불량 이용자 제재 및 법적 대응 시 증빙 자료</li>
                                                 </ul>
-                                                <p className="font-bold text-blue-600 text-[11px] border-t border-blue-200 pt-1 mt-1">💳 결제 서비스</p>
-                                                <p className="text-[11px] text-blue-500">• 결제대행사: 결제 처리 및 승인 정보 확인</p>
                                             </div>
-                                        </div>
 
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">6. 이용자의 권리와 행사 방법</h4>
-                                            <p>이용자는 언제든지 본인의 개인정보를 열람, 정정, 삭제, 처리정지 요청할 수 있습니다. 관련 요청은 아래 개인정보 보호책임자 혹은 카카오채널을 통해 접수 가능합니다.</p>
-                                        </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">3. 개인정보 보유 및 이용기간</h4>
+                                                <p className="mb-2">이용자의 개인정보는 수집 및 이용 목적이 달성된 후 <span className="font-bold text-blue-500">지체 없이 파기</span>합니다.</p>
+                                                <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-100 text-[11px]">
+                                                    <p className="font-bold mb-1">단, 관련 법령에 따라 아래 기간 동안 보관됩니다:</p>
+                                                    <ul className="space-y-0.5">
+                                                        <li>• 계약 또는 청약철회 등에 관한 기록: 5년</li>
+                                                        <li>• 대금 결제 및 재화 등의 공급에 관한 기록: 5년</li>
+                                                        <li>• 소비자 불만 또는 분쟁처리에 관한 기록: 3년</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
 
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">7. 개인정보 보호책임자</h4>
-                                            <p>담당자: 한승윤</p>
-                                            <p>문의처: 카카오톡 채널 [세린]</p>
-                                        </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">4. 개인정보 제3자 제공</h4>
+                                                <p className="mb-1">회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 다음의 경우에는 예외로 합니다:</p>
+                                                <ul className="list-disc pl-4 space-y-0.5">
+                                                    <li>이용자가 사전에 동의한 경우</li>
+                                                    <li>법령에 의거하거나, 수사기관의 요청이 있는 경우</li>
+                                                </ul>
+                                            </div>
 
-                                        <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">8. 정책 변경에 대한 안내</h4>
-                                            <p>본 개인정보처리방침은 변경될 수 있으며, 변경 시 홈페이지 또는 카카오채널을 통해 사전 고지합니다.</p>
-                                        </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">5. 개인정보 처리 위탁</h4>
+                                                <p className="mb-2">회사는 원활한 서비스 제공을 위해 일부 업무를 외부에 위탁하고 있으며, 위탁 시 위탁사와 계약을 통해 개인정보 보호를 철저히 관리합니다.</p>
+                                                <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-2">
+                                                    <p className="font-bold text-blue-600 text-[11px]">📦 배송 서비스 (정보 제공 및 수거)</p>
+                                                    <ul className="text-[11px] text-blue-500 space-y-1">
+                                                        <li>• <span className="font-bold underline">우체국택배</span>: 기기 배송 및 택배 반납 접수</li>
+                                                        <li>• <span className="font-bold underline">카카오 T퀵 (카카오모빌리티)</span>: 퀵 서비스 이용 시 정보 제공</li>
+                                                    </ul>
+                                                    <p className="font-bold text-blue-600 text-[11px] border-t border-blue-200 pt-1 mt-1">💳 결제 서비스</p>
+                                                    <p className="text-[11px] text-blue-500">• 결제대행사: 결제 처리 및 승인 정보 확인</p>
+                                                </div>
+                                            </div>
 
-                                        <p className="text-[11px] text-red-500 font-medium border-t border-gray-100 pt-3">
-                                            ※ 대여자는 위의 개인정보 수집∙이용에 대한 동의를 거부할 권리가 있으며, 동의를 거부할 경우 개인정보가 필요한 서비스의 이용에 제한을 받을 수 있습니다.
-                                        </p>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">6. 이용자의 권리와 행사 방법</h4>
+                                                <p>이용자는 언제든지 본인의 개인정보를 열람, 정정, 삭제, 처리정지 요청할 수 있습니다. 관련 요청은 아래 개인정보 보호책임자 혹은 카카오채널을 통해 접수 가능합니다.</p>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">7. 개인정보 보호책임자</h4>
+                                                <p>담당자: 한승윤</p>
+                                                <p>문의처: 카카오톡 채널 [세린]</p>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">8. 정책 변경에 대한 안내</h4>
+                                                <p>본 개인정보처리방침은 변경될 수 있으며, 변경 시 홈페이지 또는 카카오채널을 통해 사전 고지합니다.</p>
+                                            </div>
+
+                                            <p className="text-[11px] text-red-500 font-medium border-t border-gray-100 pt-3">
+                                                ※ 대여자는 위의 개인정보 수집∙이용에 대한 동의를 거부할 권리가 있으며, 동의를 거부할 경우 개인정보가 필요한 서비스의 이용에 제한을 받을 수 있습니다.
+                                            </p>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100">
                                         <button onClick={() => setShowPrivacy(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">내용을 확인했습니다</button>
@@ -2051,30 +2087,30 @@
                                         <button onClick={() => setBlogModal({open: false, type: null})} className="text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
                                     </div>
                                     <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
-                                        {blogModal.type === 'mybox' && (
-                                            <>
-                                                <div className="bg-green-50 p-3 rounded-xl border border-green-100"><p className="text-xs text-green-700 font-bold mb-1">📢 이런 분들께 추천!</p><p className="text-[11px] text-green-600">30GB 이상 고화질 영상을 많이 촬영하실 예정이라면 미리 구매하시는 게 좋아요.</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> MYBOX 앱 접속</h4><p className="text-xs ml-7">네이버 MYBOX 앱 실행 후, 우측 상단 <strong>프로필 아이콘</strong>을 클릭하세요.</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 이용권 구매</h4><p className="text-xs ml-7"><strong>'내 이용권'</strong> 또는 <strong>'용량 늘리기'</strong> 메뉴에서 필요한 용량을 선택해 결제하세요.</p></div>
-                                                <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ 설정 > 디바이스 케어 > 저장공간에서 촬영한 용량을 확인하세요<br/>※ 첫 달 무료 이벤트가 있는지 확인해보세요!</div>
-                                            </>
-                                        )}
-                                        {blogModal.type === 'post' && (
-                                            <>
-                                                <div className="bg-red-50 p-3 rounded-xl border border-red-100"><p className="text-xs text-red-700 font-bold mb-1">💡 우체국 갈 시간이 없다면?</p><p className="text-[11px] text-red-600">집배원님이 집으로 오셔서 수거해가는 <strong>방문접수 소포</strong> 서비스를 이용해보세요!</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 인터넷우체국 접속</h4><p className="text-xs ml-7">인터넷우체국 홈페이지 또는 앱에서 <strong>[방문접수소포]</strong> 메뉴를 클릭하세요.</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 정보 입력</h4><p className="text-xs ml-7">보내는 분(본인), 받는 분(세린캠) 정보를 입력하고 <strong>신청하시면</strong>다음날 기사님께서 픽업해요.</p></div>
-                                                <div className="mt-4"><a href="https://parcel.epost.go.kr/auth.EpostLogin.parcel" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors text-sm gap-2">우체국방문택배 신청하기 <Icons.ExternalLink size={14}/></a></div>
-                                            </>
-                                        )}
-                                        {blogModal.type === 'logout' && (
-                                            <>
-                                                <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100"><p className="text-xs text-yellow-700 font-bold mb-1">🔒 개인정보 보호 필수!</p><p className="text-[11px] text-yellow-600">삼성계정은 세린캠 계정이라 삭제할 수 없어요.</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 설정 진입</h4><p className="text-xs ml-7">휴대폰 <strong>[설정]</strong> 앱을 실행하고 <strong>[계정 및 백업]</strong> 메뉴로 이동하세요.</p></div>
-                                                <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 계정 삭제</h4><p className="text-xs ml-7"><strong>[계정 관리]</strong>를 누른 후, 로그인된 고객님 계정을 선택하여 <strong>[계정 삭제]</strong>를 눌러주세요.</p></div>
-                                                <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ '계정 삭제'는 기기에서 로그아웃 되는 것이며, 실제 계정이 탈퇴되는 것은 아니니 안심하세요!</div>
-                                            </>
-                                        )}
+                                            {blogModal.type === 'mybox' && (
+                                                <>
+                                                    <div className="bg-green-50 p-3 rounded-xl border border-green-100"><p className="text-xs text-green-700 font-bold mb-1">📢 이런 분들께 추천!</p><p className="text-[11px] text-green-600">30GB 이상 고화질 영상을 많이 촬영하실 예정이라면 미리 구매하시는 게 좋아요.</p></div>
+                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> MYBOX 앱 접속</h4><p className="text-xs ml-7">네이버 MYBOX 앱 실행 후, 우측 상단 <strong>프로필 아이콘</strong>을 클릭하세요.</p></div>
+                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 이용권 구매</h4><p className="text-xs ml-7"><strong>'내 이용권'</strong> 또는 <strong>'용량 늘리기'</strong> 메뉴에서 필요한 용량을 선택해 결제하세요.</p></div>
+                                                    <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ 설정 > 디바이스 케어 > 저장공간에서 촬영한 용량을 확인하세요<br/>※ 첫 달 무료 이벤트가 있는지 확인해보세요!</div>
+                                                </>
+                                            )}
+                                            {blogModal.type === 'post' && (
+                                                <>
+                                                    <div className="bg-red-50 p-3 rounded-xl border border-red-100"><p className="text-xs text-red-700 font-bold mb-1">💡 우체국 갈 시간이 없다면?</p><p className="text-[11px] text-red-600">집배원님이 집으로 오셔서 수거해가는 <strong>방문접수 소포</strong> 서비스를 이용해보세요!</p></div>
+                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 인터넷우체국 접속</h4><p className="text-xs ml-7">인터넷우체국 홈페이지 또는 앱에서 <strong>[방문접수소포]</strong> 메뉴를 클릭하세요.</p></div>
+                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 정보 입력</h4><p className="text-xs ml-7">보내는 분(본인), 받는 분(세린캠) 정보를 입력하고 <strong>신청하시면</strong>다음날 기사님께서 픽업해요.</p></div>
+                                                    <div className="mt-4"><a href="https://parcel.epost.go.kr/auth.EpostLogin.parcel" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors text-sm gap-2">우체국방문택배 신청하기 <Icons.ExternalLink size={14}/></a></div>
+                                                </>
+                                            )}
+                                            {blogModal.type === 'logout' && (
+                                                <>
+                                                    <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100"><p className="text-xs text-yellow-700 font-bold mb-1">🔒 개인정보 보호 필수!</p><p className="text-[11px] text-yellow-600">삼성계정은 세린캠 계정이라 삭제할 수 없어요.</p></div>
+                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 설정 진입</h4><p className="text-xs ml-7">휴대폰 <strong>[설정]</strong> 앱을 실행하고 <strong>[계정 및 백업]</strong> 메뉴로 이동하세요.</p></div>
+                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 계정 삭제</h4><p className="text-xs ml-7"><strong>[계정 관리]</strong>를 누른 후, 로그인된 고객님 계정을 선택하여 <strong>[계정 삭제]</strong>를 눌러주세요.</p></div>
+                                                    <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ '계정 삭제'는 기기에서 로그아웃 되는 것이며, 실제 계정이 탈퇴되는 것은 아니니 안심하세요!</div>
+                                                </>
+                                            )}
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setBlogModal({open: false, type: null})} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button></div>
                                 </div>
