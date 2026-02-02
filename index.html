@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>세린캠 - 휴대폰 단기 대여 (일반)</title>
+    <title>세린캠 - 휴대폰 단기 대여 (버전 1.6)</title>
     
     <!-- 1. 스타일 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -95,6 +95,7 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+        // ⭐ 중요: 배포한 구글 웹 앱 URL을 여기에 입력하세요 ⭐
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDaLidDawtIvFbDfCoKjl8iqC9fKcTBZdTqVmCO1AdGMFjtjD-ENAdHSEJFf7wRZHlBQ/exec"; 
         const KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
 
@@ -171,6 +172,7 @@
             const [activeTab, setActiveTab] = useState('galaxy');
             const [backupTab, setBackupTab] = useState('mybox');
             const [activeReviewTab, setActiveReviewTab] = useState('all');
+            const [venueTab, setVenueTab] = useState('Seoul'); // [NEW] 공연장 탭 상태
             
             const CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/web/upload/appfiles/ZaReJam3QiELznoZeGGkMG/6dec245d6700959026d702c9034ea872.png"; 
 
@@ -214,11 +216,8 @@
                 return saved ? JSON.parse(saved) : [];
             });
 
-            const [reviews, setReviews] = useState(() => {
-                const savedMyReviews = localStorage.getItem('pink_my_reviews');
-                const parsedMyReviews = savedMyReviews ? JSON.parse(savedMyReviews) : [];
-                return [...parsedMyReviews, ...INITIAL_REVIEWS];
-            });
+            // Reviews state now managed with fetch
+            const [reviews, setReviews] = useState(INITIAL_REVIEWS);
 
             const fileInputRef = useRef(null);
             const [recVenue, setRecVenue] = useState('KSPO DOME');
@@ -241,7 +240,51 @@
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
+            // [NEW] 공연장 데이터
+            const venueList = {
+                Seoul: [
+                    { name: '고척 스카이돔' },
+                    { name: '티켓링크아레나' }, // (Handball Gym)
+                    { name: '블루스퀘어' },
+                    { name: '잠실실내체육관' },
+                    { name: 'KSPO DOME' },
+                    { name: '화정체육관' },
+                    { name: '장충체육관' },
+                    { name: '예스24라이브홀' },
+                    { name: '코엑스' },
+                ],
+                Incheon: [
+                    { name: '인스파이어 아레나' },
+                    { name: '인천 아시아드' },
+                    { name: '문학경기장' },
+                    { name: '송도컨벤시아' },
+                ],
+                Gyeonggi: [
+                    { name: '고양 종합운동장' },
+                ]
+            };
+
+            // [NEW] Fetch reviews from Google Sheets
+            const fetchReviews = async () => {
+                try {
+                    const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=reviews`, { redirect: 'follow' });
+                    const result = await response.json();
+                    if (result.result === 'success' && Array.isArray(result.data)) {
+                         if (result.data.length > 0) {
+                            setReviews([...result.data, ...INITIAL_REVIEWS]); 
+                        }
+                    }
+                } catch (e) {
+                    console.log("리뷰 로딩 실패:", e);
+                }
+            };
+            
+            useEffect(() => {
+                fetchReviews();
+            }, []);
+
             const checkRefundStatus = (item) => {
+                // ... (기존 로직 유지)
                 if (!item) return { title: '예약 취소', msg: '취소하시겠습니까?', type: 'normal' };
                 
                 if (!item.status || item.status === '예약신청') {
@@ -402,14 +445,14 @@
 
             const openReviewModal = (item) => {
                 setCurrentReviewItem(item);
-                if (item.myReviewId) {
-                    const existingReview = reviews.find(r => r.id === item.myReviewId);
-                    if (existingReview) {
-                        setReviewForm({ rating: existingReview.rating, text: existingReview.text, image: existingReview.image });
-                    }
+                const existingReview = myReviews.find(r => r.id === item.myReviewId);
+                
+                if (existingReview) {
+                    setReviewForm({ rating: existingReview.rating, text: existingReview.text, image: existingReview.image });
                 } else {
                     setReviewForm({ rating: 5, text: '', image: null });
                 }
+                
                 setIsReviewModalOpen(true);
             };
 
@@ -424,55 +467,51 @@
                 }
             };
 
-            const handleReviewSubmit = () => {
+            // [UPDATE] 리뷰 제출 시 구글 시트로 전송하도록 수정
+            const handleReviewSubmit = async () => {
                 if (!reviewForm.text.trim()) {
                     alert("후기 내용을 입력해주세요!");
                     return;
                 }
-                
+
+                const newReviewId = currentReviewItem.myReviewId || Date.now();
+                const reviewData = {
+                    category: '리뷰작성', 
+                    id: newReviewId,
+                    model: currentReviewItem.model,
+                    rating: reviewForm.rating,
+                    text: reviewForm.text,
+                    name: formatNameMasking(lookupName || userInfo.name || "익명"), 
+                    phone: currentReviewItem.phone || lookupPhone || userInfo.phone, // 추가된 부분: 연락처 전송
+                    date: new Date().toLocaleString('ko-KR'), // 추가된 부분: 날짜+시간 포맷
+                    image: reviewForm.image 
+                };
+
                 let updatedMyReviews;
-                let updatedReviews;
-
                 if (currentReviewItem.myReviewId) {
-                    updatedReviews = reviews.map(r => 
-                        r.id === currentReviewItem.myReviewId 
-                        ? { ...r, rating: reviewForm.rating, text: reviewForm.text, image: reviewForm.image } 
-                        : r
-                    );
-                    
-                    updatedMyReviews = myReviews.map(r =>
-                        r.id === currentReviewItem.myReviewId
-                        ? { ...r, rating: reviewForm.rating, text: reviewForm.text, image: reviewForm.image }
-                        : r
-                    );
-
-                    alert("후기가 수정되었습니다! 📝");
+                    updatedMyReviews = myReviews.map(r => r.id === newReviewId ? reviewData : r);
                 } else {
-                    const today = new Date();
-                    const newReviewId = Date.now();
-                    const newReview = {
-                        id: newReviewId,
-                        name: formatNameMasking(lookupName),
-                        model: currentReviewItem.model,
-                        rating: reviewForm.rating,
-                        text: reviewForm.text,
-                        image: reviewForm.image,
-                        date: `${today.getFullYear()}.${today.getMonth() + 1}.${today.getDate()}`
-                    };
-
-                    currentReviewItem.myReviewId = newReviewId; 
-
-                    updatedMyReviews = [newReview, ...myReviews];
-                    updatedReviews = [newReview, ...reviews];
-                    
-                    alert("소중한 후기가 등록되었습니다! 💖");
+                    updatedMyReviews = [reviewData, ...myReviews];
+                    currentReviewItem.myReviewId = newReviewId;
                 }
-                
                 setMyReviews(updatedMyReviews);
-                setReviews(updatedReviews);
                 localStorage.setItem('pink_my_reviews', JSON.stringify(updatedMyReviews));
-                
-                setIsReviewModalOpen(false);
+
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(reviewData),
+                        redirect: 'follow'
+                    });
+                    
+                    alert("소중한 후기가 등록되었습니다! 💖\n홈 화면에도 곧 반영됩니다.");
+                    fetchReviews(); // Refresh reviews
+                    setIsReviewModalOpen(false);
+                } catch (error) {
+                    console.error("리뷰 전송 실패:", error);
+                    alert("후기 등록 중 오류가 발생했습니다. (네트워크 확인)");
+                }
             };
 
             const handleRecommendation = () => {
@@ -1099,9 +1138,11 @@
 
             const renderQnaPage = () => {
                 const faqs = [
-                    { q: "직접 수령할 수 있나요?", a: "네, 인천 서구 사무실로 방문하시면 직접 수령 및 반납이 가능합니다. (평일 10:00~17:00)\n* 점심시간(12:00~13:00) 제외" },
-                    { q: "사진 옮기는 거 도와주시나요?", a: "기본적으로 직접 백업하셔야 하지만, 어려우신 경우 '데이터 백업 대행 서비스(1만원)'를 신청하시면 도와드립니다.\n(홈 화면 > 백업방법 메뉴 참고)" },
-                    { q: "보증금은 언제 돌려받나요?", a: "기기 반납 후 검수(파손, 잠금 해제 확인 등)가 완료되면 즉시 계좌로 환급해 드립니다.\n보통 반납 도착일 기준 1~2일 내로 입금됩니다." },
+                    { q: "원하는 어플 설치할 수 있나요?", a: "📱 앱 설치가 필요할 때 이렇게 해주세요!\n\n📍 갤럭시(안드로이드)\n1️⃣ 먼저 와이파이 연결하기\n2️⃣ [Play 스토어] → ‘로그인’ 버튼 눌러서 본인 구글 계정으로 로그인해주세요.\n3️⃣ 필요한 앱 이름 검색 → 설치 누르기 😊\n\n📍 아이폰(iOS)\n❌ 아이폰은 앱 설치 시 계정 비밀번호가 필요하여 개인 설치가 불가해요.\n필요하신 어플이 있으시다면 카카오톡 채널로 미리 말씀해 주세요.\n세린캠이 미리 설치해드릴게요 💛" },
+                    { q: "대여기간을 어떻게 설정해야 할까요?", a: "💡 이렇게 예약해주시면 됩니다!\n\n대여시작일: 실제로 기기를 사용할 날짜\n 대여종료일: 기기를 반납하는 날짜\n\n⚠️ 반납일이 주말, 공휴일인 경우 택배반납은 제한될 수 있어요." },
+                    { q: "예약확정이 되었는지 궁금해요", a: "💡 고객님께 발송된 알림톡을 확인 후 [답장]을 주셔야 최종 확정 됩니다!\n\n ⚠️ 만약 예약을 했는데도, 알림톡이 오지 않았다면 카카오톡 채널로 문의해 주세요!" },
+                    { q: "사진 옮기는 거 도와주시나요?", a: "데이터 백업은 고객님이 직접 진행(셀프) 해주셔야 해요 😊\n방법은 홈페이지에서 홈 > 백업방법을 누르면 자세히 확인하실 수 있어요!\n\n💡직접 하시기에 시간이 부족하거나, 어려우시다면\n데이터 백업 서비스 신청도 가능하며 서비스 이용 비용은 1만원입니다." },
+                    { q: "보증금 있나요?", a: "세린캠은 보증금 없이 이용 가능해요!\n 예약하신 대여료만 결제하면 바로 이용하실 수 있어요 😊" },
                     { 
                         q: "예약 취소하고 싶어요.", 
                         a: (
@@ -1132,7 +1173,7 @@
                             </div>
                         )
                     },
-                    { q: "미성년자도 대여 가능한가요?", a: "네, 가능합니다! 다만, 고가 기기이므로 보호자 동의가 필요할 수 있으며, 신분증(학생증, 여권 등) 확인이 필요합니다." }
+                    { q: "미성년자도 대여 가능한가요?", a: "네, 미성년자도 이용 가능해요!😊\n예약 및 계약 절차만 정상적으로 진행되면 대여하실 수 있어요." }
                 ];
 
                 const toggleFaq = (index) => {
@@ -1471,13 +1512,13 @@
                             {filteredReviews.length > 0 ? (
                                 filteredReviews.map(review => (
                                     <div key={review.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex items-center gap-2"><span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm border border-white shadow-sm">👩</span><div><p className="text-[10px] text-blue-400 font-bold">{getReviewTag(review.model)}</p><p className="font-bold text-gray-800 text-sm">{review.name}님</p></div></div>
-                                                <div className="flex text-yellow-400 gap-0.5">{[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={12} className="fill-current" />)}</div>
-                                            </div>
-                                            {review.image && (<div className="mb-3 rounded-xl overflow-hidden h-40 bg-gray-100 border border-gray-100"><img src={review.image} alt="리뷰 이미지" className="w-full h-full object-cover" /></div>)}
-                                            <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-xl mb-2">"{review.text}"</p>
-                                            <p className="text-[10px] text-gray-400 text-right">{review.date}</p>
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div className="flex items-center gap-2"><span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm border border-white shadow-sm">👩</span><div><p className="text-[10px] text-blue-400 font-bold">{getReviewTag(review.model)}</p><p className="font-bold text-gray-800 text-sm">{review.name}님</p></div></div>
+                                                    <div className="flex text-yellow-400 gap-0.5">{[...Array(review.rating)].map((_, i) => <Icons.Star key={i} size={12} className="fill-current" />)}</div>
+                                                </div>
+                                                {review.image && (<div className="mb-3 rounded-xl overflow-hidden h-40 bg-gray-100 border border-gray-100"><img src={review.image} alt="리뷰 이미지" className="w-full h-full object-cover" /></div>)}
+                                                <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-xl mb-2">"{review.text}"</p>
+                                                <p className="text-[10px] text-gray-400 text-right">{review.date}</p>
                                     </div>
                                 ))
                             ) : (
@@ -1606,6 +1647,46 @@
                                                 </div>
                                             </div>
 
+                                            {/* [NEW] 공연장 위치 안내 섹션 */}
+                                            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                                                        <span className="text-x2">🏟️</span> 주요 공연장 안내
+                                                    </h3>
+                                                    <span className="text-[10px] text-gray-400">📢 클릭 시 네이버 지도로 이동</span>
+                                                </div>
+                                                
+                                                {/* 탭 버튼 */}
+                                                <div className="flex bg-gray-100 p-1 rounded-xl mb-4">
+                                                    {['Seoul', 'Incheon', 'Gyeonggi'].map(region => (
+                                                        <button 
+                                                            key={region}
+                                                            onClick={() => setVenueTab(region)}
+                                                            className={`flex-1 py-2 rounded-lg text-s font-bold transition-all ${venueTab === region ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}
+                                                        >
+                                                            {region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기'}
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                {/* 공연장 목록 */}
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {venueList[venueTab].map((v, i) => (
+                                                        <a 
+                                                            key={i} 
+                                                            href={`https://map.naver.com/p/search/${v.name}`} 
+                                                            target="_blank"
+                                                            className="bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-100 p-3 rounded-xl transition-colors flex flex-col justify-center text-center group"
+                                                        >
+                                                            <span className="text-xs font-bold text-gray-700 group-hover:text-blue-600 mb-0.5 truncate">{v.name}</span>
+                                                            <span className="text-[10px] text-gray-400 group-hover:text-blue-400 flex items-center justify-center gap-1">
+                                                                <Icons.MapPin size={10} /> 위치보기
+                                                            </span>
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+
                                             <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                                                 <div className="flex items-center gap-2 mb-4"><span className="text-xl">🔮</span><h3 className="font-bold text-gray-800 text-base">대여모델 고민되신다면?!</h3></div>
                                                 <div className="space-y-4">
@@ -1614,8 +1695,13 @@
                                                     {!recResult ? (<button onClick={handleRecommendation} className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 mt-2"><Icons.Search size={16} /> 추천 받기</button>) : (<div className="mt-4 animate-fade-in"><div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 relative overflow-hidden"><div className="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-40 rounded-full blur-xl"></div><p className="text-xs text-blue-400 font-bold mb-1">세린캠의 추천!</p><h4 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">{recResult.name}<Icons.Android size={20} /></h4><p className="text-xs text-gray-600 leading-relaxed bg-white/60 p-3 rounded-xl">"{recResult.reason}"</p><button onClick={() => handleRentalStart()} className="w-full mt-3 bg-blue-400 text-white py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-blue-500 transition-colors">이 모델로 예약하기</button></div><button onClick={() => setRecResult(null)} className="text-xs text-gray-400 underline mt-3 w-full text-center">다시 선택하기</button></div>)}
                                                 </div>
                                             </div>
+                                            
+                                            {/* [NEW] 홈 화면에 실시간 리뷰 노출 */}
                                             <div className="mt-2">
-                                                <div className="flex justify-between items-end mb-3 px-1"><div><h3 className="font-bold text-gray-800 text-lg">생생한 리얼 후기 💬 </h3><p className="text-xs text-gray-400 mt-0.5">고객님들이 직접 남겨주신 찐후기!</p></div><button onClick={() => setViewMode('reviews')} className="text-xs text-gray-400 hover:text-blue-500 flex items-center gap-1 transition-colors">전체보기 <Icons.ChevronRight size={12} /></button></div>
+                                                <div className="flex justify-between items-end mb-3 px-1">
+                                                    <div><h3 className="font-bold text-gray-800 text-lg">생생한 리얼 후기 💬 </h3><p className="text-xs text-gray-400 mt-0.5">고객님들이 직접 남겨주신 찐후기!</p></div>
+                                                    <button onClick={() => setViewMode('reviews')} className="text-xs text-gray-400 hover:text-blue-500 flex items-center gap-1 transition-colors">전체보기 <Icons.ChevronRight size={12} /></button>
+                                                </div>
                                                 <div className="flex gap-3 overflow-x-auto pb-2 px-1 no-scrollbar snap-x">
                                                     {reviews.slice(0, 5).map(review => (
                                                         <div key={review.id} className="min-w-[200px] bg-white p-4 rounded-2xl shadow-sm border border-gray-100 snap-center cursor-pointer hover:shadow-md transition-all flex flex-col justify-between" onClick={() => setViewMode('reviews')}>
@@ -1683,25 +1769,25 @@
                                                             </div>
                                                             {startDate && (
                                                                 <div className="space-y-4 mt-4">
-                                                                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
-                                                                            <div className="flex justify-between items-center mb-2"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">🎫</span> 대여시작일</span><span className="font-bold text-blue-500">{(() => { const arrival = getArrivalDate(startDate); return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`; })()}</span></div>
-                                                                            <div className="flex justify-between items-center"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📍</span> 대여종료일</span>{endDate ? (<span className="font-bold text-red-500">{(() => { const returnDate = getReturnDate(endDate); return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; })()}</span>) : (<span className="font-bold text-blue-400 animate-pulse">종료일을 선택해주세요 ✨</span>)}</div>
-                                                                            <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-blue-200/50 leading-relaxed">
-                                                                                {dateWarning && <span className="text-blue-500 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
-                                                                                {discounts.app && <span className="text-blue-500 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
-                                                                                {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
-                                                                                {discounts.kakao && <span className="text-yellow-600 font-bold block mb-1">🎁 카카오맵 리뷰 약속으로 4,000원 할인 적용!</span>}
-                                                                                {endDate ? ((() => { if (endDate.getDay() === 6 || endDate.getDay() === 0 || isHoliday(endDate)) { let nextValid = new Date(endDate); nextValid.setDate(nextValid.getDate() + 1); while (true) { const d = nextValid.getDay(); const y = nextValid.getFullYear(); const m = nextValid.getMonth() + 1; const day = nextValid.getDate(); const dateKey = `${y}-${m}-${day}`; const isH = !!HOLIDAYS[dateKey]; if (d !== 6 && d !== 0 && !isH) { break; } nextValid.setDate(nextValid.getDate() + 1); } const dateStr = `${nextValid.getMonth() + 1}월 ${nextValid.getDate()}일(${daysOfWeek[nextValid.getDay()]})`; return (<span className="text-red-500 block mt-2 break-keep bg-red-50 p-2.5 rounded-xl border border-red-100 text-xs leading-relaxed shadow-sm animate-bounce-in">🚨 대여종료일이 공휴일 또는 토,일인 경우 택배반납이 불가해요!<br/>택배반납을 원하시면 <strong className="text-red-600 bg-white px-1.5 py-0.5 rounded border border-red-200 mx-0.5 inline-block mt-1">{dateStr}</strong>로 선택해주세요.</span>); } return null; })()) : (<span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>)}
+                                                                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm animate-fade-in">
+                                                                                <div className="flex justify-between items-center mb-2"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">🎫</span> 대여시작일</span><span className="font-bold text-blue-500">{(() => { const arrival = getArrivalDate(startDate); return `${arrival.getMonth() + 1}월 ${arrival.getDate()}일(${daysOfWeek[arrival.getDay()]})`; })()}</span></div>
+                                                                                <div className="flex justify-between items-center"><span className="font-bold text-gray-600 flex items-center gap-1.5"><span className="text-lg">📍</span> 대여종료일</span>{endDate ? (<span className="font-bold text-red-500">{(() => { const returnDate = getReturnDate(endDate); return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; })()}</span>) : (<span className="font-bold text-blue-400 animate-pulse">종료일을 선택해주세요 ✨</span>)}</div>
+                                                                                <div className="text-[11px] text-gray-500 mt-3 pt-2 border-t border-blue-200/50 leading-relaxed">
+                                                                                    {dateWarning && <span className="text-blue-500 font-bold block mb-2 break-keep">✨ {dateWarning}</span>}
+                                                                                    {discounts.app && <span className="text-blue-500 font-bold block mb-1">🎁 앱 리뷰 약속으로 3,000원 할인 적용!</span>}
+                                                                                    {discounts.blog && <span className="text-green-600 font-bold block mb-1">🎁 블로그 리뷰 약속으로 5,000원 할인 적용!</span>}
+                                                                                    {discounts.kakao && <span className="text-yellow-600 font-bold block mb-1">🎁 카카오맵 리뷰 약속으로 4,000원 할인 적용!</span>}
+                                                                                    {endDate ? ((() => { if (endDate.getDay() === 6 || endDate.getDay() === 0 || isHoliday(endDate)) { let nextValid = new Date(endDate); nextValid.setDate(nextValid.getDate() + 1); while (true) { const d = nextValid.getDay(); const y = nextValid.getFullYear(); const m = nextValid.getMonth() + 1; const day = nextValid.getDate(); const dateKey = `${y}-${m}-${day}`; const isH = !!HOLIDAYS[dateKey]; if (d !== 6 && d !== 0 && !isH) { break; } nextValid.setDate(nextValid.getDate() + 1); } const dateStr = `${nextValid.getMonth() + 1}월 ${nextValid.getDate()}일(${daysOfWeek[nextValid.getDay()]})`; return (<span className="text-red-500 block mt-2 break-keep bg-red-50 p-2.5 rounded-xl border border-red-100 text-xs leading-relaxed shadow-sm animate-bounce-in">🚨 대여종료일이 공휴일 또는 토,일인 경우 택배반납이 불가해요!<br/>택배반납을 원하시면 <strong className="text-red-600 bg-white px-1.5 py-0.5 rounded border border-red-200 mx-0.5 inline-block mt-1">{dateStr}</strong>로 선택해주세요.</span>); } return null; })()) : (<span className="text-gray-400">종료일을 선택하면 대여 기간과 요금이 계산됩니다.</span>)}
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
-                                                                        <div className="animate-fade-in">
-                                                                            <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
-                                                                            <div className="grid grid-cols-3 gap-2">
-                                                                                <div onClick={() => setDiscounts({ app: !discounts.app, blog: false, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰</span><span className="text-[10px] text-blue-400 font-bold">3,000원 할인</span></div>
-                                                                                <div onClick={() => setDiscounts({ app: false, blog: false, kakao: !discounts.kakao })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1 break-keep">카카오맵 리뷰</span><span className="text-[10px] text-yellow-600 font-bold">4,000원 할인</span></div>
-                                                                                <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰</span><span className="text-[10px] text-green-600 font-bold">5,000원 할인</span></div>
+                                                                            <div className="animate-fade-in">
+                                                                                <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
+                                                                                <div className="grid grid-cols-3 gap-2">
+                                                                                    <div onClick={() => setDiscounts({ app: !discounts.app, blog: false, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.app ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">앱 리뷰</span><span className="text-[10px] text-blue-400 font-bold">3,000원 할인</span></div>
+                                                                                    <div onClick={() => setDiscounts({ app: false, blog: false, kakao: !discounts.kakao })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1 break-keep">카카오맵 리뷰</span><span className="text-[10px] text-yellow-600 font-bold">4,000원 할인</span></div>
+                                                                                    <div onClick={() => setDiscounts({ app: false, blog: !discounts.blog, kakao: false })} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`}><span className="text-xs font-bold text-gray-800 mb-1">블로그 리뷰</span><span className="text-[10px] text-green-600 font-bold">5,000원 할인</span></div>
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -2234,68 +2320,6 @@
                                     <h3 className="text-lg font-bold text-gray-800 mb-2">유의사항을 모두<br/>확인하셨나요?</h3>
                                     <p className="text-sm text-gray-500 mb-6 leading-relaxed">개인정보 자동 폐기 및<br/>금융 사기 주의 내용을 확인해주세요.</p>
                                     <div className="flex gap-2"><button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button><button onClick={() => { setIsConfirmModalOpen(false); handleSubmit(); }} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">네, 확인했어요</button></div>
-                                </div>
-                            </div>
-                        )}
-                        {isCancelModalOpen && (
-                            <div className="fixed inset-0 z-[90] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setIsCancelModalOpen(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all" onClick={(e) => e.stopPropagation()}>
-                                    {cancelMessage.type === 'refund_calc' ? (
-                                        <>
-                                             <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.X size={24} /></div>
-                                            <h3 className="text-lg font-bold text-gray-800 mb-4">{cancelMessage.title}</h3>
-                                            
-                                            <div className="text-left bg-gray-50 p-4 rounded-xl mb-4 text-xs space-y-2">
-                                                <div className="flex justify-between"><span className="text-gray-500">결제 금액</span><span className="font-bold text-gray-700">{cancelMessage.total.toLocaleString()}원</span></div>
-                                                <div className="flex justify-between"><span className="text-gray-500">위약금 (결제 24시간 후)</span><span className="font-bold text-red-500">-{cancelMessage.penalty.toLocaleString()}원</span></div>
-                                                <div className="border-t border-gray-200 pt-2 flex justify-between mt-2"><span className="font-bold text-gray-800">환불 예정 금액</span><span className={`font-bold text-sm ${cancelMessage.refund === 0 ? 'text-red-500' : 'text-blue-500'}`}>{cancelMessage.refund.toLocaleString()}원</span></div>
-                                                {cancelMessage.refund === 0 && cancelMessage.penalty > 0 && <div className="mt-2 bg-red-100 text-red-600 text-[10px] p-2 rounded-lg font-bold text-center">환불 불가 (위약금 100% 적용)</div>}
-                                            </div>
-
-                                            <div className="text-left text-[11px] text-gray-500 bg-white border border-gray-100 p-3 rounded-xl mb-6">
-                                                <p className="font-bold mb-1 text-gray-700">📢 환불 규정 안내</p>
-                                                <ul className="list-disc pl-3 space-y-0.5">
-                                                    <li>결제 24시간 이내: 100% 환불</li>
-                                                    <li className={cancelMessage.reason === 'after_24h' && cancelMessage.reason !== 'rental_imminent' ? "text-red-500 font-bold" : ""}>결제 24시간 이후: 위약금 1만원 차감</li>
-                                                    <li className={cancelMessage.reason === 'rental_imminent' ? "text-red-500 font-bold" : ""}>대여일 2일 전: 환불 불가</li>
-                                                </ul>
-                                            </div>
-
-                                            <div className="flex gap-2">
-                                                <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
-                                                {/* Allow cancel request even if refund is 0, just to confirm user knows. But usually refund 0 means no cancel needed or just notify. Let's allow it to 'cancel' the booking record. */}
-                                                <button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {cancelMessage.type === 'simple_cancel' ? (
-                                                 <>
-                                                    <div className="w-12 h-12 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.HelpCircle size={24} /></div>
-                                                    <h3 className="text-lg font-bold text-gray-800 mb-2">{cancelMessage.title}</h3>
-                                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep whitespace-pre-wrap">{cancelMessage.msg}</p>
-                                                    <div className="flex gap-2">
-                                                        <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
-                                                        <button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button>
-                                                    </div>
-                                                 </>
-                                            ) : (
-                                                <>
-                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${cancelMessage.type === 'impossible' ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-500'}`}><Icons.X size={24} /></div>
-                                                    <h3 className="text-lg font-bold text-gray-800 mb-2">{cancelMessage.title}</h3>
-                                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed break-keep whitespace-pre-wrap">{cancelMessage.msg}</p>
-                                                    {cancelMessage.type === 'impossible' ? (
-                                                        <button onClick={() => setIsCancelModalOpen(false)} className="w-full py-3 rounded-xl bg-gray-800 text-white font-bold hover:bg-gray-700 transition-colors text-sm">확인</button>
-                                                    ) : (
-                                                        <div className="flex gap-2">
-                                                            <button onClick={() => setIsCancelModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">닫기</button>
-                                                            <button onClick={handleCancelRequest} disabled={isSubmitting} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm">{isSubmitting ? '처리 중...' : '네, 취소할게요'}</button>
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-                                        </>
-                                    )}
                                 </div>
                             </div>
                         )}
