@@ -200,6 +200,8 @@
             const [showInsuranceInfo, setShowInsuranceInfo] = useState(false);
             const [showCardInfo, setShowCardInfo] = useState(false);
             const [showKakaoModal, setShowKakaoModal] = useState(false);
+            const [showVenueInfoModal, setShowVenueInfoModal] = useState(false); // [NEW] 공연장 정보 모달 상태
+            const [selectedVenue, setSelectedVenue] = useState(null); // [NEW] 선택된 공연장 정보
 
             const [extModel, setExtModel] = useState('galaxy');
             const [extDays, setExtDays] = useState(1);
@@ -243,24 +245,121 @@
             // [NEW] 공연장 데이터
             const venueList = {
                 Seoul: [
-                    { name: '고척 스카이돔' },
-                    { name: '티켓링크아레나' }, // (Handball Gym)
-                    { name: '블루스퀘어' },
-                    { name: '잠실실내체육관' },
-                    { name: 'KSPO DOME' },
-                    { name: '화정체육관' },
-                    { name: '장충체육관' },
-                    { name: '예스24라이브홀' },
-                    { name: '코엑스' },
+                    { 
+                        name: '고척 스카이돔',
+                        info: {
+                            place: '고척돔 주차장',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '티켓링크 아레나',
+                        info: {
+                            place: '올림픽공원테니스경기장방면주차장',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '블루 스퀘어',
+                        info: {
+                            place: '한강진역 2번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '잠실 실내체육관',
+                        info: {
+                            place: '종합운동장역 7번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: 'KSPO DOME (체조경기장)',
+                        info: {
+                            place: '올림픽공원테니스경기장방면주차장',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '고려대 화정체육관',
+                        info: {
+                            place: '안암역 1번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '장충체육관',
+                        info: {
+                            place: '동대입구역 5번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '예스24 라이브',
+                        info: {
+                            place: '광나루역 2번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '코엑스',
+                        info: {
+                            place: '봉은사역 1번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
                 ],
                 Incheon: [
-                    { name: '인스파이어 아레나' },
-                    { name: '인천 아시아드' },
-                    { name: '문학경기장' },
-                    { name: '송도컨벤시아' },
+                    { 
+                        name: '인천 인스파이어 아레나',
+                        info: {
+                            place: '인스파이어 버스정류장',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '인천 아시아드 주경기장',
+                        info: {
+                            place: '홀리빈 카페',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '인천 문학경기장',
+                        info: {
+                            place: '인천SSG 랜더스필드지하주차장B2입구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
+                    { 
+                        name: '인천 송도 컨벤시아',
+                        info: {
+                            place: '인천대입구역 4번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                    },
                 ],
                 Gyeonggi: [
-                    { name: '고양 종합운동장' },
+                    { name: '고양 종합운동장',
+                    info: {
+                            place: '대화역 3번출구',
+                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+                        }
+                     },
                 ]
             };
 
@@ -1672,17 +1771,23 @@
                                                 {/* 공연장 목록 */}
                                                 <div className="grid grid-cols-2 gap-2">
                                                     {venueList[venueTab].map((v, i) => (
-                                                        <a 
+                                                        <div 
                                                             key={i} 
-                                                            href={`https://map.naver.com/p/search/${v.name}`} 
-                                                            target="_blank"
-                                                            className="bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-100 p-3 rounded-xl transition-colors flex flex-col justify-center text-center group"
+                                                            onClick={() => {
+                                                                if (v.info) {
+                                                                    setSelectedVenue(v);
+                                                                    setShowVenueInfoModal(true);
+                                                                } else {
+                                                                    window.open(`https://map.naver.com/p/search/${v.name}`, '_blank');
+                                                                }
+                                                            }}
+                                                            className="bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-100 p-3 rounded-xl transition-colors flex flex-col justify-center text-center group cursor-pointer"
                                                         >
                                                             <span className="text-[13px] font-bold text-gray-700 group-hover:text-blue-600 mb-0.5 truncate">{v.name}</span>
                                                             <span className="text-[10px] text-gray-400 group-hover:text-blue-400 flex items-center justify-center gap-1">
-                                                                <Icons.MapPin size={10} /> 위치보기
+                                                                <Icons.MapPin size={10} /> {v.info ? '정보보기' : '위치보기'}
                                                             </span>
-                                                        </a>
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
@@ -2066,6 +2171,40 @@
                             </div>
                         )}
                         
+                        {showVenueInfoModal && selectedVenue && (
+                            <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowVenueInfoModal(false)}>
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                                    <button onClick={() => setShowVenueInfoModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
+                                        <span className="text-xl">🏟️</span> {selectedVenue.name}
+                                    </h3>
+                                    <div className="mt-4 space-y-3">
+                                        <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                            <p className="text-xs font-bold text-gray-600 mb-1">📍 수령/반납 장소</p>
+                                            <p className="text-sm font-bold text-blue-600">{selectedVenue.info.place}</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                            <p className="text-xs font-bold text-gray-600 mb-1">⏰ 운영 시간</p>
+                                            <p className="text-xs text-gray-700 leading-relaxed">{selectedVenue.info.time}</p>
+                                        </div>
+                                        {selectedVenue.info.note && (
+                                            <p className="text-[11px] text-red-500 mt-2 flex items-start gap-1">
+                                                <span>*</span> {selectedVenue.info.note}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="mt-6">
+                                        <button 
+                                            onClick={() => window.open(`https://map.naver.com/p/search/${selectedVenue.info.place}`, '_blank')}
+                                            className="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2 text-sm"
+                                        >
+                                            네이버 지도로 자세히 보기 <Icons.ExternalLink size={14}/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {showDeliveryInfo && (
                              <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowDeliveryInfo(false)}>
                                 <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
