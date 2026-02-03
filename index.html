@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>세린캠 - 휴대폰 단기 대여 (버전 1.1)</title>
+    <title>세린캠 - 휴대폰 단기 대여 (버전 1.3)</title>
     
     <!-- 1. 스타일 (Tailwind CSS) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -249,132 +249,28 @@
                         name: '고척 스카이돔',
                         info: {
                             place: '고척돔 주차장',
-                            placeDetail: '구로구 중앙로 10-16,구로성심병원 본관 옆',
+                            placeDetail: '야구공 조형물 앞 (현장 상황에 따라 변경 시 별도 안내)', // 상세 설명 추가
                             time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
                             note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
                         }
                     },
-                    { 
-                        name: '티켓링크 아레나',
-                        info: {
-                            place: '올림픽공원실내테니스장방면주차장',
-                            placeDetail: '올림픽공원 할리스 건너편 주차장',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '블루스퀘어',
-                        info: {
-                            place: '한강진역 6호선',
-                            placeDetail: '2번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '잠실 실내체육관',
-                        info: {
-                            place: '종합운동장역 2호선',
-                            placeDetail: '7번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: 'KSPO DOME (체조)',
-                        info: {
-                            place: '올림픽공원실내테니스장방면주차장',
-                            placeDetail: '올림픽공원 할리스 건너편 주차장',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '화정체육관',
-                        info: {
-                            place: '안암역 6호선',
-                            placeDetail: '1번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '장충체육관',
-                        info: {
-                            place: '동대입구역 3호선',
-                            placeDetail: '5번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '예스24 라이브홀',
-                        info: {
-                            place: '광나루역 5호선',
-                            placeDetail: '2번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '코엑스',
-                        info: {
-                            place: '봉은사역 9호선',
-                            placeDetail: '1번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
+                    { name: '티켓링크 아레나' }, // (Handball Gym)
+                    { name: '블루스퀘어' },
+                    { name: '잠실실내체육관' },
+                    { name: 'KSPO DOME' },
+                    { name: '화정체육관' },
+                    { name: '장충체육관' },
+                    { name: '예스24라이브홀' },
+                    { name: '코엑스' },
                 ],
                 Incheon: [
-                    { 
-                        name: '인스파이어 아레나',
-                        info: {
-                            place: '인스파이어 버스정류장',
-                            placeDetail: '정류장번호: 35900 (풍림1차 205동 방면)',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '아시아드 주경기장',
-                        info: {
-                            place: '홀리빈카페',
-                            placeDetail: '7번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '문학경기장',
-                        info: {
-                            place: '인천SSG 랜더스필드주차장',
-                            placeDetail: '주차장 입구 옆에 있는 버스정류장',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
-                    { 
-                        name: '송도컨벤시아',
-                        info: {
-                            place: '인천대입구역 인천 1호선',
-                            placeDetail: '4번출구 지상 입구 ',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
+                    { name: '인스파이어 아레나' },
+                    { name: '인천 아시아드' },
+                    { name: '문학경기장' },
+                    { name: '송도컨벤시아' },
                 ],
                 Gyeonggi: [
-                    { 
-                        name: '고양 종합운동장역',
-                        info: {
-                            place: '대화역 3호선',
-                            placeDetail: '3번출구 지상 입구',
-                            time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-                            note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
-                        }
-                    },
+                    { name: '고양 종합운동장' },
                 ]
             };
 
@@ -1348,7 +1244,7 @@
                 <div className="animate-slide-in space-y-6 pb-20">
                     <div className="flex items-center gap-3 mb-6">
                         <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm"><Icons.ChevronLeft className="w-5 h-5 text-gray-600" /></button>
-                        <h2 className="text-xl font-bold text-gray-800">세린캠 이용 가이드 🍯</h2>
+                        <h2 className="text-xl font-bold text-gray-800">세린캠 꿀팁 🍯</h2>
                     </div>
                     
                     <div className="space-y-4">
@@ -1692,9 +1588,9 @@
                                             </div>
 
                                             {/* 서비스 메뉴 */}
-                                            <div>
-                                                <h3 className="font-bold text-gray-800 text-lg mb-4 px-1">서비스 메뉴</h3>
-                                                <div className="grid grid-cols-4 gap-2 mb-6">
+                                            <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                                                <h3 className="font-bold text-gray-800 text-lg mb-4">🍀 메뉴 모아보기</h3>
+                                                <div className="grid grid-cols-4 gap-2">
                                                     {/* 1. 예약하기 */}
                                                     <div onClick={() => handleRentalStart()} className="flex flex-col items-center justify-center text-center h-24 cursor-pointer group rounded-2xl hover:bg-gray-50 transition-all">
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
@@ -1743,12 +1639,12 @@
                                                         <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">기간연장</h4>
                                                     </div>
 
-                                                    {/* 7. 이용 가이드 */}
+                                                    {/* 7. 꿀팁 */}
                                                     <div onClick={() => setViewMode('blog')} className="flex flex-col items-center justify-center text-center h-24 cursor-pointer group rounded-2xl hover:bg-gray-50 transition-all">
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
                                                             <Icons.Star size={22} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">이용 가이드</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">꿀팁</h4>
                                                     </div>
 
                                                     {/* 8. Q&A */}
@@ -1756,7 +1652,7 @@
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
                                                             <Icons.HelpCircle size={22} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">자주 묻는 질문</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">Q&A</h4>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1808,7 +1704,7 @@
                                             </div>
 
                                             <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                                                <div className="flex items-center gap-2 mb-4"><span className="text-xl">🔮</span><h3 className="font-bold text-gray-800 text-base">대여모델 고민되신다면?!</h3></div>
+                                                <div className="flex items-center gap-2 mb-4"><span className="text-xl">🔮</span><h3 className="font-bold text-gray-800 text-base">갤럭시 대여모델 추천</h3></div>
                                                 <div className="space-y-4">
                                                     <div><label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어디서 보시나요?</label><div className="relative"><select value={recVenue} onChange={(e) => setRecVenue(e.target.value)} className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm font-bold text-gray-800 appearance-none border border-transparent focus:border-blue-300 transition-colors custom-select"><option value="KSPO DOME">KSPO DOME (체조경기장)</option><option value="GOCHEOK">고척 스카이돔</option><option value="JAMSIL">잠실 주경기장</option><option value="INSPRIE">인스파이어 아레나</option><option value="OTHER">기타 공연장</option></select></div></div>
                                                     <div><label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어느 좌석인가요?</label><div className="grid grid-cols-4 gap-2">{['floor', '1f', '2f', '3f'].map((s) => (<button key={s} onClick={() => { setRecSeat(s); setRecResult(null); }} className={`py-2 rounded-xl text-xs font-bold transition-all ${recSeat === s ? 'bg-blue-400 text-white shadow-md' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}>{s === 'floor' ? '스탠딩' : s === '3f' ? '3층이상' : `${s.replace('f', '')}층`}</button>))}</div></div>
@@ -1850,6 +1746,7 @@
                                 {viewMode === 'reviews' && renderReviewsPage()} 
                                 {viewMode === 'qna' && renderQnaPage()}
                                 {viewMode === 'blog' && renderBlogPage()}
+                                {viewMode === 'cameraSettings' && renderCameraSettingsPage()}
 
                                 {(viewMode === 'rental') && (
                                     <>
@@ -2158,7 +2055,7 @@
                             </button>
                             <button onClick={() => handleNavChange('qna')} className={`flex flex-col items-center justify-center w-full py-1 transition-colors ${activeNav === 'qna' ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'}`}>
                                 <Icons.MessageCircle size={20} className={activeNav === 'qna' ? 'fill-blue-100' : ''} />
-                                <span className="text-[9px] font-bold mt-0.5">문의</span>
+                                <span className="text-[9px] font-bold mt-0.5">Q&A</span>
                             </button>
                             <button onClick={() => handleNavChange('mypage')} className={`flex flex-col items-center justify-center w-full py-1 transition-colors ${activeNav === 'mypage' ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'}`}>
                                 <Icons.User size={20} className={activeNav === 'mypage' ? 'fill-blue-100' : ''} />
@@ -2298,178 +2195,6 @@
                                             <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제9조 (면책)</h4><p className="text-[11px] text-gray-500">천재지변 등 불가항력적 사유로 인한 서비스 불가 시 회사는 책임을 지지 않습니다.</p></div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowTerms(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button></div>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {/* --- 업데이트된 개인정보처리방침 (동의서 형식) --- */}
-                        {showPrivacy && (
-                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowPrivacy(false)}>
-                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-                                        <h3 className="text-lg font-bold text-gray-800 leading-tight">개인 정보 수집∙이용 동의서</h3>
-                                        <button onClick={() => setShowPrivacy(false)} className="text-gray-400 hover:text-gray-600 shrink-0 ml-2"><Icons.X size={24} /></button>
-                                    </div>
-                                    <div className="overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
-                                            <p className="text-[11px] bg-blue-50 p-3 rounded-xl text-blue-600 font-medium">
-                                                세린캠은 개인정보 수집 목적을 위하여 아래와 같이 개인정보를 수집∙이용 및 제3자에게 제공하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주십시오.
-                                            </p>
-                                            
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">1. 수집하는 개인정보 항목</h4>
-                                                <p className="font-bold text-gray-700 mb-1">[필수 수집항목]</p>
-                                                <ul className="list-disc pl-4 space-y-1 mb-2">
-                                                    <li>이름, 휴대전화번호, 주소(기기 배송용), 신분증 사본, 계좌번호(환급용)</li>
-                                                    <li>결제 정보 (카드사명, 결제승인 정보 등)</li>
-                                                </ul>
-                                                <p className="font-bold text-gray-700 mb-1">[자동 수집 항목]</p>
-                                                <ul className="list-disc pl-4 space-y-1">
-                                                    <li>서비스 이용 기록, 접속 IP, 쿠키 등</li>
-                                                </ul>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 개인정보 수집 및 이용 목적</h4>
-                                                <ul className="list-disc pl-4 space-y-1">
-                                                    <li>렌탈 서비스 신청, 배송, 반납 및 환불 처리</li>
-                                                    <li>본인확인 및 신분 확인 (대여 악용 방지 목적)</li>
-                                                    <li>고객상담, 민원 처리 및 고지사항 전달</li>
-                                                    <li>계약 이행 및 서비스 제공을 위한 연락</li>
-                                                    <li>불량 이용자 제재 및 법적 대응 시 증빙 자료</li>
-                                                </ul>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">3. 개인정보 보유 및 이용기간</h4>
-                                                <p className="mb-2">이용자의 개인정보는 수집 및 이용 목적이 달성된 후 <span className="font-bold text-blue-500">지체 없이 파기</span>합니다.</p>
-                                                <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-100 text-[11px]">
-                                                    <p className="font-bold mb-1">단, 관련 법령에 따라 아래 기간 동안 보관됩니다:</p>
-                                                    <ul className="space-y-0.5">
-                                                        <li>• 계약 또는 청약철회 등에 관한 기록: 5년</li>
-                                                        <li>• 대금 결제 및 재화 등의 공급에 관한 기록: 5년</li>
-                                                        <li>• 소비자 불만 또는 분쟁처리에 관한 기록: 3년</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">4. 개인정보 제3자 제공</h4>
-                                                <p className="mb-1">회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 다음의 경우에는 예외로 합니다:</p>
-                                                <ul className="list-disc pl-4 space-y-0.5">
-                                                    <li>이용자가 사전에 동의한 경우</li>
-                                                    <li>법령에 의거하거나, 수사기관의 요청이 있는 경우</li>
-                                                </ul>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">5. 개인정보 처리 위탁</h4>
-                                                <p className="mb-2">회사는 원활한 서비스 제공을 위해 일부 업무를 외부에 위탁하고 있으며, 위탁 시 위탁사와 계약을 통해 개인정보 보호를 철저히 관리합니다.</p>
-                                                <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-2">
-                                                    <p className="font-bold text-blue-600 text-[11px]">📦 배송 서비스 (정보 제공 및 수거)</p>
-                                                    <ul className="text-[11px] text-blue-500 space-y-1">
-                                                        <li>• <span className="font-bold underline">우체국택배</span>: 기기 배송 및 택배 반납 접수</li>
-                                                        <li>• <span className="font-bold underline">카카오 T퀵 (카카오모빌리티)</span>: 퀵 서비스 이용 시 정보 제공</li>
-                                                    </ul>
-                                                    <p className="font-bold text-blue-600 text-[11px] border-t border-blue-200 pt-1 mt-1">💳 결제 서비스</p>
-                                                    <p className="text-[11px] text-blue-500">• 결제대행사: 결제 처리 및 승인 정보 확인</p>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">6. 이용자의 권리와 행사 방법</h4>
-                                                <p>이용자는 언제든지 본인의 개인정보를 열람, 정정, 삭제, 처리정지 요청할 수 있습니다. 관련 요청은 아래 개인정보 보호책임자 혹은 카카오채널을 통해 접수 가능합니다.</p>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">7. 개인정보 보호책임자</h4>
-                                                <p>담당자: 한승윤</p>
-                                                <p>문의처: 카카오톡 채널 [세린]</p>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="font-bold text-gray-800 mb-1.5 text-sm">8. 정책 변경에 대한 안내</h4>
-                                                <p>본 개인정보처리방침은 변경될 수 있으며, 변경 시 홈페이지 또는 카카오채널을 통해 사전 고지합니다.</p>
-                                            </div>
-
-                                            <p className="text-[11px] text-red-500 font-medium border-t border-gray-100 pt-3">
-                                                ※ 대여자는 위의 개인정보 수집∙이용에 대한 동의를 거부할 권리가 있으며, 동의를 거부할 경우 개인정보가 필요한 서비스의 이용에 제한을 받을 수 있습니다.
-                                            </p>
-                                    </div>
-                                    <div className="mt-4 pt-3 border-t border-gray-100">
-                                        <button onClick={() => setShowPrivacy(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">내용을 확인했습니다</button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {blogModal.open && (
-                            <div className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setBlogModal({open: false, type: null})}>
-                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
-                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-                                        <h3 className="text-lg font-bold text-gray-800">
-                                            {blogModal.type === 'mybox' && '네이버 MYBOX 이용권'}
-                                            {blogModal.type === 'post' && '방문택배 신청방법'}
-                                            {blogModal.type === 'logout' && '기기 로그아웃 방법'}
-                                        </h3>
-                                        <button onClick={() => setBlogModal({open: false, type: null})} className="text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
-                                    </div>
-                                    <div className="overflow-y-auto flex-1 text-sm text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll">
-                                            {blogModal.type === 'mybox' && (
-                                                <>
-                                                    <div className="bg-green-50 p-3 rounded-xl border border-green-100"><p className="text-xs text-green-700 font-bold mb-1">📢 이런 분들께 추천!</p><p className="text-[11px] text-green-600">30GB 이상 고화질 영상을 많이 촬영하실 예정이라면 미리 구매하시는 게 좋아요.</p></div>
-                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> MYBOX 앱 접속</h4><p className="text-xs ml-7">네이버 MYBOX 앱 실행 후, 우측 상단 <strong>프로필 아이콘</strong>을 클릭하세요.</p></div>
-                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 이용권 구매</h4><p className="text-xs ml-7"><strong>'내 이용권'</strong> 또는 <strong>'용량 늘리기'</strong> 메뉴에서 필요한 용량을 선택해 결제하세요.</p></div>
-                                                    <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ 설정 > 디바이스 케어 > 저장공간에서 촬영한 용량을 확인하세요<br/>※ 첫 달 무료 이벤트가 있는지 확인해보세요!</div>
-                                                </>
-                                            )}
-                                            {blogModal.type === 'post' && (
-                                                <>
-                                                    <div className="bg-red-50 p-3 rounded-xl border border-red-100"><p className="text-xs text-red-700 font-bold mb-1">💡 우체국 갈 시간이 없다면?</p><p className="text-[11px] text-red-600">집배원님이 집으로 오셔서 수거해가는 <strong>방문접수 소포</strong> 서비스를 이용해보세요!</p></div>
-                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 인터넷우체국 접속</h4><p className="text-xs ml-7">인터넷우체국 홈페이지 또는 앱에서 <strong>[방문접수소포]</strong> 메뉴를 클릭하세요.</p></div>
-                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 정보 입력</h4><p className="text-xs ml-7">보내는 분(본인), 받는 분(세린캠) 정보를 입력하고 <strong>신청하시면</strong>다음날 기사님께서 픽업해요.</p></div>
-                                                    <div className="mt-4"><a href="https://parcel.epost.go.kr/auth.EpostLogin.parcel" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors text-sm gap-2">우체국방문택배 신청하기 <Icons.ExternalLink size={14}/></a></div>
-                                                </>
-                                            )}
-                                            {blogModal.type === 'logout' && (
-                                                <>
-                                                    <div className="bg-yellow-50 p-3 rounded-xl border border-yellow-100"><p className="text-xs text-yellow-700 font-bold mb-1">🔒 개인정보 보호 필수!</p><p className="text-[11px] text-yellow-600">삼성계정은 세린캠 계정이라 삭제할 수 없어요.</p></div>
-                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">1</span> 설정 진입</h4><p className="text-xs ml-7">휴대폰 <strong>[설정]</strong> 앱을 실행하고 <strong>[계정 및 백업]</strong> 메뉴로 이동하세요.</p></div>
-                                                    <div><h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">2</span> 계정 삭제</h4><p className="text-xs ml-7"><strong>[계정 관리]</strong>를 누른 후, 로그인된 고객님 계정을 선택하여 <strong>[계정 삭제]</strong>를 눌러주세요.</p></div>
-                                                    <div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500">※ '계정 삭제'는 기기에서 로그아웃 되는 것이며, 실제 계정이 탈퇴되는 것은 아니니 안심하세요!</div>
-                                                </>
-                                            )}
-                                    </div>
-                                    <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setBlogModal({open: false, type: null})} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button></div>
-                                </div>
-                            </div>
-                        )}
-                        {isReviewModalOpen && (
-                            <div className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
-                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative">
-                                     <button onClick={() => setIsReviewModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-1">리뷰 쓰기 ✍️</h3>
-                                    <p className="text-xs text-gray-500 mb-6">{currentReviewItem?.model}</p>
-                                    <div className="flex justify-center gap-2 mb-6">{[1, 2, 3, 4, 5].map(star => (<div key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className="cursor-pointer transition-transform hover:scale-110"><Icons.Star size={32} className={star <= reviewForm.rating ? "text-yellow-400 fill-current" : "text-gray-200"} strokeWidth={star <= reviewForm.rating ? 0 : 2} /></div>))}</div>
-                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4">
-                                        <div className="flex justify-between mb-2"><span className="text-xs font-bold text-gray-700">{formatNameMasking(lookupName)}님</span><span className="text-xs font-bold text-yellow-500">별점 {reviewForm.rating}점</span></div>
-                                        <textarea className="w-full bg-transparent text-sm text-gray-800 outline-none resize-none h-20 placeholder-gray-400" placeholder="대여하신 기기는 어떠셨나요?&#13;&#10;솔직한 후기를 남겨주세요!" value={reviewForm.text} onChange={(e) => setReviewForm({...reviewForm, text: e.target.value})}></textarea>
-                                        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200">
-                                            <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
-                                            <button onClick={() => fileInputRef.current.click()} className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500 transition-colors"><Icons.Camera size={16} /> 사진 추가</button>
-                                            {reviewForm.image && (<div className="relative group"><img src={reviewForm.image} alt="미리보기" className="w-8 h-8 rounded object-cover border border-gray-200" /><button onClick={() => setReviewForm(prev => ({...prev, image: null}))} className="absolute -top-1 -right-1 bg-gray-800 text-white rounded-full p-0.5 w-3 h-3 flex items-center justify-center hover:bg-red-500"><Icons.X size={8} /></button></div>)}
-                                        </div>
-                                    </div>
-                                    <button onClick={handleReviewSubmit} className="w-full bg-blue-400 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-500 transition-colors">{currentReviewItem.myReviewId ? '수정하기' : '등록하기'}</button>
-                                </div>
-                            </div>
-                        )}
-                        {isLogoutModalOpen && (
-                            <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
-                                <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
-                                    <div className="w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.User size={24} /></div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">로그아웃 하시겠어요?</h3>
-                                    <p className="text-sm text-gray-500 mb-6">저장된 예약자 정보가 기기에서 삭제됩니다.</p>
-                                    <div className="flex gap-2"><button onClick={() => setIsLogoutModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button><button onClick={handleLogoutConfirm} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">로그아웃</button></div>
                                 </div>
                             </div>
                         )}
