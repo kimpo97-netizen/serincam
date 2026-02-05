@@ -265,6 +265,9 @@
             
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
+            
+            // [NEW] 블로그 이동 확인 모달 상태
+            const [isBlogConfirmOpen, setIsBlogConfirmOpen] = useState(false);
 
             // [NEW] 공연장 데이터
             const venueList = {
@@ -1506,68 +1509,99 @@
                             
                             {blogModal.type === 'camera' && (
                                 <div className="space-y-5">
-                                    <div className="bg-gradient-to-r from-violet-500 to-fuchsia-500 p-4 rounded-2xl text-white shadow-md">
-                                        <p className="text-xs font-medium opacity-90 mb-1">실패 없는 직캠을 위한</p>
-                                        <h3 className="text-lg font-bold flex items-center gap-2">📸 고화질 설정법</h3>
-                                    </div>
+                                    {/* 배너 제거됨 */}
                                     
                                     <div className="space-y-4">
                                         <div>
-                                            <div className="flex items-center gap-2 mb-2">
+                                            <div className="flex items-center gap-2 mb-3">
                                                 <div className="bg-gray-100 p-1.5 rounded-lg"><Icons.Android size={16} className="text-gray-600"/></div>
-                                                <h4 className="font-bold text-gray-800 text-sm">갤럭시 울트라 카메라 설정</h4>
+                                                <h4 className="font-bold text-gray-800 text-sm">울트라 콘서트 카메라 설정</h4>
                                             </div>
-                                            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2">
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                                                    <span className="text-xs text-gray-500">촬영 모드</span>
-                                                    <span className="text-xs font-bold text-gray-800 bg-white px-2 py-1 rounded border border-gray-200">프로 동영상 모드</span>
+                                            
+                                            <div className="space-y-3">
+                                                {/* 1. 촬영 모드 */}
+                                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-xs font-bold text-gray-700">1. 촬영 모드</span>
+                                                        <span className="text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100">프로 동영상</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-gray-500 leading-snug">
+                                                        일반 동영상보다 화질 보정이 잘 되고, 소리(마이크) 설정이 가능해서 필수예요! ✨
+                                                    </p>
                                                 </div>
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                                                    <span className="text-xs text-gray-500">해상도</span>
-                                                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">UHD 60 또는 FHD 60</span>
+
+                                                {/* 2. 해상도 */}
+                                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-xs font-bold text-gray-700">2. 해상도</span>
+                                                        <span className="text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100">UHD 60 또는 FHD60</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-gray-500 leading-snug">
+                                                        전체촬영은 <strong>FHD</strong> 하이라이트는 <strong>UHD</strong> 👍<br/>모든 촬영을 UHD로 하게된다면 용량이 커서 백업이 어려울 수 있어요.
+                                                    </p>
                                                 </div>
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                                                    <span className="text-xs text-gray-500">마이크</span>
-                                                    <span className="text-xs font-bold text-gray-800">후면</span>
+
+                                                {/* 3. 마이크 설정 */}
+                                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-xs font-bold text-gray-700">3. 마이크 방향</span>
+                                                        <span className="text-xs font-bold text-gray-800 bg-white px-2 py-0.5 rounded border border-gray-200">후면</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-gray-500 leading-snug">
+                                                        내 응원 소리는 작게, 가수 목소리는 크게 담으려면 <strong>후면</strong> 설정을 강력 추천해요. 🎤
+                                                    </p>
                                                 </div>
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                                                    <span className="text-xs text-gray-500">밝기</span>
-                                                    <span className="text-xs font-bold text-gray-800">ISO 160~200 (조절 필요)</span>
+
+                                                {/* 4. 렌즈 */}
+                                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-xs font-bold text-gray-700">4. 렌즈 설정</span>
+                                                        <span className="text-xs font-bold text-gray-800 bg-white px-2 py-0.5 rounded border border-gray-200">ST (슈퍼망원)</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-gray-500 leading-snug">
+                                                        너무 가깝게 느껴진다면 <strong>T(망원)</strong>으로 변경해 주세요.
+                                                    </p>
                                                 </div>
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                                                    <span className="text-xs text-gray-500">렌즈 설정</span>
-                                                    <span className="text-xs font-bold text-gray-800">ST (슈퍼망원렌즈) 추천</span>
+
+                                                {/* 5. ISO */}
+                                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-xs font-bold text-gray-700">5. 밝기 조절</span>
+                                                        <span className="text-xs font-bold text-red-500 bg-white px-2 py-0.5 rounded border border-red-100">ISO 160~200</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-gray-500 leading-snug">
+                                                        밝기 조절은 <strong>ISO</strong>로 주변 밝기에 따라 셀프로 조절하는걸 권장해요
+                                                    </p>
+                                                </div>
+
+                                                {/* 6. 포커스 */}
+                                                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                                                    <div className="flex justify-between items-center mb-1.5">
+                                                        <span className="text-xs font-bold text-gray-700">6. FOCUS</span>
+                                                        <span className="text-xs font-bold text-gray-800 bg-white px-2 py-0.5 rounded border border-gray-200">중앙</span>
+                                                    </div>
+                                                    <p className="text-[11px] text-gray-500 leading-snug">
+                                                        포커스는 중앙으로 기본 설정되어있으나, 한번 더 확인해 주세요
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <p className="text-[10px] text-gray-400 mt-1.5 pl-1">* 줌 마이크 기능은 끄는 것을 추천해요!</p>
                                         </div>
-                                        
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <div className="bg-gray-100 p-1.5 rounded-lg"><Icons.Apple size={16} className="text-gray-600"/></div>
-                                                <h4 className="font-bold text-gray-800 text-sm">아이폰 프로 (14~17)</h4>
-                                            </div>
-                                            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2">
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                                                    <span className="text-xs text-gray-500">비디오 녹화</span>
-                                                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">4K 60fps</span>
-                                                </div>
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                                                    <span className="text-xs text-gray-500">포맷</span>
-                                                    <span className="text-xs font-bold text-gray-800">고효율성</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500">노출 조절</span>
-                                                    <span className="text-xs font-bold text-gray-800">켜기 (설정 유지)</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </div>
+                                    
+                                    {/* [UPDATE] 블로그 이동 버튼 (커스텀 모달 호출) */}
+                                    <div className="mt-2">
+                                        <button 
+                                            onClick={() => setIsBlogConfirmOpen(true)}
+                                            className="w-full bg-green-50 text-green-600 border border-green-200 py-3 rounded-xl font-bold shadow-sm hover:bg-green-100 transition-colors flex items-center justify-center gap-2 text-sm"
+                                        >
+                                            <span className="text-lg"></span> 세린캠 블로그에서 자세히 보기
+                                        </button>
                                     </div>
                                 </div>
                             )}
                         </div>
                         <div className="mt-4 pt-3 border-t border-gray-100">
-                            <button onClick={() => setBlogModal({ open: false, type: null })} className="w-full bg-gray-800 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">확인했습니다 👍</button>
+                            <button onClick={() => setBlogModal({ open: false, type: null })} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button>
                         </div>
                     </div>
                 </div>
@@ -1812,7 +1846,8 @@
             const renderChecklistPage = () => (
                 <div className="animate-slide-in space-y-6">
                     <div className="flex items-center gap-3 mb-6">
-                        <button onClick={() => setViewMode('blog')} className="p-2 bg-white rounded-full shadow-sm"><Icons.ChevronLeft className="w-5 h-5 text-gray-600" /></button>
+                        {/* 뒤로가기 버튼: 꿀팁 목록(blog)이 아닌 홈 화면(dashboard)으로 이동 */}
+                        <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm"><Icons.ChevronLeft className="w-5 h-5 text-gray-600" /></button>
                         <h2 className="text-xl font-bold text-gray-800">반납 전 체크리스트</h2>
                     </div>
                     <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 pb-10">
@@ -1827,7 +1862,8 @@
                             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100"><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">3</span> 기기 상태 촬영해두기 📸</h4><p className="text-xs text-gray-600 ml-7 leading-relaxed">택배 이동 중 파손 등 혹시 모를 상황을 대비해<br/>포장 전 기기 외관(앞/뒤/옆)을 촬영해서 소장해주세요.<br/><span className="text-gray-400">* 반납 확정 연락을 받으신 후 삭제하시면 돼요.</span></p></div>
                             <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100"><h4 className="font-bold text-gray-800 mb-1 flex items-center gap-2"><span className="w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs">4</span> 배터리 80% 이상 충전 🔋</h4><p className="text-xs text-gray-600 ml-7 leading-relaxed">반납 후 즉시 검수 및 초기화를 진행하기 위해<br/>배터리를 <strong>80% 이상</strong> 넉넉히 충전해서 보내주세요.</p></div>
                         </div>
-                        <button onClick={() => setViewMode('blog')} className="w-full mt-8 bg-gray-900 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-colors">확인했습니다 👍</button>
+                        {/* 확인 버튼: 홈 화면(dashboard)으로 이동 */}
+                        <button onClick={() => setViewMode('dashboard')} className="w-full mt-8 bg-gray-900 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-colors">확인했습니다 👍</button>
                     </div>
                 </div>
             );
@@ -1979,12 +2015,12 @@
                                                         <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">기간연장</h4>
                                                     </div>
 
-                                                    {/* 7. 꿀팁 */}
-                                                    <div onClick={() => setViewMode('blog')} className="flex flex-col items-center justify-center text-center h-24 cursor-pointer group rounded-2xl hover:bg-gray-50 transition-all">
+                                                    {/* 7. 반납체크 (기존 꿀팁 메뉴 대체) */}
+                                                    <div onClick={() => setViewMode('checklist')} className="flex flex-col items-center justify-center text-center h-24 cursor-pointer group rounded-2xl hover:bg-gray-50 transition-all">
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
-                                                            <Icons.Star size={22} />
+                                                            <Icons.CheckSquare size={22} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">꿀팁</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">체크리스트</h4>
                                                     </div>
 
                                                     {/* 8. Q&A */}
@@ -2656,6 +2692,26 @@
                                     <h3 className="text-lg font-bold text-gray-800 mb-2">유의사항을 모두<br/>확인하셨나요?</h3>
                                     <p className="text-sm text-gray-500 mb-6 leading-relaxed">개인정보 자동 폐기 및<br/>금융 사기 주의 내용을 확인해주세요.</p>
                                     <div className="flex gap-2"><button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button><button onClick={() => { setIsConfirmModalOpen(false); handleSubmit(); }} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">네, 확인했어요</button></div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* [NEW] 블로그 이동 확인 모달 (z-index를 110으로 설정하여 꿀팁 모달(100)보다 위에 뜨게 함) */}
+                        {isBlogConfirmOpen && (
+                            <div className="fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
+                                    <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <span className="text-2xl">📗</span>
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">블로그로 이동하시겠어요?</h3>
+                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                                        자세한 설정 방법을 확인하기 위해<br/>
+                                        <strong>세린캠 네이버 블로그</strong>로 이동합니다.
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setIsBlogConfirmOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button>
+                                        <button onClick={() => { setIsBlogConfirmOpen(false); window.open('https://blog.naver.com/serin_day/223285000894', '_blank'); }} className="flex-1 py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 transition-colors text-sm">이동하기</button>
+                                    </div>
                                 </div>
                             </div>
                         )}
