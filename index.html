@@ -100,11 +100,23 @@
         const KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
 
         const HOLIDAYS = {
+            // 2025년
             '2025-1-1': '신정', '2025-1-28': '설날', '2025-1-29': '설날', '2025-1-30': '설날',
             '2025-3-1': '삼일절', '2025-3-3': '대체공휴일', '2025-5-5': '어린이날', '2025-5-6': '대체공휴일',
             '2025-6-6': '현충일', '2025-8-15': '광복절', '2025-10-3': '개천절', '2025-10-5': '추석',
             '2025-10-6': '추석', '2025-10-7': '추석', '2025-10-8': '대체공휴일', '2025-10-9': '한글날',
-            '2025-12-25': '성탄절'
+            '2025-12-25': '성탄절',
+            
+            // 2026년 (추가됨)
+            '2026-1-1': '신정', 
+            '2026-2-16': '설날', '2026-2-17': '설날', '2026-2-18': '설날',
+            '2026-3-1': '삼일절', '2026-3-2': '대체공휴일',
+            '2026-5-5': '어린이날', '2026-5-24': '부처님오신날', '2026-5-25': '대체공휴일',
+            '2026-6-6': '현충일', 
+            '2026-8-15': '광복절', '2026-8-17': '대체공휴일',
+            '2026-9-24': '추석', '2026-9-25': '추석', '2026-9-26': '추석', 
+            '2026-10-3': '개천절', '2026-10-5': '대체공휴일', '2026-10-9': '한글날',
+            '2026-12-25': '성탄절'
         };
 
         const INITIAL_REVIEWS = [
@@ -178,6 +190,9 @@
             const [showHeader, setShowHeader] = useState(true);
             const lastScrollY = useRef(0);
 
+            // [NEW] 배너 슬라이드 상태 관리
+            const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
             useEffect(() => {
                 const handleScroll = () => {
                     const currentScrollY = window.scrollY;
@@ -195,10 +210,45 @@
                 window.addEventListener('scroll', handleScroll, { passive: true });
                 return () => window.removeEventListener('scroll', handleScroll);
             }, []);
+
+            // [NEW] 배너 자동 슬라이드 타이머
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setCurrentBannerIndex((prev) => (prev + 1) % 2); // 배너가 2개이므로 % 2
+                }, 4000); // 4초마다 변경
+                return () => clearInterval(timer);
+            }, []);
             
+            // [NEW] 배너 데이터
+            const bannerData = [
+                {
+                    id: 1,
+                    // ⭐ 여기에 제작하신 '갤럭시 S23' 배너 이미지 주소를 넣어주세요 ⭐
+                    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000&auto=format&fit=crop",
+                    targetTab: 'galaxy'
+                },
+                {
+                    id: 2,
+                    // ⭐ 여기에 제작하신 '아이폰 17' 배너 이미지 주소를 넣어주세요 ⭐
+                    image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=1000&auto=format&fit=crop",
+                    targetTab: 'iphone'
+                }
+            ];
+
+            // [NEW] 배너 수동 이동 핸들러
+            const handlePrevBanner = (e) => {
+                e.stopPropagation(); // 배너 클릭 이벤트(예약 이동) 방지
+                setCurrentBannerIndex((prev) => (prev - 1 + bannerData.length) % bannerData.length);
+            };
+
+            const handleNextBanner = (e) => {
+                e.stopPropagation(); // 배너 클릭 이벤트(예약 이동) 방지
+                setCurrentBannerIndex((prev) => (prev + 1) % bannerData.length);
+            };
+
             // 👇 로고 이미지를 변경하려면 아래 따옴표("") 안에 이미지 주소(URL)를 입력하세요. 
             // 추천: 높이 100px 정도의 배경 투명한 PNG 파일
-            const CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/5388dcd261bc77c073bcc0f9ce5a8b49.png"; 
+            const CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/f5e0c0aeb40c188053fcb94b24f732c4.png"; 
 
             const [selectedPhone, setSelectedPhone] = useState(null);
             const [startDate, setStartDate] = useState(null);
@@ -1963,6 +2013,54 @@
                             <div className="p-5">
                                 {activeNav === 'home' && viewMode === 'dashboard' && (
                                     <div className="space-y-6 animate-slide-in pb-24">
+                                            
+                                            {/* [NEW] 상단 슬라이딩 배너 (높이 h-28 유지) */}
+                                            <div className="w-full h-28 bg-gray-200 rounded-3xl overflow-hidden shadow-sm relative group cursor-pointer">
+                                                {/* 슬라이드 컨테이너 */}
+                                                <div 
+                                                    className="flex h-full transition-transform duration-500 ease-out" 
+                                                    style={{ transform: `translateX(-${currentBannerIndex * 100}%)` }}
+                                                >
+                                                    {bannerData.map((banner) => (
+                                                        <div 
+                                                            key={banner.id} 
+                                                            className="w-full h-full flex-shrink-0 relative"
+                                                            onClick={() => {
+                                                                setActiveTab(banner.targetTab);
+                                                                handleRentalStart();
+                                                            }}
+                                                        >
+                                                            {/* 배경 이미지 (텍스트 오버레이 제거됨 - 이미지만 표시) */}
+                                                            <img src={banner.image} alt="Banner" className="w-full h-full object-cover" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* [NEW] 좌우 화살표 버튼 */}
+                                                <button 
+                                                    onClick={handlePrevBanner}
+                                                    className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors z-20"
+                                                >
+                                                    <Icons.ChevronLeft size={14} />
+                                                </button>
+                                                <button 
+                                                    onClick={handleNextBanner}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors z-20"
+                                                >
+                                                    <Icons.ChevronRight size={14} />
+                                                </button>
+
+                                                {/* 인디케이터 (Dots) */}
+                                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 z-20">
+                                                    {bannerData.map((_, idx) => (
+                                                        <div 
+                                                            key={idx} 
+                                                            className={`h-1 rounded-full transition-all duration-300 ${idx === currentBannerIndex ? 'bg-white w-3' : 'bg-white/40 w-1'}`}
+                                                        ></div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
                                             {/* 서비스 메뉴 */}
                                             <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
                                                 <h3 className="font-bold text-gray-800 text-lg mb-4">🍀 메뉴 모아보기</h3>
@@ -2015,12 +2113,12 @@
                                                         <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">기간연장</h4>
                                                     </div>
 
-                                                    {/* 7. 반납체크 (기존 꿀팁 메뉴 대체) */}
-                                                    <div onClick={() => setViewMode('checklist')} className="flex flex-col items-center justify-center text-center h-24 cursor-pointer group rounded-2xl hover:bg-gray-50 transition-all">
+                                                    {/* 7. 카메라설정 (위치 변경됨: 꿀팁 -> 메뉴) */}
+                                                    <div onClick={() => setBlogModal({ open: true, type: 'camera' })} className="flex flex-col items-center justify-center text-center h-24 cursor-pointer group rounded-2xl hover:bg-gray-50 transition-all">
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
-                                                            <Icons.CheckSquare size={22} />
+                                                            <Icons.Camera size={22} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">체크리스트</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">카메라설정</h4>
                                                     </div>
 
                                                     {/* 8. Q&A */}
@@ -2035,7 +2133,7 @@
 
                                             {/* [NEW] 이용 팁 분단 추가 */}
                                             <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-6">
-                                                <h3 className="font-bold text-gray-800 text-lg mb-4">🍯 이용 팁</h3>
+                                                <h3 className="font-bold text-gray-800 text-lg mb-4">🍯 꿀팁</h3>
                                                 <div className="grid grid-cols-3 gap-2">
                                                     <div onClick={() => setBlogModal({ open: true, type: 'post' })} className="flex flex-col items-center justify-center p-3 rounded-2xl bg-gray-50 border border-gray-100 cursor-pointer hover:bg-red-50 hover:border-red-100 transition-all">
                                                         <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm text-red-500"><Icons.Truck size={20} /></div>
@@ -2045,9 +2143,10 @@
                                                         <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm text-yellow-500"><Icons.LogOut size={20} /></div>
                                                         <span className="text-[11px] font-bold text-gray-700 text-center leading-tight">대여기기<br/>로그아웃</span>
                                                     </div>
-                                                    <div onClick={() => setBlogModal({ open: true, type: 'camera' })} className="flex flex-col items-center justify-center p-3 rounded-2xl bg-gray-50 border border-gray-100 cursor-pointer hover:bg-blue-50 hover:border-blue-100 transition-all">
-                                                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm text-blue-500"><Icons.Camera size={20} /></div>
-                                                        <span className="text-[11px] font-bold text-gray-700 text-center leading-tight">카메라<br/>설정방법</span>
+                                                    {/* 반납 전 체크리스트 (위치 변경됨: 메뉴 -> 꿀팁) */}
+                                                    <div onClick={() => setViewMode('checklist')} className="flex flex-col items-center justify-center p-3 rounded-2xl bg-gray-50 border border-gray-100 cursor-pointer hover:bg-blue-50 hover:border-blue-100 transition-all">
+                                                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mb-2 shadow-sm text-blue-500"><Icons.CheckSquare size={20} /></div>
+                                                        <span className="text-[11px] font-bold text-gray-700 text-center leading-tight">반납 전<br/>체크리스트</span>
                                                     </div>
                                                 </div>
                                             </div>
