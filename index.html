@@ -224,14 +224,16 @@
                 {
                     id: 1,
                     // ⭐ 여기에 제작하신 '갤럭시 S23' 배너 이미지 주소를 넣어주세요 ⭐
-                    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000&auto=format&fit=crop",
+                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/9a4660cca0c299b35af5904874146dc5.png",
+                    type: 'internal',
                     targetTab: 'galaxy'
                 },
                 {
                     id: 2,
                     // ⭐ 여기에 제작하신 '아이폰 17' 배너 이미지 주소를 넣어주세요 ⭐
-                    image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=1000&auto=format&fit=crop",
-                    targetTab: 'iphone'
+                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/6323c443c706e04b0abb12566bd1804b.png",
+                    type: 'external',
+                    link: 'https://twitter.com/serin_cam'
                 }
             ];
 
@@ -2026,8 +2028,12 @@
                                                             key={banner.id} 
                                                             className="w-full h-full flex-shrink-0 relative"
                                                             onClick={() => {
-                                                                setActiveTab(banner.targetTab);
-                                                                handleRentalStart();
+                                                                if (banner.type === 'external') {
+                                                                    window.open(banner.link, '_blank');
+                                                                } else {
+                                                                    setActiveTab(banner.targetTab);
+                                                                    handleRentalStart();
+                                                                }
                                                             }}
                                                         >
                                                             {/* 배경 이미지 (텍스트 오버레이 제거됨 - 이미지만 표시) */}
