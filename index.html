@@ -214,7 +214,7 @@
             // [NEW] 배너 자동 슬라이드 타이머
             useEffect(() => {
                 const timer = setInterval(() => {
-                    setCurrentBannerIndex((prev) => (prev + 1) % 2); // 배너가 2개이므로 % 2
+                    setCurrentBannerIndex((prev) => (prev + 1) % 3); // 배너가 2개이므로 % 2
                 }, 4000); // 4초마다 변경
                 return () => clearInterval(timer);
             }, []);
@@ -224,16 +224,23 @@
                 {
                     id: 1,
                     // ⭐ 여기에 제작하신 '갤럭시 S23' 배너 이미지 주소를 넣어주세요 ⭐
-                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/4914b9f07caf632857fe6aea00ea560f.png",
+                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/d4656b99ff5746bced0bcee0c8a1cce2.png",
                     type: 'internal',
                     targetTab: 'galaxy'
                 },
                 {
                     id: 2,
                     // ⭐ 여기에 제작하신 '아이폰 17' 배너 이미지 주소를 넣어주세요 ⭐
-                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/d814765ac8b0d6483430d4715522d851.png",
+                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/c1a1732d33cfe53c6317cbc00a0b4c16.png",
                     type: 'external',
                     link: 'https://twitter.com/serin_cam'
+                },
+                {
+                    id: 3,
+                    // ⭐ 여기에 제작하신 '아이폰 17' 배너 이미지 주소를 넣어주세요 ⭐
+                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/4225ccdb82d75cb0fddc74ebf21f7f50.png",
+                    type: 'internal',
+                    targetTab: 'galaxy'
                 }
             ];
 
@@ -592,7 +599,7 @@
             
             const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
-            // [UPDATE] 당일반납 당일 반납 현장 반납 옵션 추가(당일/공연장) 가능 날짜 추가 (2026-3-27, 2026-3-28)
+            // [UPDATE] 당일반납 당일 반납 옵션 추가(당일/공연장) 가능 날짜 추가 (2026-3-27, 2026-3-28)
             const AVAILABLE_ONSITE_DATES = [
                 '2025-5-5', '2025-12-25', '2026-1-1',
                 '2026-3-27', '2026-3-28'
@@ -2832,4 +2839,3 @@
     </script>
 </body>
 </html>
-
