@@ -2044,18 +2044,24 @@
                                                     ))}
                                                 </div>
 
-                                                {/* [NEW] 좌우 화살표 버튼 */}
+                                                {/* [NEW] 좌우 화살표 버튼 (클릭 영역 확대: w-12 h-full) */}
                                                 <button 
                                                     onClick={handlePrevBanner}
-                                                    className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors z-20"
+                                                    className="absolute left-0 top-0 w-12 h-full flex items-center justify-center z-20 group"
                                                 >
-                                                    <Icons.ChevronLeft size={14} />
+                                                    {/* 시각적 아이콘 (모양 유지) */}
+                                                    <div className="w-6 h-6 bg-black/20 group-hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors">
+                                                        <Icons.ChevronLeft size={14} />
+                                                    </div>
                                                 </button>
                                                 <button 
                                                     onClick={handleNextBanner}
-                                                    className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors z-20"
+                                                    className="absolute right-0 top-0 w-12 h-full flex items-center justify-center z-20 group"
                                                 >
-                                                    <Icons.ChevronRight size={14} />
+                                                    {/* 시각적 아이콘 (모양 유지) */}
+                                                    <div className="w-6 h-6 bg-black/20 group-hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors">
+                                                        <Icons.ChevronRight size={14} />
+                                                    </div>
                                                 </button>
 
                                                 {/* 인디케이터 (Dots) */}
