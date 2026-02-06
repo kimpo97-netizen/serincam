@@ -592,8 +592,10 @@
             
             const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
+            // [UPDATE] 현장 반납(당일/공연장) 가능 날짜 추가 (2026-3-27, 2026-3-28)
             const AVAILABLE_ONSITE_DATES = [
-                '2025-5-5', '2025-12-25', '2026-1-1'
+                '2025-5-5', '2025-12-25', '2026-1-1',
+                '2026-3-27', '2026-3-28'
             ];
             
             useEffect(() => {
@@ -2332,16 +2334,7 @@
                                                             <div onClick={() => setDeliveryMethod(deliveryMethod === 'quick' ? null : 'quick')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start"><span className="font-bold text-gray-800">퀵 서비스</span><Icons.Zap size={20} className="text-blue-400" /></div>
                                                                 <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
-                                                                        {startDate ? (() => {
-                                                                            const today = new Date();
-                                                                            today.setHours(0,0,0,0);
-                                                                            const prevDate = new Date(startDate);
-                                                                            prevDate.setDate(startDate.getDate() - 1);
-                                                                            prevDate.setHours(0,0,0,0);
-                                                                            const targetDate = prevDate < today ? startDate : prevDate;
-                                                                            const dayStr = daysOfWeek[targetDate.getDay()];
-                                                                            return <span className="text-sky-600 font-bold">{targetDate.getMonth() + 1}월 {targetDate.getDate()}일({dayStr}) 퀵 수령</span>;
-                                                                        })() : '원하는 장소에서 퀵 수령'}
+                                                                    <span className="text-sky-600 font-bold">주문 후 6시간이내</span>
                                                                 </p>
                                                                 <p className="font-bold text-xs text-right mt-auto text-gray-700">거리비례(선불)</p>
                                                             </div>
@@ -2417,8 +2410,11 @@
                                                                             <div className="flex justify-between items-start"><span className={`font-bold ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-800'}`}>공연장 반납</span><Icons.Ticket size={20} className={!isOnsiteAvailable ? 'text-gray-400' : "text-rose-500"} /></div>
                                                                             <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                                     {endDate ? (() => {
-                                                                                        const dayStr = daysOfWeek[endDate.getDay()];
-                                                                                        return <span className="text-rose-500 font-bold">{endDate.getMonth() + 1}월 {endDate.getDate()}일({dayStr}) 공연장 반납</span>;
+                                                                                        // [UPDATE] 공연장 반납은 대여종료일 기준 다음날로 설정
+                                                                                        const nextDate = new Date(endDate);
+                                                                                        nextDate.setDate(endDate.getDate() + 1);
+                                                                                        const dayStr = daysOfWeek[nextDate.getDay()];
+                                                                                        return <span className="text-rose-500 font-bold">{nextDate.getMonth() + 1}월 {nextDate.getDate()}일({dayStr}) 공연장 반납</span>;
                                                                                     })() : '공연장에서 직접 반납'}
                                                                             </p>
                                                                             <p className={`font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`}>{!isOnsiteAvailable ? '인원부족' : '무료'}</p>
