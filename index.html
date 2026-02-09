@@ -277,6 +277,9 @@
             // [UPDATE] 할인 상태 키 변경: app -> twitter
             const [discounts, setDiscounts] = useState({ twitter: false, blog: false, kakao: false });
             
+            // [NEW] 결제 수단 상태 추가 (기본값: 계좌이체)
+            const [paymentMethod, setPaymentMethod] = useState('transfer'); 
+
             const [userInfo, setUserInfo] = useState({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [isSearching, setIsSearching] = useState(false);
@@ -954,6 +957,9 @@
                 else if (returnMethod === 'sameday') returnText = '당일반납';
                 else if (returnMethod === 'venue') returnText = '공연장반납';
 
+                // [NEW] 결제수단 텍스트 변환
+                let paymentText = paymentMethod === 'transfer' ? '계좌이체' : '네이버스토어결제';
+
                 const total = calculateTotal();
                 const orderData = {
                     orderTime: new Date().toLocaleString('ko-KR'),
@@ -971,6 +977,7 @@
                     returnMethod: returnText,
                     review: reviewText,
                     insurance: insuranceText,
+                    paymentMethod: paymentText, // [NEW] 결제수단 추가
                     totalPrice: total,
                     trackingNumber: '',
                     dataBackup: dataBackup ? '신청' : '',
@@ -987,7 +994,8 @@
                     setSuccessData({
                         type: '예약',
                         name: userInfo.name,
-                        amount: total
+                        amount: total,
+                        paymentMethod: paymentMethod // [NEW] 성공 화면 분기를 위해 추가
                     });
                     setViewMode('success');
 
@@ -1010,6 +1018,7 @@
                 setReturnMethod(null);
                 // [UPDATE] 할인 상태 초기화
                 setDiscounts({ twitter: false, blog: false, kakao: false });
+                setPaymentMethod('transfer'); // [NEW] 결제수단 초기화
                 setSuccessData(null); 
                 setIsSubmitting(false);
                 setActiveNav('home');
@@ -2034,8 +2043,13 @@
                 const type = successData ? successData.type : '완료';
                 const name = successData ? successData.name : '고객';
                 const amount = successData ? successData.amount : 0;
+                const pMethod = successData ? successData.paymentMethod : 'transfer'; // [NEW] 결제수단 확인
+
                 let titleMsg = "신청 완료!", statusMsg = "신청이 접수되었습니다.";
-                if (type === '예약') { titleMsg = "예약 신청 완료!"; statusMsg = "현재 예약 대기 중 상태입니다."; }
+                if (type === '예약') { 
+                    titleMsg = "예약 신청 완료!"; 
+                    statusMsg = pMethod === 'store' ? "네이버 스토어에서 결제를 진행해주세요." : "현재 예약 대기 중 상태입니다."; 
+                }
                 else if (type === '연장') { titleMsg = "연장 신청 완료!"; statusMsg = "입금 확인 후 연장이 확정됩니다."; }
                 else if (type === '백업') { titleMsg = "백업 신청 완료!"; statusMsg = "담당자가 확인 후 연락드리겠습니다."; }
 
@@ -2044,16 +2058,42 @@
                         <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 animate-bounce-in"><Icons.Check size={48} className="text-blue-500" /></div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">{titleMsg}</h2>
                         <p className="text-gray-500 mb-8 leading-relaxed"><span className="text-blue-500 font-bold">{name}</span>님, {statusMsg}</p>
+                        
                         <div className="bg-gray-50 p-5 rounded-2xl w-full mb-6 border border-gray-100">
                             <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200"><span className="text-sm font-bold text-gray-600">결제하실 금액</span><span className="text-lg font-bold text-blue-500">{amount.toLocaleString()}원</span></div>
-                            <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200">
-                                <div className="text-left"><p className="text-[10px] text-gray-400 mb-0.5">예금주: 한승윤</p><p className="text-sm font-bold text-gray-800">카카오뱅크 3333-20-9712773</p></div>
-                                <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50">복사</button>
-                            </div>
+                            
+                            {/* [UPDATE] 결제 수단에 따라 다른 UI 노출 */}
+                            {pMethod === 'transfer' || type !== '예약' ? (
+                                <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200">
+                                    <div className="text-left"><p className="text-[10px] text-gray-400 mb-0.5">예금주: 한승윤</p><p className="text-sm font-bold text-gray-800">카카오뱅크 3333-20-9712773</p></div>
+                                    <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50">복사</button>
+                                </div>
+                            ) : (
+                                <div className="text-left space-y-3">
+                                    <div className="bg-green-50 p-3 rounded-xl border border-green-100">
+                                        <p className="text-xs text-green-700 font-bold mb-1 flex items-center gap-1"><Icons.CreditCard size={14}/> 네이버 스토어 결제 안내</p>
+                                        <div className="text-[11px] text-green-600 space-y-1">
+                                            <p>① 아래 버튼을 눌러 스토어로 이동하세요.</p>
+                                            <p>② 상품 옵션에서 <strong>[금액조정]</strong>을 선택하세요.</p>
+                                            <p>③ 수량을 조절하여 총 금액(<strong>{amount.toLocaleString()}원</strong>)을 맞춰주세요.</p>
+                                        </div>
+                                    </div>
+                                    <a href="https://smartstore.naver.com/serincam" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm gap-2">
+                                        네이버 스토어 결제하러 가기 <Icons.ExternalLink size={14}/>
+                                    </a>
+                                </div>
+                            )}
                         </div>
-                        <button onClick={() => setShowCardInfo(true)} className="w-full mt-2 mb-6 py-3 bg-white border border-green-500 text-green-600 rounded-xl font-bold text-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm"><span className="text-lg">💳</span> 카드/네이버페이로 결제하시나요?</button>
-                        <div className="bg-yellow-50 p-4 rounded-xl text-xs text-yellow-700 text-left w-full mb-8 leading-relaxed"><strong>⏳ 안내사항</strong><br/>입금이 확인되면 확정 알림톡이 발송됩니다.<br/><span className="opacity-80">※ 늦은 밤이나 새벽에 신청하신 경우, 확정 안내까지 시간이 다소 소요될 수 있습니다.</span></div>
-                        {type === '예약' && (<div className="bg-gray-50 p-4 rounded-xl text-xs text-gray-500 text-left w-full mb-8 leading-relaxed"><strong>📢 자동 취소 주의</strong><br/>1. 결제하지 않고 예약만 진행한 경우<br/>2. 입금자명과 예약자명이 다른 경우</div>)}
+
+                        {/* 계좌이체일 때만 카드안내 버튼 노출 */}
+                        {pMethod === 'transfer' && type === '예약' && (
+                            <button onClick={() => setShowCardInfo(true)} className="w-full mt-2 mb-6 py-3 bg-white border border-green-500 text-green-600 rounded-xl font-bold text-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm"><span className="text-lg">💳</span> 카드/네이버페이로 결제하시나요?</button>
+                        )}
+
+                        <div className="bg-yellow-50 p-4 rounded-xl text-xs text-yellow-700 text-left w-full mb-8 leading-relaxed"><strong>⏳ 안내사항</strong><br/>입금(결제)이 확인되면 확정 알림톡이 발송됩니다.<br/><span className="opacity-80">※ 늦은 밤이나 새벽에 신청하신 경우, 확정 안내까지 시간이 다소 소요될 수 있습니다.</span></div>
+                        
+                        {type === '예약' && (<div className="bg-gray-50 p-4 rounded-xl text-xs text-gray-500 text-left w-full mb-8 leading-relaxed"><strong>📢 자동 취소 주의</strong><br/>1. 결제하지 않고 예약만 진행한 경우<br/>2. 입금자명(주문자명)과 예약자명이 다른 경우</div>)}
+                        
                         <button onClick={handleGoHome} className="w-full bg-blue-500 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-600 transition-colors">홈으로 돌아가기</button>
                     </div>
                 );
@@ -2551,7 +2591,7 @@
                                                                             <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                                     {endDate ? (() => {
                                                                                         const dayStr = daysOfWeek[endDate.getDay()];
-                                                                                        return <span className="text-rose-500 font-bold">{endDate.getMonth() + 1}/{endDate.getDate()}({dayStr}) 오후4시까지 반납</span>;
+                                                                                        return <span className="text-rose-500 font-bold">{endDate.getMonth() + 1}/{endDate.getDate()}({dayStr}) 오후4시까지</span>;
                                                                                     })() : '우체국 택배로 반납해요'}
                                                                             </p>
                                                                             <p className={`font-bold text-xs text-right mt-auto ${isPostReturnDisabled ? 'text-gray-400' : 'text-gray-700'}`}>{isPostReturnDisabled ? '이용불가' : '선불'}</p>
@@ -2561,7 +2601,7 @@
                                                                             <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                                     {endDate ? (() => {
                                                                                         const dayStr = daysOfWeek[endDate.getDay()];
-                                                                                        return <span className="text-rose-500 font-bold">{endDate.getMonth() + 1}/{endDate.getDate()}({dayStr}) 오전 10시까지 반납</span>;
+                                                                                        return <span className="text-rose-500 font-bold">{endDate.getMonth() + 1}/{endDate.getDate()}({dayStr}) 오전 10시까지</span>;
                                                                                     })() : '사무실로 직접 반납해요'}
                                                                             </p>
                                                                             <p className="font-bold text-xs text-right mt-auto text-gray-700">무료</p>
@@ -2652,6 +2692,40 @@
                                                                 <div className="flex items-start justify-between"><div className="flex items-center gap-2 cursor-pointer" onClick={() => setAgreements({...agreements, privacy: !agreements.privacy})}><div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${agreements.privacy ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`}>{agreements.privacy && <Icons.Check size={14} className="text-white" />}</div><span className="text-sm text-gray-600">개인정보 수집 및 이용 동의 (필수)</span></div><button onClick={() => setShowPrivacy(true)} className="text-xs text-gray-400 underline">내용 보기</button></div>
                                                             </div>
                                                         </div>
+
+                                                        {/* [NEW] 결제 수단 선택 섹션 추가 */}
+                                                        <div className="pt-4 border-t border-gray-100 mt-2">
+                                                            <h4 className="text-sm font-bold text-gray-800 mb-3">결제 수단 선택</h4>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <div 
+                                                                    onClick={() => setPaymentMethod('transfer')} 
+                                                                    className={`p-3 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center text-center transition-all ${paymentMethod === 'transfer' ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-200 bg-white text-gray-500'}`}
+                                                                >
+                                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${paymentMethod === 'transfer' ? 'bg-white text-blue-500 shadow-sm' : 'bg-gray-100'}`}>
+                                                                        <span className="text-lg">🏦</span>
+                                                                    </div>
+                                                                    <span className="text-xs font-bold">계좌이체</span>
+                                                                    <span className="text-[10px] opacity-70 mt-0.5">쉽고 빠른 결제수단</span>
+                                                                </div>
+                                                                
+                                                                <div 
+                                                                    onClick={() => setPaymentMethod('store')} 
+                                                                    className={`p-3 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center text-center transition-all ${paymentMethod === 'store' ? 'border-green-500 bg-green-50 text-green-600' : 'border-gray-200 bg-white text-gray-500'}`}
+                                                                >
+                                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${paymentMethod === 'store' ? 'bg-white text-green-500 shadow-sm' : 'bg-gray-100'}`}>
+                                                                        <span className="text-lg">💳</span>
+                                                                    </div>
+                                                                    <span className="text-xs font-bold">카드결제</span>
+                                                                    <span className="text-[10px] opacity-70 mt-0.5">다양한 결제수단</span>
+                                                                </div>
+                                                            </div>
+                                                            {paymentMethod === 'store' && (
+                                                                <div className="mt-2 bg-green-50 text-green-600 text-[12px] p-2 rounded-lg border border-green-100 flex items-start gap-1.5 leading-snug">
+                                                                    <Icons.Megaphone size={12} className="mt-0.5 shrink-0"/>
+                                                                    <span>다양한 결제수단을 이용하실 수 있게 <strong>네이버스토어</strong>에서 결제가 진행돼요.</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}
@@ -2666,6 +2740,14 @@
                                                             <div className="flex justify-between"><span className="text-gray-500">반납 방법</span><span className="font-bold text-gray-800">{returnMethod === 'pickup' ? '방문수거' : returnMethod === 'post' ? '택배반납' : '사무실반납'}</span></div>
                                                             <div className="flex justify-between"><span className="text-gray-500">신청자</span><span className="font-bold text-gray-800">{userInfo.name} ({userInfo.phone})</span></div>
                                                             <div className="flex justify-between items-start"><span className="text-gray-500 shrink-0">주소</span><span className="font-bold text-gray-800 text-right">{userInfo.address} {userInfo.detailAddress}</span></div>
+                                                            
+                                                            {/* [NEW] 결제 수단 확인 항목 추가 */}
+                                                            <div className="flex justify-between pt-2 mt-2 border-t border-gray-100 border-dashed">
+                                                                <span className="text-gray-500">결제 수단</span>
+                                                                <span className={`font-bold ${paymentMethod === 'store' ? 'text-green-600' : 'text-blue-600'}`}>
+                                                                    {paymentMethod === 'transfer' ? '계좌이체' : '카드결제'}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                         <div className="pt-4 border-t border-gray-100 flex justify-between items-center"><span className="font-bold text-gray-600">총 결제 금액</span><span className="text-xl font-bold text-blue-500">{calculateTotal().toLocaleString()}원</span></div>
                                                     </div>
@@ -2806,7 +2888,7 @@
                                         <div className="bg-red-50 p-4 rounded-xl border border-red-100">
                                             <p className="font-bold text-red-600 mb-1 flex items-center gap-1.5"><Icons.Truck size={14}/> 대여 종료일</p>
                                             <p className="text-xs text-gray-700 mb-1"><strong>반납하는 날</strong>로 선택해주세요.</p>
-                                            <p className="text-[10px] text-red-500 bg-white p-1.5 rounded inline-block">💡주말/공휴일은 택배반납이 제한됩니다.</p>
+                                            <p className="text-[10px] text-red-500 bg-white p-1.5 rounded inline-block">💡택배사 휴무로 인해 주말/공휴일은 택배반납이 제한됩니다.</p>
                                         </div>
                                     </div>
                                     <button onClick={() => setShowDateGuide(false)} className="w-full mt-5 bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors">확인했어요</button>
