@@ -96,7 +96,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         // ⭐ 중요: 배포한 구글 웹 앱 URL을 여기에 입력하세요 ⭐
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzM5f_3AZEQkS_gWh0GGHdOsInKk7zadNw9vXu57KwewJ2mYaxB_vOpdQqOm6eZUU4aQ/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7Tsk4pL3R2UQQ-h8VsBBOiI4HUXxrGRFSZUtEHJ81AHeJbd-LPTzpZNHIs__75VBE6A/exec"; 
         const KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
 
         const HOLIDAYS = {
@@ -120,13 +120,20 @@
         };
 
         const INITIAL_REVIEWS = [
-            { id: 1, name: '임*빈', model: '갤럭시 S23 울트라', rating: 5, text: '영상 정리하다가 후기 남겨요!!! 일단 배송 엄청 꼼꼼하고 튼튼하게 와서 너무 좋았고 새벽 늦은 시간에 물어봤는데 최대한 빠르게 답장 주시고 친절하게 답변해주셔서 너무 감사해요☺️ 홈페이지에 다 세세하게 설정 올려놔주셔서 갤럭시 처음써보는데 쉽게 익힐 수 있었고 덕분에 영상도 잘 찍을 수 있었습니다>< 다음에도 빌린다면 세린캠에서 빌리고 싶을 정도에요👍🏻', date: '2025.12.31', image: 'https://d2v5p8jgjm0j1e.cloudfront.net/6987ef5980c818128e6f4f58/20260208-02h/05m13s/IMG_8698.webp' },
-            { id: 2, name: '이*은', model: '아이폰 17 프로', rating: 5, text: '아이폰 색감 미쳤어요.. 화질도 좋고 배송도 하루 만에 와서 놀랐어요! 상태도 완전 새거같음👍', date: '2025.12.29', image: 'https://d2v5p8jgjm0j1e.cloudfront.net/69411957e0233773bdbfef29/20251216-08h/33m27s/IMG_6979.webp' },
-            { id: 3, name: '이*은', model: '아이폰 17 프로맥스', rating: 5, text: '아이폰 색감 미쳤어요.. 화질도 좋고 배송도 하루 만에 와서 놀랐어요! 상태도 완전 새거같음👍', date: '2025.12.29', image: 'https://d2v5p8jgjm0j1e.cloudfront.net/69290dfd46f9b55002492130/20251128-02h/50m37s/IMG_7407.webp' },
-            { id: 4, name: '이*은', model: '갤럭시 S24 울트라', rating: 5, text: '아이폰 색감 미쳤어요.. 화질도 좋고 배송도 하루 만에 와서 놀랐어요! 상태도 완전 새거같음👍', date: '2025.12.29', image: 'https://d2v5p8jgjm0j1e.cloudfront.net/692005a76926be392514cbf6/20251121-06h/24m39s/IMG_4803.webp' },
-            { id: 5, name: '이*은', model: '갤럭시 S25 울트라', rating: 5, text: '아이폰 색감 미쳤어요.. 화질도 좋고 배송도 하루 만에 와서 놀랐어요! 상태도 완전 새거같음👍', date: '2025.12.29', image: 'https://d2v5p8jgjm0j1e.cloudfront.net/691eece692e10cf25634289e/20251120-10h/26m46s/20251114_170013.webp' },
-            { id: 6, name: '이*은', model: '아이폰 17 프로', rating: 5, text: '아이폰 색감 미쳤어요.. 화질도 좋고 배송도 하루 만에 와서 놀랐어요! 상태도 완전 새거같음👍', date: '2025.12.29', image: 'https://d2v5p8jgjm0j1e.cloudfront.net/69129b8eef5427d93274d9b5/20251111-02h/12m30s/IMG_9747.webp' },
-            { id: 7, name: '이*은', model: '아이폰 17 프로', rating: 5, text: '아이폰 색감 미쳤어요.. 화질도 좋고 배송도 하루 만에 와서 놀랐어요! 상태도 완전 새거같음👍', date: '2025.12.29', image: 'https://d2v5p8jgjm0j1e.cloudfront.net/68eb78d9fbdc249a7f0b37e0/20251012-09h/46m01s/446A93A6-A4AA-4CF2-8ED5-AA0BB53F8C2D.webp' },
+            { id: 1, name: '이*원', model: '갤럭시 S23 울트라', rating: 5, text: '추억 회상도 하고 잘 담긴 모습에 감탄도 하고 두 배로 행복해질 것 같은 기분이에요 😻 다음 대여 때도 또 올게요! 이번에도 감사했습니다 🥹🫶', date: '2026.01.29', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMTYz/MDAxNzcwOTM1MTU0MzU2.7Wf_shwKht50oVQ-Tj7J1TLGPvgA0u4AWltwoOeJAB0g.pnW6XIqmcPsqX1PJi_2QbFSmCtcNnc-3vOi6Q70-bMcg.JPEG/1.jpg?type=w275' },
+            { id: 2, name: '이*진', model: '갤럭시 S23 울트라', rating: 5, text: '울트라 대여 자체가 처음이라 잘 몰라서 걱정했는데 구체적으로 사용법도 적혀있고 상담도 너무 친절하게 해주셨어요🥺', date: '2026.01.23', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMjky/MDAxNzcwOTM1MTU0MjM4.Uqnggf1y4WDuUgc1mKEhDZvX3gSDQX-7WyEO6ukj7Fcg.e4BBfy13EqXOWpr_xag1pqP_kRzr87vB0e4bjNaySNwg.PNG/2.png?type=w275' },
+            { id: 3, name: '민*은', model: '갤럭시 S23 울트라', rating: 5, text: '너무 다급하게 대여해서 안되면 어쩌나했는데 빌리게 되어서 너무 좋았구ㅠ 역시 폰이 너무 좋아요ㅠㅠ 1층, 스탠딩 2번의 공연이었는데 다 잘 찍혀서 너무 좋았습니다!!', date: '2026.01.05', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMTQ0/MDAxNzcwOTM1MTU0Mjgw.xpsKvZkeX2cqJPlsy9ymooS3YALwCoeO6SX864QO_Ikg.b2CstXKY0NnZqg9RPOFPh4WS01pRTZ7r_ouMQ3mpKQIg.JPEG/3.jpg?type=w275' },
+            { id: 4, name: '김*은', model: '갤럭시 S23 울트라', rating: 5, text: '화질 선명하게 무대 영상 엄청 많이 찍고 왔습니다!! 택배수령 날짜도 개인일정 고려해서 보내주시고 반납방법/사용방법도 간단해서 늘 여기서만 빌리는 것 같아요 ㅎㅎ', date: '2025.12.26', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMjE5/MDAxNzcwOTM1MTU0MjMx.dAn-HTnl1GPk6maS9rTlx3DPBXZAGQpLGxKdLPHWB1Ig.KHUbios40GoU6VG2dmQnmy6z4zsoul6W0p-VxGB9l8cg.PNG/4.png?type=w275' },
+            { id: 5, name: '김*서', model: '갤럭시 S24 울트라', rating: 5, text: '저번에 울트라 빌렸을 때 너무 만족해서 이번에도 다시 대여했어요! 급하게 빌렸는데도 바로 배송해 주셔서 정말 좋았고, 매뉴얼이 자세해서 조명에 따라서 설명대로 조절하며 촬영할 수 있어 편했어요!! 다음에도 또 이용할 것 같아요🤍🤍', date: '2025.12.24', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMzgg/MDAxNzcwOTM1MTQwMzg3.FMVej7Cn8WOzgLVUV-Jt2222PsN2JbK3yDSHVW8iTKEg.BTmEwSNmEWA3KUKqaaeAfxVdE2wOEzzugdN6NldpaJEg.PNG/5.png?type=w275' },
+            { id: 6, name: '이*은', model: '갤럭시 S24 울트라', rating: 5, text: '갤럭시 울트라 대여는 처음이었는데 정말 만족했습니다! 카메라 설정 방법과 파일 옮기는 법 뿐만 아니라 수령부터 반납까지의 과정이 잘 안내되어 있어서 고객의 편의를 잘 봐준다는 느낌이 들었습니다', date: '2025.12.08', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMjEy/MDAxNzcwOTM1MTQwMzc4.CDQB3G7rr3GMweS1ZmG4WJ8bY-P6j9epsdAa2l0CZBgg.Wt2oZRiGOo-2T8Gh93CEKD4G_i_3EC8cBMPH57vKqfIg.PNG/6.png?type=w275' },
+            { id: 7, name: '정*민', model: '갤럭시 S24 울트라', rating: 5, text: '이제 울트라는 세린이 아니면 다른 곳에서 못 빌리겠어요ㅜㅜ 세린만큼 대여 방식과 반납 방식이 깔끔한 곳은 없는 거 같습니다.', date: '2025.12.29', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMjc1/MDAxNzcwOTM1MTQwMzg4.YOS7UY_DvyMyN0O4TH5OaIXnCFlHLCb5iC2_bIJ13IQg.BHnuj9ltb2lGz0_xr5fM5ANVnyyi3Jk3yGgBpvif0JYg.PNG/7.png?type=w275' },
+            { id: 8, name: '박*진', model: '갤럭시 S24 울트라', rating: 5, text: '울트라 대여 처음 해봐서 어렵게 생각했는데 과정 하나하나 친절하게 다 알려주셔서 감사했어요! 🕺 홈페이지에 설정 방법도 아주 상세히 있어서 금방 완료했습니다', date: '2025.11.26', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfNDUg/MDAxNzcwOTM1MTQwMzkx.1lIFOsZf0YYfxG89JUwIl32bWri29FPsV3kThYRnUI0g.DoHruLFvpM9C4cCl87b03FOZ5u8S32x2zsyc6yh_r1Ag.PNG/8.png?type=w580' },
+            { id: 9, name: '김*나', model: '갤럭시 S25 울트라', rating: 5, text: '처음으로 25 대여해봤는데 너무 좋아용 자리가 위층이고 제가 이날따라 떨어서(....) 많이는 안찍었는데 항상 오프때마다 대여하게돼요 만족도 굿이에용 다음에도 또 대여할거예요 >..<!!', date: '2025.11.28', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMTg1/MDAxNzcwOTM1MTY0Mjc5.ta9X63oNVySrEoY3pVmbx2cUsw0oA4JH2YNi2rERX8sg.w0AB-2H4F8f26DBAEkyDt3xOaP2MiLSCcQ7zx4z3_6Mg.PNG/9.png?type=w275' },
+            { id: 10, name: '정*영', model: '갤럭시 S25 울트라',  rating: 5, text: '질문에 빠르게 답장해주셔서 너무 편했어요 방법들도 따로 묻지 않아도 사이트에 너무 자세하게 나와있어서 편했구, 울트라 성능 좋은거 알아서 대여했는데 역시나 최고였습니다 !', date: '2025.11.05', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMjg4/MDAxNzcwOTM1MTY0Mjc3.wAnCl70WStXhekWvwP5p4OjY_Xue5RoxImrnaHjVmEIg.j3Baz9kHAe3oUMnVbgOTqmCFxmtgVZx0G6zfLwC5gPQg.PNG/10.png?type=w275' },
+            { id: 11, name: '김*영', model: '갤럭시 S25 울트라',  rating: 5, text: '특히 메뉴얼이 너무 정리가 잘되어있어서 모르는 부분도 메뉴얼만 보면 거의 해결 되었답니다! 대여할때 핸드폰 파손방지 케이스?? 그걸 주시는데 택배로 반납할때마다 불안했는데 파손방지케이스가 있으니 마음에 안정이 되더라고요!', date: '2025.10.31', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfNjcg/MDAxNzcwOTM1MTY0Mjc5.Zu1ibHwzjpVWRv5yawSxsbq_I7tBhoy48azHCH74VUQg.lvz_a4ndd0phIs5aI4WUrbKO4I0PxcueN2bI_tKM06Ig.PNG/11.png?type=w580' },
+            { id: 12, name: '민*린', model: '갤럭시 S25 울트라',  rating: 5, text: '드림쇼때 울트라 대여 받고 사진이나 영상 예쁜거 많이 건졌어요 ㅠ~ㅠ 세린캠에서 울트라 대여 안 받고 그냥 갔었으면 백퍼 후회 했을겁니다 🥹', date: '2025.07.19', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMjg1/MDAxNzcwOTM1MTY0Mjg2.WtTFOE8FX5igg_wzo9Tq7wDUjakFrcPVzQLycMYH86Ag.uuYTjWXUoWskQ3fQ19oJ1DXj2Y1jUlaDrOWvq6byt8Qg.PNG/12.png?type=w275' },
+            { id: 13, name: '이*서', model: '아이폰 17 프로맥스', rating: 5, text: ' 아무래도 갤럭시 보다 아이폰 조작이 더 편해서 17프맥으로 대여했는데, 울트라 못지않게 먼 거리에서도 선명하게 잘 찍혀서 만족스러웠습니다 :) 다음에도 또 대여할 일이 있으면 여기서 빌리고 싶습니다 ♡ 덕분에 잘 찍고 왔어요, 감사합니다:)', date: '2025.12.31', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMjQg/MDAxNzcwOTM1MTczMDM3.5lAhGZF8BsgliL2SmQy7Fh3b3WPFsje92OrWfJqbYiQg.79hPpKDQRNFBLhq7Ya6v5JBpPciCryq_cZ3nRwRYoJog.PNG/14.png?type=w580' },
+            { id: 14, name: '변*민', model: '아이폰 17 프로', rating: 5, text: ' 이번엔 아이폰17프로를 빌렸는데 진짜 너무너무 만족했어요ㅠㅠ!! 다음에도 무조건 또 빌리러 올게요!!', date: '2025.02.09', image: 'https://postfiles.pstatic.net/MjAyNjAyMTNfMTkx/MDAxNzcwOTM1MTczMDI2.cGJE3yKq_kPo2e62W0pq3IFIA0PJwidZkxcmsPhsNfkg._z18t1OCN4I7ohQYp9VPcXOGdbYNocw9F2h61NsxCxYg.JPEG/13.jpg?type=w275' },
 
         ];
 
@@ -230,21 +237,21 @@
                 {
                     id: 1,
                     // ⭐ 여기에 제작하신 '갤럭시 S23' 배너 이미지 주소를 넣어주세요 ⭐
-                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/2fd10cc60826c55da5bc10f747606898.png",
+                    image: "https://postfiles.pstatic.net/MjAyNjAyMTNfMjU3/MDAxNzcwOTM2OTY2OTYx.V5x1r009xBkadqNmxQjlHTSLObNQU9ILhrMWm978DCQg._Kh4KSbP3B8jABFFe1N2KZKaimTuw5OK2e1D1Hb0_fYg.PNG/%EB%9D%A0%EB%B0%B0%EB%84%88_(%EB%AA%A8%EB%B0%94%EC%9D%BC)_(36).png?type=w3840",
                     type: 'internal',
                     targetTab: 'galaxy'
                 },
                 {
                     id: 2,
                     // ⭐ 여기에 제작하신 '아이폰 17' 배너 이미지 주소를 넣어주세요 ⭐
-                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/a7f47a9efd75f781be3d4a7d096e31ae.png",
+                    image: "https://postfiles.pstatic.net/MjAyNjAyMTNfNjUg/MDAxNzcwOTM2OTY2OTU3.xTzz_1eGzLko6iMfJTXJM0LyLlNmpVD4-VDMeAuLT_Eg.G5nzweLvisXfOKrFXv-F7m3eRUYwgVn5D3hU4zELvM0g.PNG/%EB%9D%A0%EB%B0%B0%EB%84%88_(%EB%AA%A8%EB%B0%94%EC%9D%BC)_(34).png?type=w3840",
                     type: 'external',
                     link: 'https://twitter.com/serin_cam'
                 },
                 {
                     id: 3,
                     // ⭐ 여기에 제작하신 '아이폰 17' 배너 이미지 주소를 넣어주세요 ⭐
-                    image: "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/4225ccdb82d75cb0fddc74ebf21f7f50.png",
+                    image: "https://postfiles.pstatic.net/MjAyNjAyMTNfNDUg/MDAxNzcwOTM2OTY2OTY0.YIhBZv_6ZxTCGvHGY_WUH-G5GdNcJIZsC-HWj1H7Rusg.Rre7S4puPe7W5EI1UxRkco2Z-HTwYCO0FfIOzK6joSAg.PNG/%EB%9D%A0%EB%B0%B0%EB%84%88_(%EB%AA%A8%EB%B0%94%EC%9D%BC)_(35).png?type=w3840",
                     type: 'internal',
                     targetTab: 'galaxy'
                 }
@@ -3123,6 +3130,3 @@
     </script>
 </body>
 </html>
-
-
-
