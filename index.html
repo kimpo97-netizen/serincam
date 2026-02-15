@@ -815,12 +815,16 @@
                         }
                         setUserInfo(prev => ({ ...prev, zipcode: data.zonecode, address: fullAddress }));
                         
-                        // [FIX] 검색 완료 후 제목 원복
-                        document.title = originalTitle;
+                        // [FIX] 라이브러리 내부 동작과 충돌 방지를 위해 지연 실행 (100ms)
+                        setTimeout(() => {
+                            document.title = originalTitle;
+                        }, 100);
                     },
                     onclose: function() {
-                        // [FIX] 사용자가 검색창을 닫았을 때(X버튼 등) 제목 강제 원복
-                        document.title = originalTitle;
+                        // [FIX] 사용자가 검색창을 닫았을 때도 지연 실행하여 제목 원복
+                        setTimeout(() => {
+                            document.title = originalTitle;
+                        }, 100);
                     }
                 }).open();
             };
