@@ -800,6 +800,10 @@
                     alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
                     return;
                 }
+
+                // [FIX] 현재 홈페이지 제목 저장 (주소 검색 API가 제목을 변경하는 문제 방지)
+                const originalTitle = document.title;
+
                 new daum.Postcode({
                     oncomplete: function(data) {
                         let fullAddress = data.address;
@@ -810,6 +814,13 @@
                             fullAddress += (extraAddress !== '' ? ` (${extraAddress})` : '');
                         }
                         setUserInfo(prev => ({ ...prev, zipcode: data.zonecode, address: fullAddress }));
+                        
+                        // [FIX] 검색 완료 후 제목 원복
+                        document.title = originalTitle;
+                    },
+                    onclose: function() {
+                        // [FIX] 사용자가 검색창을 닫았을 때(X버튼 등) 제목 강제 원복
+                        document.title = originalTitle;
                     }
                 }).open();
             };
@@ -934,8 +945,12 @@
                     if (fullName.includes('S23')) return '23U';
                     if (fullName.includes('S24')) return '24U';
                     if (fullName.includes('S25')) return '25U';
-                    if (fullName.includes('17 프로맥스')) return '17Max';
-                    if (fullName.includes('17 프로')) return '17Pro';
+                    
+                    // [수정] 띄어쓰기 제거하여 정확한 매칭 (아이폰 17프로 -> 17P)
+                    // 순서 중요: '17프로맥스'를 먼저 체크해야 '17프로'로 잘못 인식되지 않음
+                    if (fullName.includes('17프로맥스')) return '17PM';
+                    if (fullName.includes('17프로')) return '17P';
+                    
                     return fullName;
                 };
 
@@ -3140,7 +3155,3 @@
     </script>
 </body>
 </html>
-
-
-
-
