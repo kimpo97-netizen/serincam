@@ -625,9 +625,12 @@
             
             const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
-            // [UPDATE] 당일반납 당일 반납 옵션 추가(당일/공연장) 가능 날짜 추가 (2026-3-27, 2026-3-28)
+            // [UPDATE] 당일반납 당일 반납 옵션 추가(당일/공연장) 가능 날짜 추가 (3월 일정 업데이트)
             const AVAILABLE_ONSITE_DATES = [
                 '2025-5-5', '2025-12-25', '2026-1-1',
+                '2026-3-6', '2026-3-7',
+                '2026-3-13', '2026-3-14',
+                '2026-3-20', '2026-3-21',
                 '2026-3-27', '2026-3-28'
             ];
             
@@ -800,25 +803,6 @@
                     alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
                     return;
                 }
-
-                // [FIX] 현재 홈페이지 제목 저장 (만약 이미 Daum 등으로 변경된 상태라면 기본 제목 사용)
-                let originalTitle = document.title;
-                if (originalTitle.includes('Daum') || originalTitle.includes('Postcode') || originalTitle.includes('서비스')) {
-                    originalTitle = "[세린캠] 특별한 하루를 더 예쁘게 기록해요.";
-                }
-
-                // [NEW] 제목 복구 함수 (카카오톡 인앱 브라우저 등 호환성 강화)
-                // 단순히 한 번 바꾸는 것이 아니라, 3초 동안 반복적으로 제목을 강제 설정하여 덮어씌움을 방지함
-                const restoreTitle = () => {
-                    document.title = originalTitle; // 즉시 실행
-                    let count = 0;
-                    const interval = setInterval(() => {
-                        document.title = originalTitle;
-                        count++;
-                        if (count > 10) clearInterval(interval); // 0.3초 간격으로 10회(3초간) 반복 실행
-                    }, 300);
-                };
-
                 new daum.Postcode({
                     oncomplete: function(data) {
                         let fullAddress = data.address;
@@ -829,13 +813,6 @@
                             fullAddress += (extraAddress !== '' ? ` (${extraAddress})` : '');
                         }
                         setUserInfo(prev => ({ ...prev, zipcode: data.zonecode, address: fullAddress }));
-                        
-                        // [FIX] 강력 복구 함수 실행
-                        restoreTitle();
-                    },
-                    onclose: function() {
-                        // [FIX] 닫을 때도 강력 복구 함수 실행
-                        restoreTitle();
                     }
                 }).open();
             };
@@ -960,12 +937,9 @@
                     if (fullName.includes('S23')) return '23U';
                     if (fullName.includes('S24')) return '24U';
                     if (fullName.includes('S25')) return '25U';
-                    
-                    // [수정] 띄어쓰기 제거하여 정확한 매칭 (아이폰 17프로 -> 17P)
-                    // 순서 중요: '17프로맥스'를 먼저 체크해야 '17프로'로 잘못 인식되지 않음
-                    if (fullName.includes('17프로맥스')) return '17PM';
-                    if (fullName.includes('17프로')) return '17P';
-                    
+                    // [UPDATE] 아이폰 약어 수정 (17Max -> 17PM, 17Pro -> 17P)
+                    if (fullName.includes('17 프로맥스')) return '17PM';
+                    if (fullName.includes('17 프로')) return '17P';
                     return fullName;
                 };
 
@@ -1342,7 +1316,7 @@
                                                         <div className="mt-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
                                                             <div className="flex items-center gap-1.5 mb-1">
                                                                 <span className="text-lg">📢</span>
-                                                                <span className="text-xs font-bold text-gray-700">리뷰 작성은 이렇게 해주세요!</span>
+                                                                <span className="text-xs font-bold text-gray-700">리뷰 작성 안내</span>
                                                             </div>
                                                             <p className="text-xs text-gray-600 leading-relaxed break-keep">
                                                                 {item.review === '트위터' && <span className="font-medium text-gray-800">X(트위터)에 <span className="text-blue-500">#세린울트라대여 #울트라대여</span> 두가지 해시태그를 포함하여 후기를 남겨주시면 됩니다⭐</span>}
