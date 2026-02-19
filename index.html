@@ -944,9 +944,9 @@
                     if (fullName.includes('S23')) return '23U';
                     if (fullName.includes('S24')) return '24U';
                     if (fullName.includes('S25')) return '25U';
-                    // [UPDATE] 아이폰 약어 수정 (17Max -> 17PM, 17Pro -> 17P)
-                    if (fullName.includes('17 프로맥스')) return '17PM';
-                    if (fullName.includes('17 프로')) return '17P';
+                    // [UPDATE] 아이폰 약어 수정 (띄어쓰기 여부 무관하게 처리)
+                    if (fullName.includes('17프로맥스') || fullName.includes('17 프로맥스')) return '17PM';
+                    if (fullName.includes('17프로') || fullName.includes('17 프로')) return '17P';
                     return fullName;
                 };
 
