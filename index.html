@@ -1383,7 +1383,7 @@
                                                                 <div><p className="text-[10px] text-blue-400 mb-0.5 font-medium">예금주: 한승윤</p><p className="text-sm font-bold text-blue-600 tracking-tight">카카오뱅크 3333-20-9712773</p></div>
                                                                 <button onClick={() => copyToClipboard("1002000000000")} className="text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50">복사</button>
                                                             </div>
-                                                            <p className="text-[10px] text-gray-400 mt-2 text-center">* 1시간 이내 미입금 시 자동 취소될 수 있습니다.</p>
+                                                            <p className="text-[10px] text-gray-400 mt-2 text-center">* 기한 초과 시 별도 안내없이 신청내역이 삭제돼요.</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -2821,7 +2821,7 @@
                                                     </div>
                                                     <div className="bg-red-50 p-4 rounded-xl border border-red-100">
                                                         <p className="text-sm text-red-500 font-bold mb-2 flex items-center gap-1"><Icons.ShieldCheck size={16} /> 유의사항</p>
-                                                        <ul className="text-sm text-red-700 space-y-2 leading-relaxed list-disc pl-4"><li>예약신청 후 <strong>1시간 내로 결제가 확인되지 않는다면</strong> 개인정보 보호를 위해 예약신청내역은 <strong>자동 폐기</strong> 될 수 있어요.</li><li>누군가의 권유로 인해 대리예약, 고수익 알바, 네이버 페이 환전 등으로 예약을 하시는거라면 그것은 <strong>'사기'</strong> 입니다.</li></ul>
+                                                        <ul className="text-sm text-red-700 space-y-2 leading-relaxed list-disc pl-4"><li>예약신청 후 <strong>1시간 이내 결제가 확인되지 않는다면</strong> 개인정보 보호를 위해 별도 안내 없이<strong>자동 삭제</strong>될 수 있어요.</li><li>누군가의 권유로 인해 대리예약, 고수익 알바, 네이버 페이 환전 등으로 예약을 하시는거라면 그것은 <strong>'사기'</strong> 입니다.</li></ul>
                                                     </div>
                                                 </div>
                                             )}
@@ -2851,7 +2851,7 @@
                                                         if (step === 3) { if(!userInfo.name || !userInfo.phone || !userInfo.address) { alert("예약자 정보를 모두 입력해주세요!"); return; } if(!agreements.terms || !agreements.privacy) { alert("필수 약관에 모두 동의해주세요!"); return; } }
                                                         if (step === 4) { setIsConfirmModalOpen(true); return; }
                                                         setStep(step + 1);
-                                                    }} className="flex-1 py-4 text-lg rounded-xl bg-blue-400 text-white font-bold shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 hover:bg-blue-500">{isSubmitting ? '처리 중...' : (step === 4 ? '예약신청' : '다음으로')}</button>
+                                                    }} className="flex-1 py-4 text-lg rounded-xl bg-blue-400 text-white font-bold shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 hover:bg-blue-500">{isSubmitting ? '처리 중...' : (step === 4 ? '결제하기' : '다음으로')}</button>
                                                 </div>
                                             </div>
                                     </>
@@ -3036,6 +3036,17 @@
                                                 <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제7조 (계약 해지)</h4><p className="text-[11px] text-gray-500">허위 정보, 심사 미달, 연락 두절, 폭언/협박 등의 경우 회사는 계약을 해지할 수 있습니다.</p></div>
                                                 <div><h4 className="font-bold text-purple-600 mb-1.5 text-sm">제8조 (공연장 수령/반납 특약)</h4><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li>신청 인원 5명 이하 시 수령 방법이 변경될 수 있습니다.</li><li><span className="text-red-500 font-bold">지각비: 10분당 2,000원</span> (30분 초과 시 노쇼 간주)</li><li>임의로 장소를 변경하거나 시간을 준수하지 않아 발생하는 불이익은 회사가 책임지지 않습니다.</li></ul></div>
                                                 <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제9조 (면책)</h4><p className="text-[11px] text-gray-500">천재지변 등 불가항력적 사유로 인한 서비스 불가 시 회사는 책임을 지지 않습니다.</p></div>
+                                                
+                                                {/* [NEW] 제10조 배송 관련 조항 추가 */}
+                                                <div>
+                                                    <h4 className="font-bold text-gray-800 mb-1.5 text-sm">제10조 (배송 및 지연 책임)</h4>
+                                                    <p className="text-[11px] text-gray-500 mb-1">모든 택배 배송은 <strong>우체국 택배</strong>를 통해 이루어집니다.</p>
+                                                    <ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500">
+                                                        <li>우체국(택배사)의 사정(천재지변, 파업, 물량 폭주, 오배송 등)으로 인한 배송 지연 시, 회사는 이에 대한 책임을 지지 않습니다.</li>
+                                                        <li>위와 같은 사유로 기기를 제때 수령하지 못하여 발생한 일정 변경이나 사용 불가에 대한 환불 및 보상은 어렵습니다.</li>
+                                                        <li>단, 발송 누락이나 기재 오류 등 <strong>회사의 명백한 과실</strong>로 인한 피해는 예외로 하며, 문제 시 전액 보상합니다.</li>
+                                                    </ul>
+                                                </div>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-gray-100"><button onClick={() => setShowTerms(false)} className="w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm">닫기</button></div>
                                 </div>
@@ -3135,9 +3146,9 @@
                             <div className="fixed inset-0 z-[90] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
                                 <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
                                     <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><Icons.ShieldCheck size={24} /></div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">유의사항을 모두<br/>확인하셨나요?</h3>
-                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">개인정보 자동 폐기 및<br/>금융 사기 주의 내용을 확인해주세요.</p>
-                                    <div className="flex gap-2"><button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">취소</button><button onClick={() => { setIsConfirmModalOpen(false); handleSubmit(); }} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">네, 확인했어요</button></div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">결제는 1시간이내로<br/>가능하실 때 진행해주세요</h3>
+                                    <p className="text-sm text-gray-500 mb-6 leading-relaxed">원할한 서비스 제공을 위해<br/>허위 예약 시 제한 될 수 있어요.</p>
+                                    <div className="flex gap-2"><button onClick={() => setIsConfirmModalOpen(false)} className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm">결제 어려워요</button><button onClick={() => { setIsConfirmModalOpen(false); handleSubmit(); }} className="flex-1 py-3 rounded-xl bg-blue-400 text-white font-bold hover:bg-blue-500 transition-colors text-sm">결제 가능해요</button></div>
                                 </div>
                             </div>
                         )}
@@ -3191,4 +3202,3 @@
     </script>
 </body>
 </html>
-
