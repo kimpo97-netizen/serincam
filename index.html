@@ -102,7 +102,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         // ⭐ 중요: 배포한 구글 웹 앱 URL을 여기에 입력하세요 ⭐
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNXmQCPCI6GR7dDXjnC3b4TnuexT0J9U1EuCPoZW1mvbGt-xZegiBIjtIOXbAytc81ug/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCvjD9nKqaDch41nDJ2PIY70NDCjeTDCL86xdjWLB6AJvMLNib1Gx-EAhyNaEZVDcLQg/exec"; 
         const KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
 
         const HOLIDAYS = {
@@ -127,6 +127,7 @@
 
         // [NEW] 예약 마감 일정 (기종별 날짜 차단)
         const BLOCKED_SCHEDULE = {
+            '갤럭시 S23울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             '아이폰 17프로': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             '아이폰 17프로맥스': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23']
         };
@@ -3200,6 +3201,7 @@
     </script>
 </body>
 </html>
+
 
 
 
