@@ -102,7 +102,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         // ⭐ 중요: 배포한 구글 웹 앱 URL을 여기에 입력하세요 ⭐
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCvjD9nKqaDch41nDJ2PIY70NDCjeTDCL86xdjWLB6AJvMLNib1Gx-EAhyNaEZVDcLQg/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNXmQCPCI6GR7dDXjnC3b4TnuexT0J9U1EuCPoZW1mvbGt-xZegiBIjtIOXbAytc81ug/exec"; 
         const KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
 
         const HOLIDAYS = {
@@ -127,9 +127,8 @@
 
         // [NEW] 예약 마감 일정 (기종별 날짜 차단)
         const BLOCKED_SCHEDULE = {
-            'S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             'S23울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
-            'S25울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
+            'S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             '아이폰 17프로': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             '아이폰 17프로맥스': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23']
         };
@@ -249,6 +248,21 @@
                 return () => clearInterval(timer);
             }, []);
             
+            // [NEW] 한 줄 공지 롤링 상태 및 데이터
+            const [noticeIndex, setNoticeIndex] = useState(0);
+            const notices = [
+                "🚨 세린캠 홈페이지 리뉴얼 기념 가격인하 !",
+                "💡 대여 시작일은 '실제 사용할 날짜'로 선택해요!",
+                "📦 주말/공휴일은 우체국 휴무라 택배반납이 제한돼요"
+            ];
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setNoticeIndex((prev) => (prev + 1) % notices.length);
+                }, 3000); // 3초마다 위로 슬라이드
+                return () => clearInterval(timer);
+            }, []);
+            
             // [NEW] 배너 데이터
             const bannerData = [
                 {
@@ -356,6 +370,9 @@
             const [cancelTargetItem, setCancelTargetItem] = useState(null);
             const [cancelMessage, setCancelMessage] = useState({ title: '', msg: '', type: 'normal' });
             const [successData, setSuccessData] = useState(null);
+            
+            // [NEW] 연락처 확인 모달 상태 추가
+            const [isPhoneCheckModalOpen, setIsPhoneCheckModalOpen] = useState(false);
             
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -2250,6 +2267,31 @@
                                                 </div>
                                             </div>
 
+                                            {/* [NEW] 한 줄 롤링 공지 배너 */}
+                                            <div 
+                                                className="bg-blue-50/80 p-3 rounded-2xl border border-blue-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between cursor-pointer group hover:bg-blue-100/50 transition-colors"
+                                                onClick={() => alert("📢 세린캠 안내사항\n\n• " + notices.join('\n\n• '))}
+                                            >
+                                                <div className="flex items-center gap-2.5 overflow-hidden w-full pl-1">
+                                                    <span className="bg-white text-blue-500 text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0 shadow-sm">필독</span>
+                                                    <div className="flex-1 overflow-hidden relative h-[18px]">
+                                                        {notices.map((notice, idx) => (
+                                                            <p 
+                                                                key={idx} 
+                                                                className={`absolute w-full text-xs font-bold text-gray-700 truncate transition-all duration-500 ease-in-out ${
+                                                                    idx === noticeIndex 
+                                                                    ? 'opacity-100 translate-y-0' 
+                                                                    : 'opacity-0 translate-y-4'
+                                                                }`}
+                                                            >
+                                                                {notice}
+                                                            </p>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <Icons.ChevronRight size={16} className="text-blue-300 group-hover:text-blue-500 transition-colors shrink-0" />
+                                            </div>
+
                                             {/* 서비스 메뉴 */}
                                             <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
                                                 <h3 className="font-bold text-gray-800 text-lg mb-4">🍀 세린캠 메뉴 모아보기</h3>
@@ -2745,12 +2787,12 @@
                                                         <div><label className="text-xs font-bold text-gray-500 ml-1">예약자 연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
                                                         <div><label className="text-xs font-bold text-gray-500 ml-1">일정명</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Ticket size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="예) 엔시티 콘서트" value={userInfo.scheduleName} onChange={(e) => setUserInfo({...userInfo, scheduleName: e.target.value})} /></div></div>
                                                         <div>
-                                                            <label className="text-xs font-bold text-gray-500 ml-1">주소</label>
+                                                            <label className="text-xs font-bold text-gray-500 ml-1">예약자 주소 (배송지)</label>
                                                             <div className="flex gap-2 mt-1"><input type="text" placeholder="우편번호" readOnly={!isManualAddress} value={userInfo.zipcode} onChange={(e) => setUserInfo({...userInfo, zipcode: e.target.value})} className={`w-1/3 p-3 rounded-xl outline-none text-sm text-center transition-colors ${isManualAddress ? 'bg-white border border-gray-300 text-gray-800' : 'bg-gray-100 text-gray-500'}`} /><button onClick={handleAddressSearch} className="w-2/3 bg-gray-800 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-700">주소 검색</button></div>
                                                             <div className={`flex items-center rounded-xl px-3 mt-2 transition-colors ${isManualAddress ? 'bg-white border border-gray-300' : 'bg-gray-50'}`}><Icons.MapPin size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="기본 주소" readOnly={!isManualAddress} value={userInfo.address} onClick={!isManualAddress ? handleAddressSearch : undefined} onChange={(e) => setUserInfo({...userInfo, address: e.target.value})} /></div>
                                                             <div className="mt-2"><input type="text" className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-gray-800 focus:border-blue-300" placeholder="상세 주소를 입력해주세요" value={userInfo.detailAddress} onChange={(e) => setUserInfo({...userInfo, detailAddress: e.target.value})} /></div>
                                                             <div className="text-right mt-2"><button onClick={() => setIsManualAddress(!isManualAddress)} className="text-xs text-gray-400 underline hover:text-gray-600">{isManualAddress ? "다시 주소 검색 사용하기" : "주소 검색이 안 되시나요? (직접 입력)"}</button></div>
-                                                            {deliveryMethod === 'venue' && (<p className="text-[11px] text-red-500 mt-2.5 bg-red-50 p-2.5 rounded-xl leading-snug break-keep border border-red-100"><span className="font-bold">📢 필독!</span> 일정에 따라 수령방식이 변경될 수 있으니, 수령 가능한 주소를 입력해 주세요.</p>)}
+                                                            {(deliveryMethod === 'venue' || deliveryMethod === 'office') && (<p className="text-[12px] text-red-500 mt-2.5 bg-red-50 p-2.5 rounded-xl leading-snug break-keep border border-red-100"><span className="font-bold">📢 안내사항</span> 일정에 따라 수령 방법이 변경될 수 있으니, 배송지는 입력해 주세요!</p>)}
                                                         </div>
                                                         <div className="pt-4 border-t border-gray-100 mt-2">
                                                             <h4 className="text-sm font-bold text-gray-800 mb-3">약관 동의</h4>
@@ -2849,7 +2891,13 @@
                                                     <button disabled={isSubmitting} onClick={() => {
                                                         if (step === 1 && (!startDate || !endDate)) { alert("대여 시작일과 종료일을 모두 선택해주세요!"); return; }
                                                         if (step === 2) { if (!deliveryMethod) { alert("수령 방법을 선택해주세요!"); return; } if (!returnMethod) { alert("반납 방법을 선택해주세요!"); return; } if (!insurance) { alert("파손 보험 가입 여부를 선택해주세요!"); return; } }
-                                                        if (step === 3) { if(!userInfo.name || !userInfo.phone || !userInfo.address) { alert("예약자 정보를 모두 입력해주세요!"); return; } if(!agreements.terms || !agreements.privacy) { alert("필수 약관에 모두 동의해주세요!"); return; } }
+                                                        // [UPDATE] Step 3에서 연락처 확인 모달 띄우기
+                                                        if (step === 3) { 
+                                                            if(!userInfo.name || !userInfo.phone || !userInfo.address) { alert("예약자 정보를 모두 입력해주세요!"); return; } 
+                                                            if(!agreements.terms || !agreements.privacy) { alert("필수 약관에 모두 동의해주세요!"); return; } 
+                                                            setIsPhoneCheckModalOpen(true); 
+                                                            return; 
+                                                        }
                                                         if (step === 4) { setIsConfirmModalOpen(true); return; }
                                                         setStep(step + 1);
                                                     }} className="flex-1 py-4 text-lg rounded-xl bg-blue-400 text-white font-bold shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 hover:bg-blue-500">{isSubmitting ? '처리 중...' : (step === 4 ? '결제하기' : '다음으로')}</button>
@@ -2857,6 +2905,28 @@
                                             </div>
                                     </>
                                 )}
+                            </div>
+                        )}
+
+                        {/* [NEW] 연락처 재확인 모달 */}
+                        {isPhoneCheckModalOpen && (
+                            <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all">
+                                    <div className="w-14 h-14 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Icons.Phone size={28} />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-1">연락처 한번 더 확인해 주세요</h3>
+                                    <p className="text-xs text-gray-500 mb-5">해당 연락처로 대여 관련 안내드려요.</p>
+                                    
+                                    <div className="bg-gray-50 py-4 rounded-2xl mb-6 border border-gray-100">
+                                        <span className="text-xl font-bold text-blue-600 tracking-wider font-mono">{userInfo.phone}</span>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setIsPhoneCheckModalOpen(false)} className="flex-1 py-3.5 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm shadow-sm">수정할래요</button>
+                                        <button onClick={() => { setIsPhoneCheckModalOpen(false); setStep(4); }} className="flex-1 py-3.5 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm shadow-md">맞아요!</button>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -3203,11 +3273,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
