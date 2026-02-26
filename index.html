@@ -129,12 +129,11 @@
         const BLOCKED_SCHEDULE = {
             'S23울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             'S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
-            '아이폰 17프로': ['2026-3-0', '2026-3-0', '2026-3-0'],
+            '아이폰 17프로': ['2026-3-0', '2026-3-0', '2026-3-0', '2026-2-22', '2026-2-23'],
             '아이폰 17프로맥스': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23']
         };
 
         const INITIAL_REVIEWS = [
-            { id: 17, name: '*민', model: '갤럭시 S23 울트라', rating: 5, text: '답변 진짜 빠르고 너무 친절하게 알려주셨습니다!! 확실히 세린캠이 왜 유명한지 알겠더라고요 제 자리가 무대랑 가까우지 않았는데도 울트라 덕분에 위시 얼굴도 잘 나오고 이쁜 영상 찍었어요', date: '2026.02.22', image: 'https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/26/aeda9bb945b3b5210a038ee246c782a8.jpg' },
             { id: 16, name: '서*현', model: '갤럭시 S23 울트라', rating: 5, text: '울트라는 세린캠에서 2번째로 빌리는거였는데 항상 친절하게 응대해주시고, 좋은 가격에 울트라 빌려서 위시 잘 보고 올 수 있어서 넘 좋았어요!! 자리가 2층 4열쯤이었는데 울트라 빌려서 애들 얼굴도 더 크게 잘 보이고 영상도 너무 잘 찍혀서 다음에도 콘서트할때 대여하려고해요~~ 감사해요~', date: '2026.02.23', image: 'https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/23/060349352af87b975c96a6d10dbd3996.jpeg' },
             { id: 15, name: '주*은', model: '갤럭시 S23 울트라', rating: 5, text: '콘서트 가면서 이번에 울트라 처음 빌려보는건데 너무 만족스러웠습니다!!! 3층이라 빌릴까 말까 고민하다가 잘 찍고싶어서 빌린건데 사용법,옮기는법 등등 자세히 나와있고 모르는거 물어봐도 친절히 알려주셔서 잘 쓸 수 있었습니다! 감사합니다! 다음에 또 빌리러 오겠습니당😊', date: '2026.02.23', image: 'https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/23/ec74a69e0eb7bd62bc6ea34b92bcb696.jpeg' },
             { id: 1, name: '이*원', model: '갤럭시 S23 울트라', rating: 5, text: '추억 회상도 하고 잘 담긴 모습에 감탄도 하고 두 배로 행복해질 것 같은 기분이에요 😻 다음 대여 때도 또 올게요! 이번에도 감사했습니다 🥹🫶', date: '2026.01.29', image: 'https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/13/bdc025a4c66b2df9c0dd40c07ed2f9a8.webp' },
@@ -663,6 +662,25 @@
                 '2026-3-27', '2026-3-28'
             ];
             
+            // [NEW] 공연장 수령 불가(마감) 날짜 추가
+            const BLOCKED_VENUE_PICKUP_DATES = ['2026-2-27', '2026-2-28'];
+
+            useEffect(() => {
+                if (endDate && returnMethod === 'post') {
+                    const year = endDate.getFullYear();
+                    const month = endDate.getMonth() + 1;
+                    const day = endDate.getDate();
+                    const dateKey = `${year}-${month}-${day}`;
+                    
+                    const isRestrictedDay = endDate.getDay() === 0 || endDate.getDay() === 6 || !!HOLIDAYS[dateKey];
+                    const isSameDayRental = startDate && startDate.getTime() === endDate.getTime();
+
+                    if (isRestrictedDay || isSameDayRental) {
+                        setReturnMethod(null);
+                    }
+                }
+            }, [endDate, startDate]); 
+
             useEffect(() => {
                 if (endDate && returnMethod === 'post') {
                     const year = endDate.getFullYear();
@@ -685,7 +703,17 @@
                         setDeliveryMethod(null); 
                     }
                 }
-            }, [startDate, isSameDayStart, isPostDeadlinePassed]);
+                // [NEW] 공연장 수령 마감 날짜 선택 시 수령방법 초기화
+                if (startDate && deliveryMethod === 'venue') {
+                    const year = startDate.getFullYear();
+                    const month = startDate.getMonth() + 1;
+                    const day = startDate.getDate();
+                    const dateKey = `${year}-${month}-${day}`;
+                    if (BLOCKED_VENUE_PICKUP_DATES.includes(dateKey)) {
+                        setDeliveryMethod(null);
+                    }
+                }
+            }, [startDate, isSameDayStart, isPostDeadlinePassed, deliveryMethod]);
 
             useEffect(() => {
                 const savedUser = localStorage.getItem('pink_user');
@@ -818,6 +846,15 @@
                     }
                 }
                 return startDate <= limitDate;
+            })();
+
+            // [NEW] 공연장 수령 마감 여부 체크
+            const isVenuePickupBlocked = startDate && (() => {
+                const year = startDate.getFullYear();
+                const month = startDate.getMonth() + 1;
+                const day = startDate.getDate();
+                const dateKey = `${year}-${month}-${day}`;
+                return BLOCKED_VENUE_PICKUP_DATES.includes(dateKey);
             })();
 
             const formatPhone = (value) => {
@@ -2660,12 +2697,18 @@
                                                                 </p>
                                                                 <p className="font-bold text-xs text-right mt-auto text-gray-700">거리비례(선불)</p>
                                                             </div>
-                                                            <div onClick={() => setDeliveryMethod(deliveryMethod === 'venue' ? null : 'venue')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'venue' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
-                                                                <div className="flex justify-between items-start"><span className="font-bold text-gray-800">공연장 수령</span><Icons.Ticket size={20} className="text-blue-400" /></div>
+                                                            <div onClick={() => {
+                                                                if (isVenuePickupBlocked) {
+                                                                    alert("해당 날짜는 공연장 수령이 마감되었습니다. 다른 수령 방법을 선택해주세요.");
+                                                                    return;
+                                                                }
+                                                                setDeliveryMethod(deliveryMethod === 'venue' ? null : 'venue');
+                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'venue' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${isVenuePickupBlocked ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
+                                                                <div className="flex justify-between items-start"><span className={`font-bold ${isVenuePickupBlocked ? 'text-gray-500' : 'text-gray-800'}`}>공연장 수령</span><Icons.Ticket size={20} className={isVenuePickupBlocked ? 'text-gray-400' : 'text-blue-400'} /></div>
                                                                 <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                         {startDate ? <span className="text-sky-600 font-bold">{startDate.getMonth() + 1}/{startDate.getDate()}({daysOfWeek[startDate.getDay()]}) 공연장 픽업</span> : '공연장 근처에서 픽업'}
                                                                 </p>
-                                                                <p className="font-bold text-xs text-right mt-auto text-gray-700">+4,000원</p>
+                                                                <p className={`font-bold text-xs text-right mt-auto ${isVenuePickupBlocked ? 'text-gray-400' : 'text-gray-700'}`}>{isVenuePickupBlocked ? '마감' : '+4,000원'}</p>
                                                             </div>
                                                             <div onClick={() => setDeliveryMethod(deliveryMethod === 'office' ? null : 'office')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start"><span className="font-bold text-gray-800">사무실 수령</span><Icons.MapPin size={20} className="text-blue-400" /></div>
@@ -3276,5 +3319,3 @@
     </script>
 </body>
 </html>
-
-
