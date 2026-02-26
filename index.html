@@ -129,7 +129,7 @@
         const BLOCKED_SCHEDULE = {
             'S23울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             'S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
-            '아이폰 17프로': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
+            '아이폰 17프로': ['2026-3-8', '2026-3-9', '2026-3-7'],
             '아이폰 17프로맥스': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23']
         };
 
@@ -2303,7 +2303,7 @@
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
                                                             <Icons.CalendarPlus size={24} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">예약하기</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">예약 하기</h4>
                                                     </div>
 
                                                     {/* 2. 예약조회 */}
@@ -2335,7 +2335,7 @@
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
                                                             <Icons.RefreshCw size={20} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">백업방법</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">데이터 백업</h4>
                                                     </div>
 
                                                     {/* 6. 기간연장 */}
@@ -2343,7 +2343,7 @@
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
                                                             <Icons.Clock size={22} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">기간연장</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">대여 연장</h4>
                                                     </div>
 
                                                     {/* 7. 카메라설정 (위치 변경됨: 꿀팁 -> 메뉴) */}
@@ -2351,7 +2351,7 @@
                                                         <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition-transform">
                                                             <Icons.Camera size={22} />
                                                         </div>
-                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">카메라설정</h4>
+                                                        <h4 className="font-bold text-gray-700 text-[11px] tracking-tight">카메라 설정</h4>
                                                     </div>
 
                                                     {/* 8. Q&A */}
@@ -2850,7 +2850,7 @@
                                                         <div className="space-y-3 text-sm">
                                                             <div className="flex justify-between"><span className="text-gray-500">대여 기간</span><span className="font-bold text-gray-800">{startDate && `${startDate.getMonth()+1}월 ${startDate.getDate()}일`} ~ {endDate && `${getReturnDate(endDate).getMonth()+1}월 ${getReturnDate(endDate).getDate()}일`} <span className="text-blue-500 ml-1">({calculateDays()}일)</span></span></div>
                                                             <div className="flex justify-between"><span className="text-gray-500">수령 방법</span><span className="font-bold text-gray-800">{deliveryMethod === 'post' ? '택배수령' : deliveryMethod === 'quick' ? '퀵수령' : deliveryMethod === 'venue' ? '공연장수령' : '사무실수령'}</span></div>
-                                                            <div className="flex justify-between"><span className="text-gray-500">반납 방법</span><span className="font-bold text-gray-800">{returnMethod === 'pickup' ? '방문수거' : returnMethod === 'post' ? '택배반납' : '사무실반납'}</span></div>
+                                                            <div className="flex justify-between"><span className="text-gray-500">반납 방법</span><span className="font-bold text-gray-800">{returnMethod === 'pickup' ? '방문수거' : returnMethod === 'post' ? '택배반납' : returnMethod === 'office' ? '사무실반납' : returnMethod === 'sameday' ? '당일반납' : returnMethod === 'venue' ? '공연장반납' : '미선택'}</span></div>
                                                             <div className="flex justify-between"><span className="text-gray-500">신청자</span><span className="font-bold text-gray-800">{userInfo.name} ({userInfo.phone})</span></div>
                                                             <div className="flex justify-between items-start"><span className="text-gray-500 shrink-0">주소</span><span className="font-bold text-gray-800 text-right">{userInfo.address} {userInfo.detailAddress}</span></div>
                                                             
@@ -2878,7 +2878,7 @@
                                                             <div className="flex flex-col justify-center gap-0.5">
                                                                 <span className="text-[11px] text-white/90 font-medium truncate max-w-[160px] flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-white/60 inline-block"></span>{selectedPhone.name}</span>
                                                                 {startDate && endDate ? (<div className="flex items-center gap-1 my-0.5"><span className="text-sm text-white font-bold tracking-tight drop-shadow-sm flex items-center gap-0.5">{startDate.getMonth() + 1}월 {startDate.getDate()}일({daysOfWeek[startDate.getDay()]})</span><span className="text-white text-sm font-bold mx-0.5">~</span><span className="text-sm text-white font-bold tracking-tight drop-shadow-sm flex items-center gap-0.5">{(() => { const returnDate = getReturnDate(endDate); return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`; })()}</span></div>) : (<span className="text-xs text-white/80 font-medium">날짜를 선택해주세요</span>)}
-                                                                {(deliveryMethod || returnMethod) && (<div className="text-[10px] text-white flex items-center gap-1.5 mt-0.5 bg-sky-700/20 px-2 py-0.5 rounded-md w-fit"><span className="flex items-center gap-1">{deliveryMethod === 'post' && <Icons.Truck size={11} />}{deliveryMethod === 'quick' && <Icons.Zap size={11} />}{deliveryMethod === 'venue' && <Icons.Ticket size={11} />}{deliveryMethod === 'office' && <Icons.MapPin size={11} />}{deliveryMethod === 'post' ? '택배' : deliveryMethod === 'quick' ? '퀵' : deliveryMethod === 'venue' ? '공연장' : deliveryMethod === 'office' ? '사무실' : '미선택'}</span><span className="opacity-40">|</span><span className="flex items-center gap-1">{returnMethod === 'pickup' && <Icons.Truck size={11} className="transform scale-x-[-1]" />}{returnMethod === 'post' && <Icons.Box size={11} />}{returnMethod === 'office' && <Icons.MapPin size={11} />}{returnMethod === 'pickup' ? '방문' : returnMethod === 'post' ? '택배' : returnMethod === 'office' ? '사무실' : '미선택'}</span></div>)}
+                                                                {(deliveryMethod || returnMethod) && (<div className="text-[10px] text-white flex items-center gap-1.5 mt-0.5 bg-sky-700/20 px-2 py-0.5 rounded-md w-fit"><span className="flex items-center gap-1">{deliveryMethod === 'post' && <Icons.Truck size={11} />}{deliveryMethod === 'quick' && <Icons.Zap size={11} />}{deliveryMethod === 'venue' && <Icons.Ticket size={11} />}{deliveryMethod === 'office' && <Icons.MapPin size={11} />}{deliveryMethod === 'post' ? '택배' : deliveryMethod === 'quick' ? '퀵' : deliveryMethod === 'venue' ? '공연장' : deliveryMethod === 'office' ? '사무실' : '미선택'}</span><span className="opacity-40">|</span><span className="flex items-center gap-1">{returnMethod === 'pickup' && <Icons.Truck size={11} className="transform scale-x-[-1]" />}{returnMethod === 'post' && <Icons.Box size={11} />}{returnMethod === 'office' && <Icons.MapPin size={11} />}{returnMethod === 'sameday' && <Icons.Zap size={11} />}{returnMethod === 'venue' && <Icons.Ticket size={11} />}{returnMethod === 'pickup' ? '방문' : returnMethod === 'post' ? '택배' : returnMethod === 'office' ? '사무실' : returnMethod === 'sameday' ? '당일' : returnMethod === 'venue' ? '공연장' : '미선택'}</span></div>)}
                                                             </div>
                                                             <div className="flex flex-col items-end justify-center gap-1 pl-2 border-l border-sky-300/30">
                                                                 {startDate && endDate && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${step === 1 ? 'bg-white/20 text-white' : 'bg-white text-sky-600 shadow-sm'}`}>{calculateDays()}일간</span>}
@@ -3275,6 +3275,3 @@
     </script>
 </body>
 </html>
-
-
-
