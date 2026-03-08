@@ -660,8 +660,7 @@
                 '2025-5-5', '2025-12-25', '2026-1-1',
                 '2026-3-13', '2026-3-14',
                 '2026-3-20', '2026-3-21',
-                '2026-3-27', '2026-3-28',
-                '2026-4-4', '2026-3-0',
+                '2026-3-27', '2026-3-28'
             ];
             
             // [NEW] 공연장 마감 공연장마감 날짜 추가
@@ -2499,13 +2498,13 @@
                                                     <h3 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-1"><span className="text-base">📅</span> 예약 안내</h3>
                                                     <div className="grid grid-cols-2 gap-1.5">
                                                         <div onClick={() => handleRentalStart()} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-blue-50 transition-all border border-gray-100 hover:border-blue-100">
-                                                            {/* [UPDATE] 아이콘 크기 (w-9 h-9 -> w-10 h-10, size 16 -> 20), 글씨 크기 (text-[10px] -> text-xs) 확대 */}
+                                                            {/* [UPDATE] 글씨 크기를 text-xs에서 text-[11px]로 축소 */}
                                                             <div className="w-10 h-10 bg-white text-blue-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.CalendarPlus size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-blue-600 text-xs tracking-tight whitespace-nowrap">예약 하기</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-blue-600 text-[11px] tracking-tight whitespace-nowrap">예약 하기</h4>
                                                         </div>
                                                         <div onClick={() => setViewMode('lookup')} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-blue-50 transition-all border border-gray-100 hover:border-blue-100">
                                                             <div className="w-10 h-10 bg-white text-blue-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.Search size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-blue-600 text-xs tracking-tight whitespace-nowrap">예약 조회</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-blue-600 text-[11px] tracking-tight whitespace-nowrap">예약 조회</h4>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2516,11 +2515,11 @@
                                                     <div className="grid grid-cols-2 gap-1.5">
                                                         <div onClick={() => setViewMode('manual')} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-yellow-50 transition-all border border-gray-100 hover:border-yellow-100">
                                                             <div className="w-10 h-10 bg-white text-yellow-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.BookOpen size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-yellow-600 text-xs tracking-tight whitespace-nowrap">이용 방법</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-yellow-600 text-[11px] tracking-tight whitespace-nowrap">이용 방법</h4>
                                                         </div>
                                                         <div onClick={() => handleNavChange('qna')} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-yellow-50 transition-all border border-gray-100 hover:border-yellow-100">
                                                             <div className="w-10 h-10 bg-white text-yellow-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.HelpCircle size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-yellow-600 text-xs tracking-tight whitespace-nowrap">Q&A</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-yellow-600 text-[11px] tracking-tight whitespace-nowrap">Q&A</h4>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2534,11 +2533,11 @@
                                                     <div className="grid grid-cols-2 gap-1.5">
                                                         <div onClick={() => setViewMode('backup')} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-purple-50 transition-all border border-gray-100 hover:border-purple-100">
                                                             <div className="w-10 h-10 bg-white text-purple-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.RefreshCw size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-purple-600 text-xs tracking-tight whitespace-nowrap">데이터백업</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-purple-600 text-[11px] tracking-tight whitespace-nowrap">데이터백업</h4>
                                                         </div>
                                                         <div onClick={() => setViewMode('extension')} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-blue-50 transition-all border border-gray-100 hover:border-blue-100">
                                                             <div className="w-10 h-10 bg-white text-blue-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.Clock size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-blue-600 text-xs tracking-tight whitespace-nowrap">대여 연장</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-blue-600 text-[11px] tracking-tight whitespace-nowrap">대여 연장</h4>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2549,11 +2548,11 @@
                                                     <div className="grid grid-cols-2 gap-1.5">
                                                         <div onClick={() => setBlogModal({ open: true, type: 'camera' })} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-green-50 transition-all border border-gray-100 hover:border-green-100">
                                                             <div className="w-10 h-10 bg-white text-green-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.Camera size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-green-600 text-xs tracking-tight whitespace-nowrap">카메라 설정</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-green-600 text-[11px] tracking-tight whitespace-nowrap">카메라 설정</h4>
                                                         </div>
                                                         <div onClick={() => setBlogModal({ open: true, type: 'logout' })} className="flex flex-col items-center justify-center py-3 cursor-pointer group rounded-2xl bg-gray-50 hover:bg-yellow-50 transition-all border border-gray-100 hover:border-yellow-100">
                                                             <div className="w-10 h-10 bg-white text-yellow-500 rounded-full flex items-center justify-center mb-1.5 shadow-sm group-hover:scale-105 transition-transform"><Icons.LogOut size={20} /></div>
-                                                            <h4 className="font-bold text-gray-700 group-hover:text-yellow-600 text-xs tracking-tight whitespace-nowrap">로그아웃 방법</h4>
+                                                            <h4 className="font-bold text-gray-700 group-hover:text-yellow-600 text-[11px] tracking-tight whitespace-nowrap">로그아웃 방법</h4>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3524,4 +3523,3 @@
     </script>
 </body>
 </html>
-
