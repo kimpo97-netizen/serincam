@@ -2049,7 +2049,8 @@
             );
 
             const renderExtensionPage = () => {
-                const extPricePerDay = extModel === 'galaxy' ? 10000 : 15000;
+                // [UPDATE] 대여 연장 비용 5,000원씩 인상 (갤럭시 15,000원 / 아이폰 20,000원)
+                const extPricePerDay = extModel === 'galaxy' ? 15000 : 20000;
                 const extTotal = extPricePerDay * extDays;
                 return (
                     <div className="animate-slide-in space-y-6">
