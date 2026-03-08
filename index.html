@@ -658,8 +658,8 @@
             // [UPDATE] 당일반납 당일 반납 옵션 추가(당일/공연장) 가능 날짜 추가 (3월 8, 15, 22, 29일 일요일 비활성화)
             const AVAILABLE_ONSITE_DATES = [
                 '2025-5-5', '2025-12-25', '2026-1-1',
-                '2026-3-13', '2026-3-14',
-                '2026-3-20', '2026-3-21',
+                '2026-3-0', '2026-3-0',
+                '2026-3-0', '2026-3-0',
                 '2026-3-27', '2026-3-28'
             ];
             
@@ -1578,10 +1578,8 @@
                 const days = new Date(year, month + 1, 0).getDate(); const firstDay = new Date(year, month, 1).getDay();
                 const daysArray = [];
 
+                // [UPDATE] 달력에는 '실제 사용 기간'만 명확하게 표시되도록 반납일 계산(getReturnDate) 제외
                 let visualEndDate = endDate;
-                if (endDate) {
-                    visualEndDate = getReturnDate(endDate);
-                }
 
                 for (let i = 0; i < firstDay; i++) daysArray.push(<div key={`empty-${i}`} className="h-10"></div>);
                 for (let d = 1; d <= days; d++) {
@@ -2362,7 +2360,7 @@
                                             <p>③ 수량을 조절하여 총 금액(<strong>{amount.toLocaleString()}원</strong>)을 맞춰주세요.</p>
                                         </div>
                                     </div>
-                                    <a href="https://smartstore.naver.com/serincam" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm gap-2">
+                                    <a href="https://smartstore.naver.com/serincam/products/11528910145" target="_blank" rel="noreferrer" className="flex items-center justify-center w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm gap-2">
                                         네이버 스토어 결제하러 가기 <Icons.ExternalLink size={14}/>
                                     </a>
                                 </div>
