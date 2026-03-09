@@ -92,6 +92,12 @@
         }
         .animate-shake { animation: shake 0.3s ease-in-out; }
         
+        /* [NEW] 달력 슬라이드 애니메이션 */
+        @keyframes calendarSlideNext { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes calendarSlidePrev { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+        .animate-calendar-next { animation: calendarSlideNext 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .animate-calendar-prev { animation: calendarSlidePrev 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        
         .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
         .animate-slide-in-up { animation: slideInUp 0.3s ease-out forwards; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
@@ -349,6 +355,8 @@
             
             // [NEW] 대여기간 미선택 시 흔들림 애니메이션 상태
             const [shakePeriodBox, setShakePeriodBox] = useState(false);
+            // [NEW] 달력 슬라이드 방향 상태 (next/prev)
+            const [calendarDirection, setCalendarDirection] = useState('next');
 
             const [extModel, setExtModel] = useState('galaxy');
             const [extDays, setExtDays] = useState(1);
@@ -1322,6 +1330,8 @@
             };
 
             const handleMonthChange = (increment) => {
+                // [UPDATE] 달력 이동 방향(좌/우) 상태 설정
+                setCalendarDirection(increment > 0 ? 'next' : 'prev');
                 const newDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + increment, 1);
                 setCurrentMonth(newDate);
             };
@@ -2810,17 +2820,24 @@
                                                         <div className={`transition-all duration-500 ${!usageDays ? 'opacity-40 grayscale-[30%]' : 'opacity-100'}`}>
                                                             <div className="flex justify-between items-center mb-4 px-1">
                                                                 <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Calendar size={18} className="text-blue-400" /> 언제 필요하세요?</h3>
-                                                                <div className="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-lg">
-                                                                    <button onClick={() => handleMonthChange(-1)} className="p-1"><Icons.ChevronLeft size={16} className="text-gray-400" /></button>
-                                                                    <span className="font-bold text-gray-800 text-sm tracking-tight">{currentMonth.getFullYear()}.{String(currentMonth.getMonth() + 1).padStart(2, '0')}</span>
-                                                                    <button onClick={() => handleMonthChange(1)} className="p-1 transform rotate-180"><Icons.ChevronLeft size={16} className="text-gray-400" /></button>
+                                                                <div className="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-lg overflow-hidden">
+                                                                    <button onClick={() => handleMonthChange(-1)} className="p-1 z-10"><Icons.ChevronLeft size={16} className="text-gray-400" /></button>
+                                                                    {/* [UPDATE] 연/월 텍스트에도 애니메이션 적용 */}
+                                                                    <span key={`text-${currentMonth.getTime()}`} className={`font-bold text-gray-800 text-sm tracking-tight inline-block min-w-[65px] text-center ${calendarDirection === 'next' ? 'animate-calendar-next' : 'animate-calendar-prev'}`}>
+                                                                        {currentMonth.getFullYear()}.{String(currentMonth.getMonth() + 1).padStart(2, '0')}
+                                                                    </span>
+                                                                    <button onClick={() => handleMonthChange(1)} className="p-1 transform rotate-180 z-10"><Icons.ChevronLeft size={16} className="text-gray-400" /></button>
                                                                 </div>
                                                             </div>
-                                                            <div className="border border-gray-100 rounded-xl p-2 bg-white">
+                                                            {/* [UPDATE] overflow-hidden을 추가하여 슬라이드 시 박스 밖으로 튀어나가지 않도록 마감 처리 */}
+                                                            <div className="border border-gray-100 rounded-xl p-2 bg-white overflow-hidden">
                                                                 <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
                                                                     <div className="text-red-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div className="text-blue-400">토</div>
                                                                 </div>
-                                                                <div className="grid grid-cols-7 gap-y-2 gap-x-1">{renderCalendarDays()}</div>
+                                                                {/* [UPDATE] 달력 일자 영역 애니메이션 적용 (좌/우 방향에 맞게) */}
+                                                                <div key={`grid-${currentMonth.getTime()}`} className={`grid grid-cols-7 gap-y-2 gap-x-1 ${calendarDirection === 'next' ? 'animate-calendar-next' : 'animate-calendar-prev'}`}>
+                                                                    {renderCalendarDays()}
+                                                                </div>
                                                             </div>
                                                             
                                                             <div className="mt-3 flex justify-between items-center">
