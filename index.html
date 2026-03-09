@@ -83,6 +83,15 @@
         }
         .animate-spin-slow { animation: spin 1s linear infinite; }
         
+        /* [NEW] 흔들림 애니메이션 추가 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        .animate-shake { animation: shake 0.3s ease-in-out; }
+        
         .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
         .animate-slide-in-up { animation: slideInUp 0.3s ease-out forwards; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
@@ -129,8 +138,8 @@
         const BLOCKED_SCHEDULE = {
             'S23울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             'S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
-            '아이폰 17프로': ['2026-3-20', '2026-3-21', '2026-3-22', '2026-2-22', '2026-3-13', '2026-3-14', '2026-3-15', '2026-2-22', '2026-2-23'],
-            '아이폰 17프로맥스': ['2026-3-13', '2026-3-14', '2026-3-15', '2026-2-22', '2026-2-23']
+            '아이폰 17프로': ['2026-3-0', '2026-3-0', '2026-3-0', '2026-2-22', '2026-2-23'],
+            '아이폰 17프로맥스': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23']
         };
 
         const INITIAL_REVIEWS = [
@@ -337,6 +346,9 @@
             const [showVenueInfoModal, setShowVenueInfoModal] = useState(false); // [NEW] 공연장 정보 모달 상태
             const [selectedVenue, setSelectedVenue] = useState(null); // [NEW] 선택된 공연장 정보
             const [showDateGuide, setShowDateGuide] = useState(false); // [NEW] 날짜 선택 가이드 모달 상태
+            
+            // [NEW] 대여기간 미선택 시 흔들림 애니메이션 상태
+            const [shakePeriodBox, setShakePeriodBox] = useState(false);
 
             const [extModel, setExtModel] = useState('galaxy');
             const [extDays, setExtDays] = useState(1);
@@ -658,8 +670,8 @@
             // [UPDATE] 당일반납 당일 반납 옵션 추가(당일/공연장) 가능 날짜 추가 (3월 8, 15, 22, 29일 일요일 비활성화)
             const AVAILABLE_ONSITE_DATES = [
                 '2025-5-5', '2025-12-25', '2026-1-1',
-                '2026-3-0', '2026-3-0',
-                '2026-3-0', '2026-3-0',
+                '2026-3-13', '2026-3-14',
+                '2026-3-20', '2026-3-21',
                 '2026-3-27', '2026-3-28'
             ];
             
@@ -1323,6 +1335,14 @@
                 const dateKey = `${currentMonth.getFullYear()}-${currentMonth.getMonth() + 1}-${day}`;
                 if (selectedPhone && BLOCKED_SCHEDULE[selectedPhone.name] && BLOCKED_SCHEDULE[selectedPhone.name].includes(dateKey)) {
                     // 이미 renderCalendarDays에서 클릭 이벤트 자체를 막고 있지만, 혹시 모를 상황을 대비해 추가
+                    return;
+                }
+
+                // [NEW] 대여 기간을 먼저 선택하지 않은 경우 달력 클릭 방지 및 흔들림 효과
+                if (!usageDays) {
+                    setShakePeriodBox(true);
+                    setTimeout(() => setShakePeriodBox(false), 400); // 애니메이션 종료 후 상태 초기화
+                    if (navigator.vibrate) navigator.vibrate(50); // 모바일 기기 진동 피드백
                     return;
                 }
 
@@ -2753,16 +2773,20 @@
                                                 <div className="space-y-6 animate-slide-in">
                                                     <div className="flex items-center gap-2"><button onClick={handleGoHome} className="-ml-2 p-1 text-gray-400 hover:text-gray-800 transition-colors rounded-full active:bg-gray-100"><Icons.ChevronLeft size={28} /></button><h2 className="text-2xl font-bold text-gray-800 leading-tight">일정 및 대여모델 고르기</h2></div>
                                                     
-                                                    {/* [UPDATE] 1. 실제 사용일 및 달력 영역을 상단으로 이동 */}
-                                                    <div className="animate-fade-in">
-                                                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-4">
-                                                            <div className="mb-4">
-                                                                <div className="flex justify-between items-end">
-                                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Ticket size={18} className="text-blue-400"/> 며칠 동안 필요하세요?</h3>
-                                                                </div>
-                                                                <p className="text-xs text-gray-500 mt-1 ml-[26px]">실제 사용할 대여기간을 선택해주세요!</p>
+                                                    {/* [UPDATE] 대여기간과 달력을 하나의 깔끔한 카드로 통합 */}
+                                                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-4 animate-fade-in">
+                                                        
+                                                        {/* 1. 대여기간 선택 영역 (흔들림 효과 적용) */}
+                                                        <div className={`mb-6 p-4 rounded-xl transition-all duration-300 ${shakePeriodBox ? 'animate-shake bg-red-50 border border-red-200' : 'bg-gray-50 border border-gray-100'}`}>
+                                                            <div className="mb-3">
+                                                                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                                                                    <Icons.Ticket size={18} className={shakePeriodBox ? "text-red-500" : "text-blue-400"}/> 
+                                                                    며칠 동안 필요하세요?
+                                                                </h3>
+                                                                <p className={`text-[11px] mt-1 ml-[26px] transition-colors ${shakePeriodBox ? 'text-red-500 font-bold' : 'text-gray-500'}`}>
+                                                                    {shakePeriodBox ? '대여할 기간을 먼저 골라주세요! 👆' : '사용할 기간을 먼저 선택해주세요.'}
+                                                                </p>
                                                             </div>
-                                                            {/* [UPDATE] 대여기간 선택 버튼 부연 설명 삭제 및 디자인 조정 */}
                                                             <div className="flex gap-1.5">
                                                                 {['1', '2', '3', 'direct'].map(opt => (
                                                                     <button 
@@ -2771,7 +2795,7 @@
                                                                         className={`flex-1 py-3.5 rounded-xl border-2 transition-all flex flex-col items-center justify-center ${
                                                                             usageDays === opt 
                                                                                 ? 'border-blue-400 bg-blue-50 shadow-sm' 
-                                                                                : 'border-gray-100 bg-white hover:border-blue-200 hover:bg-blue-50/50'
+                                                                                : 'border-white bg-white hover:border-blue-200 hover:bg-blue-50 shadow-sm'
                                                                         }`}
                                                                     >
                                                                         <span className={`font-bold text-sm whitespace-nowrap ${usageDays === opt ? 'text-blue-600' : 'text-gray-700'}`}>
@@ -2781,19 +2805,27 @@
                                                                 ))}
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    {/* [NEW] 실제 사용일이 선택되었을 때만 달력 표시 */}
-                                                    {usageDays && (
-                                                        <div className="animate-fade-in">
-                                                            <div className="mt-2 mb-2 flex justify-between items-end"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Calendar size={18} className="text-blue-400" /> 언제 사용하시나요?</h3></div>
-                                                            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mt-2">
-                                                                <div className="flex justify-between items-center mb-4"><button onClick={() => handleMonthChange(-1)} className="p-1"><Icons.ChevronLeft size={20} className="text-gray-400" /></button><span className="font-bold text-gray-800">{currentMonth.getFullYear()}년 {currentMonth.getMonth() + 1}월</span><button onClick={() => handleMonthChange(1)} className="p-1 transform rotate-180"><Icons.ChevronLeft size={20} className="text-gray-400" /></button></div>
-                                                                <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2"><div className="text-red-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div className="text-blue-400">토</div></div>
-                                                                <div className="grid grid-cols-7 gap-y-2 gap-x-1">{renderCalendarDays()}</div>
-                                                                <div className="mt-3 flex justify-end items-center">
-                                                                    <button onClick={resetDates} className="text-xs text-gray-400 hover:text-blue-400 flex items-center gap-1 transition-colors bg-gray-50 px-2 py-1 rounded-lg border border-gray-100"><Icons.RefreshCw size={11} /> 날짜 초기화</button>
+                                                        {/* 2. 달력 영역 (기간을 선택하지 않았을 땐 반투명 처리) */}
+                                                        <div className={`transition-all duration-500 ${!usageDays ? 'opacity-40 grayscale-[30%]' : 'opacity-100'}`}>
+                                                            <div className="flex justify-between items-center mb-4 px-1">
+                                                                <h3 className="font-bold text-gray-800 flex items-center gap-2"><Icons.Calendar size={18} className="text-blue-400" /> 언제 필요하세요?</h3>
+                                                                <div className="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded-lg">
+                                                                    <button onClick={() => handleMonthChange(-1)} className="p-1"><Icons.ChevronLeft size={16} className="text-gray-400" /></button>
+                                                                    <span className="font-bold text-gray-800 text-sm tracking-tight">{currentMonth.getFullYear()}.{String(currentMonth.getMonth() + 1).padStart(2, '0')}</span>
+                                                                    <button onClick={() => handleMonthChange(1)} className="p-1 transform rotate-180"><Icons.ChevronLeft size={16} className="text-gray-400" /></button>
                                                                 </div>
+                                                            </div>
+                                                            <div className="border border-gray-100 rounded-xl p-2 bg-white">
+                                                                <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
+                                                                    <div className="text-red-400">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div className="text-blue-400">토</div>
+                                                                </div>
+                                                                <div className="grid grid-cols-7 gap-y-2 gap-x-1">{renderCalendarDays()}</div>
+                                                            </div>
+                                                            
+                                                            <div className="mt-3 flex justify-between items-center">
+                                                                <span className="text-[10px] text-gray-400 ml-1 flex items-center gap-1"><Icons.HelpCircle size={12}/> 기간 선택 후 달력을 누를 수 있어요</span>
+                                                                <button onClick={resetDates} className="text-xs text-gray-400 hover:text-blue-400 flex items-center gap-1 transition-colors bg-gray-50 px-2 py-1 rounded-lg border border-gray-100"><Icons.RefreshCw size={11} /> 날짜 초기화</button>
                                                             </div>
                                                             
                                                             {dateWarning && (
@@ -2802,12 +2834,12 @@
                                                                 </div>
                                                             )}
                                                         </div>
-                                                    )}
+                                                    </div>
 
-                                                    {/* [UPDATE] 날짜(시작일/반납일)가 모두 선택되었을 때만 기종 선택 영역이 나타나도록 조건 추가 */}
+                                                    {/* 날짜(시작일/반납일)가 모두 선택되었을 때만 기종 선택 영역이 나타나도록 조건 유지 */}
                                                     {startDate && endDate && (
                                                         <>
-                                                            {/* 2. 대여 모델 선택 영역 */}
+                                                            {/* 3. 대여 모델 선택 영역 */}
                                                             <div className="animate-fade-in pt-6 border-t border-gray-100">
                                                                 <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><Icons.Smartphone size={18} className="text-blue-400"/> 어떤 모델이 필요하세요?</h3>
                                                                 <div className="flex bg-gray-100 p-1 rounded-xl mb-3"><button onClick={() => setActiveTab('galaxy')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Galaxy</button><button onClick={() => setActiveTab('iphone')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>iPhone</button></div>
@@ -3522,7 +3554,3 @@
     </script>
 </body>
 </html>
-
-
-
-
