@@ -1163,6 +1163,7 @@
                         amount: total,
                         paymentMethod: paymentMethod // [NEW] 성공 화면 분기를 위해 추가
                     });
+                    setIsSubmitting(false); // [FIX] 전송 완료 후 로딩 상태 해제
                     setViewMode('success');
 
                 } catch (error) {
@@ -1226,6 +1227,7 @@
                         amount: extTotal
                     });
                     setExtForm({ name: '', phone: '' });
+                    setIsSubmitting(false); // [FIX] 전송 완료 후 로딩 상태 해제
                     setViewMode('success');
 
                 } catch (error) {
@@ -1268,6 +1270,7 @@
                         amount: 10000
                     });
                     setBackupForm({ name: '', phone: '' });
+                    setIsSubmitting(false); // [FIX] 전송 완료 후 로딩 상태 해제
                     setViewMode('success');
 
                 } catch (error) {
@@ -3561,6 +3564,26 @@
                                 </div>
                             </div>
                         )}
+
+                        {/* [NEW] 데이터 전송 중 이탈 방지용 전체화면 로딩 오버레이 */}
+                        {isSubmitting && (
+                            <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-3xl p-6 w-full max-w-[280px] shadow-2xl text-center flex flex-col items-center">
+                                    <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-5">
+                                        <Icons.RefreshCw size={32} className="animate-spin-slow" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-3">신청서를 준비하고 있어요!<br/>잠시만 기다려주세요! ⏳</h3>
+                                    <div className="bg-red-50 border border-red-100 rounded-xl p-4 w-full">
+                                        <p className="text-sm font-bold text-red-500 mb-1.5 flex items-center justify-center gap-1">
+                                            <Icons.ShieldCheck size={16} /> 화면을 절대 끄거나 닫지 마세요!
+                                        </p>
+                                        <p className="text-[11px] text-red-400 leading-snug break-keep">
+                                            완료 화면이 뜰 때까지 창을 끄거나<br/>뒤로 가기를 누르지 말아주세요 🙏<br/>예약이 누락될 수 있어요<br/><br/>예상 소요 시간: 5초
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             );
@@ -3571,5 +3594,3 @@
     </script>
 </body>
 </html>
-
-
