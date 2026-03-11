@@ -3087,7 +3087,7 @@
                                                         {/* [UPDATE] 공연장 수령 시 주소입력 대신 공연장 선택 UI 노출 */}
                                                         {deliveryMethod === 'venue' ? (
                                                             <div className="animate-fade-in">
-                                                                <label className="text-xs font-bold text-gray-500 ml-1 mb-2 block">수령하실 공연장 선택</label>
+                                                                <label className="text-xs font-bold text-gray-500 ml-1 mb-2 block">공연장 위치 및 시간 안내</label>
                                                                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                                                                     <div className="flex bg-gray-200/50 p-1 rounded-lg mb-3">
                                                                         {['Seoul', 'Incheon', 'Gyeonggi'].map(region => (
@@ -3128,13 +3128,14 @@
                                                                     <input 
                                                                         type="text" 
                                                                         className="w-full p-2.5 bg-white border border-gray-200 rounded-lg outline-none text-gray-800 text-sm focus:border-blue-300 transition-colors placeholder-gray-300" 
-                                                                        placeholder="목록에 없는 경우 직접 입력해주세요" 
+                                                                        placeholder="원하시는 공연장이 없으면 직접 입력해주세요!" 
                                                                         value={userInfo.address} 
                                                                         onChange={(e) => setUserInfo({...userInfo, address: e.target.value, detailAddress: '공연장 수령'})} 
                                                                     />
                                                                 </div>
                                                                 {/* [UPDATE] 안내 문구 수정 */}
-                                                                <p className="text-[11px] text-gray-400 mt-2 ml-1 leading-snug">* 공연장을 눌러 위치와 시간을 확인하고 <strong>선택</strong>해주세요.</p>
+                                                                <p className="text-[11px] text-gray-400 mt-2 ml-1 leading-snug">✅ 공연장 수령인원이 <strong>5명이하인 경우</strong> 수령방법이 변경될 수 있어요.</p>
+                                                                <p className="text-[11px] text-gray-400 mt-2 ml-1 leading-snug">✅ 자세한 안내는 <strong>대여일 1일전에</strong> 알림톡으로 안내 드릴게요.</p>
                                                             </div>
                                                         ) : (
                                                             <div className="animate-fade-in">
