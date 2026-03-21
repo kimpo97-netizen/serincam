@@ -145,7 +145,8 @@
             'S23울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             'S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             '아이폰 17프로': ['2026-3-13', '2026-3-14', '2026-3-15', '2026-3-0', '2026-3-', '2026-3-'],
-            '아이폰 17프로맥스': ['2026-3-20', '2026-3-21', '2026-3-22', '2026-2-22', '2026-2-23']
+            '아이폰 17프로맥스': ['2026-3-20', '2026-3-21', '2026-3-22', '2026-2-22', '2026-2-23'],
+            '갤럭시 S26울트라': []
         };
 
         const INITIAL_REVIEWS = [
@@ -268,9 +269,9 @@
             // [NEW] 한 줄 공지 롤링 상태 및 데이터
             const [noticeIndex, setNoticeIndex] = useState(0);
             const notices = [
-                "🚨 세린캠 홈페이지 리뉴얼 기념 가격인하 !",
-                "💡 대여 시작일은 '실제 사용할 날짜'로 선택해요!",
-                "📦 주말/공휴일은 우체국 휴무라 택배반납이 제한돼요"
+                "🚨 갤럭시 S26울트라 출시 대여가능!!",
+                "💡 필요한 만큼만 선택하여 대여하세요!!",
+                "📦 택배 수령 시 파우치에 안전하게 배송돼요"
             ];
 
             useEffect(() => {
@@ -656,6 +657,7 @@
                 if (modelName.includes('S23')) return '23U';
                 if (modelName.includes('S24')) return '24U';
                 if (modelName.includes('S25')) return '25U';
+                if (modelName.includes('S26')) return '26U';
                 if (modelName.includes('17 프로맥스')) return '17PM';
                 if (modelName.includes('17 프로')) return '17P';
                 return modelName;
@@ -666,6 +668,7 @@
                     { id: 'g23', name: '갤럭시 S23울트라', basePrice: 30000, addPrice: 10000, tag: '23U', reviews: 842 },
                     { id: 'g24', name: '갤럭시 S24울트라', basePrice: 35000, addPrice: 10000, tag: '24U', reviews: 523 },
                     { id: 'g25', name: '갤럭시 S25울트라', basePrice: 40000, addPrice: 10000, tag: '25U', reviews: 328 },
+                    { id: 'g26', name: '갤럭시 S26울트라', basePrice: 55000, addPrice: 15000, tag: '26U', reviews: 5 },
                 ],
                 iphone: [
                     { id: 'i17p', name: '아이폰 17프로', basePrice: 55000, addPrice: 15000, tag: '17P', reviews: 102 },
@@ -1084,6 +1087,7 @@
                     if (fullName.includes('S23')) return '23U';
                     if (fullName.includes('S24')) return '24U';
                     if (fullName.includes('S25')) return '25U';
+                    if (fullName.includes('S26')) return '26U';
                     // [UPDATE] 아이폰 약어 수정 (띄어쓰기 여부 무관하게 처리)
                     if (fullName.includes('17프로맥스') || fullName.includes('17 프로맥스')) return '17PM';
                     if (fullName.includes('17프로') || fullName.includes('17 프로')) return '17P';
@@ -2294,6 +2298,7 @@
                     { id: '갤럭시 S23 울트라', label: 'S23U' },
                     { id: '갤럭시 S24 울트라', label: 'S24U' },
                     { id: '갤럭시 S25 울트라', label: 'S25U' },
+                    { id: '갤럭시 S26 울트라', label: 'S26U' },
                     { id: '아이폰 17 프로', label: '17P' }, 
                     { id: '아이폰 17 프로맥스', label: '17PM' }, 
                 ];
@@ -3665,5 +3670,3 @@
     </script>
 </body>
 </html>
-
-
