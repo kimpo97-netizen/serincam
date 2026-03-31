@@ -3036,7 +3036,7 @@
                                                                             <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                                     {endDate ? (() => {
                                                                                         const d = getReturnDate(endDate, 'post');
-                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오후4시까지</span>;
+                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오후4시까지 접수</span>;
                                                                                     })() : '우체국 택배로 반납해요'}
                                                                             </p>
                                                                             <p className="font-bold text-xs text-right mt-auto text-gray-700">선불</p>
@@ -3046,7 +3046,7 @@
                                                                             <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                                     {endDate ? (() => {
                                                                                         const d = getReturnDate(endDate, 'office');
-                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오전 10시까지</span>;
+                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오전 10시까지 반납</span>;
                                                                                     })() : '사무실로 직접 반납해요'}
                                                                             </p>
                                                                             <p className="font-bold text-xs text-right mt-auto text-gray-700">무료</p>
@@ -3060,7 +3060,7 @@
                                                                                     })() : '공연 종료 직후 현장 반납'}
                                                                             </p>
                                                                             {/* [UPDATE] 당일반납 요금을 15,000원으로 변경 */}
-                                                                            <p className={`font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`}>{!isOnsiteAvailable ? '인원부족' : '+15,000원'}</p>
+                                                                            <p className={`font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`}>{!isOnsiteAvailable ? '+15,000원 (인원부족)' : '+15,000원'}</p>
                                                                         </div>
                                                                         <div onClick={() => handleOnsiteClick('venue')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${returnMethod === 'venue' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'} ${!isOnsiteAvailable ? 'opacity-50 bg-gray-50' : ''}`}>
                                                                             <div className="flex justify-between items-start"><span className={`font-bold ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-800'}`}>공연장 반납</span><Icons.Ticket size={20} className={!isOnsiteAvailable ? 'text-gray-400' : "text-rose-500"} /></div>
