@@ -2245,11 +2245,19 @@
                             {/* [NEW] 유의사항 안내 및 동의 체크 영역 추가 */}
                             <div className="bg-white p-3.5 rounded-xl border border-blue-100 mb-3 shadow-sm">
                                 <p className="text-xs font-bold text-blue-600 mb-2 flex items-center gap-1"><Icons.ShieldCheck size={14}/> 백업 대행 유의사항</p>
+                                
+                                {/* [UPDATE] 필수 준비물 강조 경고 박스 */}
+                                <div className="bg-red-50 p-2.5 rounded-lg border border-red-200 mb-2.5 shadow-sm">
+                                    <p className="text-[12px] font-bold text-red-600 mb-1 flex items-center gap-1">🚨 꼭 확인하세요</p>
+                                    <p className="text-[11px] text-red-500 leading-snug break-keep">
+                                        고객님의 <strong>마이박스 로그인</strong> 및 <strong>넉넉한 저장공간</strong>이 필요해요.<br/>
+                                        준비물 누락으로 백업이 지연될 경우 <strong>대여 연장 비용이 청구</strong>될 수 있어요.
+                                    </p>
+                                </div>
+
                                 <ul className="text-[11px] text-gray-600 space-y-1.5 pl-4 list-disc marker:text-blue-300">
-                                    <li><strong>필수 준비물</strong>: 마이박스 로그인, 넉넉한 저장공간</li>
                                     <li><strong>소요 시간</strong>: 용량마다 다르지만 평균 1일소요</li>
-                                    <li>로그인이 되어있지 않거나, 용량이 부족하여 <strong>백업 진행이 지연된다면 대여연장 비용이 청구</strong>될 수 있어요.</li>
-                                    <li>백업시작할 때, 백업완료될 때 <strong>알림톡으로 안내</strong> 드릴 예정이에요.</li>
+                                    <li>백업시작, 완료될 때 <strong>알림톡으로 안내</strong> 드릴 예정이에요.</li>
                                     <li>백업완료 후 개인정보 보호를 위해 사용한 기기는 <strong>4시간 뒤 초기화</strong> 돼요</li>
                                     <li>초기화 되어도 <strong>마이박스 데이터는 유지</strong>됩니다</li>
                                     <li>용량 확인 및 이용권 구매 방법은 아래 <strong>자세히 보기</strong> 버튼을 눌러 참고하세요!</li>
