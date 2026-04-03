@@ -144,8 +144,10 @@
         const BLOCKED_SCHEDULE = {
             'S23울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             'S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
-            '아이폰 17프로': ['2026-3-13', '2026-3-14', '2026-3-15', '2026-3-20', '2026-3-21', '2026-3-22'],
-            '아이폰 17프로맥스': ['2026-3-13', '2026-3-14', '2026-3-15', '2026-2-22', '2026-2-23']
+            'S25울트라': ['2026-3-28', '2026-3-29', '2026-3-30', '2026-2-22', '2026-2-23'],
+            '아이폰 17프로': ['2026-3-27', '2026-3-28', '2026-3-29', '2026-3-30', '2026-3-30'],
+            '아이폰 17프로맥스': ['2026-3-20', '2026-3-21', '2026-3-22', '2026-2-22', '2026-2-23'],
+            '갤럭시 S26울트라': ['2026-3-', '2026-3-', '2026-3-28', '2026-3-29', '2026-3-30',]
         };
 
         const INITIAL_REVIEWS = [
@@ -268,9 +270,9 @@
             // [NEW] 한 줄 공지 롤링 상태 및 데이터
             const [noticeIndex, setNoticeIndex] = useState(0);
             const notices = [
-                "🚨 세린캠 홈페이지 리뉴얼 기념 가격인하 !",
-                "💡 대여 시작일은 '실제 사용할 날짜'로 선택해요!",
-                "📦 주말/공휴일은 우체국 휴무라 택배반납이 제한돼요"
+                "🚨 갤럭시 S26울트라 출시 대여가능!!",
+                "💡 필요한 만큼만 선택하여 대여하세요!!",
+                "📦 택배 수령 시 파우치에 안전하게 배송돼요"
             ];
 
             useEffect(() => {
@@ -363,8 +365,6 @@
             const [extForm, setExtForm] = useState({ name: '', phone: '' });
 
             const [backupForm, setBackupForm] = useState({ name: '', phone: '' });
-            const [backupAgreed, setBackupAgreed] = useState(false); // [NEW] 백업 유의사항 동의 상태 추가
-            const [openBackupInfoIndex, setOpenBackupInfoIndex] = useState(null); // [NEW] 백업 유의사항 아코디언 상태
 
             const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
             const [currentReviewItem, setCurrentReviewItem] = useState(null);
@@ -658,6 +658,7 @@
                 if (modelName.includes('S23')) return '23U';
                 if (modelName.includes('S24')) return '24U';
                 if (modelName.includes('S25')) return '25U';
+                if (modelName.includes('S26')) return '26U';
                 if (modelName.includes('17 프로맥스')) return '17PM';
                 if (modelName.includes('17 프로')) return '17P';
                 return modelName;
@@ -668,6 +669,7 @@
                     { id: 'g23', name: '갤럭시 S23울트라', basePrice: 30000, addPrice: 10000, tag: '23U', reviews: 842 },
                     { id: 'g24', name: '갤럭시 S24울트라', basePrice: 35000, addPrice: 10000, tag: '24U', reviews: 523 },
                     { id: 'g25', name: '갤럭시 S25울트라', basePrice: 40000, addPrice: 10000, tag: '25U', reviews: 328 },
+                    { id: 'g26', name: '갤럭시 S26울트라', basePrice: 55000, addPrice: 15000, tag: '26U', reviews: 5 },
                 ],
                 iphone: [
                     { id: 'i17p', name: '아이폰 17프로', basePrice: 55000, addPrice: 15000, tag: '17P', reviews: 102 },
@@ -682,11 +684,11 @@
                 '2025-5-5', '2025-12-25', '2026-1-1',
                 '2026-3-', '2026-3-',
                 '2026-3-', '2026-3-',
-                '2026-3-27', '2026-3-28'
+                '2026-3-', '2026-3-'
             ];
             
             // [NEW] 공연장 수령 마감 공연장마감 날짜 추가
-            const BLOCKED_VENUE_PICKUP_DATES = ['2026-3-14', '2026-2-28'];
+            const BLOCKED_VENUE_PICKUP_DATES = ['2026-3-14', '2026-3-20'];
 
             useEffect(() => {
                 if (endDate && returnMethod === 'post') {
@@ -1086,6 +1088,7 @@
                     if (fullName.includes('S23')) return '23U';
                     if (fullName.includes('S24')) return '24U';
                     if (fullName.includes('S25')) return '25U';
+                    if (fullName.includes('S26')) return '26U';
                     // [UPDATE] 아이폰 약어 수정 (띄어쓰기 여부 무관하게 처리)
                     if (fullName.includes('17프로맥스') || fullName.includes('17 프로맥스')) return '17PM';
                     if (fullName.includes('17프로') || fullName.includes('17 프로')) return '17P';
@@ -1191,8 +1194,6 @@
                 setSuccessData(null); 
                 setIsSubmitting(false);
                 setUsageDays(null); // [UPDATE] 홈 이동 시 달력 숨김 상태로 초기화
-                setBackupAgreed(false); // [NEW] 홈 이동 시 백업 동의 상태 초기화
-                setOpenBackupInfoIndex(null); // [NEW] 아코디언 상태 초기화
                 setActiveNav('home');
                 setViewMode('dashboard');
             };
@@ -1241,10 +1242,6 @@
             };
 
             const handleBackupSubmit = async () => {
-                if (!backupAgreed) {
-                    alert("데이터 백업 대행 유의사항에 동의해주세요.");
-                    return;
-                }
                 if (!backupForm.name || !backupForm.phone) {
                     alert("신청자 성함과 연락처를 입력해주세요.");
                     return;
@@ -2189,8 +2186,8 @@
                                                 <p className="text-xs text-orange-600 font-bold mb-1">📢 구매 전 필독!</p>
                                                 <p className="text-[11px] text-orange-500 leading-relaxed break-keep">
                                                     무작정 구매하지 마세요! 🙅‍♀️<br/>
-                                                    먼저 <strong>촬영된 전체 용량을 먼저 확인</strong>하시고,<br/>
-                                                    <span className="underline decoration-orange-300 decoration-2 underline-offset-2">용량보다 넉넉한 이용권</span>을 구매해주세요.
+                                                    위 방법으로 <strong>촬영된 전체 용량을 먼저 확인</strong>하시고,<br/>
+                                                    <span className="underline decoration-orange-300 decoration-2 underline-offset-2">내 용량보다 넉넉한 이용권</span>을 구매해주세요.
                                                 </p>
                                             </div>
 
@@ -2239,96 +2236,13 @@
 
                         <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
                             <div className="flex items-center gap-2 mb-2"><Icons.HelpCircle size={20} className="text-blue-600" /><h4 className="font-bold text-blue-800">직접 하기 어려우신가요?</h4></div>
-                            <p className="text-xs text-blue-700 leading-relaxed mb-3">데이터 이동이 익숙하지 않거나 시간이 부족하시다면<br/><strong>데이터 백업 대행 서비스</strong>를 이용해보세요.<br/><br/><strong>데이터 백업 대행하면?</strong><br/>사진과 영상을 고객님의 마이박스 계정으로 업로드 해드려요!</p>
+                            <p className="text-xs text-blue-700 leading-relaxed mb-3">데이터 이동이 익숙하지 않거나 시간이 부족하시다면<br/><strong>데이터 백업 대행 서비스</strong>를 이용해보세요.</p>
                             <div className="flex justify-between items-center bg-white p-3 rounded-lg mb-3"><span className="text-xs font-bold text-gray-600">이용 요금</span><span className="text-sm font-bold text-blue-600">10,000원</span></div>
-                            
-                            {/* [NEW] 유의사항 안내 및 동의 체크 영역 추가 */}
-                            <div className="bg-white p-3.5 rounded-xl border border-blue-100 mb-3 shadow-sm">
-                                <p className="text-xs font-bold text-blue-600 mb-2 flex items-center gap-1"><Icons.ShieldCheck size={14}/> 백업 대행 유의사항</p>
-                                
-                                {/* [UPDATE] 필수 준비물 강조 경고 박스 */}
-                                <div className="bg-red-50 p-2.5 rounded-lg border border-red-200 mb-2.5 shadow-sm">
-                                    <p className="text-[12px] font-bold text-red-600 mb-1 flex items-center gap-1">🚨 꼭 확인하세요</p>
-                                    <p className="text-[11px] text-red-500 leading-snug break-keep">
-                                        고객님의 <strong>마이박스 로그인</strong> 및 <strong>넉넉한 저장공간</strong>이 필요해요.<br/>
-                                        준비물 누락으로 백업이 지연될 경우 <strong>대여 연장 비용이 청구</strong>될 수 있어요.
-                                    </p>
-                                </div>
-
-                                <ul className="text-[11px] text-gray-600 space-y-1.5 pl-4 list-disc marker:text-blue-300">
-                                    <li><strong>소요 시간</strong>: 용량마다 다르지만 평균 1일소요</li>
-                                    <li>백업시작, 완료될 때 <strong>알림톡으로 안내</strong> 드릴 예정이에요.</li>
-                                    <li>백업완료 후 개인정보 보호를 위해 사용한 기기는 <strong>4시간 뒤 초기화</strong> 돼요</li>
-                                    <li>초기화 되어도 <strong>마이박스 데이터는 유지</strong>됩니다</li>
-                                    <li>용량 확인 및 이용권 구매 방법은 아래 <strong>자세히 보기</strong> 버튼을 눌러 참고하세요!</li>
-                                </ul>
-                            </div>
-
-                            {/* [UPDATE] 용량 확인 및 마이박스 결제 안내 (아코디언 형태로 변경) */}
                             <div className="space-y-2 mb-3">
-                                {/* 1. 용량 확인 */}
-                                <div className="bg-white rounded-xl border border-orange-200 overflow-hidden shadow-sm">
-                                    <button
-                                        onClick={() => setOpenBackupInfoIndex(openBackupInfoIndex === 1 ? null : 1)}
-                                        className="w-full p-3 flex justify-between items-center bg-orange-50 hover:bg-orange-100 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-base">📱</span>
-                                            <span className="text-xs font-bold text-orange-800">촬영 용량 확인하기</span>
-                                        </div>
-                                        <div className="flex items-center gap-1 text-[10px] text-orange-600 font-bold">
-                                            {openBackupInfoIndex === 1 ? '접기' : '자세히 보기'}
-                                            <Icons.ChevronLeft size={14} className={`transition-transform duration-300 ${openBackupInfoIndex === 1 ? '-rotate-90' : 'rotate-180'}`} />
-                                        </div>
-                                    </button>
-                                    <div className={`transition-all duration-300 ease-in-out ${openBackupInfoIndex === 1 ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                        <div className="p-3 bg-white border-t border-orange-100 text-[11px] text-gray-600 leading-snug">
-                                            <p className="font-bold text-gray-700 mb-1">갤럭시 촬영 용량 확인법</p>
-                                            <p>설정 👉 디바이스 케어 👉 저장공간</p>
-                                            <p className="text-[10px] text-orange-500 font-medium mt-1">이미지+동영상 용량만 확인하면 돼요!</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* 2. 마이박스 구매 안내 */}
-                                <div className="bg-white rounded-xl border border-orange-200 overflow-hidden shadow-sm">
-                                    <button
-                                        onClick={() => setOpenBackupInfoIndex(openBackupInfoIndex === 2 ? null : 2)}
-                                        className="w-full p-3 flex justify-between items-center bg-orange-50 hover:bg-orange-100 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-base">💳</span>
-                                            <span className="text-xs font-bold text-orange-800">마이박스 이용권 구매 안내</span>
-                                        </div>
-                                        <div className="flex items-center gap-1 text-[10px] text-orange-600 font-bold">
-                                            {openBackupInfoIndex === 2 ? '접기' : '자세히 보기'}
-                                            <Icons.ChevronLeft size={14} className={`transition-transform duration-300 ${openBackupInfoIndex === 2 ? '-rotate-90' : 'rotate-180'}`} />
-                                        </div>
-                                    </button>
-                                    <div className={`transition-all duration-300 ease-in-out ${openBackupInfoIndex === 2 ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                        <div className="p-3 bg-white border-t border-orange-100 text-[11px] text-gray-600 leading-snug">
-                                            <p className="font-bold text-red-500 mb-1">📢 구매 전 필독!</p>
-                                            <p className="mb-2">마이박스 용량을 초과될 경우, <strong>이용권을 결제해야 업로드가 가능</strong>해요.</p>
-                                            <p>무작정 구매하지 마세요! 🙅‍♀️</p>
-                                            <p>먼저 <strong>촬영된 전체 용량을 먼저 확인</strong>하시고,<br/>용량보다 넉넉한 이용권을 구매해주세요.</p>
-                                            <span className="text-[10px] text-gray-500 mt-2 block bg-gray-50 p-1.5 rounded">👉 MYBOX 앱 &gt; 우측 상단 프로필 &gt; 이용권 구매</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <input type="text" placeholder="성함" className="w-full p-2 bg-white rounded-lg outline-none text-sm border border-blue-100 placeholder-blue-300" value={backupForm.name} onChange={(e) => setBackupForm({...backupForm, name: e.target.value})} />
+                                <input type="text" placeholder="연락처" className="w-full p-2 bg-white rounded-lg outline-none text-sm border border-blue-100 placeholder-blue-300" value={backupForm.phone} onChange={(e) => setBackupForm({...backupForm, phone: formatPhone(e.target.value)})} />
                             </div>
-
-                            <div className="flex items-center gap-2 mb-4 cursor-pointer" onClick={() => setBackupAgreed(!backupAgreed)}>
-                                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${backupAgreed ? 'bg-blue-500 border-blue-500' : 'bg-white border-blue-200'}`}>
-                                    {backupAgreed && <Icons.Check size={14} className="text-white" />}
-                                </div>
-                                <span className="text-xs text-gray-800 font-bold">위 유의사항을 확인했으며 동의합니다.</span>
-                            </div>
-
-                            <div className="space-y-2 mb-3">
-                                <input type="text" placeholder="성함" className="w-full p-3 bg-white rounded-lg outline-none text-sm border border-blue-100 placeholder-blue-300 focus:border-blue-400 transition-colors" value={backupForm.name} onChange={(e) => setBackupForm({...backupForm, name: e.target.value})} />
-                                <input type="text" placeholder="연락처 (010-0000-0000)" className="w-full p-3 bg-white rounded-lg outline-none text-sm border border-blue-100 placeholder-blue-300 focus:border-blue-400 transition-colors font-tnum" value={backupForm.phone} onChange={(e) => setBackupForm({...backupForm, phone: formatPhone(e.target.value)})} />
-                            </div>
-                            <button disabled={isSubmitting} onClick={handleBackupSubmit} className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm">{isSubmitting ? '처리 중...' : '데이터 백업 신청하기'}</button>
+                            <button disabled={isSubmitting} onClick={handleBackupSubmit} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm">{isSubmitting ? '처리 중...' : '데이터 백업 신청하기'}</button>
                         </div>
                     </div>
                 </div>
@@ -2385,6 +2299,7 @@
                     { id: '갤럭시 S23 울트라', label: 'S23U' },
                     { id: '갤럭시 S24 울트라', label: 'S24U' },
                     { id: '갤럭시 S25 울트라', label: 'S25U' },
+                    { id: '갤럭시 S26 울트라', label: 'S26U' },
                     { id: '아이폰 17 프로', label: '17P' }, 
                     { id: '아이폰 17 프로맥스', label: '17PM' }, 
                 ];
@@ -2950,49 +2865,69 @@
                                                     {startDate && endDate && (
                                                         <>
                                                             {/* 3. 대여 모델 선택 영역 */}
-                                                            <div className="animate-fade-in pt-6 border-t border-gray-100">
-                                                                <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><Icons.Smartphone size={18} className="text-blue-400"/> 어떤 모델이 필요하세요?</h3>
-                                                                <div className="flex bg-gray-100 p-1 rounded-xl mb-3"><button onClick={() => setActiveTab('galaxy')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Galaxy</button><button onClick={() => setActiveTab('iphone')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>iPhone</button></div>
-                                                                <div className="space-y-3">
-                                                                    {phones[activeTab].map(phone => {
-                                                                        const blocked = isModelBlocked(phone.name);
-                                                                        return (
-                                                                            <div key={phone.id} onClick={() => {
-                                                                                if (blocked) {
-                                                                                    alert("선택하신 기간에는 해당 기종이 모두 예약 마감되었어요 😭\n다른 기종이나 날짜를 선택해주세요.");
-                                                                                    return;
-                                                                                }
-                                                                                setSelectedPhone(phone);
-                                                                            }} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between ${blocked ? 'opacity-50 grayscale bg-gray-50 border-gray-200' : selectedPhone?.id === phone.id ? 'border-blue-400 bg-blue-50' : 'border-transparent bg-white shadow-sm hover:shadow-md'}`}>
-                                                                                <div>
-                                                                                    <div className="flex items-center gap-1.5 mb-1">
-                                                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${blocked ? 'bg-gray-200 text-gray-500' : 'bg-blue-100 text-blue-500'}`}>{phone.tag}</span>
-                                                                                        <h3 className={`font-bold text-base ${blocked ? 'text-gray-500' : 'text-gray-800'}`}>{phone.name}</h3>
-                                                                                    </div>
-                                                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                                                        <span className={`font-bold text-base ${blocked ? 'text-gray-500' : 'text-blue-600'}`}>{phone.basePrice.toLocaleString()}원</span>
-                                                                                        <span className="text-gray-300 text-[10px]">|</span>
-                                                                                        <div className="flex items-center gap-0.5 text-xs">
-                                                                                            <Icons.Star size={12} className={blocked ? 'text-gray-400 fill-current' : 'text-yellow-400 fill-current'} />
-                                                                                            <span className={`font-bold ${blocked ? 'text-gray-500' : 'text-gray-800'}`}>5.0</span>
-                                                                                            <span className="text-gray-500">({(phone.reviews + myReviews.filter(r => r.model === phone.name).length).toLocaleString()})</span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <p className="text-[11px] text-gray-500 mt-1 font-medium">
-                                                                                        * 2일째부터 1일 +{phone.addPrice.toLocaleString()}원
-                                                                                    </p>
-                                                                                </div>
-                                                                                <div className="flex items-center gap-2">
-                                                                                    {blocked && <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-md">마감</span>}
-                                                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedPhone?.id === phone.id ? 'border-blue-400' : 'border-gray-300'}`}>{selectedPhone?.id === phone.id && <div className="w-3 h-3 rounded-full bg-blue-400"></div>}</div>
+                                                        <div className="animate-fade-in pt-6 border-t border-gray-100">
+                                                            <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><Icons.Smartphone size={18} className="text-blue-400"/> 어떤 모델이 필요하세요?</h3>
+                                                            <div className="flex bg-gray-100 p-1 rounded-xl mb-3"><button onClick={() => setActiveTab('galaxy')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>Galaxy</button><button onClick={() => setActiveTab('iphone')} className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`}>iPhone</button></div>
+
+                                                            {/* [UPDATE] 1열 리스트 형태에서 2열 카드(Grid) 형태로 레이아웃 변경 */}
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                {phones[activeTab].map(phone => {
+                                                                    const blocked = isModelBlocked(phone.name);
+                                                                    // [NEW] 기간별 요금 계산 로직 추가
+                                                                    const currentDays = Math.max(1, calculateDays());
+                                                                    const calculatedPrice = currentDays <= 1 ? phone.basePrice : phone.basePrice + ((currentDays - 1) * phone.addPrice);
+
+                                                                    return (
+                                                                        <div key={phone.id} onClick={() => {
+                                                                            if (blocked) {
+                                                                                alert("선택하신 기간에는 해당 기종이 모두 예약 마감되었어요 😭\n다른 기종이나 날짜를 선택해주세요.");
+                                                                                return;
+                                                                            }
+                                                                            setSelectedPhone(phone);
+                                                                        }} className={`relative p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col h-full group ${blocked ? 'opacity-60 bg-gray-50 border-gray-200' : selectedPhone?.id === phone.id ? 'border-blue-500 bg-white shadow-md ring-4 ring-blue-50' : 'border-gray-100 bg-white shadow-sm hover:shadow-md hover:border-blue-200'}`}>
+                                                                            
+                                                                            {/* 상단: 태그 및 선택 라디오 버튼 */}
+                                                                            <div className="flex justify-between items-center mb-3">
+                                                                                <span className={`text-[10px] font-extrabold px-2 py-1 rounded-md tracking-wider ${blocked ? 'bg-gray-200 text-gray-500' : 'bg-blue-50 text-blue-600'}`}>{phone.tag}</span>
+                                                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${selectedPhone?.id === phone.id ? 'border-blue-500 bg-blue-500' : 'border-gray-300 bg-white'}`}>
+                                                                                    {selectedPhone?.id === phone.id && <Icons.Check size={12} className="text-white font-bold" />}
                                                                                 </div>
                                                                             </div>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            </div>
+                                                                            
+                                                                            {/* 기기명 & 별점 영역 */}
+                                                                            <div className="mb-2">
+                                                                                {/* [UPDATE] 기기명 글씨 굵기를 font-extrabold에서 font-bold로 변경하여 제목과 통일 */}
+                                                                                <h3 className={`font-bold text-[15px] tracking-tight mb-1 leading-tight ${blocked ? 'text-gray-500' : 'text-gray-800'}`}>{phone.name}</h3>
+                                                                                <div className="flex items-center">
+                                                                                    <Icons.Star size={12} className={blocked ? 'text-gray-300 fill-current' : 'text-yellow-400 fill-current'} />
+                                                                                    <span className={`font-bold text-[12px] ml-1 ${blocked ? 'text-gray-400' : 'text-gray-700'}`}>5.0</span>
+                                                                                    <span className={`text-[11px] font-medium ml-1 ${blocked ? 'text-gray-400' : 'text-gray-400'}`}>
+                                                                                        ({(phone.reviews + myReviews.filter(r => r.model === phone.name).length).toLocaleString()})
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                            
+                                                                            {/* 하단: 요금 영역 강조 (독립된 박스 형태) */}
+                                                                            <div className="mt-auto pt-3">
+                                                                                <div className={`flex justify-between items-center px-3 py-2.5 rounded-xl transition-colors ${blocked ? 'bg-gray-100' : selectedPhone?.id === phone.id ? 'bg-blue-50' : 'bg-gray-50 group-hover:bg-blue-50/50'}`}>
+                                                                                    <span className={`text-[11px] font-bold ${blocked ? 'text-gray-400' : 'text-gray-500'}`}>{currentDays}일 대여</span>
+                                                                                    <span className={`font-extrabold text-[15px] ${blocked ? 'text-gray-500' : 'text-blue-600'}`}>{calculatedPrice.toLocaleString()}원</span>
+                                                                                </div>
+                                                                            </div>
 
-                                                            {/* 3. 리뷰 혜택 영역 */}
+                                                                            {/* 마감 상태 오버레이 표시 */}
+                                                                            {blocked && (
+                                                                                <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-white/40 backdrop-blur-[1px]">
+                                                                                    <span className="text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-md border border-red-100 shadow-sm">예약 마감</span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* 3. 리뷰 혜택 영역 */}
                                                             <div className={`animate-fade-in pt-6 border-t border-gray-100 transition-all duration-300 ${!selectedPhone ? 'opacity-50 pointer-events-none' : ''}`}>
                                                                 <div className="flex items-center justify-between mb-3">
                                                                     <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
@@ -3101,7 +3036,7 @@
                                                                             <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                                     {endDate ? (() => {
                                                                                         const d = getReturnDate(endDate, 'post');
-                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오후4시까지</span>;
+                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오후4시까지 접수</span>;
                                                                                     })() : '우체국 택배로 반납해요'}
                                                                             </p>
                                                                             <p className="font-bold text-xs text-right mt-auto text-gray-700">선불</p>
@@ -3111,7 +3046,7 @@
                                                                             <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                                     {endDate ? (() => {
                                                                                         const d = getReturnDate(endDate, 'office');
-                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오전 10시까지</span>;
+                                                                                        return <span className="text-rose-500 font-bold">{d.getMonth() + 1}/{d.getDate()}({daysOfWeek[d.getDay()]}) 오전 10시까지 반납</span>;
                                                                                     })() : '사무실로 직접 반납해요'}
                                                                             </p>
                                                                             <p className="font-bold text-xs text-right mt-auto text-gray-700">무료</p>
@@ -3125,7 +3060,7 @@
                                                                                     })() : '공연 종료 직후 현장 반납'}
                                                                             </p>
                                                                             {/* [UPDATE] 당일반납 요금을 15,000원으로 변경 */}
-                                                                            <p className={`font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`}>{!isOnsiteAvailable ? '인원부족' : '+15,000원'}</p>
+                                                                            <p className={`font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`}>{!isOnsiteAvailable ? '+15,000원' : '+15,000원'}</p>
                                                                         </div>
                                                                         <div onClick={() => handleOnsiteClick('venue')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${returnMethod === 'venue' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'} ${!isOnsiteAvailable ? 'opacity-50 bg-gray-50' : ''}`}>
                                                                             <div className="flex justify-between items-start"><span className={`font-bold ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-800'}`}>공연장 반납</span><Icons.Ticket size={20} className={!isOnsiteAvailable ? 'text-gray-400' : "text-rose-500"} /></div>
