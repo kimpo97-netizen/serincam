@@ -2917,8 +2917,9 @@
                                                                                         <span className={`font-bold text-[11px] line-through ${blocked ? 'text-gray-400' : 'text-gray-400'}`}>{displayOriginalPrice.toLocaleString()}원</span>
                                                                                     </div>
                                                                                     <div className="flex justify-between items-center">
-                                                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm ${blocked ? 'bg-gray-200 text-gray-400' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>현재 할인가</span>
-                                                                                        <span className={`font-black text-[15px] ${blocked ? 'text-gray-500' : 'text-blue-600'}`}>{currentDiscountPrice.toLocaleString()}원</span>
+                                                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm ${blocked ? 'bg-gray-200 text-gray-400' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>할인가</span>
+                                                                                        {/* [UPDATE] 할인가 텍스트 크기 15px -> 13px로 축소 및 자간 조절 */}
+                                                                                        <span className={`font-black text-[13px] tracking-tight ${blocked ? 'text-gray-500' : 'text-blue-600'}`}>{currentDiscountPrice.toLocaleString()}원</span>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
