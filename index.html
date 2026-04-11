@@ -1015,6 +1015,9 @@
                 if (discounts.blog) total -= 5000;   // 블로그 5000원
                 if (discounts.kakao) total -= 4000;  // 카카오맵 4000원
 
+                // [NEW] 계좌이체 선택 시 2,000원 즉시 할인
+                if (paymentMethod === 'transfer') total -= 2000;
+
                 return Math.max(0, total);
             };
 
@@ -2405,11 +2408,6 @@
                             )}
                         </div>
 
-                        {/* 계좌이체일 때만 카드안내 버튼 노출 */}
-                        {pMethod === 'transfer' && type === '예약' && (
-                            <button onClick={() => setShowCardInfo(true)} className="w-full mt-2 mb-6 py-3 bg-white border border-green-500 text-green-600 rounded-xl font-bold text-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm"><span className="text-lg">💳</span> 카드/네이버페이로 결제하시나요?</button>
-                        )}
-
                         <div className="bg-yellow-50 p-4 rounded-xl text-xs text-yellow-700 text-left w-full mb-8 leading-relaxed"><strong>⏳ 안내사항</strong><br/>입금(결제)이 확인되면 확정 알림톡이 발송됩니다.<br/><span className="opacity-80">※ 늦은 밤이나 새벽에 신청하신 경우, 확정 안내까지 시간이 다소 소요될 수 있습니다.</span></div>
                         
                         {type === '예약' && (<div className="bg-gray-50 p-4 rounded-xl text-xs text-gray-500 text-left w-full mb-8 leading-relaxed"><strong>📢 자동 취소 주의</strong><br/>1. 결제하지 않고 예약만 진행한 경우<br/>2. 입금자명(주문자명)과 예약자명이 다른 경우</div>)}
@@ -2876,6 +2874,10 @@
                                                                     // [NEW] 기간별 요금 계산 로직 추가
                                                                     const currentDays = Math.max(1, calculateDays());
                                                                     const calculatedPrice = currentDays <= 1 ? phone.basePrice : phone.basePrice + ((currentDays - 1) * phone.addPrice);
+                                                                    
+                                                                    // [UPDATE] 정상가(1일 기본 대여료 + 15,000원 * 일수)와 현재 할인가(실제 가격) 설정
+                                                                    const displayOriginalPrice = (phone.basePrice + 15000) * currentDays;
+                                                                    const currentDiscountPrice = calculatedPrice;
 
                                                                     return (
                                                                         <div key={phone.id} onClick={() => {
@@ -2909,9 +2911,15 @@
                                                                             
                                                                             {/* 하단: 요금 영역 강조 (독립된 박스 형태) */}
                                                                             <div className="mt-auto pt-3">
-                                                                                <div className={`flex justify-between items-center px-3 py-2.5 rounded-xl transition-colors ${blocked ? 'bg-gray-100' : selectedPhone?.id === phone.id ? 'bg-blue-50' : 'bg-gray-50 group-hover:bg-blue-50/50'}`}>
-                                                                                    <span className={`text-[11px] font-bold ${blocked ? 'text-gray-400' : 'text-gray-500'}`}>{currentDays}일 대여</span>
-                                                                                    <span className={`font-extrabold text-[15px] ${blocked ? 'text-gray-500' : 'text-blue-600'}`}>{calculatedPrice.toLocaleString()}원</span>
+                                                                                <div className={`flex flex-col px-3 py-2 rounded-xl transition-colors ${blocked ? 'bg-gray-100' : selectedPhone?.id === phone.id ? 'bg-blue-50' : 'bg-gray-50 group-hover:bg-blue-50/50'}`}>
+                                                                                    <div className="flex justify-between items-center mb-1">
+                                                                                        <span className={`text-[10px] font-bold ${blocked ? 'text-gray-400' : 'text-gray-500'}`}>정상가({currentDays}일)</span>
+                                                                                        <span className={`font-bold text-[11px] line-through ${blocked ? 'text-gray-400' : 'text-gray-400'}`}>{displayOriginalPrice.toLocaleString()}원</span>
+                                                                                    </div>
+                                                                                    <div className="flex justify-between items-center">
+                                                                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm ${blocked ? 'bg-gray-200 text-gray-400' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>현재 할인가</span>
+                                                                                        <span className={`font-black text-[15px] ${blocked ? 'text-gray-500' : 'text-blue-600'}`}>{currentDiscountPrice.toLocaleString()}원</span>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
 
@@ -2956,6 +2964,55 @@
                                                                             {discounts.blog && <span className="text-green-600 font-bold block">블로그 리뷰 약속으로 5,000원 할인이 적용되었어요!</span>}
                                                                             {discounts.kakao && <span className="text-yellow-600 font-bold block">카카오맵 리뷰 약속으로 4,000원 할인이 적용되었어요!</span>}
                                                                         </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            {/* 4. 결제 수단 선택 영역 (Step 3에서 이동됨) */}
+                                                            <div className={`animate-fade-in pt-6 border-t border-gray-100 transition-all duration-300 ${!selectedPhone ? 'opacity-50 pointer-events-none' : ''}`}>
+                                                                <div className="flex items-center justify-between mb-3">
+                                                                    <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm"><Icons.CreditCard size={16} className="text-blue-400"/>결제 수단 선택</h3>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <div 
+                                                                        onClick={() => setPaymentMethod('transfer')} 
+                                                                        className={`relative p-3 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center text-center transition-all ${paymentMethod === 'transfer' ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-200 bg-white text-gray-500'}`}
+                                                                    >
+                                                                        {/* [NEW] BEST 뱃지 추가 */}
+                                                                        <div className="absolute -top-2.5 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">BEST</div>
+                                                                        
+                                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${paymentMethod === 'transfer' ? 'bg-white text-blue-500 shadow-sm' : 'bg-gray-100'}`}>
+                                                                            {/* [UPDATE] 은행 건물 아이콘 -> 지폐 아이콘 변경 */}
+                                                                            <Icons.Banknote size={18} />
+                                                                        </div>
+                                                                        <span className="text-xs font-bold">계좌이체</span>
+                                                                        {/* [UPDATE] 즉시할인 강조 텍스트로 변경 */}
+                                                                        <span className={`text-[10px] mt-0.5 font-bold ${paymentMethod === 'transfer' ? 'text-blue-500' : 'text-blue-400'}`}>2,000원 즉시할인!</span>
+                                                                    </div>
+                                                                    
+                                                                    <div 
+                                                                        onClick={() => setPaymentMethod('store')} 
+                                                                        className={`relative p-3 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center text-center transition-all ${paymentMethod === 'store' ? 'border-green-500 bg-green-50 text-green-600' : 'border-gray-200 bg-white text-gray-500'}`}
+                                                                    >
+                                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${paymentMethod === 'store' ? 'bg-white text-green-500 shadow-sm' : 'bg-gray-100'}`}>
+                                                                            {/* [UPDATE] 이모지 대신 아이콘 사용 */}
+                                                                            <Icons.CreditCard size={18} />
+                                                                        </div>
+                                                                        <span className="text-xs font-bold">카드결제</span>
+                                                                        <span className="text-[10px] opacity-70 mt-0.5">다양한 결제수단</span>
+                                                                    </div>
+                                                                </div>
+                                                                {/* [NEW] 계좌이체 선택 시 즉시할인 안내 문구 표시 */}
+                                                                {paymentMethod === 'transfer' && (
+                                                                    <div className="mt-2 bg-blue-50 text-blue-600 text-[12px] p-2 rounded-lg border border-blue-100 flex items-start gap-1.5 leading-snug animate-fade-in">
+                                                                        <span className="text-sm mt-0.5 shrink-0">🎁</span>
+                                                                        <span>해당 이벤트는 선착순 한정으로 조기 마감될 수 있어요.</span>
+                                                                    </div>
+                                                                )}
+                                                                {paymentMethod === 'store' && (
+                                                                    <div className="mt-2 bg-green-50 text-green-600 text-[12px] p-2 rounded-lg border border-green-100 flex items-start gap-1.5 leading-snug animate-fade-in">
+                                                                        <Icons.Megaphone size={12} className="mt-0.5 shrink-0"/>
+                                                                        <span>다양한 결제수단을 이용하실 수 있게 <strong>네이버스토어</strong>에서 결제가 진행돼요.</span>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -3179,42 +3236,6 @@
                                                                 <div className="flex items-start justify-between"><div className="flex items-center gap-2 cursor-pointer" onClick={() => setAgreements({...agreements, terms: !agreements.terms})}><div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${agreements.terms ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`}>{agreements.terms && <Icons.Check size={14} className="text-white" />}</div><span className="text-sm text-gray-600">이용약관 동의 (필수)</span></div><button onClick={() => setShowTerms(true)} className="text-xs text-gray-400 underline">내용 보기</button></div>
                                                                 <div className="flex items-start justify-between"><div className="flex items-center gap-2 cursor-pointer" onClick={() => setAgreements({...agreements, privacy: !agreements.privacy})}><div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${agreements.privacy ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`}>{agreements.privacy && <Icons.Check size={14} className="text-white" />}</div><span className="text-sm text-gray-600">개인정보 수집 및 이용 동의 (필수)</span></div><button onClick={() => setShowPrivacy(true)} className="text-xs text-gray-400 underline">내용 보기</button></div>
                                                             </div>
-                                                        </div>
-
-                                                        {/* [NEW] 결제 수단 선택 섹션 추가 */}
-                                                        <div className="pt-4 border-t border-gray-100 mt-2">
-                                                            <h4 className="text-sm font-bold text-gray-800 mb-3">결제 수단 선택</h4>
-                                                            <div className="grid grid-cols-2 gap-2">
-                                                                <div 
-                                                                    onClick={() => setPaymentMethod('transfer')} 
-                                                                    className={`p-3 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center text-center transition-all ${paymentMethod === 'transfer' ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-200 bg-white text-gray-500'}`}
-                                                                >
-                                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${paymentMethod === 'transfer' ? 'bg-white text-blue-500 shadow-sm' : 'bg-gray-100'}`}>
-                                                                        {/* [UPDATE] 은행 건물 아이콘 -> 지폐 아이콘 변경 */}
-                                                                        <Icons.Banknote size={18} />
-                                                                    </div>
-                                                                    <span className="text-xs font-bold">계좌이체</span>
-                                                                    <span className="text-[10px] opacity-70 mt-0.5">쉽고 빠른 결제수단</span>
-                                                                </div>
-                                                                
-                                                                <div 
-                                                                    onClick={() => setPaymentMethod('store')} 
-                                                                    className={`p-3 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center text-center transition-all ${paymentMethod === 'store' ? 'border-green-500 bg-green-50 text-green-600' : 'border-gray-200 bg-white text-gray-500'}`}
-                                                                >
-                                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${paymentMethod === 'store' ? 'bg-white text-green-500 shadow-sm' : 'bg-gray-100'}`}>
-                                                                        {/* [UPDATE] 이모지 대신 아이콘 사용 */}
-                                                                        <Icons.CreditCard size={18} />
-                                                                    </div>
-                                                                    <span className="text-xs font-bold">카드결제</span>
-                                                                    <span className="text-[10px] opacity-70 mt-0.5">다양한 결제수단</span>
-                                                                </div>
-                                                            </div>
-                                                            {paymentMethod === 'store' && (
-                                                                <div className="mt-2 bg-green-50 text-green-600 text-[12px] p-2 rounded-lg border border-green-100 flex items-start gap-1.5 leading-snug">
-                                                                    <Icons.Megaphone size={12} className="mt-0.5 shrink-0"/>
-                                                                    <span>다양한 결제수단을 이용하실 수 있게 <strong>네이버스토어</strong>에서 결제가 진행돼요.</span>
-                                                                </div>
-                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
