@@ -2999,14 +2999,15 @@
                                                                         }} 
                                                                         className={`relative p-3 rounded-xl border-2 cursor-pointer flex flex-col items-center justify-center text-center transition-all ${paymentError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : (paymentMethod === 'transfer' ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-200 bg-white text-gray-500')}`}
                                                                     >
-                                                                        {/* [NEW] BEST 뱃지 추가 */}
-                                                                        <div className={`absolute -top-2.5 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-colors ${paymentError ? 'bg-red-500' : 'bg-blue-500'}`}>BEST</div>
+                                                                        {/* [UPDATE] 뱃지 텍스트를 'EVENT'로 영문 변경 */}
+                                                                        <div className={`absolute -top-2.5 text-white text-[10px] font-extrabold px-3 py-0.5 rounded-full shadow-sm transition-all ${paymentError ? 'bg-red-500' : 'bg-gradient-to-r from-pink-500 to-rose-400'}`}>EVENT</div>
                                                                         
                                                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 transition-colors ${paymentError ? 'bg-white text-red-500 shadow-sm' : (paymentMethod === 'transfer' ? 'bg-white text-blue-500 shadow-sm' : 'bg-gray-100')}`}>
                                                                             <Icons.Banknote size={18} />
                                                                         </div>
                                                                         <span className="text-xs font-bold">계좌이체</span>
-                                                                        <span className={`text-[10px] mt-0.5 font-bold transition-colors ${paymentError ? 'text-red-500' : (paymentMethod === 'transfer' ? 'text-blue-500' : 'text-blue-400')}`}>2,000원 즉시할인!</span>
+                                                                        {/* [UPDATE] 즉시할인 텍스트 색상을 파란색 계열에서 핑크색 계열로 변경 */}
+                                                                        <span className={`text-[10px] mt-0.5 font-bold transition-colors ${paymentError ? 'text-red-500' : (paymentMethod === 'transfer' ? 'text-pink-500' : 'text-pink-400')}`}>2,000원 즉시할인!</span>
                                                                     </div>
                                                                     
                                                                     <div 
