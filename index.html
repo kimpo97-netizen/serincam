@@ -147,7 +147,7 @@
             '갤럭시 S25울트라': ['2026-4-18', '2026-4-19', '2026-3-30', '2026-2-22', '2026-2-23'],
             '아이폰 17프로': ['2026-4-24', '2026-4-25', '2026-4-26', '2026-5-1', '2026-5-2', '2026-5-3'],
             '아이폰 17프로맥스': ['2026-5-1', '2026-5-2', '2026-5-3', '2026-4-24', '2026-4-25', '2026-4-26'],
-            '갤럭시 S26울트라': ['2026-4-1', '2026-5-2', '2026-5-3', '2026-4-20', '2026-4-21',]
+            '갤럭시 S26울트라': ['2026-4-1', '2026-4-2', '2026-5-3', '2026-4-20', '2026-4-21',]
         };
 
         const INITIAL_REVIEWS = [
@@ -3408,7 +3408,7 @@
                                                             if (!insurance) { showAppToast("파손 보험 가입 여부를\n선택해주세요! 🛡️"); return; } 
                                                         }
                                                         if (step === 3) { 
-                                                            if(!userInfo.name || !userInfo.phone || !userInfo.address) { showAppToast("예약자 정보를 모두 입력해주세요! ✍️"); return; } 
+                                                            if(!userInfo.name || !userInfo.phone || !userInfo.scheduleName || !userInfo.address || !userInfo.detailAddress) { showAppToast("예약자 정보를 모두 입력해주세요! ✍️"); return; } 
                                                             if(!agreements.terms || !agreements.privacy) { showAppToast("필수 약관에 모두 동의해주세요! ✅"); return; } 
                                                             setIsPhoneCheckModalOpen(true); 
                                                             return; 
