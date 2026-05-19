@@ -338,7 +338,7 @@
             // [NEW] 결제 수단 상태 추가 (기본값: 미선택으로 변경)
             const [paymentMethod, setPaymentMethod] = useState(null); 
 
-            const [userInfo, setUserInfo] = useState({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
+            const [userInfo, setUserInfo] = useState({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '', account: '' });
             const [isSubmitting, setIsSubmitting] = useState(false);
             const [isSearching, setIsSearching] = useState(false);
             
@@ -711,10 +711,10 @@
 
             const phones = {
                 galaxy: [
-                    { id: 'g23', name: '갤럭시 S23울트라', basePrice: 30000, addPrice: 10000, tag: '23U', reviews: 842 },
-                    { id: 'g24', name: '갤럭시 S24울트라', basePrice: 35000, addPrice: 10000, tag: '24U', reviews: 523 },
-                    { id: 'g25', name: '갤럭시 S25울트라', basePrice: 40000, addPrice: 10000, tag: '25U', reviews: 328 },
-                    { id: 'g26', name: '갤럭시 S26울트라', basePrice: 55000, addPrice: 15000, tag: '26U', reviews: 5 },
+                    { id: 'g23', name: '갤럭시 S23울트라', basePrice: 30000, addPrice: 10000, tag: '23U', reviews: 882 },
+                    { id: 'g24', name: '갤럭시 S24울트라', basePrice: 35000, addPrice: 10000, tag: '24U', reviews: 543 },
+                    { id: 'g25', name: '갤럭시 S25울트라', basePrice: 40000, addPrice: 10000, tag: '25U', reviews: 358 },
+                    { id: 'g26', name: '갤럭시 S26울트라', basePrice: 55000, addPrice: 15000, tag: '26U', reviews: 45 },
                 ],
                 iphone: [
                     { id: 'i17p', name: '아이폰 17프로', basePrice: 55000, addPrice: 15000, tag: '17P', reviews: 102 },
@@ -1060,8 +1060,8 @@
                 if (discounts.blog) total -= 5000;   // 블로그 5000원
                 if (discounts.kakao) total -= 4000;  // 카카오맵 4000원
 
-                // [NEW] 계좌이체 선택 시 2,000원 즉시 할인
-                if (paymentMethod === 'transfer') total -= 2000;
+                // [NEW] 계좌이체 선택 시 1,000원 즉시 할인
+                if (paymentMethod === 'transfer') total -= 1000;
 
                 return Math.max(0, total);
             };
@@ -1190,6 +1190,7 @@
                     address: fullAddress,
                     phone: userInfo.phone,
                     scheduleName: userInfo.scheduleName || `${userInfo.name}님 대여`, 
+                    account: userInfo.account, // [NEW] 환불 계좌 추가
                     startDate: formatDateDot(startDate),
                     delivery: deliveryText,
                     endDate: formatDateDot(getReturnDate(endDate)),
@@ -1232,7 +1233,7 @@
                 setStartDate(null); 
                 setEndDate(null); 
                 setInsurance('none');
-                setUserInfo({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '' });
+                setUserInfo({ name: '', phone: '', zipcode: '', address: '', detailAddress: '', scheduleName: '', account: '' });
                 setDataBackup(false);
                 setDeliveryMethod(null);
                 setReturnMethod(null);
@@ -3007,7 +3008,7 @@
                                                                         </div>
                                                                         <span className="text-xs font-bold">계좌이체</span>
                                                                         {/* [UPDATE] 즉시할인 텍스트 색상을 파란색 계열에서 핑크색 계열로 변경 */}
-                                                                        <span className={`text-[10px] mt-0.5 font-bold transition-colors ${paymentError ? 'text-red-500' : (paymentMethod === 'transfer' ? 'text-pink-500' : 'text-pink-400')}`}>2,000원 즉시할인!</span>
+                                                                        <span className={`text-[10px] mt-0.5 font-bold transition-colors ${paymentError ? 'text-red-500' : (paymentMethod === 'transfer' ? 'text-pink-500' : 'text-pink-400')}`}>1,000원 즉시할인!</span>
                                                                     </div>
                                                                     
                                                                     <div 
@@ -3272,6 +3273,7 @@
                                                         <div><label className="text-xs font-bold text-gray-500 ml-1">예약자 성함</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.User size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="홍길동" value={userInfo.name} onChange={(e) => setUserInfo({...userInfo, name: e.target.value})} /></div></div>
                                                         <div><label className="text-xs font-bold text-gray-500 ml-1">예약자 연락처</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Phone size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="010-0000-0000" value={userInfo.phone} onChange={(e) => setUserInfo({...userInfo, phone: formatPhone(e.target.value)})} /></div></div>
                                                         <div><label className="text-xs font-bold text-gray-500 ml-1">일정명</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.Ticket size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="예) 엔시티 콘서트" value={userInfo.scheduleName} onChange={(e) => setUserInfo({...userInfo, scheduleName: e.target.value})} /></div></div>
+                                                        <div><label className="text-xs font-bold text-gray-500 ml-1">계좌번호 (환불/취소 시 환급)</label><div className="flex items-center bg-gray-50 rounded-xl px-3 mt-1"><Icons.CreditCard size={18} className="text-gray-400" /><input type="text" className="w-full p-3 bg-transparent outline-none text-gray-800" placeholder="은행,계좌번호 (예:카카오뱅크 3333...)" value={userInfo.account} onChange={(e) => setUserInfo({...userInfo, account: e.target.value})} /></div></div>
                                                         
                                                         {/* [UPDATE] 공연장 수령 시 주소입력 대신 공연장 선택 UI 노출 */}
                                                         {deliveryMethod === 'venue' ? (
@@ -3359,6 +3361,11 @@
                                                             <div className="flex justify-between"><span className="text-gray-500">신청자</span><span className="font-bold text-gray-800">{userInfo.name} ({userInfo.phone})</span></div>
                                                             <div className="flex justify-between items-start"><span className="text-gray-500 shrink-0">주소</span><span className="font-bold text-gray-800 text-right">{userInfo.address} {userInfo.detailAddress}</span></div>
                                                             
+                                                            {/* [NEW] 환불 계좌 확인 추가 */}
+                                                            {userInfo.account && (
+                                                                <div className="flex justify-between"><span className="text-gray-500">환불 계좌</span><span className="font-bold text-gray-800 text-right break-keep" style={{maxWidth: '70%'}}>{userInfo.account}</span></div>
+                                                            )}
+
                                                             {/* [NEW] 결제 수단 확인 항목 추가 */}
                                                             <div className="flex justify-between pt-2 mt-2 border-t border-gray-100 border-dashed">
                                                                 <span className="text-gray-500">결제 수단</span>
@@ -3408,7 +3415,7 @@
                                                             if (!insurance) { showAppToast("파손 보험 가입 여부를\n선택해주세요! 🛡️"); return; } 
                                                         }
                                                         if (step === 3) { 
-                                                            if(!userInfo.name || !userInfo.phone || !userInfo.scheduleName || !userInfo.address || !userInfo.detailAddress) { showAppToast("예약자 정보를 모두 입력해주세요! ✍️"); return; } 
+                                                            if(!userInfo.name || !userInfo.phone || !userInfo.scheduleName || !userInfo.account || !userInfo.address || !userInfo.detailAddress) { showAppToast("예약자 정보를 모두 입력해주세요! ✍️"); return; } 
                                                             if(!agreements.terms || !agreements.privacy) { showAppToast("필수 약관에 모두 동의해주세요! ✅"); return; } 
                                                             setIsPhoneCheckModalOpen(true); 
                                                             return; 
@@ -3633,7 +3640,7 @@
                                                 <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제3조 (대여요금)</h4><p>홈페이지에 공지된 기기별/기간별 요금을 기준으로 책정됩니다.</p></div>
                                                 <div><h4 className="font-bold text-red-500 mb-1.5 text-sm flex items-center gap-1">제4조 (책임 및 배상) 🚨</h4><p className="mb-2 font-bold text-gray-700">고객 부주의로 인한 파손·분실 시 책임은 아래와 같습니다.</p><div className="bg-red-50 p-2.5 rounded-lg border border-red-100 mb-2"><p className="font-bold text-red-600 text-[11px] mb-1">🛠 파손 발생 시</p><p className="text-[11px] text-red-500 leading-snug">삼성서비스센터 수리비용 전액 + 손해배상금(휴업손해 등)<br/><span className="text-[10px] opacity-70">* 파손보험 가입 시 자기부담금 경감 가능</span></p></div><p className="font-bold text-gray-700 mb-1 text-[11px]">💸 분실 및 도난 시 배상 기준</p><table className="w-full text-center text-[10px] border border-gray-200 mb-3"><thead className="bg-gray-100 font-bold text-gray-700"><tr><th className="p-1 border-r border-gray-200">구분</th><th className="p-1">배상금액</th></tr></thead><tbody><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">출고 후 4개월 이내</td><td className="p-1 font-bold">출고가의 100%</td></tr><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">출고 후 4개월 이후</td><td className="p-1 font-bold">출고가의 80%</td></tr></tbody></table><div className="bg-gray-100 p-2 rounded-lg text-[10px] text-gray-500"><p className="font-bold text-gray-600 mb-1">⚠️ 보조배터리 및 부속품 사용 주의</p>기기 손상, 화재 등 부속품 사용 중 발생한 모든 사고의 책임은 이용자에게 있습니다. (단, 수령 24시간 내 초기 불량은 교환/환불 가능)</div></div>
                                                 <div><h4 className="font-bold text-blue-500 mb-1.5 text-sm">제5조 (취소 및 환불 규정)</h4><p className="mb-2 text-[11px]">100% 예약제로 운영되어 아래 위약금이 발생합니다.</p><table className="w-full text-center text-[10px] border border-gray-200"><thead className="bg-gray-100 font-bold text-gray-700"><tr><th className="p-1 border-r border-gray-200">신청 시점</th><th className="p-1">환불금액</th></tr></thead><tbody><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">결제 24시간 이내</td><td className="p-1 font-bold text-blue-500">100% 환불</td></tr><tr className="border-t border-gray-200"><td className="p-1 border-r border-gray-200">결제 24시간 이후</td><td className="p-1 font-bold">위약금 1만원 차감</td></tr><tr className="border-t border-gray-200 bg-red-50 text-red-600"><td className="p-1 border-r border-red-100 font-bold">대여일 2일 전 ~</td><td className="p-1 font-bold">환불 불가 (0%)</td></tr></tbody></table><p className="text-[10px] text-gray-400 mt-1">* 제품 발송 후에는 시점 무관 환불 불가</p></div>
-                                                <div><h4 className="font-bold text-red-500 mb-1.5 text-sm">제6조 (연체료 규정) 😡</h4><p className="mb-2 text-[11px]">사전 협의 없는 반납 지연은 다음 예약자에게 피해를 줍니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-600 font-bold"><li>연체료: 1일당 50,000원 부과</li><li>고지 후 6시간 내 미납 시 법적 조치 진행</li></ul><div className="bg-gray-50 p-2 mt-2 rounded text-[10px] text-gray-500">* 택배: 마감시간 이후 접수 / 방문택배 미수거 포함<br/>* 현장: 약속 시간 30분 이상 초과 시</div></div>
+                                                <div><h4 className="font-bold text-red-500 mb-1.5 text-sm">제6조 (연체 규정)</h4><p className="mb-2 text-[11px]">당사와 협의 없이 무단으로 반납이 지연 되는 경우 연체로 간주합니다.</p><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-600 font-bold"><li>연체료: 1일당 50,000원 부과</li><li>고지 후 6시간 내 미납 시 법적 조치 진행</li></ul><div className="bg-gray-50 p-2 mt-2 rounded text-[10px] text-gray-500">* 택배: 마감시간 이후 접수 / 방문택배 미수거 포함<br/>* 현장: 약속 시간 30분 이상 초과 시</div></div>
                                                 <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제7조 (계약 해지)</h4><p className="text-[11px] text-gray-500">허위 정보, 심사 미달, 연락 두절, 폭언/협박 등의 경우 회사는 계약을 해지할 수 있습니다.</p></div>
                                                 <div><h4 className="font-bold text-purple-600 mb-1.5 text-sm">제8조 (공연장 수령/반납 특약)</h4><ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500"><li>신청 인원 5명 이하 시 수령 방법이 변경될 수 있습니다.</li><li><span className="text-red-500 font-bold">지각비: 10분당 2,000원</span> (30분 초과 시 노쇼 간주)</li><li>임의로 장소를 변경하거나 시간을 준수하지 않아 발생하는 불이익은 회사가 책임지지 않습니다.</li></ul></div>
                                                 <div><h4 className="font-bold text-gray-800 mb-1.5 text-sm">제9조 (면책)</h4><p className="text-[11px] text-gray-500">천재지변 등 불가항력적 사유로 인한 서비스 불가 시 회사는 책임을 지지 않습니다.</p></div>
@@ -3670,7 +3677,7 @@
                                             <h4 className="font-bold text-gray-800 mb-1.5 text-sm">1. 수집하는 개인정보 항목</h4>
                                             <p className="mb-1">원활한 렌탈 서비스 신청 및 상담을 위해 아래 정보를 수집합니다.</p>
                                             <ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500">
-                                                <li><strong>필수항목:</strong> 성명, 휴대전화번호, 배송지 주소, 신분증 사본(주민번호 뒷자리 마스킹 필수), 환급용 계좌번호</li>
+                                                <li><strong>필수항목:</strong> 성명, 휴대전화번호, 배송지 주소, 신분증 사본(주민번호 뒷자리 마스킹 필수), 계좌번호</li>
                                                 <li><strong>결제정보:</strong> 카드사명, 결제승인 내역 등</li>
                                                 <li><strong>자동수집:</strong> 서비스 이용 기록, 접속 로그, 쿠키, 접속 IP 정보</li>
                                             </ul>
@@ -3679,10 +3686,11 @@
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 수집 및 이용 목적</h4>
                                             <ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500">
-                                                <li>렌탈 기기 배송, 반납 확인 및 보증금 환불 처리</li>
+                                                <li>렌탈 기기 배송, 반납 확인 및 취소 환불 처리</li>
                                                 <li>본인 확인 및 미성년자 여부 확인 (대여 악용 방지)</li>
                                                 <li>고객 상담, 민원 처리 및 주요 공지사항 전달</li>
                                                 <li>서비스 부정 이용 방지 및 법적 분쟁 시 증빙 자료</li>
+                                                <li>렌탈 기기 도난, 탈취 등 문제 시 법적 조치 증빙 자료</li>
                                             </ul>
                                         </div>
 
