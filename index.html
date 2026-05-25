@@ -117,7 +117,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         // ⭐ 중요: 배포한 구글 웹 앱 URL을 여기에 입력하세요 ⭐
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwS3-t3yUpNNC5dKv5IiAx7btBXTMtP9bppzNQDTBWxb2-AUmhQObYTnB7Cdj6clXIdfQ/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby73Pd9bBd8gc5UbbSlQiPAIqoNkFZmQTU1aaDAt_qHgE_NqPzthjraUcRaS71EjLNdLA/exec"; 
         const KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
 
         const HOLIDAYS = {
@@ -146,7 +146,7 @@
             '갤럭시 S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
             '갤럭시 S25울트라': ['2026-4-18', '2026-4-19', '2026-3-30', '2026-2-22', '2026-2-23'],
             '아이폰 17프로': ['2026-4-24', '2026-4-25', '2026-4-26', '2026-5-1', '2026-5-2', '2026-5-3'],
-            '아이폰 17프로맥스': ['2026-5-29', '2026-5-30', '2026-5-31', '2026-4-24', '2026-4-25', '2026-4-26'],
+            '아이폰 17프로맥스': ['2026-5-1', '2026-5-2', '2026-5-3', '2026-4-24', '2026-4-25', '2026-4-26'],
             '갤럭시 S26울트라': ['2026-4-1', '2026-4-2', '2026-5-3', '2026-4-20', '2026-4-21',]
         };
 
@@ -233,6 +233,7 @@
             const [backupTab, setBackupTab] = useState('mybox');
             const [activeReviewTab, setActiveReviewTab] = useState('all');
             const [venueTab, setVenueTab] = useState('Seoul'); // [NEW] 공연장 탭 상태
+            const [collapsedReviews, setCollapsedReviews] = useState({}); // [UPDATE] 리뷰 접힘 상태 관리 (기본: 펼쳐짐)
             
             // [NEW] 상단바 스크롤 상태 관리
             const [showHeader, setShowHeader] = useState(true);
@@ -240,6 +241,9 @@
 
             // [NEW] 배너 슬라이드 상태 관리
             const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+            
+            // [NEW] 이미지 확대 모달 상태 추가
+            const [selectedImage, setSelectedImage] = useState(null);
 
             useEffect(() => {
                 const handleScroll = () => {
@@ -368,15 +372,19 @@
 
             const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
             const [currentReviewItem, setCurrentReviewItem] = useState(null);
-            const [reviewForm, setReviewForm] = useState({ rating: 5, text: '', image: null });
+            const [reviewForm, setReviewForm] = useState({ rating: 5, text: '', image: null, name: '', model: '갤럭시 S25 울트라', venue: '', seat: '', isManualVenue: false, selectedVenue: '' });
             
             const [myReviews, setMyReviews] = useState(() => {
                 const saved = localStorage.getItem('pink_my_reviews');
                 return saved ? JSON.parse(saved) : [];
             });
 
-            // Reviews state now managed with fetch
-            const [reviews, setReviews] = useState(INITIAL_REVIEWS);
+            // [UPDATE] 화면이 처음 켜질 때부터 내가 작성한 리뷰(myReviews)를 포함하여 렌더링하도록 수정
+            const [reviews, setReviews] = useState(() => {
+                const saved = localStorage.getItem('pink_my_reviews');
+                const localReviews = saved ? JSON.parse(saved) : [];
+                return [...localReviews, ...INITIAL_REVIEWS];
+            });
 
             const fileInputRef = useRef(null);
             const [recVenue, setRecVenue] = useState('KSPO DOME');
@@ -587,18 +595,25 @@
                 ]
             };
 
-            // [NEW] Fetch reviews from Google Sheets
+            // [UPDATE] Fetch reviews: 서버 로딩 중이거나 실패해도 로컬(내 폰)에 저장된 리뷰가 유지되도록 안전하게 병합
             const fetchReviews = async () => {
                 try {
                     const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=reviews`, { redirect: 'follow' });
                     const result = await response.json();
                     if (result.result === 'success' && Array.isArray(result.data)) {
-                         if (result.data.length > 0) {
-                            setReviews([...result.data, ...INITIAL_REVIEWS]); 
-                        }
+                        const serverReviews = result.data || [];
+                        const serverIds = serverReviews.map(r => r.id);
+                        
+                        setReviews(prev => {
+                            const saved = localStorage.getItem('pink_my_reviews');
+                            const currentMyReviews = saved ? JSON.parse(saved) : [];
+                            const uniqueMyReviews = currentMyReviews.filter(mr => !serverIds.includes(mr.id));
+                            return [...uniqueMyReviews, ...serverReviews, ...INITIAL_REVIEWS];
+                        });
                     }
                 } catch (e) {
-                    console.log("리뷰 로딩 실패:", e);
+                    console.log("리뷰 로딩 실패 (구글 시트 연동 전이거나 네트워크 오류):", e);
+                    // 에러가 나도 이미 초기값(useState)으로 로컬 리뷰가 세팅되어 있으므로 화면에서 사라지지 않음
                 }
             };
             
@@ -775,59 +790,100 @@
                 return name[0] + '*' + name[name.length - 1];
             };
 
-            const openReviewModal = (item) => {
+            // [NEW] 이미지 압축 함수 (구글 시트 5만자 용량 제한 대비)
+            const compressImage = (file, callback) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 600; 
+                        const MAX_HEIGHT = 600;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 화질 및 용량 최적화
+                        callback(dataUrl);
+                    };
+                };
+            };
+
+            const openReviewModal = (item = null) => {
                 setCurrentReviewItem(item);
-                const existingReview = myReviews.find(r => r.id === item.myReviewId);
-                
-                if (existingReview) {
-                    setReviewForm({ rating: existingReview.rating, text: existingReview.text, image: existingReview.image });
-                } else {
-                    setReviewForm({ rating: 5, text: '', image: null });
-                }
-                
+                setReviewForm({ 
+                    rating: 5, 
+                    text: '', 
+                    image: null, 
+                    name: lookupName || userInfo.name || '', 
+                    model: item ? item.model : '갤럭시 S25 울트라', 
+                    venue: '', 
+                    seat: '',
+                    isManualVenue: false,
+                    selectedVenue: ''
+                });
                 setIsReviewModalOpen(true);
             };
 
             const handleImageChange = (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        setReviewForm(prev => ({ ...prev, image: reader.result }));
-                    };
-                    reader.readAsDataURL(file);
+                    compressImage(file, (compressedBase64) => {
+                        setReviewForm(prev => ({ ...prev, image: compressedBase64 }));
+                    });
                 }
             };
 
             // [UPDATE] 리뷰 제출 시 구글 시트로 전송하도록 수정
             const handleReviewSubmit = async () => {
-                if (!reviewForm.text.trim()) {
-                    alert("후기 내용을 입력해주세요!");
+                if (!reviewForm.name.trim() || !reviewForm.venue.trim() || !reviewForm.seat.trim() || !reviewForm.text.trim()) {
+                    alert("이름, 촬영 장소, 좌석 위치, 후기 내용을 모두 입력해주세요!");
                     return;
                 }
 
-                const newReviewId = currentReviewItem.myReviewId || Date.now();
+                setIsSubmitting(true);
+                const newReviewId = Date.now();
+                
+                // 화면에 즉시 띄워주기 위한 데이터 포맷
+                const today = new Date();
+                const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+                
+                const newReviewForDisplay = {
+                    id: newReviewId,
+                    name: formatNameMasking(reviewForm.name),
+                    model: reviewForm.model,
+                    rating: reviewForm.rating,
+                    text: reviewForm.text,
+                    date: formattedDate,
+                    image: reviewForm.image || '',
+                    venue: reviewForm.venue || '',
+                    seat: reviewForm.seat || ''
+                };
+
                 const reviewData = {
                     category: '리뷰작성', 
                     id: newReviewId,
-                    model: currentReviewItem.model,
+                    model: reviewForm.model,
                     rating: reviewForm.rating,
                     text: reviewForm.text,
-                    name: formatNameMasking(lookupName || userInfo.name || "익명"), 
-                    phone: currentReviewItem.phone || lookupPhone || userInfo.phone, // 추가된 부분: 연락처 전송
-                    date: new Date().toLocaleString('ko-KR'), // 추가된 부분: 날짜+시간 포맷
-                    image: reviewForm.image 
+                    name: formatNameMasking(reviewForm.name), 
+                    rawName: reviewForm.name,
+                    password: '',
+                    date: new Date().toLocaleString('ko-KR'), 
+                    image: reviewForm.image || '',
+                    venue: reviewForm.venue || '',
+                    seat: reviewForm.seat || ''
                 };
-
-                let updatedMyReviews;
-                if (currentReviewItem.myReviewId) {
-                    updatedMyReviews = myReviews.map(r => r.id === newReviewId ? reviewData : r);
-                } else {
-                    updatedMyReviews = [reviewData, ...myReviews];
-                    currentReviewItem.myReviewId = newReviewId;
-                }
-                setMyReviews(updatedMyReviews);
-                localStorage.setItem('pink_my_reviews', JSON.stringify(updatedMyReviews));
 
                 try {
                     await fetch(GOOGLE_SCRIPT_URL, {
@@ -837,12 +893,21 @@
                         redirect: 'follow'
                     });
                     
-                    alert("소중한 후기가 등록되었습니다! 💖\n홈 화면에도 곧 반영됩니다.");
-                    fetchReviews(); // Refresh reviews
+                    // 내 리뷰 로컬 스토리지에 저장하여 새로고침해도 바로 유지되게 처리
+                    const updatedMyReviews = [newReviewForDisplay, ...myReviews];
+                    setMyReviews(updatedMyReviews);
+                    localStorage.setItem('pink_my_reviews', JSON.stringify(updatedMyReviews));
+                    
+                    // 작성 성공 시 리뷰 리스트 맨 앞에 즉시 추가
+                    setReviews(prev => [newReviewForDisplay, ...prev]);
+
+                    alert("소중한 후기가 등록되었습니다! 💖");
                     setIsReviewModalOpen(false);
                 } catch (error) {
                     console.error("리뷰 전송 실패:", error);
                     alert("후기 등록 중 오류가 발생했습니다. (네트워크 확인)");
+                } finally {
+                    setIsSubmitting(false);
                 }
             };
 
@@ -2355,9 +2420,12 @@
                 const filteredReviews = activeReviewTab === 'all' ? reviews : reviews.filter(r => r.model === activeReviewTab);
                 return (
                     <div className="animate-slide-in space-y-4 pb-24">
-                         <div className="flex items-center gap-3 mb-2 px-1">
-                            <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm"><Icons.ChevronLeft className="w-5 h-5 text-gray-600" /></button>
-                            <h2 className="text-xl font-bold text-gray-800">세린캠 PICK rewiew 📸</h2>
+                         <div className="flex items-center justify-between mb-2 px-1">
+                            <div className="flex items-center gap-3">
+                                <button onClick={() => setViewMode('dashboard')} className="p-2 bg-white rounded-full shadow-sm"><Icons.ChevronLeft className="w-5 h-5 text-gray-600" /></button>
+                                <h2 className="text-xl font-bold text-gray-800">리뷰 📸</h2>
+                            </div>
+                            <button onClick={() => openReviewModal()} className="bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm hover:bg-blue-600 transition-colors flex items-center gap-1"><Icons.FileText size={12}/> 후기 작성</button>
                         </div>
                         <div className="flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar">
                             {tabs.map(tab => (<button key={tab.id} onClick={() => setActiveReviewTab(tab.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${activeReviewTab === tab.id ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 border border-gray-100'}`}>{tab.label}</button>))}
@@ -2368,10 +2436,15 @@
                             {filteredReviews.length > 0 ? (
                                 filteredReviews.map(review => (
                                     <div key={review.id} className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full hover:shadow-md transition-all">
-                                        {/* 1. 사진 영역 (세로 비율 확대 h-64) */}
-                                        <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden mb-3 relative">
+                                        {/* 1. 사진 영역 (클릭 시 확대 모달 연결) */}
+                                        <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden mb-3 relative group cursor-pointer" onClick={(e) => { e.stopPropagation(); if(review.image) setSelectedImage(review.image); }}>
                                             {review.image ? (
-                                                <img src={review.image} alt="Review" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" />
+                                                <>
+                                                    <img src={review.image} alt="Review" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Icons.Search size={24} className="text-white drop-shadow-md" />
+                                                    </div>
+                                                </>
                                             ) : (
                                                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
                                                     <Icons.Image size={24} />
@@ -2379,7 +2452,7 @@
                                                 </div>
                                             )}
                                             {/* 별점 오버레이 */}
-                                            <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm">
+                                            <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm z-10">
                                                 <Icons.Star size={9} className="text-yellow-400 fill-current" />
                                                 <span className="text-[10px] text-white font-bold">{review.rating}.0</span>
                                             </div>
@@ -2392,9 +2465,21 @@
                                                     <span className="text-[9px] bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded font-bold">{getReviewTag(review.model)}</span>
                                                     <span className="text-[10px] text-gray-400 font-medium">{review.name}님</span>
                                                 </div>
-                                                <p className="text-xs text-gray-700 line-clamp-2 leading-relaxed mb-1 min-h-[2.5em]">
-                                                    "{review.text}"
-                                                </p>
+                                                {(review.venue || review.seat) && (
+                                                    <p className="text-[10px] text-gray-500 mb-1 flex items-center gap-1">
+                                                        <span className="text-[10px]">📍</span> {review.venue} {review.seat}
+                                                    </p>
+                                                )}
+                                                <div className="flex flex-col">
+                                                    <p className={`text-xs text-gray-700 leading-relaxed mb-0.5 transition-all ${!collapsedReviews[review.id] ? 'line-clamp-3' : ''}`}>
+                                                        {review.text}
+                                                    </p>
+                                                    {review.text && review.text.length > 50 && (
+                                                        <button onClick={(e) => { e.stopPropagation(); setCollapsedReviews(prev => ({...prev, [review.id]: !prev[review.id]})); }} className="text-[10px] text-gray-400 hover:text-blue-500 transition-colors self-end mt-0.5">
+                                                            {!collapsedReviews[review.id] ? '더보기' : '접기'}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                             <p className="text-[9px] text-gray-300 text-right mt-1">{review.date}</p>
                                         </div>
@@ -2639,6 +2724,67 @@
                                                 </div>
                                             </div>
 
+                                            {/* [NEW] 홈 화면에 실시간 리뷰 노출 (꿀팁 위로 이동 및 디자인 개선) */}
+                                            <div className="mb-6">
+                                                <div className="flex justify-between items-end mb-3 px-1">
+                                                    <div><h3 className="font-bold text-gray-800 text-lg">리뷰 📸 </h3><p className="text-xs text-gray-400 mt-0.5">고객님들이 직접 남겨주신 찐후기!</p></div>
+                                                    <button onClick={() => setViewMode('reviews')} className="text-xs text-gray-400 hover:text-blue-500 flex items-center gap-1 transition-colors">전체보기 <Icons.ChevronRight size={12} /></button>
+                                                </div>
+                                                <div className="flex gap-3 overflow-x-auto pb-4 px-1 no-scrollbar snap-x">
+                                                    {reviews.slice(0, 5).map(review => (
+                                                        <div key={review.id} className="min-w-[200px] bg-white p-3 rounded-2xl shadow-sm border border-gray-100 snap-center cursor-pointer hover:shadow-md transition-all flex flex-col h-full" onClick={() => setViewMode('reviews')}>
+                                                            {/* 1. 사진 영역 (클릭 시 확대 모달 연결) */}
+                                                            <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden mb-3 relative group" onClick={(e) => { e.stopPropagation(); if(review.image) setSelectedImage(review.image); }}>
+                                                                {review.image ? (
+                                                                    <>
+                                                                        <img src={review.image} alt="Review" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+                                                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                            <Icons.Search size={24} className="text-white drop-shadow-md" />
+                                                                        </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                                                                        <Icons.Image size={24} />
+                                                                        <span className="text-[10px] mt-1">이미지 없음</span>
+                                                                    </div>
+                                                                )}
+                                                                {/* 별점 오버레이 */}
+                                                                <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm z-10">
+                                                                    <Icons.Star size={9} className="text-yellow-400 fill-current" />
+                                                                    <span className="text-[10px] text-white font-bold">{review.rating}.0</span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {/* 2. 텍스트 및 정보 영역 */}
+                                                            <div className="flex flex-col flex-1 justify-between">
+                                                                <div>
+                                                                    <div className="flex items-center gap-1.5 mb-1.5">
+                                                                        <span className="text-[9px] bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded font-bold">{getReviewTag(review.model)}</span>
+                                                                        <span className="text-[10px] text-gray-400 font-medium">{review.name}님</span>
+                                                                    </div>
+                                                                    {(review.venue || review.seat) && (
+                                                                        <p className="text-[10px] text-gray-500 mb-1 flex items-center gap-1">
+                                                                            <span className="text-[10px]">📍</span> {review.venue} {review.seat}
+                                                                        </p>
+                                                                    )}
+                                                                    <div className="flex flex-col">
+                                                                        <p className={`text-xs text-gray-700 leading-relaxed mb-0.5 transition-all ${!collapsedReviews[review.id] ? 'line-clamp-3' : ''}`}>
+                                                                            {review.text}
+                                                                        </p>
+                                                                        {review.text && review.text.length > 50 && (
+                                                                            <button onClick={(e) => { e.stopPropagation(); setCollapsedReviews(prev => ({...prev, [review.id]: !prev[review.id]})); }} className="text-[10px] text-gray-400 hover:text-blue-500 transition-colors self-end mt-0.5">
+                                                                                {!collapsedReviews[review.id] ? '더보기' : '접기'}
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <p className="text-[9px] text-gray-300 text-right mt-1">{review.date}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
                                             {/* [NEW] 이용 팁 분단 추가 */}
                                             <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 mb-6">
                                                 <h3 className="font-bold text-gray-800 text-lg mb-4">🍯 알아두면 좋은 꿀팁</h3>
@@ -2711,50 +2857,6 @@
                                                     <div><label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어디서 보시나요?</label><div className="relative"><select value={recVenue} onChange={(e) => setRecVenue(e.target.value)} className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm font-bold text-gray-800 appearance-none border border-transparent focus:border-blue-300 transition-colors custom-select"><option value="KSPO DOME">KSPO DOME (체조경기장)</option><option value="GOCHEOK">고척 스카이돔</option><option value="JAMSIL">잠실 주경기장</option><option value="INSPRIE">인스파이어 아레나</option><option value="OTHER">기타 공연장</option></select></div></div>
                                                     <div><label className="text-xs font-bold text-gray-500 ml-1 mb-1 block">어느 좌석인가요?</label><div className="grid grid-cols-4 gap-2">{['floor', '1f', '2f', '3f'].map((s) => (<button key={s} onClick={() => { setRecSeat(s); setRecResult(null); }} className={`py-2 rounded-xl text-xs font-bold transition-all ${recSeat === s ? 'bg-blue-400 text-white shadow-md' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}>{s === 'floor' ? '플로어' : s === '3f' ? '3층이상' : `${s.replace('f', '')}층`}</button>))}</div></div>
                                                     {!recResult ? (<button onClick={handleRecommendation} className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 mt-2"><Icons.Search size={16} /> 추천 받기</button>) : (<div className="mt-4 animate-fade-in"><div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 relative overflow-hidden"><div className="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-40 rounded-full blur-xl"></div><p className="text-xs text-blue-400 font-bold mb-1">세린캠의 추천!</p><h4 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">{recResult.name}<Icons.Android size={20} /></h4><p className="text-xs text-gray-600 leading-relaxed bg-white/60 p-3 rounded-xl">"{recResult.reason}"</p><button onClick={() => handleRentalStart()} className="w-full mt-3 bg-blue-400 text-white py-2.5 rounded-xl text-sm font-bold shadow-md hover:bg-blue-500 transition-colors">이 모델로 예약하기</button></div><button onClick={() => setRecResult(null)} className="text-xs text-gray-400 underline mt-3 w-full text-center">다시 선택하기</button></div>)}
-                                                </div>
-                                            </div>
-                                            
-                                            {/* [NEW] 홈 화면에 실시간 리뷰 노출 */}
-                                            <div className="mt-2">
-                                                <div className="flex justify-between items-end mb-3 px-1">
-                                                    <div><h3 className="font-bold text-gray-800 text-lg">세린캠 PICK review 📸 </h3><p className="text-xs text-gray-400 mt-0.5">고객님들이 직접 남겨주신 찐후기!</p></div>
-                                                    <button onClick={() => setViewMode('reviews')} className="text-xs text-gray-400 hover:text-blue-500 flex items-center gap-1 transition-colors">전체보기 <Icons.ChevronRight size={12} /></button>
-                                                </div>
-                                                <div className="flex gap-3 overflow-x-auto pb-4 px-1 no-scrollbar snap-x">
-                                                    {reviews.slice(0, 5).map(review => (
-                                                        <div key={review.id} className="min-w-[200px] bg-white p-3 rounded-2xl shadow-sm border border-gray-100 snap-center cursor-pointer hover:shadow-md transition-all flex flex-col h-full" onClick={() => setViewMode('reviews')}>
-                                                            {/* 1. 사진 영역 (상단 배치 - 세로 비율 확대 h-32 -> h-64) */}
-                                                            <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden mb-3 relative">
-                                                                {review.image ? (
-                                                                    <img src={review.image} alt="Review" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" />
-                                                                ) : (
-                                                                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
-                                                                        <Icons.Image size={24} />
-                                                                        <span className="text-[10px] mt-1">이미지 없음</span>
-                                                                    </div>
-                                                                )}
-                                                                {/* 별점 오버레이 */}
-                                                                <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm">
-                                                                    <Icons.Star size={9} className="text-yellow-400 fill-current" />
-                                                                    <span className="text-[10px] text-white font-bold">{review.rating}.0</span>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            {/* 2. 텍스트 및 정보 영역 */}
-                                                            <div className="flex flex-col flex-1 justify-between">
-                                                                <div>
-                                                                    <div className="flex items-center gap-1.5 mb-1.5">
-                                                                        <span className="text-[9px] bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded font-bold">{getReviewTag(review.model)}</span>
-                                                                        <span className="text-[10px] text-gray-400 font-medium">{review.name}님</span>
-                                                                    </div>
-                                                                    <p className="text-xs text-gray-700 line-clamp-2 leading-relaxed mb-1 min-h-[2.5em]">
-                                                                        "{review.text}"
-                                                                    </p>
-                                                                </div>
-                                                                <p className="text-[9px] text-gray-300 text-right mt-1">{review.date}</p>
-                                                            </div>
-                                                        </div>
-                                                    ))}
                                                 </div>
                                             </div>
 
@@ -3393,7 +3495,7 @@
                                                                 {(deliveryMethod || returnMethod) && (<div className="text-[10px] text-white flex items-center gap-1.5 mt-0.5 bg-sky-700/20 px-2 py-0.5 rounded-md w-fit"><span className="flex items-center gap-1">{deliveryMethod === 'post' && <Icons.Truck size={11} />}{deliveryMethod === 'quick' && <Icons.Zap size={11} />}{deliveryMethod === 'venue' && <Icons.Ticket size={11} />}{deliveryMethod === 'office' && <Icons.MapPin size={11} />}{deliveryMethod === 'post' ? '택배' : deliveryMethod === 'quick' ? '퀵' : deliveryMethod === 'venue' ? '공연장' : deliveryMethod === 'office' ? '사무실' : '미선택'}</span><span className="opacity-40">|</span><span className="flex items-center gap-1">{returnMethod === 'pickup' && <Icons.Truck size={11} className="transform scale-x-[-1]" />}{returnMethod === 'post' && <Icons.Box size={11} />}{returnMethod === 'office' && <Icons.MapPin size={11} />}{returnMethod === 'sameday' && <Icons.Zap size={11} />}{returnMethod === 'venue' && <Icons.Ticket size={11} />}{returnMethod === 'pickup' ? '방문' : returnMethod === 'post' ? '택배' : returnMethod === 'office' ? '사무실' : returnMethod === 'sameday' ? '당일' : returnMethod === 'venue' ? '공연장' : '미선택'}</span></div>)}
                                                             </div>
                                                             <div className="flex flex-col items-end justify-center gap-1 pl-2 border-l border-sky-300/30">
-                                                                {startDate && endDate && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${step === 1 ? 'bg-white/20 text-white' : 'bg-white text-sky-600 shadow-sm'}`}>{calculateDays()}일간</span>}
+                                                                {startDate && endDate && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${step === 1 ? 'bg-white/20 text-white' : 'bg-white text-sky-600 shadow-sm'}`}>예상 금액</span>}
                                                                 <span className="text-lg font-bold text-white tracking-tight drop-shadow-sm whitespace-nowrap">{calculateTotal().toLocaleString()}원</span>
                                                             </div>
                                                         </div>
@@ -3679,32 +3781,21 @@
                                             <ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500">
                                                 <li><strong>필수항목:</strong> 성명, 휴대전화번호, 배송지 주소, 신분증 사본(주민번호 뒷자리 마스킹 필수), 계좌번호</li>
                                                 <li><strong>결제정보:</strong> 카드사명, 결제승인 내역 등</li>
-                                                <li><strong>자동수집:</strong> 서비스 이용 기록, 접속 로그, 쿠키, 접속 IP 정보</li>
                                             </ul>
                                         </div>
-
                                         <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 수집 및 이용 목적</h4>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">2. 개인정보의 수집 및 이용 목적</h4>
                                             <ul className="list-disc pl-4 space-y-1 text-[11px] text-gray-500">
-                                                <li>렌탈 기기 배송, 반납 확인 및 취소 환불 처리</li>
-                                                <li>본인 확인 및 미성년자 여부 확인 (대여 악용 방지)</li>
-                                                <li>고객 상담, 민원 처리 및 주요 공지사항 전달</li>
-                                                <li>서비스 부정 이용 방지 및 법적 분쟁 시 증빙 자료</li>
-                                                <li>렌탈 기기 도난, 탈취 등 문제 시 법적 조치 증빙 자료</li>
+                                                <li>렌탈 계약 체결, 기기 배송/회수, 요금 정산</li>
+                                                <li>고객 상담, 본인 확인, 분쟁 해결</li>
+                                                <li>신상품 안내 및 이벤트 정보 제공 (마케팅 동의 시)</li>
                                             </ul>
                                         </div>
-
                                         <div>
-                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">3. 보유 및 이용기간</h4>
-                                            <p className="mb-1">이용 목적 달성(반납/정산 완료) 후 즉시 파기하는 것을 원칙으로 합니다. 단, 관련 법령에 따라 아래 정보는 일정 기간 보관됩니다.</p>
-                                            <div className="bg-gray-50 p-2 rounded text-[10px] text-gray-500 space-y-1">
-                                                <p>• 계약/청약철회 기록: 5년</p>
-                                                <p>• 대금결제/재화공급 기록: 5년</p>
-                                                <p>• 소비자 불만/분쟁처리 기록: 3년</p>
-                                                <p>• 통신비밀보호법에 따른 로그 기록: 3개월</p>
-                                            </div>
+                                            <h4 className="font-bold text-gray-800 mb-1.5 text-sm">3. 개인정보의 보유 및 이용 기간</h4>
+                                            <p>원칙적으로 <strong>서비스 목적 달성(반납 완료 및 정산 완료) 시 지체 없이 파기</strong>합니다.</p>
+                                            <p className="mt-1 text-[11px] text-gray-500">단, 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.</p>
                                         </div>
-
                                         <div>
                                             <h4 className="font-bold text-gray-800 mb-1.5 text-sm">4. 개인정보의 제3자 제공</h4>
                                             <p>회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 이용자가 사전에 동의하거나 법령/수사기관의 적법한 요청이 있는 경우는 예외로 합니다.</p>
@@ -3762,6 +3853,109 @@
                             </div>
                         )}
 
+                        {/* [NEW] 후기 작성 모달 */}
+                        {isReviewModalOpen && (
+                            <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in" onClick={() => !isSubmitting && setIsReviewModalOpen(false)}>
+                                <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+                                    <div className="p-5 border-b border-gray-100 flex justify-between items-center">
+                                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">✍️ 후기 작성하기</h3>
+                                        <button onClick={() => setIsReviewModalOpen(false)} disabled={isSubmitting} className="text-gray-400 hover:text-gray-600"><Icons.X size={24} /></button>
+                                    </div>
+                                    <div className="p-5 overflow-y-auto terms-scroll space-y-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-600 mb-1 block">사용하신 기종</label>
+                                            <select value={reviewForm.model} onChange={(e) => setReviewForm({...reviewForm, model: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-bold text-gray-700">
+                                                <option value="갤럭시 S23 울트라">갤럭시 S23 울트라</option>
+                                                <option value="갤럭시 S24 울트라">갤럭시 S24 울트라</option>
+                                                <option value="갤럭시 S25 울트라">갤럭시 S25 울트라</option>
+                                                <option value="갤럭시 S26 울트라">갤럭시 S26 울트라</option>
+                                                <option value="아이폰 17 프로">아이폰 17 프로</option>
+                                                <option value="아이폰 17 프로맥스">아이폰 17 프로맥스</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-600 mb-1 block">작성자</label>
+                                            <input type="text" placeholder="홍길동" value={reviewForm.name} onChange={(e) => setReviewForm({...reviewForm, name: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-600 mb-1 block">촬영 장소 (필수)</label>
+                                                <select 
+                                                    value={reviewForm.selectedVenue || ''} 
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (val === 'direct') {
+                                                            setReviewForm({...reviewForm, isManualVenue: true, selectedVenue: 'direct', venue: ''});
+                                                        } else {
+                                                            setReviewForm({...reviewForm, isManualVenue: false, selectedVenue: val, venue: val});
+                                                        }
+                                                    }} 
+                                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm text-gray-700"
+                                                >
+                                                    <option value="" disabled>공연장 선택</option>
+                                                    <optgroup label="서울">
+                                                        {venueList.Seoul.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                                                    </optgroup>
+                                                    <optgroup label="인천">
+                                                        {venueList.Incheon.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                                                    </optgroup>
+                                                    <optgroup label="경기">
+                                                        {venueList.Gyeonggi.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                                                    </optgroup>
+                                                    <option value="direct">직접 입력하기</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-600 mb-1 block">좌석 위치 (필수)</label>
+                                                <input type="text" placeholder="예: 스탠딩, 1층" value={reviewForm.seat} onChange={(e) => setReviewForm({...reviewForm, seat: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm" />
+                                            </div>
+                                        </div>
+                                        {reviewForm.isManualVenue && (
+                                            <div className="animate-fade-in -mt-1">
+                                                <input type="text" placeholder="공연장 이름을 직접 입력해주세요" value={reviewForm.venue} onChange={(e) => setReviewForm({...reviewForm, venue: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm" />
+                                            </div>
+                                        )}
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-600 mb-1 block">별점</label>
+                                            <div className="flex gap-1 justify-center bg-gray-50 py-2 rounded-xl border border-gray-100">
+                                                {[1,2,3,4,5].map(star => (
+                                                    <button key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className="focus:outline-none transition-transform hover:scale-110">
+                                                        <Icons.Star size={28} className={reviewForm.rating >= star ? "text-yellow-400 fill-current" : "text-gray-300"} />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-600 mb-1 block">사진 첨부 (선택)</label>
+                                            <div className="flex items-center gap-3">
+                                                <label className="flex-shrink-0 w-16 h-16 bg-blue-50 border border-blue-200 text-blue-500 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors">
+                                                    <Icons.Camera size={20} />
+                                                    <span className="text-[10px] font-bold mt-1">등록</span>
+                                                    <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                                </label>
+                                                {reviewForm.image && (
+                                                    <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200">
+                                                        <img src={reviewForm.image} alt="preview" className="w-full h-full object-cover" />
+                                                        <button onClick={() => setReviewForm({...reviewForm, image: null})} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5"><Icons.X size={12} /></button>
+                                                    </div>
+                                                )}
+                                                <p className="text-[10px] text-gray-400 leading-snug">고화질 원본은 자동 압축되어<br/>안전하게 저장됩니다.</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-600 mb-1 block">후기 내용</label>
+                                            <textarea placeholder="다른 고객님들을 위해 생생한 후기를 남겨주세요! (기종의 화질, 서비스 등)" value={reviewForm.text} onChange={(e) => setReviewForm({...reviewForm, text: e.target.value})} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm h-28 resize-none"></textarea>
+                                        </div>
+                                    </div>
+                                    <div className="p-4 border-t border-gray-100">
+                                        <button onClick={handleReviewSubmit} disabled={isSubmitting} className="w-full bg-blue-500 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                                            {isSubmitting ? '등록 중...' : '후기 등록하기'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* [NEW] 로그아웃 확인 모달 */}
                         {isLogoutModalOpen && (
                             <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in">
@@ -3809,13 +4003,20 @@
                                     <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-5">
                                         <Icons.RefreshCw size={32} className="animate-spin-slow" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-3">신청서를 준비하고 있어요!<br/>잠시만 기다려주세요! ⏳</h3>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-3">
+                                        {isReviewModalOpen ? (
+                                            <>후기를 등록하고 있어요!<br/>잠시만 기다려주세요! ⏳</>
+                                        ) : (
+                                            <>신청서를 준비하고 있어요!<br/>잠시만 기다려주세요! ⏳</>
+                                        )}
+                                    </h3>
                                     <div className="bg-red-50 border border-red-100 rounded-xl p-4 w-full">
                                         <p className="text-sm font-bold text-red-500 mb-1.5 flex items-center justify-center gap-1">
                                             <Icons.ShieldCheck size={16} /> 화면을 절대 끄거나 닫지 마세요!
                                         </p>
                                         <p className="text-[11px] text-red-400 leading-snug break-keep">
-                                            완료 화면이 뜰 때까지 창을 끄거나<br/>뒤로 가기를 누르지 말아주세요 🙏<br/>예약이 누락될 수 있어요<br/><br/>예상 소요 시간: 5초
+                                            완료 화면이 뜰 때까지 창을 끄거나<br/>뒤로 가기를 누르지 말아주세요 🙏<br/>
+                                            {isReviewModalOpen ? '리뷰 등록이 누락될 수 있어요' : '예약이 누락될 수 있어요'}<br/><br/>예상 소요 시간: 5초
                                         </p>
                                     </div>
                                 </div>
@@ -3835,6 +4036,27 @@
                                         ))}
                                     </span>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* [NEW] 이미지 확대(줌) 모달 추가 */}
+                        {selectedImage && (
+                            <div 
+                                className="fixed inset-0 z-[10000] bg-black/90 flex items-center justify-center p-4 animate-fade-in cursor-zoom-out"
+                                onClick={() => setSelectedImage(null)}
+                            >
+                                <button 
+                                    onClick={() => setSelectedImage(null)} 
+                                    className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors bg-black/50 rounded-full p-2"
+                                >
+                                    <Icons.X size={32} />
+                                </button>
+                                <img 
+                                    src={selectedImage} 
+                                    alt="확대된 리뷰 사진" 
+                                    className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-bounce-in cursor-default" 
+                                    onClick={(e) => e.stopPropagation()} 
+                                />
                             </div>
                         )}
                     </div>
