@@ -336,8 +336,8 @@
             const [deliveryMethod, setDeliveryMethod] = useState(null); 
             const [returnMethod, setReturnMethod] = useState(null); 
             const [dataBackup, setDataBackup] = useState(false);
-            // [UPDATE] 할인 상태 키 변경: app -> twitter
-            const [discounts, setDiscounts] = useState({ twitter: false, blog: false, kakao: false });
+            // [UPDATE] 할인 상태 키 변경: app -> twitter 및 homepage 추가
+            const [discounts, setDiscounts] = useState({ twitter: false, blog: false, kakao: false, homepage: false });
             
             // [NEW] 결제 수단 상태 추가 (기본값: 미선택으로 변경)
             const [paymentMethod, setPaymentMethod] = useState(null); 
@@ -372,7 +372,7 @@
 
             const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
             const [currentReviewItem, setCurrentReviewItem] = useState(null);
-            const [reviewForm, setReviewForm] = useState({ rating: 5, text: '', image: null, name: '', model: '갤럭시 S25 울트라', venue: '', seat: '', isManualVenue: false, selectedVenue: '' });
+            const [reviewForm, setReviewForm] = useState({ rating: 5, text: '', image: null, name: '', model: '', venue: '', seat: '', isManualVenue: false, selectedVenue: '' });
             
             const [myReviews, setMyReviews] = useState(() => {
                 const saved = localStorage.getItem('pink_my_reviews');
@@ -826,7 +826,7 @@
                     text: '', 
                     image: null, 
                     name: lookupName || userInfo.name || '', 
-                    model: item ? item.model : '갤럭시 S25 울트라', 
+                    model: item ? item.model : '', 
                     venue: '', 
                     seat: '',
                     isManualVenue: false,
@@ -846,8 +846,8 @@
 
             // [UPDATE] 리뷰 제출 시 구글 시트로 전송하도록 수정
             const handleReviewSubmit = async () => {
-                if (!reviewForm.name.trim() || !reviewForm.venue.trim() || !reviewForm.seat.trim() || !reviewForm.text.trim()) {
-                    alert("이름, 촬영 장소, 좌석 위치, 후기 내용을 모두 입력해주세요!");
+                if (!reviewForm.model || !reviewForm.name.trim() || !reviewForm.venue.trim() || !reviewForm.seat.trim() || !reviewForm.text.trim() || !reviewForm.image) {
+                    alert("기종, 이름, 촬영 장소, 좌석 위치, 후기 내용, 사진을 모두 입력/첨부해주세요!");
                     return;
                 }
 
@@ -1124,6 +1124,7 @@
                 if (discounts.twitter) total -= 4000; // X(트위터) 4000원
                 if (discounts.blog) total -= 5000;   // 블로그 5000원
                 if (discounts.kakao) total -= 4000;  // 카카오맵 4000원
+                if (discounts.homepage) total -= 4000; // [NEW] 홈페이지 4000원
 
                 // [NEW] 계좌이체 선택 시 1,000원 즉시 할인
                 if (paymentMethod === 'transfer') total -= 1000;
@@ -1226,6 +1227,7 @@
                 if (discounts.twitter) reviewText = '트위터';
                 else if (discounts.blog) reviewText = '블로그';
                 else if (discounts.kakao) reviewText = '카카오맵';
+                else if (discounts.homepage) reviewText = '홈페이지';
                 else reviewText = '선택안함';
 
                 let deliveryText = '미선택';
@@ -1303,7 +1305,7 @@
                 setDeliveryMethod(null);
                 setReturnMethod(null);
                 // [UPDATE] 할인 상태 초기화
-                setDiscounts({ twitter: false, blog: false, kakao: false });
+                setDiscounts({ twitter: false, blog: false, kakao: false, homepage: false });
                 setPaymentMethod(null); // [NEW] 결제수단 초기화 (미선택)
                 setSuccessData(null); 
                 setIsSubmitting(false);
@@ -1689,6 +1691,7 @@
                                                                 {item.review === '트위터' && <span className="font-medium text-gray-800">X(트위터)에 <span className="text-blue-500">#세린울트라대여 #울트라대여</span> 두가지 해시태그를 포함하여 후기를 남겨주시면 됩니다⭐</span>}
                                                                 {item.review === '블로그' && <span className="font-medium text-gray-800">네이버 블로그 > 장소추가 > <span className="text-blue-500">세린캠</span>을 추가하여 후기를 남겨주세요⭐</span>}
                                                                 {item.review === '카카오맵' && <span className="font-medium text-gray-800">카카오맵에서 <span className="text-blue-500">세린캠</span> 검색 후 사진과 함께 후기를 남겨주세요⭐</span>}
+                                                                {item.review === '홈페이지' && <span className="font-medium text-gray-800">세린캠 홈페이지에서 <span className="text-blue-500">리뷰 작성</span>을 통해 사진과 함께 생생한 후기를 남겨주세요⭐</span>}
                                                             </p>
                                                             
                                                             {/* [NEW] 카카오맵 바로가기 버튼 추가 */}
@@ -2783,6 +2786,13 @@
                                                         </div>
                                                     ))}
                                                 </div>
+                                                
+                                                {/* [UPDATE] 하단 가로 풀사이즈 후기 작성 버튼으로 변경 */}
+                                                <div className="px-1 mt-1">
+                                                    <button onClick={() => openReviewModal()} className="w-full bg-blue-50 text-blue-600 border border-blue-100 py-3.5 rounded-xl font-bold shadow-sm hover:bg-blue-100 transition-colors flex items-center justify-center gap-2 text-sm">
+                                                        <Icons.FileText size={16}/> 생생한 대여 후기 작성하기
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             {/* [NEW] 이용 팁 분단 추가 */}
@@ -3151,23 +3161,23 @@
                                                                     <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm"><Icons.Gift size={16} className="text-blue-400"/>리뷰 약속하고 혜택 받기</h3>
                                                                     {!selectedPhone && reviewError && <span className="text-[10px] font-bold px-2 py-0.5 rounded border transition-all text-red-600 bg-red-100 border-red-300 animate-shake shadow-sm">🚨 대여 모델을 먼저 골라주세요!</span>}
                                                                 </div>
-                                                                <div className="grid grid-cols-3 gap-2">
+                                                                <div className="grid grid-cols-2 gap-2">
                                                                     <div onClick={() => {
                                                                         if (!selectedPhone) {
                                                                             triggerReviewError();
                                                                             return;
                                                                         }
-                                                                        setDiscounts({ twitter: !discounts.twitter, blog: false, kakao: false });
-                                                                    }} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : (discounts.twitter ? 'border-gray-800 bg-gray-50' : 'border-gray-100 bg-white')}`}>
-                                                                        <span className="text-xs font-bold mb-1 break-keep">X(트위터)</span>
-                                                                        <span className={`text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-gray-500'}`}>4,000원 할인</span>
+                                                                        setDiscounts({ twitter: false, blog: false, kakao: false, homepage: !discounts.homepage });
+                                                                    }} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : (discounts.homepage ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white')}`}>
+                                                                        <span className="text-xs font-bold mb-1 break-keep">홈페이지</span>
+                                                                        <span className={`text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-blue-600'}`}>4,000원 할인</span>
                                                                     </div>
                                                                     <div onClick={() => {
                                                                         if (!selectedPhone) {
                                                                             triggerReviewError();
                                                                             return;
                                                                         }
-                                                                        setDiscounts({ twitter: false, blog: false, kakao: !discounts.kakao });
+                                                                        setDiscounts({ twitter: false, blog: false, kakao: !discounts.kakao, homepage: false });
                                                                     }} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : (discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white')}`}>
                                                                         <span className="text-xs font-bold mb-1 break-keep">카카오맵</span>
                                                                         <span className={`text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-yellow-600'}`}>4,000원 할인</span>
@@ -3177,20 +3187,31 @@
                                                                             triggerReviewError();
                                                                             return;
                                                                         }
-                                                                        setDiscounts({ twitter: false, blog: !discounts.blog, kakao: false });
+                                                                        setDiscounts({ twitter: !discounts.twitter, blog: false, kakao: false, homepage: false });
+                                                                    }} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : (discounts.twitter ? 'border-gray-800 bg-gray-50' : 'border-gray-100 bg-white')}`}>
+                                                                        <span className="text-xs font-bold mb-1 break-keep">X(트위터)</span>
+                                                                        <span className={`text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-gray-500'}`}>4,000원 할인</span>
+                                                                    </div>
+                                                                    <div onClick={() => {
+                                                                        if (!selectedPhone) {
+                                                                            triggerReviewError();
+                                                                            return;
+                                                                        }
+                                                                        setDiscounts({ twitter: false, blog: !discounts.blog, kakao: false, homepage: false });
                                                                     }} className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : (discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white')}`}>
                                                                         <span className="text-xs font-bold mb-1 break-keep">네이버블로그</span>
                                                                         <span className={`text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-green-600'}`}>5,000원 할인</span>
                                                                     </div>
                                                                 </div>
                                                                 
-                                                                {(discounts.twitter || discounts.blog || discounts.kakao) && (
+                                                                {(discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && (
                                                                     <div className="mt-3 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100 text-[11px] leading-relaxed animate-fade-in flex items-start gap-1.5">
                                                                         <span className="text-sm mt-0.5">🎁</span>
                                                                         <div>
                                                                             {discounts.twitter && <span className="text-blue-600 font-bold block">X(트위터) 리뷰 약속으로 4,000원 할인이 적용되었어요!</span>}
                                                                             {discounts.blog && <span className="text-green-600 font-bold block">블로그 리뷰 약속으로 5,000원 할인이 적용되었어요!</span>}
                                                                             {discounts.kakao && <span className="text-yellow-600 font-bold block">카카오맵 리뷰 약속으로 4,000원 할인이 적용되었어요!</span>}
+                                                                            {discounts.homepage && <span className="text-blue-600 font-bold block">홈페이지 리뷰 약속으로 4,000원 할인이 적용되었어요!</span>}
                                                                         </div>
                                                                     </div>
                                                                 )}
@@ -3863,61 +3884,72 @@
                                     </div>
                                     <div className="p-5 overflow-y-auto terms-scroll space-y-4">
                                         <div>
-                                            <label className="text-xs font-bold text-gray-600 mb-1 block">사용하신 기종</label>
-                                            <select value={reviewForm.model} onChange={(e) => setReviewForm({...reviewForm, model: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-bold text-gray-700">
-                                                <option value="갤럭시 S23 울트라">갤럭시 S23 울트라</option>
-                                                <option value="갤럭시 S24 울트라">갤럭시 S24 울트라</option>
-                                                <option value="갤럭시 S25 울트라">갤럭시 S25 울트라</option>
-                                                <option value="갤럭시 S26 울트라">갤럭시 S26 울트라</option>
-                                                <option value="아이폰 17 프로">아이폰 17 프로</option>
-                                                <option value="아이폰 17 프로맥스">아이폰 17 프로맥스</option>
-                                            </select>
+                                            <label className="text-xs font-bold text-gray-600 mb-1.5 block">사용하신 기종</label>
+                                            <div className="relative">
+                                                <select value={reviewForm.model || ''} onChange={(e) => setReviewForm({...reviewForm, model: e.target.value})} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-bold text-gray-800 appearance-none focus:border-blue-400 focus:bg-white transition-all">
+                                                    <option value="" disabled>기종을 선택해주세요</option>
+                                                    <option value="갤럭시 S23 울트라">갤럭시 S23 울트라</option>
+                                                    <option value="갤럭시 S24 울트라">갤럭시 S24 울트라</option>
+                                                    <option value="갤럭시 S25 울트라">갤럭시 S25 울트라</option>
+                                                    <option value="갤럭시 S26 울트라">갤럭시 S26 울트라</option>
+                                                    <option value="아이폰 17 프로">아이폰 17 프로</option>
+                                                    <option value="아이폰 17 프로맥스">아이폰 17 프로맥스</option>
+                                                </select>
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                                    <Icons.ChevronLeft size={16} className="-rotate-90" />
+                                                </div>
+                                            </div>
                                         </div>
                                         <div>
-                                            <label className="text-xs font-bold text-gray-600 mb-1 block">작성자</label>
-                                            <input type="text" placeholder="홍길동" value={reviewForm.name} onChange={(e) => setReviewForm({...reviewForm, name: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm" />
+                                            <label className="text-xs font-bold text-gray-600 mb-1.5 block">작성자</label>
+                                            <input type="text" placeholder="홍길동" value={reviewForm.name} onChange={(e) => setReviewForm({...reviewForm, name: e.target.value})} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-medium text-gray-800 focus:border-blue-400 focus:bg-white transition-all" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label className="text-xs font-bold text-gray-600 mb-1 block">촬영 장소 (필수)</label>
-                                                <select 
-                                                    value={reviewForm.selectedVenue || ''} 
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        if (val === 'direct') {
-                                                            setReviewForm({...reviewForm, isManualVenue: true, selectedVenue: 'direct', venue: ''});
-                                                        } else {
-                                                            setReviewForm({...reviewForm, isManualVenue: false, selectedVenue: val, venue: val});
-                                                        }
-                                                    }} 
-                                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm text-gray-700"
-                                                >
-                                                    <option value="" disabled>공연장 선택</option>
-                                                    <optgroup label="서울">
-                                                        {venueList.Seoul.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
-                                                    </optgroup>
-                                                    <optgroup label="인천">
-                                                        {venueList.Incheon.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
-                                                    </optgroup>
-                                                    <optgroup label="경기">
-                                                        {venueList.Gyeonggi.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
-                                                    </optgroup>
-                                                    <option value="direct">직접 입력하기</option>
-                                                </select>
+                                                <label className="text-xs font-bold text-gray-600 mb-1.5 block">촬영 장소</label>
+                                                <div className="relative">
+                                                    <select 
+                                                        value={reviewForm.selectedVenue || ''} 
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+                                                            if (val === 'direct') {
+                                                                setReviewForm({...reviewForm, isManualVenue: true, selectedVenue: 'direct', venue: ''});
+                                                            } else {
+                                                                setReviewForm({...reviewForm, isManualVenue: false, selectedVenue: val, venue: val});
+                                                            }
+                                                        }} 
+                                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-medium text-gray-800 appearance-none focus:border-blue-400 focus:bg-white transition-all"
+                                                    >
+                                                        <option value="" disabled>공연장 선택</option>
+                                                        <optgroup label="서울">
+                                                            {venueList.Seoul.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                                                        </optgroup>
+                                                        <optgroup label="인천">
+                                                            {venueList.Incheon.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                                                        </optgroup>
+                                                        <optgroup label="경기">
+                                                            {venueList.Gyeonggi.map(v => <option key={v.name} value={v.name}>{v.name}</option>)}
+                                                        </optgroup>
+                                                        <option value="direct">직접 입력하기</option>
+                                                    </select>
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                                        <Icons.ChevronLeft size={16} className="-rotate-90" />
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div>
-                                                <label className="text-xs font-bold text-gray-600 mb-1 block">좌석 위치 (필수)</label>
-                                                <input type="text" placeholder="예: 스탠딩, 1층" value={reviewForm.seat} onChange={(e) => setReviewForm({...reviewForm, seat: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm" />
+                                                <label className="text-xs font-bold text-gray-600 mb-1.5 block">좌석 위치</label>
+                                                <input type="text" placeholder="예: 스탠딩, 1층" value={reviewForm.seat} onChange={(e) => setReviewForm({...reviewForm, seat: e.target.value})} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-medium text-gray-800 focus:border-blue-400 focus:bg-white transition-all" />
                                             </div>
                                         </div>
                                         {reviewForm.isManualVenue && (
                                             <div className="animate-fade-in -mt-1">
-                                                <input type="text" placeholder="공연장 이름을 직접 입력해주세요" value={reviewForm.venue} onChange={(e) => setReviewForm({...reviewForm, venue: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm" />
+                                                <input type="text" placeholder="공연장 이름을 직접 입력해주세요" value={reviewForm.venue} onChange={(e) => setReviewForm({...reviewForm, venue: e.target.value})} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-medium text-gray-800 focus:border-blue-400 focus:bg-white transition-all" />
                                             </div>
                                         )}
                                         <div>
-                                            <label className="text-xs font-bold text-gray-600 mb-1 block">별점</label>
-                                            <div className="flex gap-1 justify-center bg-gray-50 py-2 rounded-xl border border-gray-100">
+                                            <label className="text-xs font-bold text-gray-600 mb-1.5 block">별점</label>
+                                            <div className="flex gap-1 justify-center bg-gray-50 py-2.5 rounded-xl border border-gray-100">
                                                 {[1,2,3,4,5].map(star => (
                                                     <button key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className="focus:outline-none transition-transform hover:scale-110">
                                                         <Icons.Star size={28} className={reviewForm.rating >= star ? "text-yellow-400 fill-current" : "text-gray-300"} />
@@ -3926,7 +3958,7 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-xs font-bold text-gray-600 mb-1 block">사진 첨부 (선택)</label>
+                                            <label className="text-xs font-bold text-gray-600 mb-1.5 block">사진 첨부 (필수)</label>
                                             <div className="flex items-center gap-3">
                                                 <label className="flex-shrink-0 w-16 h-16 bg-blue-50 border border-blue-200 text-blue-500 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors">
                                                     <Icons.Camera size={20} />
@@ -3943,8 +3975,8 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-xs font-bold text-gray-600 mb-1 block">후기 내용</label>
-                                            <textarea placeholder="다른 고객님들을 위해 생생한 후기를 남겨주세요! (기종의 화질, 서비스 등)" value={reviewForm.text} onChange={(e) => setReviewForm({...reviewForm, text: e.target.value})} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm h-28 resize-none"></textarea>
+                                            <label className="text-xs font-bold text-gray-600 mb-1.5 block">후기 내용</label>
+                                            <textarea placeholder="다른 고객님들을 위해 생생한 후기를 남겨주세요! (기종의 화질, 서비스 등)" value={reviewForm.text} onChange={(e) => setReviewForm({...reviewForm, text: e.target.value})} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm h-28 resize-none focus:border-blue-400 focus:bg-white transition-all"></textarea>
                                         </div>
                                     </div>
                                     <div className="p-4 border-t border-gray-100">
