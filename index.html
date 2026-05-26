@@ -3205,13 +3205,44 @@
                                                                 </div>
                                                                 
                                                                 {(discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && (
-                                                                    <div className="mt-3 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100 text-[11px] leading-relaxed animate-fade-in flex items-start gap-1.5">
-                                                                        <span className="text-sm mt-0.5">🎁</span>
-                                                                        <div>
-                                                                            {discounts.twitter && <span className="text-blue-600 font-bold block">X(트위터) 리뷰 약속으로 4,000원 할인이 적용되었어요!</span>}
-                                                                            {discounts.blog && <span className="text-green-600 font-bold block">블로그 리뷰 약속으로 5,000원 할인이 적용되었어요!</span>}
-                                                                            {discounts.kakao && <span className="text-yellow-600 font-bold block">카카오맵 리뷰 약속으로 4,000원 할인이 적용되었어요!</span>}
-                                                                            {discounts.homepage && <span className="text-blue-600 font-bold block">홈페이지 리뷰 약속으로 4,000원 할인이 적용되었어요!</span>}
+                                                                    <div className={`mt-3 p-4 rounded-xl border animate-fade-in transition-colors ${discounts.homepage ? 'bg-blue-50 border-blue-100' : discounts.kakao ? 'bg-yellow-50 border-yellow-200' : discounts.twitter ? 'bg-gray-50 border-gray-200' : 'bg-green-50 border-green-200'}`}>
+                                                                        <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-black/5">
+                                                                            <span className="text-base">🎁</span>
+                                                                            {discounts.homepage && <span className="text-blue-700 font-bold text-sm">홈페이지 리뷰 (4,000원 할인)</span>}
+                                                                            {discounts.kakao && <span className="text-yellow-700 font-bold text-sm">카카오맵 리뷰 (4,000원 할인)</span>}
+                                                                            {discounts.twitter && <span className="text-gray-800 font-bold text-sm">X(트위터) 리뷰 (4,000원 할인)</span>}
+                                                                            {discounts.blog && <span className="text-green-700 font-bold text-sm">네이버 블로그 리뷰 (5,000원 할인)</span>}
+                                                                        </div>
+                                                                        
+                                                                        <div className="text-xs leading-relaxed text-gray-600">
+                                                                            {discounts.homepage && (
+                                                                                <>
+                                                                                    <p className="font-bold text-blue-600 mb-1">💡 작성 방법 안내</p>
+                                                                                    <p>홈화면에 있는 <strong className="text-gray-800">생생한 대여 후기 작성하기</strong> 버튼을 눌러 작성해주시면 됩니다!</p>
+                                                                                    <p className="text-[11px] text-blue-500 bg-white px-2 py-1 rounded-lg border border-blue-100 inline-block mt-2 font-medium">SNS 안 하시는 분들에게 적극 추천드려요! 👍</p>
+                                                                                </>
+                                                                            )}
+                                                                            {discounts.kakao && (
+                                                                                <>
+                                                                                    <p className="font-bold text-yellow-600 mb-1">💡 작성 방법 안내</p>
+                                                                                    <p>카카오맵에서 <strong className="text-gray-800">'세린캠'</strong> 검색 후 사진과 함께 별점 리뷰를 남겨주시면 됩니다!</p>
+                                                                                    <p className="text-[11px] text-yellow-600 bg-white px-2 py-1 rounded-lg border border-yellow-100 inline-block mt-2 font-medium">빠르고 간단한 작성을 원하시는 분들께 추천드려요! ⚡</p>
+                                                                                </>
+                                                                            )}
+                                                                            {discounts.twitter && (
+                                                                                <>
+                                                                                    <p className="font-bold text-gray-700 mb-1">💡 작성 방법 안내</p>
+                                                                                    <p>사진과 함께 <strong className="text-blue-500">#세린울트라대여 #울트라대여</strong> 해시태그를 포함하여 후기를 남겨주세요!</p>
+                                                                                    <p className="text-[11px] text-gray-500 bg-white px-2 py-1 rounded-lg border border-gray-200 inline-block mt-2 font-medium">콘서트/팬미팅 후기를 트친들과 공유해보세요! 💙</p>
+                                                                                </>
+                                                                            )}
+                                                                            {discounts.blog && (
+                                                                                <>
+                                                                                    <p className="font-bold text-green-600 mb-1">💡 작성 방법 안내</p>
+                                                                                    <p>게시글 장소 추가에 <strong className="text-gray-800">'세린캠'</strong>을 추가하고 사진과 함께 상세한 후기를 남겨주세요!</p>
+                                                                                    <p className="text-[11px] text-green-600 bg-white px-2 py-1 rounded-lg border border-green-100 inline-block mt-2 font-medium">나만의 덕질 일상을 꼼꼼하게 기록하시는 분들께 추천드려요! ✍️</p>
+                                                                                </>
+                                                                            )}
                                                                         </div>
                                                                     </div>
                                                                 )}
