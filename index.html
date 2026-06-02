@@ -422,6 +422,10 @@
             const [cancelMessage, setCancelMessage] = useState({ title: '', msg: '', type: 'normal' });
             const [successData, setSuccessData] = useState(null);
             
+            // [NEW] 예약 조회 실패 가이드 및 알림톡 상태 추가
+            const [showNotFoundGuide, setShowNotFoundGuide] = useState(false);
+            const [alimtalkStatus, setAlimtalkStatus] = useState(null);
+
             // [NEW] 연락처 확인 모달 상태 추가 및 카운트다운 로직
             const [isPhoneCheckModalOpen, setIsPhoneCheckModalOpen] = useState(false);
             const [isPhoneCheckDisabled, setIsPhoneCheckDisabled] = useState(true);
@@ -1446,18 +1450,22 @@
                 }
             };
 
-            const handleLookup = async (nameParam, phoneParam, isRefresh = false) => {
-                const targetName = nameParam || lookupName;
-                const targetPhone = phoneParam || lookupPhone;
+            const handleLookup = async (nameParam = null, phoneParam = null, isRefresh = false) => {
+                // [UPDATE] 이벤트 객체가 파라미터로 들어오는 것을 방지하고, 명확하게 문자열만 받도록 처리
+                const targetName = typeof nameParam === 'string' ? nameParam : lookupName;
+                const targetPhone = typeof phoneParam === 'string' ? phoneParam : lookupPhone;
 
-                if (!targetName || targetPhone.length < 10) { 
-                    if (!nameParam) alert('정보를 올바르게 입력해주세요.'); 
+                // [UPDATE] 유효성 검사 실패 시 모바일에서 막힐 수 있는 alert 대신 커스텀 토스트 알림 사용
+                if (!targetName || !targetPhone || targetPhone.length < 10) { 
+                    showAppToast('성함과 연락처를 올바르게 입력해주세요! 📝');
                     return; 
                 }
-                if (!GOOGLE_SCRIPT_URL) { alert("연동 URL이 설정되지 않았습니다."); return; }
                 
-                setAlimtalkStatus(null); // [NEW] 조회 시 알림톡 상태 초기화
-                setShowNotFoundGuide(false); // [NEW] 조회 시 안내 가이드 닫힘으로 초기화
+                if (!GOOGLE_SCRIPT_URL) { 
+                    showAppToast("연동 URL이 설정되지 않았습니다."); 
+                    return; 
+                }
+                
                 setIsSearching(true);
                 try {
                     const response = await fetch(`${GOOGLE_SCRIPT_URL}?name=${encodeURIComponent(targetName)}&phone=${encodeURIComponent(targetPhone)}`, { redirect: "follow" });
@@ -1468,16 +1476,18 @@
                         const dataArray = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
                         
                         setLookupResult([...dataArray].reverse()); 
-                        localStorage.setItem('pink_user', JSON.stringify({ name: targetName, phone: targetPhone }));
-                    }
-                    else { 
-                        if (!nameParam) {
-                            alert("일치하는 예약 정보가 없습니다."); 
-                            setLookupResult(null); 
+                        if (dataArray.length > 0) {
+                            localStorage.setItem('pink_user', JSON.stringify({ name: targetName, phone: targetPhone }));
                         }
                     }
+                    else { 
+                        if (!isRefresh) showAppToast("일치하는 예약 정보가 없습니다. 😢");
+                        // [UPDATE] null 대신 빈 배열([])을 넣어 안내 가이드 화면이 뜨도록 수정
+                        setLookupResult([]); 
+                    }
                 } catch (error) { 
-                    if (!nameParam) alert("조회 중 오류가 발생했습니다."); 
+                    showAppToast("조회 중 오류가 발생했습니다.\n다시 시도해주세요. 🚨");
+                    setLookupResult([]); 
                 } finally { 
                     setIsSearching(false); 
                 }
@@ -1746,8 +1756,14 @@
                                 </div>
                                 <input type="text" placeholder="성함" className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors" value={lookupName} onChange={(e) => setLookupName(e.target.value)} />
                                 <input type="text" placeholder="연락처 (010-0000-0000)" className="w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors" value={lookupPhone} onChange={(e) => setLookupPhone(formatPhone(e.target.value))} onKeyPress={(e) => e.key === 'Enter' && handleLookup()}/>
-                                <button onClick={() => handleLookup()} disabled={isSearching} className="w-full bg-blue-500 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors mt-2">
-                                    {isSearching ? '조회 중...' : '내역 조회하기'}
+                                
+                                {/* [UPDATE] 버튼 클릭 애니메이션(active:scale-95) 추가 및 조회 중 아이콘 표시로 직관성 개선 */}
+                                <button 
+                                    onClick={() => handleLookup()} 
+                                    disabled={isSearching} 
+                                    className={`w-full py-4 rounded-xl font-bold shadow-md transition-all flex justify-center items-center gap-2 mt-2 ${isSearching ? 'bg-blue-300 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`}
+                                >
+                                    {isSearching ? <><Icons.RefreshCw size={18} className="animate-spin-slow" /> 조회 중...</> : <><Icons.Search size={18} /> 내역 조회하기</>}
                                 </button>
                             </div>
                         ) : (
@@ -1770,6 +1786,11 @@
                                         </div>
                                         <p className="font-bold text-gray-600 mb-1 text-sm">예약 내역이 없습니다.</p>
                                         <p className="text-[11px] text-gray-400 mb-2">입력하신 정보로 조회된 내역이 없어요.</p>
+                                        
+                                        <button onClick={() => {setLookupResult(null); setLookupName(''); setLookupPhone('');}} className="mt-2 mb-6 text-[11px] font-bold text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors shadow-sm">
+                                            <Icons.RefreshCw size={10} className="inline mr-1" /> 다른 정보로 다시 조회하기
+                                        </button>
+                                        
                                         {renderNotFoundGuide()}
                                     </div>
                                 ) : (
