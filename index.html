@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>세린캠 | 특별한 하루를 더 예쁘게! 울트라 대여</title>
     
+    <!-- [NEW] 검색 엔진 최적화 (SEO) 설정 추가 -->
+    <!-- 1. 홈페이지 설명 (검색 결과 제목 밑에 뜨는 글씨) -->
+    <meta name="description" content="울트라 대여의 모든 것, 세린캠에서 쉽고 간편하게">
+    <!-- 2. 검색 키워드 (검색 엔진이 참고하는 단어들) -->
+    <meta name="keywords" content="세린캠, 울트라대여, 갤럭시대여, 콘서트대여, 아이폰대여, S24울트라대여, S25울트라대여, 콘서트카메라, 팬미팅대여">
+    
     <!-- [NEW] 파비콘 및 모바일 아이콘 설정 -->
     <!-- 1. 파비콘 (브라우저 탭 아이콘) -->
     <link rel="icon" type="image/png" href="https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/14/e0a0ee0bde33d92a77f1178142cbf7ec.png" />
@@ -135,7 +141,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         // ⭐ 중요: 배포한 구글 웹 앱 URL을 여기에 입력하세요 ⭐
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8M-LLBNxTVZRQmHWd82ebAZVsJbXOpzaQCHQVbkk6Q8EmRC1hdub27vW9uySwSHiHrA/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDoaIt1VmkNlSGZeNQuhLyCMuLmOUUCycI7JnxRQTqecjcq6bSZH3vbOqtjOfLzIUfPw/exec"; 
         const KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
 
         const HOLIDAYS = {
@@ -439,27 +445,11 @@
 
             // [NEW] 연락처 확인 모달 상태 추가 및 카운트다운 로직
             const [isPhoneCheckModalOpen, setIsPhoneCheckModalOpen] = useState(false);
-            const [isPhoneCheckDisabled, setIsPhoneCheckDisabled] = useState(true);
-            const [phoneCheckCountdown, setPhoneCheckCountdown] = useState(3);
-
-            useEffect(() => {
-                if (isPhoneCheckModalOpen) {
-                    setIsPhoneCheckDisabled(true);
-                    setPhoneCheckCountdown(3);
-                    
-                    const timer1 = setTimeout(() => setPhoneCheckCountdown(2), 1000);
-                    const timer2 = setTimeout(() => setPhoneCheckCountdown(1), 2000);
-                    const timer3 = setTimeout(() => {
-                        setPhoneCheckCountdown(0);
-                        setIsPhoneCheckDisabled(false);
-                    }, 3000);
-                    
-                    return () => { clearTimeout(timer1); clearTimeout(timer2); clearTimeout(timer3); };
-                }
-            }, [isPhoneCheckModalOpen]);
             
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
+            const [activeFaqCategory, setActiveFaqCategory] = useState('전체'); // [NEW] FAQ 카테고리 상태 추가
+            const [faqSearchQuery, setFaqSearchQuery] = useState(''); // [NEW] FAQ 검색어 상태 추가
             
             // [NEW] 블로그 이동 확인 모달 상태
             const [isBlogConfirmOpen, setIsBlogConfirmOpen] = useState(false);
@@ -1642,6 +1632,7 @@
 
             const handleNavChange = (nav) => {
                 setActiveNav(nav);
+                setFaqSearchQuery(''); // [NEW] 메뉴 이동 시 FAQ 검색어 초기화
                 if (nav === 'home') {
                     setViewMode('dashboard');
                 } else if (nav === 'rental') {
@@ -1933,13 +1924,19 @@
             };
 
             const renderQnaPage = () => {
-                const faqs = [
-                    { q: "원하는 어플 설치할 수 있나요?", a: "📱 앱 설치가 필요할 때 이렇게 해주세요!\n\n📍 갤럭시(안드로이드)\n1️⃣ 먼저 와이파이 연결하기\n2️⃣ [Play 스토어] → ‘로그인’ 버튼 눌러서 본인 구글 계정으로 로그인해주세요.\n3️⃣ 필요한 앱 이름 검색 → 설치 누르기 😊\n\n📍 아이폰(iOS)\n❌ 아이폰은 앱 설치 시 계정 비밀번호가 필요하여 개인 설치가 불가해요.\n필요하신 어플이 있으시다면 카카오톡 채널로 미리 말씀해 주세요.\n세린캠이 미리 설치해드릴게요 💛" },
-                    { q: "대여기간을 어떻게 설정해야 할까요?", a: "💡 이렇게 예약해주시면 됩니다!\n\n대여시작일: 실제로 기기를 사용할 날짜\n 대여반납일: 기기를 반납하는 날짜\n\n⚠️ 반납일이 주말, 공휴일인 경우 택배반납은 제한될 수 있어요." },
-                    { q: "예약확정이 되었는지 궁금해요", a: "💡 고객님께 발송된 알림톡을 확인 후 결제하신 뒤 '결제했어요' 버튼을 눌러주세요!\n\n ⚠️ 만약 예약을 했는데도, 알림톡이 오지 않았다면 카카오톡 채널로 문의해 주세요!" },
-                    { q: "사진 옮기는 거 도와주시나요?", a: "데이터 백업은 고객님이 직접 진행(셀프) 해주셔야 해요 😊\n방법은 홈페이지에서 홈 > 백업방법을 누르면 자세히 확인하실 수 있어요!\n\n💡직접 하시기에 시간이 부족하거나, 어려우시다면\n데이터 백업 서비스 신청도 가능하며 서비스 이용 비용은 1만원입니다." },
-                    { q: "보증금 있나요?", a: "세린캠은 보증금 없이 이용 가능해요!\n 예약하신 대여료만 결제하면 바로 이용하실 수 있어요 😊" },
+                const FAQ_CATEGORIES = ['전체', '이용안내', '예약', '수령', '반납', '백업', '환불/취소', '기타'];
+                const faqsData = [
+                    { category: '이용안내', q: "원하는 어플 설치할 수 있나요?", a: "📱 앱 설치가 필요할 때 이렇게 해주세요!\n\n📍 갤럭시(안드로이드)\n1️⃣ 먼저 와이파이 연결하기\n2️⃣ [Play 스토어] → ‘로그인’ 버튼 눌러서 본인 구글 계정으로 로그인해주세요.\n3️⃣ 필요한 앱 이름 검색 → 설치 누르기 😊\n\n📍 아이폰(iOS)\n❌ 아이폰은 앱 설치 시 계정 비밀번호가 필요하여 개인 설치가 불가해요.\n필요하신 어플이 있으시다면 카카오톡 채널로 미리 말씀해 주세요.\n세린캠이 미리 설치해드릴게요 💛" },
+                    { category: '이용안내', q: "미성년자도 대여 가능한가요?", a: "네, 미성년자도 이용 가능해요!😊\n예약 및 계약 절차만 정상적으로 진행되면 대여하실 수 있어요." },
+                    { category: '예약', q: "대여기간을 어떻게 설정해야 할까요?", a: "💡 이렇게 예약해주시면 됩니다!\n\n대여시작일: 실제로 기기를 사용할 날짜\n 대여반납일: 기기를 반납하는 날짜\n\n⚠️ 반납일이 주말, 공휴일인 경우 택배반납은 제한될 수 있어요." },
+                    { category: '예약', q: "예약확정이 되었는지 궁금해요", a: "💡 고객님께 발송된 알림톡을 확인 후 결제하신 뒤 '결제했어요' 버튼을 눌러주세요!\n\n ⚠️ 만약 예약을 했는데도, 알림톡이 오지 않았다면 카카오톡 채널로 문의해 주세요!" },
+                    { category: '예약', q: "보증금 있나요?", a: "세린캠은 보증금 없이 이용 가능해요!\n 예약하신 대여료만 결제하면 바로 이용하실 수 있어요 😊" },
+                    { category: '수령', q: "공연장 수령은 언제, 어디서 하나요?", a: "공연장 수령은 보통 사운드체크 1시간 전, 또는 본 공연 2시간 전에 공연장 근처에서 진행됩니다. 정확한 장소와 시간은 대여 시작일 1일 전에 카카오톡 알림톡으로 상세히 안내해 드립니다! 🏟️" },
+                    { category: '수령', q: "택배 수령은 언제 도착하나요?", a: "택배 수령은 대여 시작일 1일 전 도착을 원칙으로 발송해 드리고 있습니다. (단, 택배사 사정에 따라 간혹 지연될 수 있습니다) 📦" },
+                    { category: '반납', q: "반납은 언제, 어떻게 하나요?", a: "선택하신 반납 방법에 따라 다릅니다.\n\n📍 우체국택배: 반납일 오후 4시까지 접수\n📍 당일반납: 공연 종료 후 30분 이내 현장 반납\n📍 공연장반납: 약속된 시간(보통 공연 2~3시간 전)에 반납\n📍 사무실반납: 반납일 오전 10시까지 방문" },
+                    { category: '백업', q: "사진 옮기는 거 도와주시나요?", a: "데이터 백업은 고객님이 직접 진행(셀프) 해주셔야 해요 😊\n방법은 홈페이지에서 홈 > 백업방법을 누르면 자세히 확인하실 수 있어요!\n\n💡직접 하시기에 시간이 부족하거나, 어려우시다면\n데이터 백업 서비스 신청도 가능하며 서비스 이용 비용은 1만원입니다." },
                     { 
+                        category: '환불/취소',
                         q: "예약 취소하고 싶어요.", 
                         a: (
                             <div className="space-y-3">
@@ -1969,56 +1966,118 @@
                             </div>
                         )
                     },
-                    { q: "미성년자도 대여 가능한가요?", a: "네, 미성년자도 이용 가능해요!😊\n예약 및 계약 절차만 정상적으로 진행되면 대여하실 수 있어요." }
+                    { category: '기타', q: "해외에서도 사용할 수 있나요?", a: "대여 기기는 기본적으로 '공기계(와이파이용)' 상태로 제공됩니다. 해외에서 사용하시려면 로밍, 현지 유심 또는 포켓 와이파이를 직접 준비해 주셔야 원활한 사용이 가능합니다. ✈️" }
                 ];
 
                 const toggleFaq = (index) => {
                     setOpenFaqIndex(openFaqIndex === index ? null : index);
                 };
 
+                // [UPDATE] 검색어 필터를 질문(q)뿐만 아니라 답변(a)에서도 찾을 수 있도록 로직 수정
+                const filteredFaqs = faqsData.filter(faq => {
+                    const matchesCategory = activeFaqCategory === '전체' || faq.category === activeFaqCategory;
+                    
+                    if (faqSearchQuery === '') return matchesCategory;
+                    
+                    const query = faqSearchQuery.toLowerCase();
+                    const matchesQuestion = faq.q.toLowerCase().includes(query);
+                    
+                    // 답변이 텍스트(string)일 경우에만 소문자 변환 후 검색, JSX 객체(환불/취소 항목)일 경우 질문만 검색
+                    const matchesAnswer = typeof faq.a === 'string' && faq.a.toLowerCase().includes(query);
+                    
+                    return matchesCategory && (matchesQuestion || matchesAnswer);
+                });
+
                 return (
-                    <div className="animate-slide-in space-y-6 pb-20">
-                        <div className="flex items-center gap-3 mb-6">
+                    <div className="animate-slide-in space-y-4 pb-20">
+                        <div className="flex items-center gap-3 mb-2 px-1">
                             <button onClick={() => handleNavChange('home')} className="p-2 bg-white rounded-full shadow-sm">
                                 <Icons.ChevronLeft className="w-5 h-5 text-gray-600" />
                             </button>
                             <h2 className="text-xl font-bold text-gray-800">자주 묻는 질문</h2>
                         </div>
+
+                        {/* [NEW] 검색창 추가 */}
+                        <div className="relative mb-3 px-1">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Icons.Search size={16} className="text-gray-400" />
+                            </div>
+                            <input 
+                                type="text" 
+                                placeholder="궁금하신 내용을 검색해보세요!" 
+                                value={faqSearchQuery}
+                                onChange={(e) => {
+                                    setFaqSearchQuery(e.target.value);
+                                    setOpenFaqIndex(null); // 검색 시 열려있는 답변 닫기
+                                }}
+                                className="w-full py-3.5 pl-11 pr-10 bg-white border border-gray-100 rounded-2xl outline-none text-sm text-gray-700 focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all shadow-sm font-medium"
+                            />
+                            {faqSearchQuery && (
+                                <button 
+                                    onClick={() => setFaqSearchQuery('')}
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    <Icons.X size={18} />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* [NEW] 카테고리 탭 메뉴 */}
+                        <div className="flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar">
+                            {FAQ_CATEGORIES.map(cat => (
+                                <button 
+                                    key={cat} 
+                                    onClick={() => { setActiveFaqCategory(cat); setOpenFaqIndex(null); }} 
+                                    className={`px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeFaqCategory === cat ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
                         
-                        <div className="space-y-3">
-                            {faqs.map((faq, idx) => (
-                                <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300">
-                                    <button 
-                                        onClick={() => toggleFaq(idx)}
-                                        className="w-full flex justify-between items-center p-5 text-left hover:bg-gray-50 transition-colors"
-                                    >
-                                        <div className="flex gap-3 items-center">
-                                            <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-500 font-bold text-xs flex items-center justify-center shrink-0">Q</span>
-                                            <span className={`font-bold text-sm ${openFaqIndex === idx ? 'text-blue-500' : 'text-gray-700'}`}>{faq.q}</span>
-                                        </div>
-                                        <Icons.ChevronLeft size={16} className={`text-gray-400 transition-transform duration-300 ${openFaqIndex === idx ? '-rotate-90 text-blue-500' : 'rotate-180'}`} />
-                                    </button>
-                                    
-                                    <div 
-                                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === idx ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}
-                                    >
-                                        <div className="p-5 pt-0 text-xs text-gray-600 leading-relaxed bg-gray-50/50 border-t border-gray-100">
-                                            <div className="pt-4 whitespace-pre-line">
-                                                {faq.a}
+                        <div className="space-y-3 mt-2 px-1">
+                            {filteredFaqs.length > 0 ? (
+                                filteredFaqs.map((faq, idx) => (
+                                    <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300">
+                                        <button 
+                                            onClick={() => toggleFaq(idx)}
+                                            className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex gap-3 items-center pr-3">
+                                                <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-500 font-bold text-xs flex items-center justify-center shrink-0">Q</span>
+                                                {/* [UPDATE] 검색어가 포함된 질문 하이라이트 처리는 복잡성을 줄이기 위해 생략하고 폰트만 유지 */}
+                                                <span className={`font-bold text-sm leading-snug ${openFaqIndex === idx ? 'text-blue-500' : 'text-gray-700'}`}>{faq.q}</span>
+                                            </div>
+                                            <Icons.ChevronLeft size={16} className={`text-gray-400 shrink-0 transition-transform duration-300 ${openFaqIndex === idx ? '-rotate-90 text-blue-500' : 'rotate-180'}`} />
+                                        </button>
+                                        
+                                        <div 
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaqIndex === idx ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}
+                                        >
+                                            <div className="p-4 pt-0 text-xs text-gray-600 leading-relaxed bg-gray-50/50 border-t border-gray-100">
+                                                <div className="pt-4 whitespace-pre-line">
+                                                    {faq.a}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                    <Icons.Search size={32} className="mx-auto text-gray-300 mb-2"/>
+                                    <p className="text-gray-500 text-sm font-bold">검색 결과가 없어요 😢</p>
+                                    <p className="text-[11px] text-gray-400 mt-1">다른 검색어로 다시 시도해보시거나<br/>아래 카카오톡으로 문의해주세요!</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
 
-                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center mt-6">
+                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center mt-6 mx-1">
                             <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3 text-yellow-600 animate-bounce-in">
                                 <Icons.HelpCircle size={24} />
                             </div>
-                            <h4 className="font-bold text-gray-800 mb-2">원하는 답변을 못 찾으셨나요?</h4>
-                            <p className="text-xs text-gray-500 mb-6">카카오톡으로 문의주시면<br/>친절하고 빠르게 답변해 드릴게요!</p>
-                            <button onClick={() => setShowKakaoModal(true)} className="w-full bg-yellow-400 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 text-sm">
+                            <h4 className="font-bold text-gray-800 mb-2">원하시는 답변이 없으신가요?</h4>
+                            <p className="text-[11px] text-gray-500 mb-5 leading-relaxed">카카오톡으로 언제든지 편하게 문의해주세요!<br/>친절하고 빠르게 답변해 드릴게요 😊</p>
+                            <button onClick={() => setShowKakaoModal(true)} className="w-full bg-[#FAE100] text-[#373737] py-3.5 rounded-xl font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-2 text-sm">
                                 <Icons.MessageHeart size={18} /> 카카오톡 1:1 문의하기
                             </button>
                         </div>
@@ -2849,7 +2908,7 @@
                                                                     <div className="mt-0.5 w-3.5 h-3.5 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center shrink-0">
                                                                         <Icons.Check size={10} strokeWidth="3" />
                                                                     </div>
-                                                                    <span className="text-[11px] font-bold text-gray-700 leading-snug">회원가입 <span className="text-blue-500">없어요</span></span>
+                                                                    <span className="text-[11px] font-bold text-gray-700 leading-snug">회원가입 <span className="text-blue-500">없음</span></span>
                                                                 </div>
                                                                 <div className="flex items-start gap-1.5 bg-pink-50/50 p-2 rounded-xl border border-pink-100/50">
                                                                     <div className="mt-0.5 w-3.5 h-3.5 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center shrink-0">
@@ -2861,7 +2920,7 @@
                                                                     <div className="mt-0.5 w-3.5 h-3.5 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center shrink-0">
                                                                         <Icons.Check size={10} strokeWidth="3" />
                                                                     </div>
-                                                                    <span className="text-[11px] font-bold text-gray-700 leading-snug">보증금 <span className="text-purple-500">없어요</span></span>
+                                                                    <span className="text-[11px] font-bold text-gray-700 leading-snug">보증금 <span className="text-purple-500">없음</span></span>
                                                                 </div>
                                                                 <div className="flex items-start gap-1.5 bg-sky-50/50 p-2 rounded-xl border border-sky-100/50">
                                                                     <div className="mt-0.5 w-3.5 h-3.5 bg-sky-100 text-sky-500 rounded-full flex items-center justify-center shrink-0">
