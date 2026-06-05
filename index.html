@@ -439,12 +439,10 @@
             const [cancelMessage, setCancelMessage] = useState({ title: '', msg: '', type: 'normal' });
             const [successData, setSuccessData] = useState(null);
             
-            // [NEW] 예약 조회 실패 가이드 및 알림톡 상태 추가
-            const [showNotFoundGuide, setShowNotFoundGuide] = useState(false);
-            const [alimtalkStatus, setAlimtalkStatus] = useState(null);
-
-            // [NEW] 연락처 확인 모달 상태 추가 및 카운트다운 로직
+            // [NEW] 연락처 확인 모달 상태 추가
             const [isPhoneCheckModalOpen, setIsPhoneCheckModalOpen] = useState(false);
+            const [isPhoneCheckDisabled, setIsPhoneCheckDisabled] = useState(true);
+            const [phoneCheckCountdown, setPhoneCheckCountdown] = useState(3);
             
             const [blogModal, setBlogModal] = useState({ open: false, type: null });
             const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -670,6 +668,26 @@
             useEffect(() => {
                 fetchReviews();
             }, []);
+
+            // [NEW] 연락처 확인 모달 타이머 로직
+            useEffect(() => {
+                let timer;
+                if (isPhoneCheckModalOpen) {
+                    setIsPhoneCheckDisabled(true);
+                    setPhoneCheckCountdown(3);
+                    timer = setInterval(() => {
+                        setPhoneCheckCountdown((prev) => {
+                            if (prev <= 1) {
+                                clearInterval(timer);
+                                setIsPhoneCheckDisabled(false);
+                                return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
+                return () => clearInterval(timer);
+            }, [isPhoneCheckModalOpen]);
 
             const checkRefundStatus = (item) => {
                 // ... (기존 로직 유지)
