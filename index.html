@@ -96,6 +96,13 @@
         }
         .animate-soft-bounce { display: inline-block; animation: softBounce 3.0s ease-in-out infinite; } /* 속도 더 천천히 (2.0s -> 3.0s) */
         
+        /* [NEW] 둥둥 떠다니는 애니메이션 추가 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .animate-float { animation: float 2.5s ease-in-out infinite; }
+        
         /* [NEW] 흔들림 애니메이션 추가 */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -393,6 +400,10 @@
             const [showVenueInfoModal, setShowVenueInfoModal] = useState(false); // [NEW] 공연장 정보 모달 상태
             const [selectedVenue, setSelectedVenue] = useState(null); // [NEW] 선택된 공연장 정보
             const [showDateGuide, setShowDateGuide] = useState(false); // [NEW] 날짜 선택 가이드 모달 상태
+            
+            // [NEW] 예약 조회 실패 가이드 관련 상태 변수 추가
+            const [showNotFoundGuide, setShowNotFoundGuide] = useState(false);
+            const [alimtalkStatus, setAlimtalkStatus] = useState(null);
             
             // [NEW] 대여기간 미선택 시 흔들림 애니메이션 상태
             const [shakePeriodBox, setShakePeriodBox] = useState(false);
