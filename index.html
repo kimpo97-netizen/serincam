@@ -826,18 +826,18 @@
                 '2026-3-', '2026-3-'
             ];
             
+            // [NEW] 택배 수령 마감 날짜 추가
+            const BLOCKED_POST_PICKUP_DATES = ['2026-6-6', '2026-6-7', '2026-6-8'];
             // [NEW] 공연장 수령 마감 공연장마감 날짜 추가
-            const BLOCKED_VENUE_PICKUP_DATES = ['2026-4-20', '2026-4-21'];
-
-            useEffect(() => {
-                if (endDate && returnMethod === 'post') {
-                    // [UPDATE] 당일(하루) 대여 시에도 택배 반납 제한 해제
-                }
-            }, [endDate, startDate]); 
+            const BLOCKED_VENUE_PICKUP_DATES = ['2026-4-20', '2026-4-21', '2026-6-6', '2026-6-7', '2026-6-8'];
 
             useEffect(() => {
                 if (startDate && deliveryMethod === 'post') {
-                    if (isSameDayStart || isPostDeadlinePassed) {
+                    const year = startDate.getFullYear();
+                    const month = startDate.getMonth() + 1;
+                    const day = startDate.getDate();
+                    const dateKey = `${year}-${month}-${day}`;
+                    if (isSameDayStart || isPostDeadlinePassed || BLOCKED_POST_PICKUP_DATES.includes(dateKey)) {
                         setDeliveryMethod(null); 
                     }
                 }
@@ -1034,6 +1034,15 @@
                     }
                 }
                 return startDate <= limitDate;
+            })();
+
+            // [NEW] 택배 수령 마감 여부 체크
+            const isPostPickupBlocked = startDate && (() => {
+                const year = startDate.getFullYear();
+                const month = startDate.getMonth() + 1;
+                const day = startDate.getDate();
+                const dateKey = `${year}-${month}-${day}`;
+                return BLOCKED_POST_PICKUP_DATES.includes(dateKey);
             })();
 
             // [NEW] 공연장 수령 마감 여부 체크
@@ -1481,9 +1490,9 @@
             };
 
             const handleLookup = async (nameParam = null, phoneParam = null, isRefresh = false) => {
-                // [UPDATE] 이벤트 객체가 파라미터로 들어오는 것을 방지하고, 명확하게 문자열만 받도록 처리
-                const targetName = typeof nameParam === 'string' ? nameParam : lookupName;
-                const targetPhone = typeof phoneParam === 'string' ? phoneParam : lookupPhone;
+                // [UPDATE] 외국인 이름 조회를 위해 중간 띄어쓰기는 유지하고 양끝 공백만 제거하도록 수정
+                const targetName = (typeof nameParam === 'string' ? nameParam : lookupName).trim();
+                const targetPhone = (typeof phoneParam === 'string' ? phoneParam : lookupPhone).trim();
 
                 // [UPDATE] 유효성 검사 실패 시 모바일에서 막힐 수 있는 alert 대신 커스텀 토스트 알림 사용
                 if (!targetName || !targetPhone || targetPhone.length < 10) { 
@@ -3572,11 +3581,12 @@
                                                             <div onClick={() => { 
                                                                 if (isSameDayStart) { triggerDeliveryErr('post', "🚨 당일 대여는 택배수령 불가"); return; } 
                                                                 if (isPostDeadlinePassed) { triggerDeliveryErr('post', "🚨 택배수령 최소 2일전 가능"); return; } 
+                                                                if (isPostPickupBlocked) { triggerDeliveryErr('post', "🚨 해당 일자 택배수령 마감"); return; }
                                                                 setDeliveryMethod(deliveryMethod === 'post' ? null : 'post'); 
-                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'post' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isPostDeadlinePassed) && deliveryErr !== 'post' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
+                                                            }} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'post' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked) && deliveryErr !== 'post' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}>
                                                                 <div className="flex justify-between items-start">
-                                                                    <span className={`font-bold ${deliveryErr === 'post' ? 'text-red-600' : (isSameDayStart || isPostDeadlinePassed) ? 'text-gray-500' : 'text-gray-800'}`}>택배 수령</span>
-                                                                    <Icons.Truck size={20} className={deliveryErr === 'post' ? 'text-red-500' : (isSameDayStart || isPostDeadlinePassed) ? 'text-gray-400' : 'text-blue-400'} />
+                                                                    <span className={`font-bold ${deliveryErr === 'post' ? 'text-red-600' : (isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked) ? 'text-gray-500' : 'text-gray-800'}`}>택배 수령</span>
+                                                                    <Icons.Truck size={20} className={deliveryErr === 'post' ? 'text-red-500' : (isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked) ? 'text-gray-400' : 'text-blue-400'} />
                                                                 </div>
                                                                 <p className="text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep">
                                                                         {startDate ? (() => {
@@ -3586,7 +3596,7 @@
                                                                             return <span className="text-sky-600 font-bold">{prevDate.getMonth() + 1}/{prevDate.getDate()}({dayStr}) 택배 도착예정</span>;
                                                                         })() : '대여시작일 1일전 도착예정'}
                                                                 </p>
-                                                                <p className={`font-bold text-xs text-right mt-auto ${(isSameDayStart || isPostDeadlinePassed) ? 'text-gray-400' : 'text-gray-700'}`}>{(isSameDayStart || isPostDeadlinePassed) ? '마감' : '+4,000원'}</p>
+                                                                <p className={`font-bold text-xs text-right mt-auto ${(isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked) ? 'text-gray-400' : 'text-gray-700'}`}>{(isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked) ? '마감' : '+4,000원'}</p>
                                                             </div>
                                                             <div onClick={() => setDeliveryMethod(deliveryMethod === 'quick' ? null : 'quick')} className={`p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`}>
                                                                 <div className="flex justify-between items-start"><span className="font-bold text-gray-800">퀵 서비스</span><Icons.Zap size={20} className="text-blue-400" /></div>
