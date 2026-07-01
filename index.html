@@ -1566,7 +1566,9 @@ var PhoneRentalApp = () => {
   };
   var daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
   var AVAILABLE_ONSITE_DATES = ['2025-5-5', '2025-12-25', '2026-1-1', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-'];
-  var BLOCKED_POST_PICKUP_DATES = ['2026-6-12', '2026-6-13', '2026-6-14', '2026-6-10'];
+    // 택배 수령 마감
+  var BLOCKED_POST_PICKUP_DATES = ['2026-7-4', '2026-7-5', '2026-6-14', '2026-6-10'];
+    // 공연장 수령 마감
   var BLOCKED_VENUE_PICKUP_DATES = ['2026-6-12', '2026-6-13', '2026-6-10', '2026-6-15', '2026-6-8'];
   useEffect(() => {
     if (startDate && deliveryMethod === 'post') {
