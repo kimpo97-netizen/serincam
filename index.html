@@ -6322,11 +6322,11 @@ var PhoneRentalApp = () => {
     className: "bg-yellow-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed space-y-2 mb-5"
   }, React.createElement("p", null, startDate && React.createElement("strong", {
     className: "text-yellow-700"
-  }, "📅 ", startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ")"), " 이후에 무단 촬영에 대한 이용 흔적이 발견될 경우, 계약위반으로 기존 요금의 ", React.createElement("strong", {
-    className: "text-yellow-700"
-  }, "3배"), "가 청구돼요."), React.createElement("p", {
+  }, "📅 ", startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ")"), " 이후에 무단 촬영에 대한 이용 흔적이 발견될 경우, 계약위반으로 추가 요금이 발생해요."), React.createElement("p", {
     className: "text-xs text-gray-500"
-  }, "✅ 데이터 백업은 괜찮아요!")), React.createElement("button", {
+  }, "✅ 데이터 백업은 괜찮아요!"), React.createElement("p", {
+    className: "text-xs text-gray-500"
+  }, "✅ 만약 예약 후 일정이 추가되었다면, 미리 대여연장 신청해주세요.")), React.createElement("button", {
     onClick: () => setShowOneDayWarning(false),
     className: "w-full py-3.5 rounded-xl font-bold shadow-md transition-all text-sm bg-yellow-400 text-white hover:bg-yellow-500 active:scale-95"
   }, "확인했어요"))), showVenueInfoModal && selectedVenue && React.createElement("div", {
