@@ -1118,6 +1118,14 @@ var PhoneRentalApp = () => {
   });
   var [isSubmitting, setIsSubmitting] = useState(false);
   var [isSearching, setIsSearching] = useState(false);
+  // [NEW] 예약자 연락처 인증(SMS) 관련 상태
+  var [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  var [otpSent, setOtpSent] = useState(false);
+  var [otpCode, setOtpCode] = useState('');
+  var [otpSending, setOtpSending] = useState(false);
+  var [otpVerifying, setOtpVerifying] = useState(false);
+  var [otpCooldown, setOtpCooldown] = useState(0);
+  var [otpError, setOtpError] = useState('');
   var [agreements, setAgreements] = useState({
     terms: false,
     privacy: false
@@ -1427,6 +1435,96 @@ var PhoneRentalApp = () => {
     }
     return () => clearInterval(timer);
   }, [isPhoneCheckModalOpen]);
+  // [NEW] 인증번호 재전송 쿨다운 타이머
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    var t = setInterval(() => {
+      setOtpCooldown(prev => {
+        if (prev <= 1) {
+          clearInterval(t);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [otpCooldown > 0]);
+  // [NEW] 인증번호 발송
+  var handleSendOtp = async () => {
+    var digits = userInfo.phone.replace(/[^0-9]/g, '');
+    if (digits.length !== 11) {
+      setOtpError('휴대폰 번호를 정확히 입력해주세요.');
+      return;
+    }
+    if (!sb) {
+      setOtpError('저장소 연동이 설정되지 않았습니다.');
+      return;
+    }
+    setOtpSending(true);
+    setOtpError('');
+    try {
+      var {
+        data,
+        error
+      } = await sb.functions.invoke('send-otp', {
+        body: {
+          phone: digits
+        }
+      });
+      if (error) throw error;
+      if (!data || !data.ok) {
+        setOtpError((data && data.message) || '인증번호 발송에 실패했습니다.');
+      } else {
+        setOtpSent(true);
+        setOtpCode('');
+        setOtpCooldown(60);
+        showAppToast('인증번호가 발송되었어요! 📩');
+      }
+    } catch (e) {
+      console.error('send-otp error:', e);
+      setOtpError('인증번호 발송 중 오류가 발생했습니다.');
+    } finally {
+      setOtpSending(false);
+    }
+  };
+  // [NEW] 인증번호 확인
+  var handleVerifyOtp = async () => {
+    var digits = userInfo.phone.replace(/[^0-9]/g, '');
+    if (otpCode.length !== 6) {
+      setOtpError('인증번호 6자리를 입력해주세요.');
+      return;
+    }
+    if (!sb) {
+      setOtpError('저장소 연동이 설정되지 않았습니다.');
+      return;
+    }
+    setOtpVerifying(true);
+    setOtpError('');
+    try {
+      var {
+        data,
+        error
+      } = await sb.functions.invoke('verify-otp', {
+        body: {
+          phone: digits,
+          code: otpCode
+        }
+      });
+      if (error) throw error;
+      if (data && data.verified) {
+        setIsPhoneVerified(true);
+        setOtpError('');
+        showAppToast('연락처 인증이 완료되었어요! ✅');
+      } else {
+        setOtpError((data && data.message) || '인증번호가 일치하지 않습니다.');
+      }
+    } catch (e) {
+      console.error('verify-otp error:', e);
+      setOtpError('인증 확인 중 오류가 발생했습니다.');
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
   var checkRefundStatus = item => {
     if (!item) return {
       title: '예약 취소',
@@ -5465,11 +5563,50 @@ var PhoneRentalApp = () => {
     className: "w-full p-3 bg-transparent outline-none text-gray-800",
     placeholder: "010-0000-0000",
     value: userInfo.phone,
-    onChange: e => setUserInfo({
-      ...userInfo,
-      phone: formatPhone(e.target.value)
-    })
-  }))), React.createElement("div", null, React.createElement("label", {
+    onChange: e => {
+      var newPhone = formatPhone(e.target.value);
+      setUserInfo({
+        ...userInfo,
+        phone: newPhone
+      });
+      if (isPhoneVerified || otpSent) {
+        setIsPhoneVerified(false);
+        setOtpSent(false);
+        setOtpCode('');
+        setOtpCooldown(0);
+        setOtpError('');
+      }
+    }
+  }), isPhoneVerified ? React.createElement("span", {
+    className: "flex items-center gap-1 text-[11px] font-bold text-green-500 pr-1 whitespace-nowrap"
+  }, React.createElement(Icons.CheckCircle, {
+    size: 14
+  }), "인증완료") : React.createElement("button", {
+    type: "button",
+    disabled: userInfo.phone.replace(/[^0-9]/g, '').length !== 11 || otpSending || otpCooldown > 0,
+    onClick: handleSendOtp,
+    className: `shrink-0 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${userInfo.phone.replace(/[^0-9]/g, '').length !== 11 || otpSending || otpCooldown > 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-400 text-white hover:bg-blue-500 active:scale-95'}`
+  }, otpSending ? '발송중...' : otpCooldown > 0 ? `재전송 ${otpCooldown}초` : otpSent ? '재전송' : '인증번호 받기'))), !isPhoneVerified && otpSent && React.createElement("div", {
+    className: "flex items-center gap-2 mt-2 animate-fade-in"
+  }, React.createElement("input", {
+    type: "text",
+    inputMode: "numeric",
+    maxLength: 6,
+    className: "flex-1 p-3 bg-gray-50 rounded-xl outline-none text-gray-800",
+    placeholder: "인증번호 6자리",
+    value: otpCode,
+    onChange: e => {
+      setOtpCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6));
+      setOtpError('');
+    }
+  }), React.createElement("button", {
+    type: "button",
+    disabled: otpCode.length !== 6 || otpVerifying,
+    onClick: handleVerifyOtp,
+    className: `shrink-0 text-sm font-bold px-4 py-3 rounded-xl transition-all ${otpCode.length !== 6 || otpVerifying ? 'bg-gray-100 text-gray-400' : 'bg-gray-800 text-white hover:bg-gray-900 active:scale-95'}`
+  }, otpVerifying ? '확인중...' : '확인')), otpError && React.createElement("p", {
+    className: "text-[11px] text-red-500 font-bold mt-1.5 ml-1"
+  }, otpError), React.createElement("div", null, React.createElement("label", {
     className: "text-xs font-bold text-gray-500 ml-1"
   }, "일정명"), React.createElement("div", {
     className: "flex items-center bg-gray-50 rounded-xl px-3 mt-1"
@@ -5856,6 +5993,10 @@ var PhoneRentalApp = () => {
       if (step === 3) {
         if (!userInfo.name || !userInfo.phone || !userInfo.scheduleName || !userInfo.account || !userInfo.address || !userInfo.detailAddress) {
           showAppToast(t('errInfo'));
+          return;
+        }
+        if (!isPhoneVerified) {
+          showAppToast('연락처 인증을 완료해주세요! 📱');
           return;
         }
         if (!agreements.terms || !agreements.privacy) {
