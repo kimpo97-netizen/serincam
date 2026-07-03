@@ -1151,6 +1151,9 @@ var PhoneRentalApp = () => {
   var [quickFeeResult, setQuickFeeResult] = useState(null);
   var [quickFeeLoading, setQuickFeeLoading] = useState(false);
   var [quickFeeError, setQuickFeeError] = useState('');
+  // [NEW] 수령/반납 방법 선택 시 뜨는 확인 팝업
+  var [deliveryConfirmPopup, setDeliveryConfirmPopup] = useState(null);
+  var [returnConfirmPopup, setReturnConfirmPopup] = useState(null);
   var [agreements, setAgreements] = useState({
     terms: false,
     privacy: false
@@ -2007,6 +2010,24 @@ var PhoneRentalApp = () => {
     } finally {
       setQuickFeeLoading(false);
     }
+  };
+  // [NEW] 수령 방법 선택: 선택 시 확인 팝업을 띄우고, 재클릭(해제) 시에는 팝업 없이 선택만 해제
+  var selectDeliveryMethod = method => {
+    if (deliveryMethod === method) {
+      setDeliveryMethod(null);
+      return;
+    }
+    setDeliveryMethod(method);
+    setDeliveryConfirmPopup(method);
+  };
+  // [NEW] 반납 방법 선택: 선택 시 확인 팝업을 띄우고, 재클릭(해제) 시에는 팝업 없이 선택만 해제
+  var selectReturnMethod = method => {
+    if (returnMethod === method) {
+      setReturnMethod(null);
+      return;
+    }
+    setReturnMethod(method);
+    setReturnConfirmPopup(method);
   };
   var copyToClipboard = text => {
     var textArea = document.createElement("textarea");
@@ -5279,7 +5300,7 @@ var PhoneRentalApp = () => {
         triggerDeliveryErr('post', "🚨 해당 일자 택배수령 마감");
         return;
       }
-      setDeliveryMethod(deliveryMethod === 'post' ? null : 'post');
+      selectDeliveryMethod('post');
     },
     className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'post' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked) && deliveryErr !== 'post' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`
   }, React.createElement("div", {
@@ -5301,7 +5322,7 @@ var PhoneRentalApp = () => {
   })() : '대여시작일 1일전 도착예정'), React.createElement("p", {
     className: `font-bold text-xs text-right mt-auto ${isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
   }, isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? '마감' : '+4,000원')), React.createElement("div", {
-    onClick: () => setDeliveryMethod(deliveryMethod === 'quick' ? null : 'quick'),
+    onClick: () => selectDeliveryMethod('quick'),
     className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`
   }, React.createElement("div", {
     className: "flex justify-between items-start"
@@ -5325,7 +5346,7 @@ var PhoneRentalApp = () => {
       if (isRestrictedVenueDate && deliveryMethod !== 'venue') {
         showAppToast("6월 20, 21일은 특정 공연장에서만 수령 가능해요! 🏟️");
       }
-      setDeliveryMethod(deliveryMethod === 'venue' ? null : 'venue');
+      selectDeliveryMethod('venue');
     },
     className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'venue' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'venue' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${isVenuePickupBlocked && deliveryErr !== 'venue' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`
   }, React.createElement("div", {
@@ -5342,7 +5363,7 @@ var PhoneRentalApp = () => {
   }, startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ") 공연장 픽업") : '공연장 근처에서 픽업'), React.createElement("p", {
     className: `font-bold text-xs text-right mt-auto ${isVenuePickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
   }, isVenuePickupBlocked ? '마감' : '+4,000원')), React.createElement("div", {
-    onClick: () => setDeliveryMethod(deliveryMethod === 'office' ? null : 'office'),
+    onClick: () => selectDeliveryMethod('office'),
     className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`
   }, React.createElement("div", {
     className: "flex justify-between items-start"
@@ -5357,63 +5378,7 @@ var PhoneRentalApp = () => {
     className: "text-sky-600 font-bold"
   }, startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ") 사무실 방문") : '사무실로 직접 방문'), React.createElement("p", {
     className: "font-bold text-xs text-right mt-auto text-gray-700"
-  }, "무료"))), deliveryMethod && React.createElement("div", {
-    className: "mt-3 bg-blue-50 p-3 rounded-xl text-xs text-blue-600 border border-blue-100 animate-fade-in leading-relaxed"
-  }, React.createElement("div", {
-    className: "flex gap-2 items-start"
-  }, React.createElement("span", {
-    className: "font-bold text-lg mt-0.5"
-  }, "💡"), React.createElement("div", {
-    className: "w-full"
-  }, deliveryMethod === 'post' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "우체국 택배로 대여 기기를 수령하는 방법"), React.createElement("p", null, "👉 파손방지 파우치와 함께 안전하게 배송됩니다!")), deliveryMethod === 'quick' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "원하는 장소에서 수령하는 방법"), React.createElement("p", {
-    className: "mb-1 text-blue-500"
-  }, "주로 긴급으로 필요하신분들 추천!"), React.createElement("p", {
-    className: "mb-2"
-  }, "👉 지역마다 상이하지만, 평균 2만원"), React.createElement("div", {
-    className: "bg-white rounded-xl p-3 border border-blue-100"
-  }, React.createElement("p", {
-    className: "text-[11px] font-bold text-gray-500 mb-1.5"
-  }, "📍 세린캠 사무실 기준 예상 요금 확인"), React.createElement("button", {
-    type: "button",
-    onClick: handleQuickFeeAddressSearch,
-    className: "w-full flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5 text-xs text-left hover:bg-gray-100 transition-colors"
-  }, React.createElement("span", {
-    className: quickFeeAddress ? "text-gray-700 truncate mr-2" : "text-gray-400"
-  }, quickFeeAddress || "받으실 주소 검색하기"), React.createElement(Icons.MapPin, {
-    size: 14,
-    className: "text-blue-400 shrink-0"
-  })), quickFeeLoading && React.createElement("p", {
-    className: "text-[11px] text-gray-400 mt-2"
-  }, "예상 요금을 계산하고 있어요..."), quickFeeError && React.createElement("p", {
-    className: "text-[11px] text-red-500 font-bold mt-2"
-  }, quickFeeError), quickFeeResult && React.createElement("div", {
-    className: "mt-2 bg-sky-50 rounded-lg px-3 py-2.5 border border-sky-100"
-  }, React.createElement("div", {
-    className: "flex items-center justify-between"
-  }, React.createElement("span", {
-    className: "text-[11px] text-gray-500"
-  }, "사무실 기준 약 ", quickFeeResult.distanceKm, "km"), React.createElement("span", {
-    className: "text-sm font-extrabold text-sky-600"
-  }, "약 ", quickFeeResult.estimatedFee.toLocaleString(), "원")), React.createElement("p", {
-    className: "text-[10px] text-gray-400 mt-1"
-  }, "⚠️ 거리 기반 추정 금액으로 실제 카카오T퀵 요금과 다를 수 있어요.")))), deliveryMethod === 'venue' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "공연장 근처에서 수령하는 방법"), React.createElement("p", null, "👉 보통 사운드체크 1시간~30분전, 공연시작 2~3시간 전 진행"), isRestrictedVenueDate && React.createElement("p", {
-    className: "text-red-500 font-bold mt-1.5 text-[11px] bg-white px-2 py-1 rounded-lg inline-block shadow-sm"
-  }, "🚨 6월 20, 21일은 화정체육관/인천아시아드/잠실 에서만 수령 가능해요!")), deliveryMethod === 'office' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "세린캠 사무실에 당일 날 직접 방문하여 수령하는 방법"), React.createElement("p", {
-    className: "mb-2"
-  }, "👉 인천 검단구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
-    onClick: () => window.open('https://map.naver.com/p/search/인천 검단구 이음4로6', '_blank'),
-    className: "w-full bg-white border border-blue-200 text-blue-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
-  }, "네이버 지도로 위치 보기 ", React.createElement(Icons.MapPin, {
-    size: 12
-  }))))))), React.createElement("div", {
+  }, "무료")))), React.createElement("div", {
     className: "space-y-3"
   }, React.createElement("div", {
     className: "flex items-center justify-between"
@@ -5449,11 +5414,11 @@ var PhoneRentalApp = () => {
         triggerReturnErr(method, "🚨 현장 스케줄이 없는 날이에요");
         return;
       }
-      setReturnMethod(returnMethod === method ? null : method);
+      selectReturnMethod(method);
     };
     return React.createElement(React.Fragment, null, React.createElement("div", {
       onClick: () => {
-        setReturnMethod(returnMethod === 'post' ? null : 'post');
+        selectReturnMethod('post');
       },
       className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${returnMethod === 'post' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`
     }, React.createElement("div", {
@@ -5473,7 +5438,7 @@ var PhoneRentalApp = () => {
     })() : '우체국 택배로 반납해요'), React.createElement("p", {
       className: "font-bold text-xs text-right mt-auto text-gray-700"
     }, "고객부담")), React.createElement("div", {
-      onClick: () => setReturnMethod(returnMethod === 'office' ? null : 'office'),
+      onClick: () => selectReturnMethod('office'),
       className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${returnMethod === 'office' ? 'border-rose-500 bg-rose-50' : 'border-gray-100 bg-white'}`
     }, React.createElement("div", {
       className: "flex justify-between items-start"
@@ -5530,40 +5495,7 @@ var PhoneRentalApp = () => {
     })() : '공연장에서 직접 반납'), React.createElement("p", {
       className: `font-bold text-xs text-right mt-auto ${!isOnsiteAvailable ? 'text-gray-400' : 'text-gray-700'}`
     }, !isOnsiteAvailable ? '인원부족' : '무료')));
-  })()), returnMethod && React.createElement("div", {
-    className: "mt-3 bg-rose-50 p-3 rounded-xl text-xs text-rose-600 border border-rose-100 animate-fade-in leading-relaxed"
-  }, React.createElement("div", {
-    className: "flex gap-2 items-start"
-  }, React.createElement("span", {
-    className: "font-bold text-lg mt-0.5"
-  }, "💡"), React.createElement("div", {
-    className: "w-full"
-  }, returnMethod === 'post' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "우체국 택배를 이용하여 대여기기 반납"), React.createElement("div", {
-    className: "bg-white/60 p-2 rounded-lg mb-2 border border-rose-100/50"
-  }, React.createElement("p", {
-    className: "mb-1"
-  }, "👉 우체국 방문이 어려우신 경우,", React.createElement("br", null), React.createElement("strong", null, "방문택배접수 서비스"), "를 이용해주세요!"), React.createElement("p", null, "현관 문 앞에 놓으시면 기사님께서 수거해요!"))), returnMethod === 'office' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "세린캠 사무실에 직접 방문하여 반납하는 방법"), React.createElement("p", {
-    className: "mb-2"
-  }, "👉 인천 검단구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
-    onClick: () => window.open('https://map.naver.com/p/search/인천 검단구 이음4로6', '_blank'),
-    className: "w-full bg-white border border-blue-200 text-blue-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
-  }, "네이버 지도로 위치 보기 ", React.createElement(Icons.MapPin, {
-    size: 12
-  }))), returnMethod === 'sameday' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "공연 종료 직 후, 공연장에서 바로 반납하는 방법"), React.createElement("div", {
-    className: "bg-white/60 p-2 rounded-lg border border-rose-100/50"
-  }, React.createElement("p", {
-    className: "font-bold text-rose-500"
-  }, "👉 반납 시 데이터 백업 서비스 제공"))), returnMethod === 'venue' && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold mb-1"
-  }, "다음날 또는 다다음날 공연장에서 직접 반납하는 방법"), React.createElement("div", {
-    className: "bg-white/60 p-2 rounded-lg border border-rose-100/50"
-  }, React.createElement("p", null, "👉 보통 공연시작 2~3시간전 반납 진행"))))))), React.createElement("div", {
+  })())), React.createElement("div", {
     className: "space-y-3"
   }, React.createElement("div", {
     className: "flex items-center gap-2"
@@ -6217,7 +6149,127 @@ var PhoneRentalApp = () => {
       handleNavChange('qna');
     },
     className: "flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm"
-  }, "이동할게요")))), showVenueInfoModal && selectedVenue && React.createElement("div", {
+  }, "이동할게요")))), deliveryConfirmPopup && React.createElement("div", {
+    className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
+  }, React.createElement("div", {
+    className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl transform scale-100 transition-all"
+  }, React.createElement("div", {
+    className: "w-14 h-14 bg-sky-100 text-sky-500 rounded-full flex items-center justify-center mx-auto mb-4"
+  }, deliveryConfirmPopup === 'post' && React.createElement(Icons.Truck, {
+    size: 28
+  }), deliveryConfirmPopup === 'quick' && React.createElement(Icons.Zap, {
+    size: 28
+  }), deliveryConfirmPopup === 'venue' && React.createElement(Icons.Ticket, {
+    size: 28
+  }), deliveryConfirmPopup === 'office' && React.createElement(Icons.MapPin, {
+    size: 28
+  })), React.createElement("h3", {
+    className: "text-lg font-bold text-gray-800 mb-3 text-center"
+  }, deliveryConfirmPopup === 'post' ? '택배 수령' : deliveryConfirmPopup === 'quick' ? '퀵 서비스' : deliveryConfirmPopup === 'venue' ? '공연장 수령' : '사무실 수령'), React.createElement("div", {
+    className: "bg-sky-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed space-y-2 mb-5"
+  }, deliveryConfirmPopup === 'post' && React.createElement(React.Fragment, null, startDate && (() => {
+    var prevDate = new Date(startDate);
+    prevDate.setDate(startDate.getDate() - 1);
+    return React.createElement("p", {
+      className: "font-bold text-sky-600"
+    }, "📅 ", prevDate.getMonth() + 1, "/", prevDate.getDate(), "(", daysOfWeek[prevDate.getDay()], ") 도착예정");
+  })(), React.createElement("p", null, "우체국 택배로 안전하게 보내드려요."), React.createElement("p", {
+    className: "text-xs text-gray-500"
+  }, "⚠️ 배송 지연이 예상되는 경우, 공연장 수령으로 변경될 수 있어요.")), deliveryConfirmPopup === 'quick' && React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "font-bold text-sky-600"
+  }, "⚡ 주문 후 6시간 이내 도착예정"), React.createElement("p", null, "카카오T퀵으로 원하시는 곳에서 바로 받아보세요!"), React.createElement("div", {
+    className: "bg-white rounded-xl p-3 border border-sky-100 mt-1"
+  }, React.createElement("p", {
+    className: "text-[11px] font-bold text-gray-500 mb-1.5"
+  }, "📍 세린캠 사무실 기준 예상 요금 확인"), React.createElement("button", {
+    type: "button",
+    onClick: handleQuickFeeAddressSearch,
+    className: "w-full flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5 text-xs text-left hover:bg-gray-100 transition-colors"
+  }, React.createElement("span", {
+    className: quickFeeAddress ? "text-gray-700 truncate mr-2" : "text-gray-400"
+  }, quickFeeAddress || "받으실 주소 검색하기"), React.createElement(Icons.MapPin, {
+    size: 14,
+    className: "text-sky-400 shrink-0"
+  })), quickFeeLoading && React.createElement("p", {
+    className: "text-[11px] text-gray-400 mt-2"
+  }, "예상 요금을 계산하고 있어요..."), quickFeeError && React.createElement("p", {
+    className: "text-[11px] text-red-500 font-bold mt-2"
+  }, quickFeeError), quickFeeResult && React.createElement("div", {
+    className: "mt-2 bg-sky-50 rounded-lg px-3 py-2.5 border border-sky-100"
+  }, React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, React.createElement("span", {
+    className: "text-[11px] text-gray-500"
+  }, "사무실 기준 약 ", quickFeeResult.distanceKm, "km"), React.createElement("span", {
+    className: "text-sm font-extrabold text-sky-600"
+  }, "약 ", quickFeeResult.estimatedFee.toLocaleString(), "원")), React.createElement("p", {
+    className: "text-[10px] text-gray-400 mt-1"
+  }, "⚠️ 거리 기반 추정 금액으로 실제 카카오T퀵 요금과 다를 수 있어요."))), !quickFeeResult && React.createElement("p", {
+    className: "text-[11px] text-gray-400"
+  }, "👆 주소를 검색하고 예상 요금까지 확인하셔야 다음으로 진행할 수 있어요.")), deliveryConfirmPopup === 'venue' && React.createElement(React.Fragment, null, React.createElement("p", null, "공연장 주변에서 수령할 수 있어요."), React.createElement("p", null, "보통 사운드체크 1시간 전 또는 공연시작 2~3시간 전에 진행해요."), React.createElement("p", {
+    className: "text-xs text-gray-500"
+  }, "🕐 자세한 안내는 전날 밤 ~ 당일 오전 중 드려요.")), deliveryConfirmPopup === 'office' && React.createElement(React.Fragment, null, startDate && React.createElement("p", {
+    className: "font-bold text-sky-600"
+  }, "📅 ", startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ") 24시간 언제든 방문 가능"), React.createElement("p", null, "매장에 직접 방문하여 픽업하는 방법이에요."), React.createElement("p", {
+    className: "text-xs text-gray-500"
+  }, "📍 인천 검단구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
+    onClick: () => window.open('https://map.naver.com/p/search/인천 검단구 이음4로6', '_blank'),
+    className: "w-full bg-white border border-blue-200 text-blue-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-1 mt-1"
+  }, "네이버 지도로 위치 보기 ", React.createElement(Icons.MapPin, {
+    size: 12
+  })))), React.createElement("button", {
+    disabled: deliveryConfirmPopup === 'quick' && !quickFeeResult,
+    onClick: () => setDeliveryConfirmPopup(null),
+    className: `w-full py-3.5 rounded-xl font-bold shadow-md transition-all text-sm ${deliveryConfirmPopup === 'quick' && !quickFeeResult ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`
+  }, "확인했어요"))), returnConfirmPopup && React.createElement("div", {
+    className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
+  }, React.createElement("div", {
+    className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl transform scale-100 transition-all"
+  }, React.createElement("div", {
+    className: "w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4"
+  }, returnConfirmPopup === 'post' && React.createElement(Icons.Box, {
+    size: 28
+  }), returnConfirmPopup === 'office' && React.createElement(Icons.MapPin, {
+    size: 28
+  }), returnConfirmPopup === 'sameday' && React.createElement(Icons.Zap, {
+    size: 28
+  }), returnConfirmPopup === 'venue' && React.createElement(Icons.Ticket, {
+    size: 28
+  })), React.createElement("h3", {
+    className: "text-lg font-bold text-gray-800 mb-3 text-center"
+  }, returnConfirmPopup === 'post' ? '우체국택배 반납' : returnConfirmPopup === 'office' ? '사무실 반납' : returnConfirmPopup === 'sameday' ? '당일 반납' : '공연장 반납'), React.createElement("div", {
+    className: "bg-rose-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed space-y-2 mb-5"
+  }, returnConfirmPopup === 'post' && React.createElement(React.Fragment, null, React.createElement("p", null, "우체국택배를 이용하여 반납해주세요."), React.createElement("p", {
+    className: "text-xs text-rose-500"
+  }, "⚠️ 다른 택배(GS25, 편의점택배 등)는 배송지연·파손·분실 위험이 커 이용 불가하며, 사전 협의 없이 이용 시 계약위반 비용이 청구될 수 있어요."), React.createElement("p", {
+    className: "text-xs text-gray-500"
+  }, "👉 우체국 방문이 어려우신 경우, 우체국 홈페이지의 방문택배접수 서비스를 신청하시면 집 앞에서 바로 반납 가능해요."), React.createElement("p", {
+    className: "text-[11px] text-gray-400"
+  }, "🕕 자세한 안내는 반납일 하루 전날 저녁 6시 30분 전후로 드려요.")), returnConfirmPopup === 'office' && React.createElement(React.Fragment, null, endDate && (() => {
+    var d = getReturnDate(endDate, 'office');
+    return React.createElement("p", {
+      className: "font-bold text-rose-500"
+    }, "📅 ", d.getMonth() + 1, "/", d.getDate(), "(", daysOfWeek[d.getDay()], ") 오전 10시까지 방문 반납");
+  })(), React.createElement("p", null, "매장에 직접 방문하여 반납해주세요."), React.createElement("p", {
+    className: "text-[11px] text-gray-400"
+  }, "🕕 자세한 안내는 반납 하루 전날 저녁 6시 30분 전후로 드려요.")), returnConfirmPopup === 'sameday' && React.createElement(React.Fragment, null, endDate && (() => {
+    var d = getReturnDate(endDate, 'sameday');
+    return React.createElement("p", {
+      className: "font-bold text-rose-500"
+    }, "📅 ", d.getMonth() + 1, "/", d.getDate(), "(", daysOfWeek[d.getDay()], ") 공연종료 후 30분 이내");
+  })(), React.createElement("p", null, "지정된 장소로 오셔서 반납해주세요."), React.createElement("p", {
+    className: "text-[11px] text-gray-400"
+  }, "🕐 지정 장소는 전날 밤 ~ 당일 오전 중 안내드려요.")), returnConfirmPopup === 'venue' && React.createElement(React.Fragment, null, endDate && (() => {
+    var d = getReturnDate(endDate, 'venue');
+    return React.createElement("p", {
+      className: "font-bold text-rose-500"
+    }, "📅 ", d.getMonth() + 1, "/", d.getDate(), "(", daysOfWeek[d.getDay()], ") 공연시작 3시간 전");
+  })(), React.createElement("p", null, "지정된 장소로 오셔서 반납해주세요."), React.createElement("p", {
+    className: "text-[11px] text-gray-400"
+  }, "📩 자세한 안내는 개별로 드려요."))), React.createElement("button", {
+    onClick: () => setReturnConfirmPopup(null),
+    className: "w-full py-3.5 rounded-xl font-bold shadow-md transition-all text-sm bg-rose-400 text-white hover:bg-rose-500 active:scale-95"
+  }, "확인했어요"))), showVenueInfoModal && selectedVenue && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
     onClick: () => setShowVenueInfoModal(false)
   }, React.createElement("div", {
