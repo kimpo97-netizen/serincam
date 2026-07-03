@@ -785,6 +785,9 @@ var TRANSLATIONS = {
     quickMenu: "✨ 자주 찾는 서비스",
     cs: "고객센터",
     errPickup: "수령 방법을 선택해주세요! 📦",
+    errDates: "📅 필요하신 날짜를 선택해주세요!",
+    errModel: "대여할 기종을 선택해주세요! 📷",
+    errPayment: "결제 수단을 선택해주세요! 💳",
     errReturn: "반납 방법을 선택해주세요! 📮",
     errInsurance: "파손보험 가입 여부를 선택해주세요! 🛡️",
     errInfo: "예약자 정보를 모두 입력해주세요! ✍️",
@@ -853,6 +856,9 @@ var TRANSLATIONS = {
     quickMenu: "✨ Quick Menu",
     cs: "Support",
     errPickup: "Please select a pickup method! 📦",
+    errDates: "Please select a start and end date! 📅",
+    errModel: "Please select a camera model! 📷",
+    errPayment: "Please select a payment method! 💳",
     errReturn: "Please select a return method! 📮",
     errInsurance: "Please select a damage insurance option! 🛡️",
     errInfo: "Please fill in all reservation details! ✍️",
@@ -921,6 +927,9 @@ var TRANSLATIONS = {
     quickMenu: "✨ よく使うサービス",
     cs: "サポート",
     errPickup: "受け取り方法を選択してください！📦",
+    errDates: "レンタル開始日と終了日を選択してください！📅",
+    errModel: "レンタルする機種を選択してください！📷",
+    errPayment: "お支払い方法を選択してください！💳",
     errReturn: "返却方法を選択してください！📮",
     errInsurance: "破損保険の加入有無を選択してください！🛡️",
     errInfo: "予約者情報をすべて入力してください！✍️",
@@ -989,6 +998,9 @@ var TRANSLATIONS = {
     quickMenu: "✨ 常用服务",
     cs: "客服中心",
     errPickup: "请选择取件方式！📦",
+    errDates: "请选择租借开始日和结束日！📅",
+    errModel: "请选择要租借的机型！📷",
+    errPayment: "请选择支付方式！💳",
     errReturn: "请选择归还方式！📮",
     errInsurance: "请选择是否投保损坏险！🛡️",
     errInfo: "请填写完整的预约人信息！✍️",
@@ -1115,6 +1127,7 @@ var PhoneRentalApp = () => {
   var [endDate, setEndDate] = useState(null);
   var [usageDays, setUsageDays] = useState(null);
   var [dateWarning, setDateWarning] = useState(null);
+  var [showOneDayWarning, setShowOneDayWarning] = useState(false);
   var [insurance, setInsurance] = useState('none');
   var [batteryCount, setBatteryCount] = useState(0);
   var [deliveryMethod, setDeliveryMethod] = useState(null);
@@ -2074,6 +2087,17 @@ var PhoneRentalApp = () => {
     if (!date) return null;
     return new Date(date);
   };
+  // [NEW] 1일 대여로 선택된 경우 무단촬영 관련 안내 팝업을 띄운다
+  var checkOneDayWarning = (start, end) => {
+    if (!start || !end) return;
+    var s = new Date(start);
+    s.setHours(0, 0, 0, 0);
+    var e = new Date(end);
+    e.setHours(0, 0, 0, 0);
+    if (s.getTime() === e.getTime()) {
+      setShowOneDayWarning(true);
+    }
+  };
   var calculateDays = () => {
     if (!startDate || !endDate) return 0;
     var count = 0;
@@ -2177,6 +2201,7 @@ var PhoneRentalApp = () => {
       } else {
         setEndDate(finalEndDate);
         setDateWarning(null);
+        checkOneDayWarning(startDate, finalEndDate);
       }
     }
   };
@@ -2463,6 +2488,7 @@ var PhoneRentalApp = () => {
       setStartDate(clickedDate);
       setEndDate(finalEndDate);
       setDateWarning(null);
+      checkOneDayWarning(clickedDate, finalEndDate);
     } else {
       if (!startDate || startDate && endDate) {
         setStartDate(clickedDate);
@@ -2499,6 +2525,7 @@ var PhoneRentalApp = () => {
           setStartDate(startDate);
           setEndDate(_finalEndDate);
           setDateWarning(warningMsg);
+          checkOneDayWarning(startDate, _finalEndDate);
         }
       }
     }
@@ -5952,14 +5979,14 @@ var PhoneRentalApp = () => {
     className: "flex items-center gap-1 my-0.5"
   }, React.createElement("span", {
     className: "text-sm text-white font-bold tracking-tight drop-shadow-sm flex items-center gap-0.5"
-  }, startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ")"), React.createElement("span", {
+  }, startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ")"), returnMethod && React.createElement(React.Fragment, null, React.createElement("span", {
     className: "text-white text-sm font-bold mx-0.5"
   }, "~"), React.createElement("span", {
     className: "text-sm text-white font-bold tracking-tight drop-shadow-sm flex items-center gap-0.5"
   }, (() => {
     var returnDate = getReturnDate(endDate);
     return `${returnDate.getMonth() + 1}/${returnDate.getDate()}(${daysOfWeek[returnDate.getDay()]})`;
-  })())) : React.createElement("span", {
+  })()))) : React.createElement("span", {
     className: "text-xs text-white/80 font-medium"
   }, "날짜를 선택해주세요"), (deliveryMethod || returnMethod) && React.createElement("div", {
     className: "text-[10px] text-white flex items-center gap-1.5 mt-0.5 bg-sky-700/20 px-2 py-0.5 rounded-md w-fit"
@@ -6177,11 +6204,11 @@ var PhoneRentalApp = () => {
     className: "text-xs text-gray-500"
   }, "⚠️ 배송 지연이 예상되는 경우, 공연장 수령으로 변경될 수 있어요.")), deliveryConfirmPopup === 'quick' && React.createElement(React.Fragment, null, React.createElement("p", {
     className: "font-bold text-sky-600"
-  }, "⚡ 주문 후 6시간 이내 도착예정"), React.createElement("p", null, "카카오T퀵으로 원하시는 곳에서 바로 받아보세요!"), React.createElement("div", {
+  }, "⚡ 예약 후 6시간 이내 도착예정"), React.createElement("p", null, "카카오T퀵으로 원하시는 곳에서 바로 받아보세요!"), React.createElement("div", {
     className: "bg-white rounded-xl p-3 border border-sky-100 mt-1"
   }, React.createElement("p", {
     className: "text-[11px] font-bold text-gray-500 mb-1.5"
-  }, "📍 세린캠 사무실 기준 예상 요금 확인"), React.createElement("button", {
+  }, "📍 카카오T퀵 비용 미리보기"), React.createElement("button", {
     type: "button",
     onClick: handleQuickFeeAddressSearch,
     className: "w-full flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5 text-xs text-left hover:bg-gray-100 transition-colors"
@@ -6206,21 +6233,28 @@ var PhoneRentalApp = () => {
     className: "text-[10px] text-gray-400 mt-1"
   }, "⚠️ 거리 기반 추정 금액으로 실제 카카오T퀵 요금과 다를 수 있어요."))), !quickFeeResult && React.createElement("p", {
     className: "text-[11px] text-gray-400"
-  }, "👆 주소를 검색하고 예상 요금까지 확인하셔야 다음으로 진행할 수 있어요.")), deliveryConfirmPopup === 'venue' && React.createElement(React.Fragment, null, React.createElement("p", null, "공연장 주변에서 수령할 수 있어요."), React.createElement("p", null, "보통 사운드체크 1시간 전 또는 공연시작 2~3시간 전에 진행해요."), React.createElement("p", {
+  }, "👆 주소를 검색하고 예상 요금까지 확인하셔야 다음으로 진행할 수 있어요.")), deliveryConfirmPopup === 'venue' && React.createElement(React.Fragment, null, startDate && React.createElement("p", {
+    className: "font-bold text-sky-600"
+  }, "📅 ", startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ") 공연장 픽업"), React.createElement("p", null, "공연장 주변에서 수령할 수 있어요."), React.createElement("p", null, "보통 사운드체크 1시간 전 또는 공연시작 2~3시간 전에 진행해요."), React.createElement("p", {
     className: "text-xs text-gray-500"
   }, "🕐 자세한 안내는 전날 밤 ~ 당일 오전 중 드려요.")), deliveryConfirmPopup === 'office' && React.createElement(React.Fragment, null, startDate && React.createElement("p", {
     className: "font-bold text-sky-600"
   }, "📅 ", startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ") 24시간 언제든 방문 가능"), React.createElement("p", null, "매장에 직접 방문하여 픽업하는 방법이에요."), React.createElement("p", {
     className: "text-xs text-gray-500"
   }, "📍 인천 검단구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
-    onClick: () => window.open('https://map.naver.com/p/search/인천 검단구 이음4로6', '_blank'),
+    onClick: () => window.open('https://map.naver.com/p/search/세린캠', '_blank'),
     className: "w-full bg-white border border-blue-200 text-blue-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-1 mt-1"
   }, "네이버 지도로 위치 보기 ", React.createElement(Icons.MapPin, {
     size: 12
   })))), React.createElement("button", {
-    disabled: deliveryConfirmPopup === 'quick' && !quickFeeResult,
-    onClick: () => setDeliveryConfirmPopup(null),
-    className: `w-full py-3.5 rounded-xl font-bold shadow-md transition-all text-sm ${deliveryConfirmPopup === 'quick' && !quickFeeResult ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`
+    onClick: () => {
+      if (deliveryConfirmPopup === 'quick' && !quickFeeResult) {
+        setQuickFeeError('퀵 비용을 먼저 확인해주세요.');
+        return;
+      }
+      setDeliveryConfirmPopup(null);
+    },
+    className: "w-full py-3.5 rounded-xl font-bold shadow-md transition-all text-sm bg-blue-500 text-white hover:bg-blue-600 active:scale-95"
   }, "확인했어요"))), returnConfirmPopup && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
   }, React.createElement("div", {
@@ -6239,7 +6273,12 @@ var PhoneRentalApp = () => {
     className: "text-lg font-bold text-gray-800 mb-3 text-center"
   }, returnConfirmPopup === 'post' ? '우체국택배 반납' : returnConfirmPopup === 'office' ? '사무실 반납' : returnConfirmPopup === 'sameday' ? '당일 반납' : '공연장 반납'), React.createElement("div", {
     className: "bg-rose-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed space-y-2 mb-5"
-  }, returnConfirmPopup === 'post' && React.createElement(React.Fragment, null, React.createElement("p", null, "우체국택배를 이용하여 반납해주세요."), React.createElement("p", {
+  }, returnConfirmPopup === 'post' && React.createElement(React.Fragment, null, endDate && (() => {
+    var d = getReturnDate(endDate, 'post');
+    return React.createElement("p", {
+      className: "font-bold text-rose-500"
+    }, "📅 ", d.getMonth() + 1, "/", d.getDate(), "(", daysOfWeek[d.getDay()], ") 오후 4시까지 반납");
+  })(), React.createElement("p", null, "우체국택배를 이용하여 반납해주세요."), React.createElement("p", {
     className: "text-xs text-rose-500"
   }, "⚠️ 다른 택배(GS25, 편의점택배 등)는 배송지연·파손·분실 위험이 커 이용 불가하며, 사전 협의 없이 이용 시 계약위반 비용이 청구될 수 있어요."), React.createElement("p", {
     className: "text-xs text-gray-500"
@@ -6269,6 +6308,27 @@ var PhoneRentalApp = () => {
   }, "📩 자세한 안내는 개별로 드려요."))), React.createElement("button", {
     onClick: () => setReturnConfirmPopup(null),
     className: "w-full py-3.5 rounded-xl font-bold shadow-md transition-all text-sm bg-rose-400 text-white hover:bg-rose-500 active:scale-95"
+  }, "확인했어요"))), showOneDayWarning && React.createElement("div", {
+    className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
+  }, React.createElement("div", {
+    className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl transform scale-100 transition-all"
+  }, React.createElement("div", {
+    className: "w-14 h-14 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4"
+  }, React.createElement(Icons.Megaphone, {
+    size: 28
+  })), React.createElement("h3", {
+    className: "text-lg font-bold text-gray-800 mb-3 text-center"
+  }, "1일 대여 안내"), React.createElement("div", {
+    className: "bg-yellow-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed space-y-2 mb-5"
+  }, React.createElement("p", null, startDate && React.createElement("strong", {
+    className: "text-yellow-700"
+  }, "📅 ", startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ")"), " 이후에 무단 촬영에 대한 이용 흔적이 발견될 경우, 계약위반으로 기존 요금의 ", React.createElement("strong", {
+    className: "text-yellow-700"
+  }, "3배"), "가 청구돼요."), React.createElement("p", {
+    className: "text-xs text-gray-500"
+  }, "✅ 데이터 백업은 괜찮아요!")), React.createElement("button", {
+    onClick: () => setShowOneDayWarning(false),
+    className: "w-full py-3.5 rounded-xl font-bold shadow-md transition-all text-sm bg-yellow-400 text-white hover:bg-yellow-500 active:scale-95"
   }, "확인했어요"))), showVenueInfoModal && selectedVenue && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
     onClick: () => setShowVenueInfoModal(false)
