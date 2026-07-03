@@ -784,6 +784,11 @@ var TRANSLATIONS = {
     userGuideSub: "처음이신가요?",
     quickMenu: "✨ 자주 찾는 서비스",
     cs: "고객센터",
+    errPickup: "수령 방법을 선택해주세요! 📦",
+    errReturn: "반납 방법을 선택해주세요! 📮",
+    errInsurance: "파손보험 가입 여부를 선택해주세요! 🛡️",
+    errInfo: "예약자 정보를 모두 입력해주세요! ✍️",
+    errTerms: "약관에 동의해주세요! ✅",
     backup: "데이터백업",
     extension: "대여연장",
     faq: "자주 묻는 질문",
@@ -827,7 +832,7 @@ var TRANSLATIONS = {
     step3Title: "예약자 정보 입력",
     step4Title: "예약 정보 최종 확인",
     totalAmount: "총 결제금액",
-    estimatedAmount: "예상 결제금액",
+    estimatedAmount: "예상금액",
     btnHome: "홈으로",
     btnPrev: "이전으로",
     btnNext: "다음 단계로",
@@ -847,6 +852,11 @@ var TRANSLATIONS = {
     userGuideSub: "First time here?",
     quickMenu: "✨ Quick Menu",
     cs: "Support",
+    errPickup: "Please select a pickup method! 📦",
+    errReturn: "Please select a return method! 📮",
+    errInsurance: "Please select a damage insurance option! 🛡️",
+    errInfo: "Please fill in all reservation details! ✍️",
+    errTerms: "Please agree to the terms! ✅",
     backup: "Backup",
     extension: "Extend",
     faq: "FAQ",
@@ -910,6 +920,11 @@ var TRANSLATIONS = {
     userGuideSub: "初めての方へ",
     quickMenu: "✨ よく使うサービス",
     cs: "サポート",
+    errPickup: "受け取り方法を選択してください！📦",
+    errReturn: "返却方法を選択してください！📮",
+    errInsurance: "破損保険の加入有無を選択してください！🛡️",
+    errInfo: "予約者情報をすべて入力してください！✍️",
+    errTerms: "利用規約に同意してください！✅",
     backup: "バックアップ",
     extension: "延長",
     faq: "よくある質問",
@@ -973,6 +988,11 @@ var TRANSLATIONS = {
     userGuideSub: "第一次使用？",
     quickMenu: "✨ 常用服务",
     cs: "客服中心",
+    errPickup: "请选择取件方式！📦",
+    errReturn: "请选择归还方式！📮",
+    errInsurance: "请选择是否投保损坏险！🛡️",
+    errInfo: "请填写完整的预约人信息！✍️",
+    errTerms: "请同意条款！✅",
     backup: "数据备份",
     extension: "延长租赁",
     faq: "常见问题",
@@ -1126,6 +1146,11 @@ var PhoneRentalApp = () => {
   var [otpVerifying, setOtpVerifying] = useState(false);
   var [otpCooldown, setOtpCooldown] = useState(0);
   var [otpError, setOtpError] = useState('');
+  // [NEW] 퀵서비스 예상 요금 계산 관련 상태
+  var [quickFeeAddress, setQuickFeeAddress] = useState('');
+  var [quickFeeResult, setQuickFeeResult] = useState(null);
+  var [quickFeeLoading, setQuickFeeLoading] = useState(false);
+  var [quickFeeError, setQuickFeeError] = useState('');
   var [agreements, setAgreements] = useState({
     terms: false,
     privacy: false
@@ -1137,6 +1162,7 @@ var PhoneRentalApp = () => {
   var [showInsuranceInfo, setShowInsuranceInfo] = useState(false);
   var [showCardInfo, setShowCardInfo] = useState(false);
   var [showKakaoModal, setShowKakaoModal] = useState(false);
+  var [showChatbotConfirmModal, setShowChatbotConfirmModal] = useState(false);
   var [showVenueInfoModal, setShowVenueInfoModal] = useState(false);
   var [selectedVenue, setSelectedVenue] = useState(null);
   var [showDateGuide, setShowDateGuide] = useState(false);
@@ -1196,8 +1222,8 @@ var PhoneRentalApp = () => {
   });
   var [successData, setSuccessData] = useState(null);
   var [isPhoneCheckModalOpen, setIsPhoneCheckModalOpen] = useState(false);
-  var [isPhoneCheckDisabled, setIsPhoneCheckDisabled] = useState(true);
-  var [phoneCheckCountdown, setPhoneCheckCountdown] = useState(3);
+  var [isPhoneCheckDisabled, setIsPhoneCheckDisabled] = useState(false);
+  var [phoneCheckCountdown, setPhoneCheckCountdown] = useState(0);
   var [blogModal, setBlogModal] = useState({
     open: false,
     type: null
@@ -1418,22 +1444,10 @@ var PhoneRentalApp = () => {
     }
   }, [chatMessages, isBotTyping, activeNav, qnaMode]);
   useEffect(() => {
-    var timer;
     if (isPhoneCheckModalOpen) {
-      setIsPhoneCheckDisabled(true);
-      setPhoneCheckCountdown(3);
-      timer = setInterval(() => {
-        setPhoneCheckCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setIsPhoneCheckDisabled(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      setIsPhoneCheckDisabled(false);
+      setPhoneCheckCountdown(0);
     }
-    return () => clearInterval(timer);
   }, [isPhoneCheckModalOpen]);
   // [NEW] 인증번호 재전송 쿨다운 타이머
   useEffect(() => {
@@ -1471,7 +1485,10 @@ var PhoneRentalApp = () => {
           phone: digits
         }
       });
-      if (error) throw error;
+      if (error) {
+        setOtpError(await getFnErrorMessage(error, '인증번호 발송 중 오류가 발생했습니다.'));
+        return;
+      }
       if (!data || !data.ok) {
         setOtpError((data && data.message) || '인증번호 발송에 실패했습니다.');
       } else {
@@ -1510,7 +1527,10 @@ var PhoneRentalApp = () => {
           code: otpCode
         }
       });
-      if (error) throw error;
+      if (error) {
+        setOtpError(await getFnErrorMessage(error, '인증 확인 중 오류가 발생했습니다.'));
+        return;
+      }
       if (data && data.verified) {
         setIsPhoneVerified(true);
         setOtpError('');
@@ -1904,6 +1924,17 @@ var PhoneRentalApp = () => {
     if (raw.length < 8) return `${raw.slice(0, 3)}-${raw.slice(3)}`;
     return `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7, 11)}`;
   };
+  // [NEW] Edge Function 호출 실패 시, 응답 본문(JSON)에 담긴 실제 에러 메시지를 최대한 꺼내온다
+  var getFnErrorMessage = async (error, fallback) => {
+    try {
+      if (error && error.context && typeof error.context.json === 'function') {
+        var body = await error.context.clone().json();
+        if (body && body.message) return body.message;
+      }
+    } catch (_) {}
+    if (error && error.message) return error.message;
+    return fallback;
+  };
   var handleAddressSearch = () => {
     if (!window.daum || !window.daum.Postcode) {
       alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
@@ -1925,6 +1956,57 @@ var PhoneRentalApp = () => {
         }));
       }
     }).open();
+  };
+  // [NEW] 퀵서비스 예상 요금 - 목적지 주소 검색
+  var handleQuickFeeAddressSearch = () => {
+    if (!window.daum || !window.daum.Postcode) {
+      alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+    new daum.Postcode({
+      oncomplete: function (data) {
+        var fullAddress = data.address;
+        setQuickFeeAddress(fullAddress);
+        fetchQuickFeeEstimate(fullAddress);
+      }
+    }).open();
+  };
+  // [NEW] 퀵서비스 예상 요금 계산 (세린캠 사무실 기준 거리비례 추정)
+  var fetchQuickFeeEstimate = async address => {
+    if (!sb) {
+      setQuickFeeError('저장소 연동이 설정되지 않았습니다.');
+      return;
+    }
+    setQuickFeeLoading(true);
+    setQuickFeeError('');
+    setQuickFeeResult(null);
+    try {
+      var {
+        data,
+        error
+      } = await sb.functions.invoke('estimate-quick-fee', {
+        body: {
+          address
+        }
+      });
+      if (error) {
+        setQuickFeeError(await getFnErrorMessage(error, '요금 계산 중 오류가 발생했습니다.'));
+        return;
+      }
+      if (data && data.ok) {
+        setQuickFeeResult({
+          distanceKm: data.distanceKm,
+          estimatedFee: data.estimatedFee
+        });
+      } else {
+        setQuickFeeError((data && data.message) || '요금 계산에 실패했습니다.');
+      }
+    } catch (e) {
+      console.error('estimate-quick-fee error:', e);
+      setQuickFeeError('요금 계산 중 오류가 발생했습니다.');
+    } finally {
+      setQuickFeeLoading(false);
+    }
   };
   var copyToClipboard = text => {
     var textArea = document.createElement("textarea");
@@ -2779,7 +2861,7 @@ var PhoneRentalApp = () => {
         className: "space-y-3"
       }, React.createElement("p", null, "🛵 ", React.createElement("strong", null, "[당일 수령 안내]"), React.createElement("br", null), "당일 예약도 문제없어요! ✨"), React.createElement("ul", {
         className: "text-xs space-y-1.5 bg-white p-3 rounded-xl border border-gray-100"
-      }, React.createElement("li", null, React.createElement("strong", null, "1️⃣ 퀵 수령:"), " 카카오T 퀵을 통해 원하시는 장소로 바로 보내드려요! (요금은 거리 비례)"), React.createElement("li", null, React.createElement("strong", null, "2️⃣ 사무실 방문:"), " 인천 서구 이음4로6, KR법조타워 7층 710호 (아라역 도보 2분) 사무실로 직접 오시면 바로 픽업 가능해요!"), React.createElement("li", null, React.createElement("strong", null, "3️⃣ 공연장 수령:"), " 당일 스케줄이 맞다면, 공연장 근처에서 바로 전달해 드릴 수도 있어요! 🏟️")), React.createElement("p", {
+      }, React.createElement("li", null, React.createElement("strong", null, "1️⃣ 퀵 수령:"), " 카카오T 퀵을 통해 원하시는 장소로 바로 보내드려요! (요금은 거리 비례)"), React.createElement("li", null, React.createElement("strong", null, "2️⃣ 사무실 방문:"), " 인천 검단구 이음4로6, KR법조타워 7층 710호 (아라역 도보 2분) 사무실로 직접 오시면 바로 픽업 가능해요!"), React.createElement("li", null, React.createElement("strong", null, "3️⃣ 공연장 수령:"), " 당일 스케줄이 맞다면, 공연장 근처에서 바로 전달해 드릴 수도 있어요! 🏟️")), React.createElement("p", {
         className: "text-[11px] text-gray-500"
       }, "아래 예약하기 버튼을 눌러 원하시는 방법을 선택해 주세요! 💖"), React.createElement("button", {
         onClick: () => handleRentalStart(),
@@ -2810,7 +2892,7 @@ var PhoneRentalApp = () => {
         className: "space-y-3"
       }, React.createElement("p", null, "🏢 ", React.createElement("strong", null, "[사무실 반납 안내]"), React.createElement("br", null), "사무실로 직접 오셔서 반납하시는 것도 당연히 가능해요! 방문 전 아래 시간과 주소를 꼭 확인해 주세요 ✨"), React.createElement("ul", {
         className: "text-xs space-y-1.5 bg-white p-3 rounded-xl border border-gray-100"
-      }, React.createElement("li", null, React.createElement("strong", null, "📍 반납 주소:"), " 인천 서구 이음4로6, KR법조타워 7층 710호 (아라역 도보 2분)"), React.createElement("li", null, React.createElement("strong", null, "⏰ 반납 시간:"), " ", React.createElement("span", {
+      }, React.createElement("li", null, React.createElement("strong", null, "📍 반납 주소:"), " 인천 검단구 이음4로6, KR법조타워 7층 710호 (아라역 도보 2분)"), React.createElement("li", null, React.createElement("strong", null, "⏰ 반납 시간:"), " ", React.createElement("span", {
         className: "text-rose-500 font-bold"
       }, "반납일 오전 10시까지"))), React.createElement("p", {
         className: "text-[11px] text-gray-600 bg-rose-50 p-2.5 rounded-lg border border-rose-100 leading-relaxed"
@@ -3326,7 +3408,7 @@ var PhoneRentalApp = () => {
     className: "text-xs font-bold text-gray-600 mb-1"
   }, "📮 받는 분 (세린캠)"), React.createElement("p", {
     className: "text-[11px] text-gray-500 break-keep"
-  }, "인천 서구 이음4로6, KR법조타워 7층 710호"), React.createElement("p", {
+  }, "인천 검단구 이음4로6, KR법조타워 7층 710호"), React.createElement("p", {
     className: "text-[11px] text-gray-500 mt-0.5"
   }, "010-4868-2315")))), React.createElement("div", {
     className: "flex gap-3"
@@ -5289,7 +5371,36 @@ var PhoneRentalApp = () => {
     className: "font-bold mb-1"
   }, "원하는 장소에서 수령하는 방법"), React.createElement("p", {
     className: "mb-1 text-blue-500"
-  }, "주로 긴급으로 필요하신분들 추천!"), React.createElement("p", null, "👉 지역마다 상이하지만, 평균 2만원")), deliveryMethod === 'venue' && React.createElement(React.Fragment, null, React.createElement("p", {
+  }, "주로 긴급으로 필요하신분들 추천!"), React.createElement("p", {
+    className: "mb-2"
+  }, "👉 지역마다 상이하지만, 평균 2만원"), React.createElement("div", {
+    className: "bg-white rounded-xl p-3 border border-blue-100"
+  }, React.createElement("p", {
+    className: "text-[11px] font-bold text-gray-500 mb-1.5"
+  }, "📍 세린캠 사무실 기준 예상 요금 확인"), React.createElement("button", {
+    type: "button",
+    onClick: handleQuickFeeAddressSearch,
+    className: "w-full flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5 text-xs text-left hover:bg-gray-100 transition-colors"
+  }, React.createElement("span", {
+    className: quickFeeAddress ? "text-gray-700 truncate mr-2" : "text-gray-400"
+  }, quickFeeAddress || "받으실 주소 검색하기"), React.createElement(Icons.MapPin, {
+    size: 14,
+    className: "text-blue-400 shrink-0"
+  })), quickFeeLoading && React.createElement("p", {
+    className: "text-[11px] text-gray-400 mt-2"
+  }, "예상 요금을 계산하고 있어요..."), quickFeeError && React.createElement("p", {
+    className: "text-[11px] text-red-500 font-bold mt-2"
+  }, quickFeeError), quickFeeResult && React.createElement("div", {
+    className: "mt-2 bg-sky-50 rounded-lg px-3 py-2.5 border border-sky-100"
+  }, React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, React.createElement("span", {
+    className: "text-[11px] text-gray-500"
+  }, "사무실 기준 약 ", quickFeeResult.distanceKm, "km"), React.createElement("span", {
+    className: "text-sm font-extrabold text-sky-600"
+  }, "약 ", quickFeeResult.estimatedFee.toLocaleString(), "원")), React.createElement("p", {
+    className: "text-[10px] text-gray-400 mt-1"
+  }, "⚠️ 거리 기반 추정 금액으로 실제 카카오T퀵 요금과 다를 수 있어요.")))), deliveryMethod === 'venue' && React.createElement(React.Fragment, null, React.createElement("p", {
     className: "font-bold mb-1"
   }, "공연장 근처에서 수령하는 방법"), React.createElement("p", null, "👉 보통 사운드체크 1시간~30분전, 공연시작 2~3시간 전 진행"), isRestrictedVenueDate && React.createElement("p", {
     className: "text-red-500 font-bold mt-1.5 text-[11px] bg-white px-2 py-1 rounded-lg inline-block shadow-sm"
@@ -5297,8 +5408,8 @@ var PhoneRentalApp = () => {
     className: "font-bold mb-1"
   }, "세린캠 사무실에 당일 날 직접 방문하여 수령하는 방법"), React.createElement("p", {
     className: "mb-2"
-  }, "👉 인천 서구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
-    onClick: () => window.open('https://map.naver.com/p/search/인천 서구 이음4로6', '_blank'),
+  }, "👉 인천 검단구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
+    onClick: () => window.open('https://map.naver.com/p/search/인천 검단구 이음4로6', '_blank'),
     className: "w-full bg-white border border-blue-200 text-blue-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
   }, "네이버 지도로 위치 보기 ", React.createElement(Icons.MapPin, {
     size: 12
@@ -5437,8 +5548,8 @@ var PhoneRentalApp = () => {
     className: "font-bold mb-1"
   }, "세린캠 사무실에 직접 방문하여 반납하는 방법"), React.createElement("p", {
     className: "mb-2"
-  }, "👉 인천 서구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
-    onClick: () => window.open('https://map.naver.com/p/search/인천 서구 이음4로6', '_blank'),
+  }, "👉 인천 검단구 이음4로6, KR법조타워 7층 710호"), React.createElement("button", {
+    onClick: () => window.open('https://map.naver.com/p/search/인천 검단구 이음4로6', '_blank'),
     className: "w-full bg-white border border-blue-200 text-blue-500 py-2.5 rounded-lg font-bold shadow-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
   }, "네이버 지도로 위치 보기 ", React.createElement(Icons.MapPin, {
     size: 12
@@ -5909,13 +6020,13 @@ var PhoneRentalApp = () => {
     className: "flex items-center gap-1 my-0.5"
   }, React.createElement("span", {
     className: "text-sm text-white font-bold tracking-tight drop-shadow-sm flex items-center gap-0.5"
-  }, startDate.getMonth() + 1, "월 ", startDate.getDate(), "일(", daysOfWeek[startDate.getDay()], ")"), React.createElement("span", {
+  }, startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ")"), React.createElement("span", {
     className: "text-white text-sm font-bold mx-0.5"
   }, "~"), React.createElement("span", {
     className: "text-sm text-white font-bold tracking-tight drop-shadow-sm flex items-center gap-0.5"
   }, (() => {
     var returnDate = getReturnDate(endDate);
-    return `${returnDate.getMonth() + 1}월 ${returnDate.getDate()}일(${daysOfWeek[returnDate.getDay()]})`;
+    return `${returnDate.getMonth() + 1}/${returnDate.getDate()}(${daysOfWeek[returnDate.getDay()]})`;
   })())) : React.createElement("span", {
     className: "text-xs text-white/80 font-medium"
   }, "날짜를 선택해주세요"), (deliveryMethod || returnMethod) && React.createElement("div", {
@@ -6046,7 +6157,7 @@ var PhoneRentalApp = () => {
   }, React.createElement("div", {
     className: "flex justify-end pr-5"
   }, React.createElement("button", {
-    onClick: () => handleNavChange('qna'),
+    onClick: () => setShowChatbotConfirmModal(true),
     className: "pointer-events-auto relative group flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full shadow-[0_4px_15px_rgba(99,102,241,0.4)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.6)] transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 animate-bounce-in z-50"
   }, React.createElement("div", {
     className: "absolute inset-0 rounded-full border-2 border-white/20 animate-ping",
@@ -6083,7 +6194,30 @@ var PhoneRentalApp = () => {
       window.open(KAKAO_CHAT_URL, '_blank');
     },
     className: "flex-1 py-3 rounded-xl bg-yellow-400 text-white font-bold hover:bg-yellow-500 transition-colors text-sm"
-  }, "이동하기")))), showVenueInfoModal && selectedVenue && React.createElement("div", {
+  }, "이동하기")))), showChatbotConfirmModal && React.createElement("div", {
+    className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
+  }, React.createElement("div", {
+    className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all"
+  }, React.createElement("div", {
+    className: "w-14 h-14 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4"
+  }, React.createElement(Icons.Bot, {
+    size: 28
+  })), React.createElement("h3", {
+    className: "text-lg font-bold text-gray-800 mb-2"
+  }, "챗봇 & 자주묻는질문"), React.createElement("p", {
+    className: "text-sm text-gray-500 mb-6 leading-relaxed"
+  }, "챗봇 & 자주묻는질문 페이지로", React.createElement("br", null), "이동할까요?"), React.createElement("div", {
+    className: "flex gap-2"
+  }, React.createElement("button", {
+    onClick: () => setShowChatbotConfirmModal(false),
+    className: "flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm"
+  }, "아니요"), React.createElement("button", {
+    onClick: () => {
+      setShowChatbotConfirmModal(false);
+      handleNavChange('qna');
+    },
+    className: "flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm"
+  }, "이동할게요")))), showVenueInfoModal && selectedVenue && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
     onClick: () => setShowVenueInfoModal(false)
   }, React.createElement("div", {
@@ -6221,7 +6355,7 @@ var PhoneRentalApp = () => {
     className: "font-bold text-gray-800 mb-1"
   }, "🏢 사무실 수령"), React.createElement("p", {
     className: "text-xs text-blue-500 bg-blue-50 p-1.5 rounded"
-  }, "👉 인천 서구 이음4로6, KR법조타워 7층 710호"))), React.createElement("div", {
+  }, "👉 인천 검단구 이음4로6, KR법조타워 7층 710호"))), React.createElement("div", {
     className: "mt-4 pt-3 border-t border-gray-100"
   }, React.createElement("button", {
     onClick: () => setShowDeliveryInfo(false),
@@ -6258,7 +6392,7 @@ var PhoneRentalApp = () => {
     className: "text-xs mb-1"
   }, "세린캠 사무실에 직접 방문하여 반납하는 방법"), React.createElement("p", {
     className: "text-xs text-rose-500 bg-rose-50 p-1.5 rounded"
-  }, "👉 인천 서구 이음4로6, KR법조타워 7층 710호")), React.createElement("div", null, React.createElement("h4", {
+  }, "👉 인천 검단구 이음4로6, KR법조타워 7층 710호")), React.createElement("div", null, React.createElement("h4", {
     className: "font-bold text-gray-800 mb-1 flex items-center gap-1.5"
   }, "⚡ 당일 반납 ", React.createElement("span", {
     className: "text-[10px] text-rose-500 border border-rose-200 px-1 rounded"
