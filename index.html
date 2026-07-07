@@ -131,8 +131,8 @@ var {
   useRef
 } = React;
 var CFG = window.SERINCAM_CONFIG || {};
-var SUPABASE_URL = CFG.SUPABASE_URL || "";
-var SUPABASE_ANON_KEY = CFG.SUPABASE_ANON_KEY || "";
+var SUPABASE_URL = CFG.SUPABASE_URL || "https://ttydslhchpzaehuphnkz.supabase.co";
+var SUPABASE_ANON_KEY = CFG.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0eWRzbGhjaHB6YWVodXBobmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3Mjc2NDgsImV4cCI6MjA5ODMwMzY0OH0.7y8hqlXA1VvHl5egp9kjhFXs3O3TYU2xFbGb_C1uHTQ";
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   alert("키 설정 파일(serincam-config.js)을 찾지 못했어요.\n홈페이지 파일과 같은 폴더에 serincam-config.js 가 있는지 확인해주세요.");
 }
@@ -191,8 +191,8 @@ var HOLIDAYS = {
   '2026-10-9': '한글날',
   '2026-12-25': '성탄절'
 };
-       <!-- 대여모델 마감 -->
-var BLOCKED_SCHEDULE = {
+       <!-- 대여모델 마감 (기본값 - 관리자 설정이 없을 때 사용) -->
+var DEFAULT_BLOCKED_SCHEDULE = {
   '갤럭시 S23울트라': ['2026-4-18', '2026-4-19', '2026-2-23'],
   '갤럭시 S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
   '갤럭시 S25울트라': ['2026-6-7', '2026-6-9', '2026-6-10', '2026-6-8', '2026-2-23'],
@@ -1068,6 +1068,23 @@ var PhoneRentalApp = () => {
   var lastScrollY = useRef(0);
   var [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   var [selectedImage, setSelectedImage] = useState(null);
+  var [remoteSettings, setRemoteSettings] = useState(null); // [NEW] 관리자 페이지에서 설정한 값 (admin_settings 테이블)
+  useEffect(() => {
+    // [NEW] 관리자 페이지에서 설정한 예약가능여부/공연장 위치를 불러와요.
+    // 실패하거나 아직 설정한 값이 없으면 기존 하드코딩 값을 그대로 사용해요.
+    if (!sb) return;
+    (async () => {
+      try {
+        var { data, error } = await sb.from('admin_settings').select('*');
+        if (error) throw error;
+        var map = {};
+        (data || []).forEach(row => { map[row.key] = row.value; });
+        setRemoteSettings(map);
+      } catch (e) {
+        console.warn('admin_settings 불러오기 실패 (기존 기본값 사용):', e && e.message);
+      }
+    })();
+  }, []);
   useEffect(() => {
     var handleScroll = () => {
       var currentScrollY = window.scrollY;
@@ -1305,7 +1322,7 @@ var PhoneRentalApp = () => {
     setTimeout(() => setReturnErrMsg(''), 2500);
     if (navigator.vibrate) navigator.vibrate(50);
   };
-  var venueList = {
+  var DEFAULT_VENUE_LIST_RAW = {
     Seoul: [{
       name: '고척 스카이돔',
       info: {
@@ -1430,6 +1447,58 @@ var PhoneRentalApp = () => {
       }
     }]
   };
+  // [NEW] 관리자 설정으로 비활성화한 공연장은 제외하고, 새로 추가한 공연장은 해당 지역에 합쳐요.
+  var VENUE_DISABLED = (remoteSettings && remoteSettings.venue_disabled) || [];
+  var VENUE_CUSTOM = (remoteSettings && remoteSettings.venue_custom) || [];
+  var VENUE_BLOCKED_DATES = (remoteSettings && remoteSettings.venue_blocked_dates) || {}; // [NEW] 공연장별 날짜 마감 (구버전, 남겨둠)
+  var isVenueBlockedOnStartDate = venueName => { // [NEW] 선택한 대여시작일에 해당 공연장이 마감인지 체크
+    if (!startDate) return false;
+    var y = startDate.getFullYear();
+    var m = startDate.getMonth() + 1;
+    var d = startDate.getDate();
+    var key = `${y}-${m}-${d}`;
+    return (VENUE_BLOCKED_DATES[venueName] || []).includes(key);
+  };
+  var VENUE_AVAILABLE_DATES = (remoteSettings && remoteSettings.venue_available_dates) || null; // [NEW] 날짜별 공연장 화이트리스트 (관리자 설정)  { "y-m-d": { venues:[...], hours:"14:00~20:00" } }
+  var getVenueDateEntry = () => { // [NEW] 선택한 대여시작일의 화이트리스트 항목( {venues, hours} ) 반환
+    if (!VENUE_AVAILABLE_DATES || !startDate) return null;
+    var y = startDate.getFullYear();
+    var m = startDate.getMonth() + 1;
+    var d = startDate.getDate();
+    var key = `${y}-${m}-${d}`;
+    return VENUE_AVAILABLE_DATES[key] || null;
+  };
+  var hasVenueWhitelistNow = () => { // [NEW] 현재 선택된 대여시작일에 공연장 화이트리스트가 지정되어 있는지
+    var e = getVenueDateEntry();
+    return !!(e && e.venues && e.venues.length > 0);
+  };
+  var isVenueAllowedOnStartDate = venueName => { // [NEW] 화이트리스트가 있으면 그 날짜에 지정된 공연장만 허용 (기본은 전부 불가)
+    if (!VENUE_AVAILABLE_DATES) return true; // 관리자가 아직 한 번도 설정 안 했으면 기존처럼 전부 허용 (안전장치)
+    if (!startDate) return true;
+    var entry = getVenueDateEntry();
+    if (!entry || !entry.venues) return false; // 이 날짜에 대한 설정이 없으면 기본값: 전부 불가
+    return entry.venues.includes(venueName);
+  };
+  var venueList = (() => {
+    var result = {};
+    Object.keys(DEFAULT_VENUE_LIST_RAW).forEach(region => {
+      result[region] = DEFAULT_VENUE_LIST_RAW[region].filter(v => !VENUE_DISABLED.includes(v.name));
+    });
+    VENUE_CUSTOM.forEach(cv => {
+      var region = cv.region && result[cv.region] !== undefined ? cv.region : 'Seoul';
+      if (!result[region]) result[region] = [];
+      result[region].push({
+        name: cv.name,
+        info: {
+          place: cv.place || cv.name,
+          placeDetail: cv.placeDetail || '',
+          time: cv.time || '사운드체크 1시간전 또는 공연시작 2시간전 예정',
+          note: cv.note || '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+        }
+      });
+    });
+    return result;
+  })();
   var fetchReviews = async () => {
     try {
       var {
@@ -1700,11 +1769,13 @@ var PhoneRentalApp = () => {
     }]
   };
   var daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
-  var AVAILABLE_ONSITE_DATES = ['2025-5-5', '2025-12-25', '2026-1-1', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-'];
-    // 택배 수령 마감
-  var BLOCKED_POST_PICKUP_DATES = ['2026-7-4', '2026-7-5', '2026-6-14', '2026-6-10'];
-    // 공연장 수령 마감
-  var BLOCKED_VENUE_PICKUP_DATES = ['2026-6-12', '2026-6-13', '2026-6-10', '2026-6-15', '2026-6-8'];
+  // [NEW] 관리자 설정(admin_settings)이 있으면 그 값을, 없으면 기존 기본값을 사용해요.
+  var AVAILABLE_ONSITE_DATES = (remoteSettings && remoteSettings.available_onsite_dates) || ['2025-5-5', '2025-12-25', '2026-1-1', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-'];
+  var _blockedDelivery = (remoteSettings && remoteSettings.blocked_delivery_dates) || {};
+  var BLOCKED_POST_PICKUP_DATES = _blockedDelivery.post || ['2026-7-4', '2026-7-5', '2026-6-14', '2026-6-10'];
+  var BLOCKED_VENUE_PICKUP_DATES = _blockedDelivery.venue || ['2026-6-12', '2026-6-13', '2026-6-10', '2026-6-15', '2026-6-8'];
+  var BLOCKED_QUICK_PICKUP_DATES = _blockedDelivery.quick || [];
+  var BLOCKED_OFFICE_PICKUP_DATES = _blockedDelivery.office || [];
   useEffect(() => {
     if (startDate && deliveryMethod === 'post') {
       var year = startDate.getFullYear();
@@ -1932,6 +2003,20 @@ var PhoneRentalApp = () => {
     var day = startDate.getDate();
     var dateKey = `${year}-${month}-${day}`;
     return BLOCKED_VENUE_PICKUP_DATES.includes(dateKey);
+  })();
+  var isQuickPickupBlocked = startDate && (() => { // [NEW] 퀵 수령 마감
+    var year = startDate.getFullYear();
+    var month = startDate.getMonth() + 1;
+    var day = startDate.getDate();
+    var dateKey = `${year}-${month}-${day}`;
+    return BLOCKED_QUICK_PICKUP_DATES.includes(dateKey);
+  })();
+  var isOfficePickupBlocked = startDate && (() => { // [NEW] 사무실 수령 마감
+    var year = startDate.getFullYear();
+    var month = startDate.getMonth() + 1;
+    var day = startDate.getDate();
+    var dateKey = `${year}-${month}-${day}`;
+    return BLOCKED_OFFICE_PICKUP_DATES.includes(dateKey);
   })();
   var isRestrictedVenueDate = startDate && startDate.getFullYear() === 2026 && startDate.getMonth() === 5 && (startDate.getDate() === 20 || startDate.getDate() === 21);
   var formatPhone = value => {
@@ -2555,7 +2640,11 @@ var PhoneRentalApp = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [step, viewMode, activeNav]);
+  // [NEW] 관리자 설정값으로 대여모델 마감일정을 덮어써요. (없으면 기존 기본값)
+  var BLOCKED_SCHEDULE = (remoteSettings && remoteSettings.blocked_schedule) || DEFAULT_BLOCKED_SCHEDULE;
+  var MODEL_DISABLED = (remoteSettings && remoteSettings.model_disabled) || {}; // [NEW] 특정 모델 전체 품절 처리
   var isModelBlocked = modelName => {
+    if (MODEL_DISABLED[modelName]) return true; // [NEW] 전체 품절이면 날짜 상관없이 항상 마감
     if (!startDate || !endDate) return false;
     var checkDate = new Date(startDate);
     checkDate.setHours(0, 0, 0, 0);
@@ -5349,22 +5438,28 @@ var PhoneRentalApp = () => {
   })() : '대여시작일 1일전 도착예정'), React.createElement("p", {
     className: `font-bold text-xs text-right mt-auto ${isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
   }, isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? '마감' : '+4,000원')), React.createElement("div", {
-    onClick: () => selectDeliveryMethod('quick'),
-    className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`
+    onClick: () => {
+      if (isQuickPickupBlocked) {
+        triggerDeliveryErr('quick', "🚨 해당 일자 퀵 수령 마감");
+        return;
+      }
+      selectDeliveryMethod('quick');
+    },
+    className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'quick' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'quick' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${isQuickPickupBlocked && deliveryErr !== 'quick' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`
   }, React.createElement("div", {
     className: "flex justify-between items-start"
   }, React.createElement("span", {
-    className: "font-bold text-gray-800"
+    className: `font-bold ${deliveryErr === 'quick' ? 'text-red-600' : isQuickPickupBlocked ? 'text-gray-500' : 'text-gray-800'}`
   }, "퀵 서비스"), React.createElement(Icons.Zap, {
     size: 20,
-    className: "text-blue-400"
+    className: deliveryErr === 'quick' ? 'text-red-500' : isQuickPickupBlocked ? 'text-gray-400' : 'text-blue-400'
   })), React.createElement("p", {
     className: "text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep"
   }, React.createElement("span", {
     className: "text-sky-600 font-bold"
   }, "주문 후 6시간이내 도착예정")), React.createElement("p", {
-    className: "font-bold text-xs text-right mt-auto text-gray-700"
-  }, "거리비례")), React.createElement("div", {
+    className: `font-bold text-xs text-right mt-auto ${isQuickPickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
+  }, isQuickPickupBlocked ? '마감' : "거리비례")), React.createElement("div", {
     onClick: () => {
       if (isVenuePickupBlocked) {
         triggerDeliveryErr('venue', "🚨 해당 일자 공연장수령 마감");
@@ -5390,22 +5485,28 @@ var PhoneRentalApp = () => {
   }, startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ") 공연장 픽업") : '공연장 근처에서 픽업'), React.createElement("p", {
     className: `font-bold text-xs text-right mt-auto ${isVenuePickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
   }, isVenuePickupBlocked ? '마감' : '+4,000원')), React.createElement("div", {
-    onClick: () => selectDeliveryMethod('office'),
-    className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'}`
+    onClick: () => {
+      if (isOfficePickupBlocked) {
+        triggerDeliveryErr('office', "🚨 해당 일자 사무실 수령 마감");
+        return;
+      }
+      selectDeliveryMethod('office');
+    },
+    className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'office' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'office' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${isOfficePickupBlocked && deliveryErr !== 'office' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`
   }, React.createElement("div", {
     className: "flex justify-between items-start"
   }, React.createElement("span", {
-    className: "font-bold text-gray-800"
+    className: `font-bold ${deliveryErr === 'office' ? 'text-red-600' : isOfficePickupBlocked ? 'text-gray-500' : 'text-gray-800'}`
   }, "사무실 수령"), React.createElement(Icons.MapPin, {
     size: 20,
-    className: "text-blue-400"
+    className: deliveryErr === 'office' ? 'text-red-500' : isOfficePickupBlocked ? 'text-gray-400' : 'text-blue-400'
   })), React.createElement("p", {
     className: "text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep"
   }, startDate ? React.createElement("span", {
     className: "text-sky-600 font-bold"
   }, startDate.getMonth() + 1, "/", startDate.getDate(), "(", daysOfWeek[startDate.getDay()], ") 사무실 방문") : '사무실로 직접 방문'), React.createElement("p", {
-    className: "font-bold text-xs text-right mt-auto text-gray-700"
-  }, "무료")))), React.createElement("div", {
+    className: `font-bold text-xs text-right mt-auto ${isOfficePickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
+  }, isOfficePickupBlocked ? '마감' : "무료")))), React.createElement("div", {
     className: "space-y-3"
   }, React.createElement("div", {
     className: "flex items-center justify-between"
@@ -5662,8 +5763,8 @@ var PhoneRentalApp = () => {
     type: "text",
     inputMode: "numeric",
     maxLength: 6,
-    className: "flex-1 p-3 bg-gray-50 rounded-xl outline-none text-gray-800",
-    placeholder: "인증번호 6자리",
+    className: "w-28 shrink-0 p-3 bg-gray-50 rounded-xl outline-none text-gray-800 text-center text-base font-normal tracking-[0.3em]",
+    placeholder: "· · · · · ·",
     value: otpCode,
     onChange: e => {
       setOtpCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6));
@@ -5673,7 +5774,7 @@ var PhoneRentalApp = () => {
     type: "button",
     disabled: otpCode.length !== 6 || otpVerifying,
     onClick: handleVerifyOtp,
-    className: `shrink-0 text-sm font-bold px-4 py-3 rounded-xl transition-all ${otpCode.length !== 6 || otpVerifying ? 'bg-gray-100 text-gray-400' : 'bg-gray-800 text-white hover:bg-gray-900 active:scale-95'}`
+    className: `flex-1 min-w-0 text-sm font-bold px-3 py-3 rounded-xl transition-all ${otpCode.length !== 6 || otpVerifying ? 'bg-gray-100 text-gray-400' : 'bg-gray-800 text-white hover:bg-gray-900 active:scale-95'}`
   }, otpVerifying ? '확인중...' : '확인')), otpError && React.createElement("p", {
     className: "text-[11px] text-red-500 font-bold mt-1.5 ml-1"
   }, otpError), React.createElement("div", null, React.createElement("label", {
@@ -5755,7 +5856,7 @@ var PhoneRentalApp = () => {
     className: `flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${venueTab === region ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
   }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기'))), React.createElement("div", {
     className: "grid grid-cols-2 gap-2 mb-3"
-  }, venueList[venueTab].map((v, i) => React.createElement("div", {
+  }, venueList[venueTab].filter(v => !isVenueBlockedOnStartDate(v.name) && isVenueAllowedOnStartDate(v.name)).map((v, i) => React.createElement("div", {
     key: i,
     onClick: () => {
       if (v.info) {
@@ -5776,7 +5877,20 @@ var PhoneRentalApp = () => {
     className: `text-[10px] flex items-center justify-center gap-1 z-10 relative transition-colors ${userInfo.address === v.name ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-500'}`
   }, React.createElement(Icons.MapPin, {
     size: 10
-  }), " ", v.info ? '자세히 보기' : '위치보기'))))), React.createElement("input", {
+  }), " ", v.info ? '자세히 보기' : '위치보기'))))), (() => {
+    // [NEW] 관리자가 이 날짜에 공연장 화이트리스트(venue_available_dates)를 지정해두었으면 안내 문구 표시 (운영시간 굵게)
+    var entry = getVenueDateEntry();
+    var hasWhitelist = !!(entry && entry.venues && entry.venues.length > 0);
+    if (!startDate || !hasWhitelist) return null;
+    var m = startDate.getMonth() + 1;
+    var d = startDate.getDate();
+    var wk = daysOfWeek[startDate.getDay()];
+    return React.createElement("p", {
+      className: "text-[12px] text-blue-600 font-bold mb-2 ml-1 leading-snug"
+    }, "📍 ", `${m}월 ${d}일 (${wk}) 공연장 픽업 가능해요`, entry.hours ? React.createElement("span", null, " · 운영시간 ", React.createElement("strong", {
+      className: "font-extrabold"
+    }, entry.hours)) : null);
+  })(), !hasVenueWhitelistNow() && React.createElement("input", {
     type: "text",
     className: `w-full p-2.5 bg-white border border-gray-200 rounded-lg outline-none text-sm transition-colors ${isRestrictedVenueDate ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-gray-800 focus:border-blue-300 placeholder-gray-300'}`,
     placeholder: isRestrictedVenueDate ? "해당 일자는 직접 입력이 불가능해요!" : "원하시는 공연장이 없으면 직접 입력해주세요!",
