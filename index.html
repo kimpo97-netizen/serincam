@@ -353,6 +353,106 @@ var Icon = ({
   className: className
 }, children);
 var Icons = {
+  Coins: props => React.createElement(Icon, props, React.createElement("ellipse", {
+    cx: "15.5",
+    cy: "5",
+    rx: "6.5",
+    ry: "3"
+  }), React.createElement("path", {
+    d: "M22 5v9c0 1.66-2.91 3-6.5 3-.53 0-1.04-.03-1.53-.08"
+  }), React.createElement("path", {
+    d: "M22 9.5c0 1.66-2.91 3-6.5 3-.53 0-1.04-.03-1.53-.08"
+  }), React.createElement("ellipse", {
+    cx: "8.5",
+    cy: "12",
+    rx: "6.5",
+    ry: "3"
+  }), React.createElement("path", {
+    d: "M2 12v7c0 1.66 2.91 3 6.5 3s6.5-1.34 6.5-3v-7"
+  }), React.createElement("path", {
+    d: "M15 16.5c0 1.66-2.91 3-6.5 3S2 18.16 2 16.5"
+  })),
+  Camera: props => React.createElement(Icon, props, React.createElement("path", {
+    d: "M9 4.5 7 7.5"
+  }), React.createElement("path", {
+    d: "m15 4.5 2 3"
+  }), React.createElement("path", {
+    d: "M9 4.5h6"
+  }), React.createElement("rect", {
+    x: "2",
+    y: "7.5",
+    width: "20",
+    height: "13",
+    rx: "4"
+  }), React.createElement("circle", {
+    cx: "12",
+    cy: "14",
+    r: "4"
+  })),
+  Star: props => React.createElement(Icon, props, React.createElement("path", {
+    d: "M12 2.5a1.6 1.6 0 0 1 1.52 1.1l1.6 4.9h5.15a1.6 1.6 0 0 1 .94 2.9l-4.17 3.03 1.6 4.9a1.6 1.6 0 0 1-2.46 1.79L12 18.09l-4.18 3.03a1.6 1.6 0 0 1-2.46-1.79l1.6-4.9-4.17-3.03a1.6 1.6 0 0 1 .94-2.9h5.15l1.6-4.9A1.6 1.6 0 0 1 12 2.5z"
+  })),
+  MessageLines: props => React.createElement(Icon, props, React.createElement("path", {
+    d: "M20 3H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2.6a1 1 0 0 1 .65.24l3.75 3.2a1.5 1.5 0 0 0 2 0l3.75-3.2a1 1 0 0 1 .65-.24H20a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"
+  }), React.createElement("path", {
+    d: "M6.5 7.5h4"
+  }), React.createElement("path", {
+    d: "M6.5 10.5h11"
+  }), React.createElement("path", {
+    d: "M6.5 13.5h11"
+  })),
+  Rocket: props => React.createElement(Icon, props, React.createElement("path", {
+    d: "M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+  }), React.createElement("path", {
+    d: "m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+  }), React.createElement("path", {
+    d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"
+  }), React.createElement("path", {
+    d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"
+  })),
+  Building2: props => React.createElement(Icon, props, React.createElement("path", {
+    d: "M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"
+  }), React.createElement("path", {
+    d: "M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"
+  }), React.createElement("path", {
+    d: "M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"
+  }), React.createElement("path", {
+    d: "M10 6h4"
+  }), React.createElement("path", {
+    d: "M10 10h4"
+  }), React.createElement("path", {
+    d: "M10 14h4"
+  }), React.createElement("path", {
+    d: "M10 18h4"
+  })),
+  ListChecks: props => React.createElement(Icon, props, React.createElement("path", {
+    d: "m3 17 2 2 4-4"
+  }), React.createElement("path", {
+    d: "m3 7 2 2 4-4"
+  }), React.createElement("path", {
+    d: "M13 6h8"
+  }), React.createElement("path", {
+    d: "M13 12h8"
+  }), React.createElement("path", {
+    d: "M13 18h8"
+  })),
+  Trash2: props => React.createElement(Icon, props, React.createElement("path", {
+    d: "M3 6h18"
+  }), React.createElement("path", {
+    d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+  }), React.createElement("path", {
+    d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+  }), React.createElement("line", {
+    x1: "10",
+    y1: "11",
+    x2: "10",
+    y2: "17"
+  }), React.createElement("line", {
+    x1: "14",
+    y1: "11",
+    x2: "14",
+    y2: "17"
+  })),
   Smartphone: props => React.createElement(Icon, props, React.createElement("rect", {
     x: "5",
     y: "2",
@@ -522,9 +622,6 @@ var Icons = {
     x2: "12.01",
     y2: "17"
   })),
-  Star: props => React.createElement(Icon, props, React.createElement("polygon", {
-    points: "12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-  })),
   Megaphone: props => React.createElement(Icon, props, React.createElement("path", {
     d: "m3 11 18-5v12L3 14v-3z"
   }), React.createElement("path", {
@@ -643,13 +740,6 @@ var Icons = {
   })),
   MessageSquare: props => React.createElement(Icon, props, React.createElement("path", {
     d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-  })),
-  Camera: props => React.createElement(Icon, props, React.createElement("path", {
-    d: "M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"
-  }), React.createElement("circle", {
-    cx: "12",
-    cy: "13",
-    r: "3"
   })),
   Image: props => React.createElement(Icon, props, React.createElement("rect", {
     x: "3",
@@ -780,9 +870,17 @@ var TRANSLATIONS = {
     venuePickup: "공연장 픽업가능",
     bookingLookup: "예약 조회",
     bookingLookupSub: "내 예약 확인하기",
+    pickupZone: "공연장 픽업존",
+    pickupZoneSub: "당일 예약도 가능해요!",
     userGuide: "이용 가이드",
     userGuideSub: "처음이신가요?",
     quickMenu: "✨ 자주 찾는 서비스",
+    catBook: "예약",
+    catExtend: "대여연장",
+    catBackup: "백업가이드",
+    catCs: "고객센터",
+    catPickup: "픽업존",
+    catReview: "리뷰",
     cs: "고객센터",
     errPickup: "수령 방법을 선택해주세요! 📦",
     errDates: "📅 필요하신 날짜를 선택해주세요!",
@@ -851,9 +949,17 @@ var TRANSLATIONS = {
     venuePickup: "Venue Pickup",
     bookingLookup: "My Booking",
     bookingLookupSub: "Check booking status",
+    pickupZone: "Venue Pickup Zone",
+    pickupZoneSub: "Same-day booking available!",
     userGuide: "User Guide",
     userGuideSub: "First time here?",
     quickMenu: "✨ Quick Menu",
+    catBook: "Booking",
+    catExtend: "Extend",
+    catBackup: "Backup Guide",
+    catCs: "Support",
+    catPickup: "Pickup Zone",
+    catReview: "Reviews",
     cs: "Support",
     errPickup: "Please select a pickup method! 📦",
     errDates: "Please select a start and end date! 📅",
@@ -922,9 +1028,17 @@ var TRANSLATIONS = {
     venuePickup: "会場受取可",
     bookingLookup: "予約照会",
     bookingLookupSub: "予約状況の確認",
+    pickupZone: "会場ピックアップ",
+    pickupZoneSub: "当日予約も可能です！",
     userGuide: "ご利用ガイド",
     userGuideSub: "初めての方へ",
     quickMenu: "✨ よく使うサービス",
+    catBook: "予約",
+    catExtend: "延長",
+    catBackup: "バックアップ",
+    catCs: "サポート",
+    catPickup: "ピックアップ",
+    catReview: "レビュー",
     cs: "サポート",
     errPickup: "受け取り方法を選択してください！📦",
     errDates: "レンタル開始日と終了日を選択してください！📅",
@@ -993,9 +1107,17 @@ var TRANSLATIONS = {
     venuePickup: "场馆取货",
     bookingLookup: "预约查询",
     bookingLookupSub: "确认我的预约",
+    pickupZone: "演出场馆取货点",
+    pickupZoneSub: "当天预约也可以！",
     userGuide: "使用指南",
     userGuideSub: "第一次使用？",
     quickMenu: "✨ 常用服务",
+    catBook: "预约",
+    catExtend: "延长",
+    catBackup: "备份指南",
+    catCs: "客服",
+    catPickup: "取货点",
+    catReview: "评价",
     cs: "客服中心",
     errPickup: "请选择取件方式！📦",
     errDates: "请选择租借开始日和结束日！📅",
@@ -1213,6 +1335,9 @@ var PhoneRentalApp = () => {
     name: '',
     phone: ''
   });
+  // [NEW] 연장/백업: 예약조회 후 선택된 대상 예약 + 신청 전 확인 팝업 상태
+  var [serviceTarget, setServiceTarget] = useState(null);
+  var [serviceConfirm, setServiceConfirm] = useState(null);
   var [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   var [currentReviewItem, setCurrentReviewItem] = useState(null);
   var [reviewForm, setReviewForm] = useState({
@@ -1261,6 +1386,163 @@ var PhoneRentalApp = () => {
     open: false,
     type: null
   });
+  // [NEW] 카메라 설정 모달 내 기종 탭 (갤럭시/아이폰)
+  var [cameraModalTab, setCameraModalTab] = useState('galaxy');
+  // [NEW] 예약변경 신청: 대상 예약 + 변경 폼
+  var [changeTargetItem, setChangeTargetItem] = useState(null);
+  var [changeForm, setChangeForm] = useState({
+    modelId: ''
+  });
+  // [NEW] 예약변경(대여모델만): 기종 탭
+  var [chgTab, setChgTab] = useState('galaxy');
+  // [NEW] 상단 네비 메뉴바: 열려있는 드롭다운 key (null이면 닫힘)
+  var [openNavMenu, setOpenNavMenu] = useState(null);
+  // [NEW] 헤더 예약조회 드롭다운 열림 상태
+  var [isLookupMenuOpen, setIsLookupMenuOpen] = useState(false);
+  // [NEW] 상단 네비 메뉴바 구성 (전문 홈페이지형 드롭다운)
+  var NAV_MENUS = [{
+    key: 'guide',
+    label: '대여안내',
+    icon: Icons.BookOpen,
+    items: [{
+      label: '이용 가이드',
+      desc: '예약부터 반납까지 4단계',
+      icon: Icons.BookOpen,
+      onClick: () => setViewMode('manual')
+    }, {
+      label: '수령 방법',
+      desc: '택배·퀵·공연장·사무실',
+      icon: Icons.Truck,
+      onClick: () => setViewMode('pickupGuide')
+    }, {
+      label: '반납 방법',
+      desc: '반납 절차와 주의사항',
+      icon: Icons.Box,
+      onClick: () => setViewMode('returnGuide')
+    }, {
+      label: '픽업존 안내',
+      desc: '수도권 15곳 공연장 픽업',
+      icon: Icons.MapPin,
+      onClick: () => {
+        setViewMode('dashboard');
+        setTimeout(() => {
+          var el = document.getElementById('venue-section');
+          if (el) el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 100);
+      }
+    }]
+  }, {
+    key: 'shoot',
+    label: '직캠 가이드',
+    icon: Icons.Camera,
+    items: [{
+      label: '카메라 세팅 (울트라)',
+      desc: '갤럭시 콘서트 필수 설정값',
+      icon: Icons.Android,
+      onClick: () => {
+        setCameraModalTab('galaxy');
+        setBlogModal({
+          open: true,
+          type: 'camera'
+        });
+      }
+    }, {
+      label: '카메라 세팅 (아이폰)',
+      desc: '아이폰 콘서트 필수 설정값',
+      icon: Icons.Apple,
+      onClick: () => {
+        setCameraModalTab('iphone');
+        setBlogModal({
+          open: true,
+          type: 'camera'
+        });
+      }
+    }, {
+      label: '데이터 백업 가이드',
+      desc: '촬영본 안전하게 옮기기',
+      icon: Icons.Image,
+      onClick: () => setViewMode('backup')
+    }, {
+      label: '대여모델 추천 기능',
+      desc: '내게 맞는 기종 찾기',
+      icon: Icons.Smartphone,
+      onClick: () => {
+        setViewMode('dashboard');
+        setTimeout(() => {
+          var el = document.getElementById('recommend-section');
+          if (el) el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 100);
+      }
+    }]
+  }, {
+    key: 'review',
+    label: '리뷰',
+    icon: Icons.Star,
+    items: [{
+      label: '홈페이지 리뷰',
+      desc: '고객들의 생생한 후기',
+      icon: Icons.Star,
+      onClick: () => setViewMode('reviews')
+    }, {
+      label: '카카오맵 리뷰',
+      desc: '실제 방문 고객 평점',
+      icon: Icons.MapPin,
+      onClick: () => {
+        setBlogTargetUrl('https://kko.to/dWVAAUgIPZ');
+        setIsBlogConfirmOpen(true);
+      }
+    }, {
+      label: '네이버 블로그 리뷰',
+      desc: '자세한 사진 후기',
+      icon: Icons.Book,
+      onClick: () => {
+        setBlogTargetUrl('https://blog.naver.com/serin_day');
+        setIsBlogConfirmOpen(true);
+      }
+    }, {
+      label: 'X(트위터) 리뷰',
+      desc: '실시간 직캠 후기',
+      icon: Icons.MessageLines,
+      onClick: () => {
+        setBlogTargetUrl('https://twitter.com/serin_cam');
+        setIsBlogConfirmOpen(true);
+      }
+    }]
+  }, {
+    key: 'support',
+    label: '고객지원',
+    icon: Icons.Headphones,
+    items: [{
+      label: 'AI 챗봇 상담',
+      desc: '24시간 즉시 답변',
+      icon: Icons.Bot,
+      onClick: () => {
+        setQnaMode('chatbot');
+        handleNavChange('qna');
+      }
+    }, {
+      label: '자주 묻는 질문',
+      desc: '궁금증을 빠르게 해결',
+      icon: Icons.HelpCircle,
+      onClick: () => {
+        setQnaMode('list');
+        handleNavChange('qna');
+      }
+    }, {
+      label: '카카오톡 상담',
+      desc: '직원이 직접 답변드려요',
+      icon: Icons.Headphones,
+      onClick: () => setShowKakaoModal(true)
+    }]
+  }];
+
+  var [isChangeConfirmOpen, setIsChangeConfirmOpen] = useState(false);
   var [openFaqIndex, setOpenFaqIndex] = useState(null);
   var [activeFaqCategory, setActiveFaqCategory] = useState('전체');
   var [faqSearchQuery, setFaqSearchQuery] = useState('');
@@ -1472,11 +1754,13 @@ var PhoneRentalApp = () => {
     var e = getVenueDateEntry();
     return !!(e && e.venues && e.venues.length > 0);
   };
-  var isVenueAllowedOnStartDate = venueName => { // [NEW] 화이트리스트가 있으면 그 날짜에 지정된 공연장만 허용 (기본은 전부 불가)
-    if (!VENUE_AVAILABLE_DATES) return true; // 관리자가 아직 한 번도 설정 안 했으면 기존처럼 전부 허용 (안전장치)
+  var isVenueAllowedOnStartDate = venueName => {
+    // [FIX] 화이트리스트가 있으면 그 날짜에 지정된 공연장만 허용.
+    // 단, 해당 날짜에 대한 설정이 아예 없으면 전체 공연장을 그대로 노출 (기존엔 전부 숨겨져 목록이 비어버림)
+    if (!VENUE_AVAILABLE_DATES) return true;
     if (!startDate) return true;
     var entry = getVenueDateEntry();
-    if (!entry || !entry.venues) return false; // 이 날짜에 대한 설정이 없으면 기본값: 전부 불가
+    if (!entry || !entry.venues || entry.venues.length === 0) return true;
     return entry.venues.includes(venueName);
   };
   var venueList = (() => {
@@ -1706,12 +1990,46 @@ var PhoneRentalApp = () => {
   };
   var handleCancelRequest = async () => {
     if (!cancelTargetItem) return;
+    if (!sb) {
+      alert("시스템 오류: 연동 URL 미설정");
+      return;
+    }
     setIsSubmitting(true);
-    setTimeout(() => {
+    var target = cancelTargetItem;
+    var refundInfo = calcRefund(target);
+    var orderData = {
+      category: '취소신청',
+      status: '예약신청',
+      orderTime: new Date().toLocaleString('ko-KR'),
+      model: (target.model || '') + ' 취소/환불',
+      name: target.name || '',
+      phone: target.phone || '',
+      startDate: target.startDate || '',
+      endDate: target.endDate || '',
+      // 환불 예정 금액을 totalPrice로 기록 (관리자가 확인)
+      totalPrice: refundInfo.refund,
+      scheduleName: (target.name || '') + '님 취소/환불신청 | 환불예정 ' + refundInfo.refund.toLocaleString() + '원 (' + refundInfo.label + ')' + (target.scheduleName ? ' | 원예약: ' + target.model + ' | ' + target.scheduleName : ''),
+      origin_ref: buildOriginRef(target)
+    };
+    try {
+      var {
+        error
+      } = await sb.from('reservations').insert(orderData);
+      if (error) throw error;
       setIsSubmitting(false);
       setIsCancelModalOpen(false);
-      alert("취소 요청이 정상적으로 접수되었어요! 😢\n담당자가 확인 후 빠르게 처리해 드릴게요.");
-    }, 1000);
+      setCancelTargetItem(null);
+      setSuccessData({
+        type: '취소',
+        name: target.name || '',
+        amount: refundInfo.refund,
+        changeNote: refundInfo.refund > 0 ? '환불 예정 ' + refundInfo.refund.toLocaleString() + '원' : '환불 금액 없음 (' + refundInfo.label + ')'
+      });
+      setViewMode('success');
+    } catch (e) {
+      setIsSubmitting(false);
+      alert("취소 신청 전송에 실패했어요. 잠시 후 다시 시도해주세요.");
+    }
   };
   var getReviewTag = modelName => {
     if (modelName.includes('S23')) return '23U';
@@ -2018,7 +2336,6 @@ var PhoneRentalApp = () => {
     var dateKey = `${year}-${month}-${day}`;
     return BLOCKED_OFFICE_PICKUP_DATES.includes(dateKey);
   })();
-  var isRestrictedVenueDate = startDate && startDate.getFullYear() === 2026 && startDate.getMonth() === 5 && (startDate.getDate() === 20 || startDate.getDate() === 21);
   var formatPhone = value => {
     var raw = value.replace(/[^0-9]/g, '');
     if (raw.length < 4) return raw;
@@ -2255,6 +2572,367 @@ var PhoneRentalApp = () => {
     var day = date.getDate();
     return `${year}년 ${month}월 ${day}일`;
   };
+  // [NEW] 예약에 저장된 다양한 형식의 날짜("2026. 3. 5" / "26년 3월 5일" / ISO)를 Date로 파싱
+  var parseResDate = val => {
+    if (!val) return null;
+    var s = String(val).trim();
+    var dot = s.match(/(\d{4})\s*\.\s*(\d{1,2})\s*\.\s*(\d{1,2})/); // YYYY. M. D
+    if (dot) return new Date(+dot[1], +dot[2] - 1, +dot[3]);
+    var kor = s.match(/(\d{2,4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일/); // YY년 M월 D일
+    if (kor) {
+      var y = +kor[1];
+      if (y < 100) y += 2000;
+      return new Date(y, +kor[2] - 1, +kor[3]);
+    }
+    var d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  };
+  // [NEW] 기준 날짜에서 N일 더한 값을 예약 저장 형식("YYYY. M. D")으로 반환
+  var addDaysDot = (val, days) => {
+    var base = parseResDate(val);
+    if (!base) return null;
+    base.setDate(base.getDate() + days);
+    return `${base.getFullYear()}. ${base.getMonth() + 1}. ${base.getDate()}`;
+  };
+  // [NEW] 예약 model 문자열로 갤럭시/아이폰 판별 (연장 요금 자동 적용용)
+  var detectExtModel = modelStr => {
+    var s = String(modelStr || '').toLowerCase();
+    if (s.includes('17p') || s.includes('아이폰') || s.includes('iphone') || s.includes('16p')) return 'iphone';
+    return 'galaxy';
+  };
+  // [NEW] 원예약 지문 생성: lookup이 id를 안 주므로, 예약 생성시각(orderTime)을
+  // 1차 키로 저장해요. orderTime은 초 단위까지 찍혀 사실상 유일한 값이라
+  // 이름+연락처+시작일+기종 조합보다 훨씬 안전합니다. (나머지는 보조 검증용)
+  var buildOriginRef = res => {
+    if (!res) return null;
+    try {
+      return JSON.stringify({
+        orderTime: res.orderTime || '',
+        name: res.name || '',
+        phone: res.phone || '',
+        startDate: res.startDate || '',
+        endDate: res.endDate || '',
+        model: res.model || ''
+      });
+    } catch (e) {
+      return null;
+    }
+  };
+  // [NEW] 연장/백업 대상이 될 수 있는 "실제 대여 예약"만 필터 (연장/백업 신청건·취소·환불 제외)
+  var eligibleReservations = (lookupResult || []).filter(function (r) {
+    var cat = r.category || '';
+    var st = r.status || '';
+    if (cat === '연장신청' || cat === '백업신청' || cat === '취소신청' || cat === '변경신청') return false;
+    if (st.includes('취소') || st.includes('환불')) return false;
+    return true;
+  });
+  // [NEW] 원예약에 연결된 진행중 신청(연장/백업/취소/변경)을 origin_ref로 매칭해 하위 표시
+  var REQUEST_CATEGORIES = ['연장신청', '백업신청', '취소신청', '변경신청'];
+  var REQUEST_LABEL = {
+    연장신청: {
+      text: '대여연장 신청',
+      color: 'text-blue-600 bg-blue-50 border-blue-100'
+    },
+    백업신청: {
+      text: '데이터백업 신청',
+      color: 'text-purple-600 bg-purple-50 border-purple-100'
+    },
+    취소신청: {
+      text: '취소/환불 신청',
+      color: 'text-red-600 bg-red-50 border-red-100'
+    },
+    변경신청: {
+      text: '기종변경 신청',
+      color: 'text-rose-600 bg-rose-50 border-rose-100'
+    }
+  };
+  // origin_ref(JSON: {orderTime, name, phone, startDate, endDate, model})로 원예약을 찾아 연결
+  var findOriginalFor = reqRow => {
+    if (!reqRow.origin_ref) return null;
+    var ref;
+    try {
+      ref = JSON.parse(reqRow.origin_ref);
+    } catch (e) {
+      return null;
+    }
+    if (!ref) return null;
+    return (lookupResult || []).find(function (o) {
+      if (o.category !== '예약신청') return false;
+      if (ref.orderTime && o.orderTime === ref.orderTime) return true;
+      if (!ref.orderTime && o.name === ref.name && o.phone === ref.phone && o.startDate === ref.startDate && o.model === ref.model) return true;
+      return false;
+    }) || null;
+  };
+  // 원예약 각각에 매칭되는 신청건 리스트 (없으면 빈 배열)
+  var getLinkedRequests = original => {
+    return (lookupResult || []).filter(function (r) {
+      if (!REQUEST_CATEGORIES.includes(r.category)) return false;
+      return findOriginalFor(r) === original;
+    });
+  };
+  // 표시용 리스트: 원예약(+연결된 신청 내포) 먼저, 그다음 원예약과 매칭 안 된 신청건(구버전 등 예외 케이스만)
+  var displayReservations = (() => {
+    var all = lookupResult || [];
+    var originals = all.filter(r => r.category === '예약신청');
+    var linkedSet = new Set();
+    originals.forEach(o => getLinkedRequests(o).forEach(r => linkedSet.add(r)));
+    var orphanRequests = all.filter(r => REQUEST_CATEGORIES.includes(r.category) && !linkedSet.has(r));
+    return {
+      originals: originals,
+      orphanRequests: orphanRequests
+    };
+  })();
+  // [NEW] 제5조 규정 기반 환불 금액 자동 계산
+  // 우선순위: ①송장번호 있으면 발송완료 → 환불불가  ②대여 2일전~ → 환불불가(공연장/퀵 포함)
+  //           ③결제 24h 이내 100% / 24h 이후 위약금 1만원 차감
+  var calcRefund = res => {
+    var total = Number(res.totalPrice) || 0;
+    // ① 송장번호(발송) 확인
+    var tracking = (res.trackingNumber || '').toString().trim();
+    if (tracking) {
+      return {
+        refund: 0,
+        rule: 'shipped',
+        label: '제품 발송 완료 (송장번호 등록)',
+        total: total
+      };
+    }
+    // ② 대여 시작 2일 전부터 환불 불가
+    var start = parseResDate(res.startDate);
+    if (start) {
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      start.setHours(0, 0, 0, 0);
+      var diffDays = Math.round((start.getTime() - today.getTime()) / 86400000);
+      // 대여일 2일 전(diffDays <= 2)부터 환불 불가
+      if (diffDays <= 2) {
+        return {
+          refund: 0,
+          rule: 'd2',
+          label: '대여 시작 2일 전 이후',
+          total: total
+        };
+      }
+    }
+    // ③ 결제(주문) 시각 기준 24시간
+    var order = parseOrderDateTime(res.orderTime);
+    if (order) {
+      var hours = (Date.now() - order.getTime()) / 3600000;
+      if (hours <= 24) {
+        return {
+          refund: total,
+          rule: 'full',
+          label: '결제 24시간 이내',
+          total: total
+        };
+      }
+      var penalty = 10000;
+      return {
+        refund: Math.max(0, total - penalty),
+        rule: 'penalty',
+        label: '결제 24시간 이후 (위약금 1만원 차감)',
+        total: total,
+        penalty: penalty
+      };
+    }
+    // 주문시각 파싱 실패 시 안전하게 위약금 차감 기준 적용
+    return {
+      refund: Math.max(0, total - 10000),
+      rule: 'penalty',
+      label: '위약금 1만원 차감',
+      total: total,
+      penalty: 10000
+    };
+  };
+  // [NEW] orderTime("2026. 7. 1. 오후 3:12:07" 등 ko-KR 문자열)을 Date로 파싱
+  var parseOrderDateTime = val => {
+    if (!val) return null;
+    var s = String(val).trim();
+    var m = s.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.\s*(오전|오후)?\s*(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (m) {
+      var y = +m[1],
+        mo = +m[2] - 1,
+        d = +m[3];
+      var hh = +m[5];
+      var ampm = m[4];
+      if (ampm === '오후' && hh < 12) hh += 12;
+      if (ampm === '오전' && hh === 12) hh = 0;
+      return new Date(y, mo, d, hh, +m[6], +(m[7] || 0));
+    }
+    var dt = new Date(s);
+    return isNaN(dt.getTime()) ? null : dt;
+  };
+  // [NEW] 전체 기종 목록 (갤럭시+아이폰 평탄화)
+  var allPhones = () => [].concat(phones.galaxy || [], phones.iphone || []);
+  // [NEW] date input(YYYY-MM-DD) ↔ 예약 저장형식("YYYY. M. D") 변환
+  var toInputDate = val => {
+    var d = parseResDate(val);
+    if (!d) return '';
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${dd}`;
+  };
+  var fromInputDate = val => {
+    if (!val) return '';
+    var parts = String(val).split('-');
+    if (parts.length !== 3) return '';
+    return `${+parts[0]}. ${+parts[1]}. ${+parts[2]}`;
+  };
+  // [NEW] 예약 model 문자열로 기존 기종 객체 찾기
+  var findPhoneByModel = modelStr => {
+    var s = String(modelStr || '');
+    var list = allPhones();
+    // [FIX] 정확한 이름 우선 매칭
+    for (var p of list) {
+      if (p.name && s.includes(p.name)) return p;
+    }
+    // [FIX] 약어(tag) 매칭 시 긴 것부터 확인 (17PM이 17P로 잘못 매칭되는 문제 방지)
+    var sorted = list.slice().sort((a, b) => String(b.tag || '').length - String(a.tag || '').length);
+    for (var q of sorted) {
+      if (q.tag && s.includes(q.tag)) return q;
+    }
+    return null;
+  };
+  // [NEW] 변경 후 예상 금액 계산 (기종 기본가 + 추가일수 + 수령방법 옵션료)
+  // [NEW] 예약변경 전용 마감 체크 (예약하기의 마감 규칙을 changeForm 기준으로 그대로 적용)
+  // 날짜키 포맷은 예약하기와 동일 ("YYYY-M-D")
+  var dateKeyOf = d => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  // 선택한 기간(시작~반납) 중 해당 모델이 마감된 날이 하루라도 있으면 true
+  var isChangeModelBlocked = (modelName, startVal, endVal) => {
+    if (!modelName) return false;
+    if (MODEL_DISABLED[modelName]) return true; // 전체 품절
+    var s = parseResDate(startVal);
+    var e = parseResDate(endVal);
+    if (!s || !e) return false;
+    var cur = new Date(s);
+    cur.setHours(0, 0, 0, 0);
+    var last = new Date(e);
+    last.setHours(0, 0, 0, 0);
+    while (cur <= last) {
+      var k = dateKeyOf(cur);
+      if (BLOCKED_SCHEDULE[modelName] && BLOCKED_SCHEDULE[modelName].includes(k)) return true;
+      cur.setDate(cur.getDate() + 1);
+    }
+    return false;
+  };
+  // [NEW] 예약변경(대여모델만): 유효성 검증
+  var getChangeBlockReason = form => {
+    var phone = allPhones().find(p => p.id === form.modelId);
+    if (!phone) return '변경할 기종을 선택해주세요.';
+    if (changeTargetItem && isChangeModelBlocked(phone.name, changeTargetItem.startDate, changeTargetItem.endDate)) {
+      return MODEL_DISABLED[phone.name] ? `${phone.name}은(는) 현재 품절이에요.` : `기존 대여 기간에 ${phone.name}이(가) 예약 마감된 날짜가 있어요.`;
+    }
+    var origPhone = findPhoneByModel(changeTargetItem ? changeTargetItem.model : '');
+    if (origPhone && origPhone.id === form.modelId) {
+      return '현재 기종과 동일해요. 다른 기종을 선택해주세요.';
+    }
+    return null;
+  };
+  // [NEW] 예약변경(대여모델만): 기존 예약의 대여 일수를 그대로 유지하고 기종만 바꿔 요금 재계산
+  // 기존 결제 금액에서 "기존 기종 요금"을 빼고 "새 기종 요금"을 더하는 방식이라
+  // 보험/배터리/할인/수령·반납 옵션료 등 나머지 항목은 그대로 유지돼요.
+  var calcChangeTotal = form => {
+    if (!changeTargetItem) return null;
+    var phone = allPhones().find(p => p.id === form.modelId);
+    if (!phone) return null;
+    var origPhone = findPhoneByModel(changeTargetItem.model);
+    if (!origPhone) return null;
+    var oldPrice = Number(changeTargetItem.totalPrice) || 0;
+    // 기존 예약의 대여 일수 추정: 기존 결제금액에서 기종 요금 부분을 역산
+    // (기종 요금 = basePrice + (days-1) * addPrice)
+    var days = 1;
+    // 기존 기종 요금을 days=1부터 올려가며, 나머지 옵션료가 음수가 되지 않는 최대 days를 찾음
+    for (var d = 1; d <= 60; d++) {
+      var origModelFee = d <= 1 ? origPhone.basePrice : origPhone.basePrice + (d - 1) * origPhone.addPrice;
+      if (origModelFee > oldPrice) break;
+      days = d;
+    }
+    var origModelPrice = days <= 1 ? origPhone.basePrice : origPhone.basePrice + (days - 1) * origPhone.addPrice;
+    var newModelPrice = days <= 1 ? phone.basePrice : phone.basePrice + (days - 1) * phone.addPrice;
+    // 기존 총액에서 기종 요금만 교체
+    var total = oldPrice - origModelPrice + newModelPrice;
+    return {
+      total: Math.max(0, total),
+      days: days,
+      phone: phone,
+      origPhone: origPhone,
+      origModelPrice: origModelPrice,
+      newModelPrice: newModelPrice
+    };
+  };
+  // [NEW] 예약변경(대여모델만) 신청 제출 — 관리자 확정 시 반영
+  var handleChangeSubmit = async () => {
+    if (!changeTargetItem) return;
+    if (!sb) {
+      alert("시스템 오류: 연동 URL 미설정");
+      return;
+    }
+    var calc = calcChangeTotal(changeForm);
+    if (!calc) {
+      alert("변경할 기종을 선택해주세요.");
+      return;
+    }
+    var blocked = getChangeBlockReason(changeForm);
+    if (blocked) {
+      alert("🚨 " + blocked);
+      setIsChangeConfirmOpen(false);
+      return;
+    }
+    setIsSubmitting(true);
+    var target = changeTargetItem;
+    var oldPrice = Number(target.totalPrice) || 0;
+    var diff = calc.total - oldPrice;
+    // [NEW] 예약하기와 동일하게 model을 약어(23U/24U/25U/26U/17P/17PM)로 저장
+    var toShortModel = fullName => {
+      var n = String(fullName || '');
+      if (n.includes('S23')) return '23U';
+      if (n.includes('S24')) return '24U';
+      if (n.includes('S25')) return '25U';
+      if (n.includes('S26')) return '26U';
+      if (n.includes('17프로맥스') || n.includes('17 프로맥스')) return '17PM';
+      if (n.includes('17프로') || n.includes('17 프로')) return '17P';
+      return n;
+    };
+    // 원예약에 붙어있던 부가옵션(+보조배터리 등)은 그대로 유지
+    var origModel = String(target.model || '');
+    var suffix = origModel.includes('+') ? origModel.slice(origModel.indexOf('+')) : '';
+    var newShortModel = toShortModel(calc.phone.name) + suffix;
+    // 날짜/수령/반납은 기존 예약 그대로 유지하고, 기종만 변경
+    var orderData = {
+      category: '변경신청',
+      status: '예약신청',
+      orderTime: new Date().toLocaleString('ko-KR'),
+      model: newShortModel + ' (변경신청)',
+      name: target.name || '',
+      phone: target.phone || '',
+      startDate: target.startDate || '',
+      endDate: target.endDate || '',
+      delivery: target.delivery || '',
+      returnMethod: target.returnMethod || '',
+      totalPrice: calc.total,
+      scheduleName: (target.name || '') + '님 기종변경 | ' + origModel + ' → ' + newShortModel + ' | 변경후 ' + calc.total.toLocaleString() + '원 (' + (diff > 0 ? '추가 +' + diff.toLocaleString() : diff < 0 ? '차감 ' + diff.toLocaleString() : '차액없음') + ')',
+      origin_ref: buildOriginRef(target)
+    };
+    try {
+      var {
+        error
+      } = await sb.from('reservations').insert(orderData);
+      if (error) throw error;
+      setIsSubmitting(false);
+      setIsChangeConfirmOpen(false);
+      setChangeTargetItem(null);
+      setSuccessData({
+        type: '변경',
+        name: target.name || '',
+        amount: diff > 0 ? diff : 0,
+        changeNote: (target.model || '') + ' → ' + calc.phone.name + (diff > 0 ? ' (추가 ' + diff.toLocaleString() + '원)' : diff < 0 ? ' (차액 환불 ' + Math.abs(diff).toLocaleString() + '원)' : ' (차액 없음)')
+      });
+      setViewMode('success');
+    } catch (e) {
+      setIsSubmitting(false);
+      alert("변경 신청 전송에 실패했어요. 잠시 후 다시 시도해주세요.");
+    }
+  };
   var resetDates = () => {
     setStartDate(null);
     setEndDate(null);
@@ -2391,6 +3069,8 @@ var PhoneRentalApp = () => {
     setAlimtalkStatus(null);
     setIsSubmitting(false);
     setUsageDays(null);
+    setServiceTarget(null);
+    setServiceConfirm(null);
     setActiveNav('home');
     setViewMode('dashboard');
   };
@@ -2404,15 +3084,23 @@ var PhoneRentalApp = () => {
       return;
     }
     setIsSubmitting(true);
+    // [NEW] 선택된 대상 예약의 기존 반납일 → 연장 후 반납일 계산
+    var origEnd = serviceTarget ? serviceTarget.endDate : null;
+    var newEnd = origEnd ? addDaysDot(origEnd, extDays) : `(+${extDays}일)`;
+    var resInfo = serviceTarget ? `${serviceTarget.model || ''}${serviceTarget.scheduleName ? ' | ' + serviceTarget.scheduleName : ''}` : '';
     var orderData = {
       category: '연장신청',
+      status: '예약신청',
       orderTime: new Date().toLocaleString('ko-KR'),
-      model: extModel === 'galaxy' ? '갤럭시 (연장)' : '아이폰 (연장)',
+      model: `${extModel === 'galaxy' ? '갤럭시' : '아이폰'} 연장(+${extDays}일)`,
       name: extForm.name,
       phone: extForm.phone,
-      startDate: `(+${extDays}일)`,
+      startDate: origEnd || '',
+      endDate: newEnd || '',
       totalPrice: extTotal,
-      scheduleName: `${extForm.name}님 연장신청`
+      scheduleName: `${extForm.name}님 연장(+${extDays}일)${resInfo ? ' | 원예약: ' + resInfo : ''}`,
+      // [NEW] 원예약 지문: 입금확인(확정) 시 DB 트리거가 이 값으로 원예약을 찾아 endDate를 변경해요.
+      origin_ref: buildOriginRef(serviceTarget)
     };
     try {
       var {
@@ -2422,12 +3110,14 @@ var PhoneRentalApp = () => {
       setSuccessData({
         type: '연장',
         name: extForm.name,
-        amount: extTotal
+        amount: extTotal,
+        changeNote: origEnd ? `반납일 ${formatDisplayDate(origEnd)} → ${formatDisplayDate(newEnd)}` : `${extDays}일 연장`
       });
       setExtForm({
         name: '',
         phone: ''
       });
+      setServiceTarget(null);
       setIsSubmitting(false);
       setViewMode('success');
     } catch (error) {
@@ -2445,14 +3135,21 @@ var PhoneRentalApp = () => {
       return;
     }
     setIsSubmitting(true);
+    // [NEW] 선택된 대상 예약 정보 연결
+    var resInfo = serviceTarget ? `${serviceTarget.model || ''}${serviceTarget.scheduleName ? ' | ' + serviceTarget.scheduleName : ''}` : '';
     var orderData = {
       category: '백업신청',
+      status: '예약신청',
       orderTime: new Date().toLocaleString('ko-KR'),
       model: '데이터 백업 대행',
       name: backupForm.name,
       phone: backupForm.phone,
+      startDate: serviceTarget ? serviceTarget.startDate || '' : '',
+      endDate: serviceTarget ? serviceTarget.endDate || '' : '',
       totalPrice: 10000,
-      scheduleName: `${backupForm.name}님 백업신청`
+      scheduleName: `${backupForm.name}님 백업신청${resInfo ? ' | 원예약: ' + resInfo : ''}`,
+      // [NEW] 원예약 지문: 입금확인(확정) 시 DB 트리거가 이 값으로 원예약을 찾아 memo에 '백업'을 넣어요.
+      origin_ref: buildOriginRef(serviceTarget)
     };
     try {
       var {
@@ -2462,12 +3159,14 @@ var PhoneRentalApp = () => {
       setSuccessData({
         type: '백업',
         name: backupForm.name,
-        amount: 10000
+        amount: 10000,
+        changeNote: '반납 시 데이터 백업 대행 진행'
       });
       setBackupForm({
         name: '',
         phone: ''
       });
+      setServiceTarget(null);
       setIsSubmitting(false);
       setViewMode('success');
     } catch (error) {
@@ -2527,6 +3226,7 @@ var PhoneRentalApp = () => {
     setLookupResult(null);
     setLookupName('');
     setLookupPhone('');
+    setServiceTarget(null);
     setIsLogoutModalOpen(false);
   };
   var handleMonthChange = increment => {
@@ -2639,6 +3339,8 @@ var PhoneRentalApp = () => {
   };
   useEffect(() => {
     window.scrollTo(0, 0);
+    setOpenNavMenu(null);
+    setIsLookupMenuOpen(false);
   }, [step, viewMode, activeNav]);
   // [NEW] 관리자 설정값으로 대여모델 마감일정을 덮어써요. (없으면 기존 기본값)
   var BLOCKED_SCHEDULE = (remoteSettings && remoteSettings.blocked_schedule) || DEFAULT_BLOCKED_SCHEDULE;
@@ -2707,7 +3409,7 @@ var PhoneRentalApp = () => {
   }, "단, 밤~새벽시간대는 답변이 늦을 순 있으나", React.createElement("br", null), "정상적으로 대여하실 수 있게", React.createElement("br", null), "최대한 도움 드리도록 하겠습니다!"), React.createElement("button", {
     onClick: () => setShowKakaoModal(true),
     className: "w-full bg-[#FAE100] text-[#373737] py-3.5 rounded-xl text-sm font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-2"
-  }, React.createElement(Icons.MessageHeart, {
+  }, React.createElement(Icons.MessageLines, {
     size: 18
   }), " 카카오톡 채널 문의하기")))));
   var renderLookupPage = () => React.createElement("div", {
@@ -2759,7 +3461,8 @@ var PhoneRentalApp = () => {
     size: 18
   }), " 내역 조회하기"))) : React.createElement("div", {
     className: "space-y-4 animate-fade-in"
-  }, React.createElement("div", {
+  },
+React.createElement("div", {
     className: "flex justify-between items-center mb-4 pb-2 border-b border-gray-100"
   }, React.createElement("h3", {
     className: "font-bold text-gray-800"
@@ -2802,7 +3505,9 @@ var PhoneRentalApp = () => {
     className: "inline mr-1"
   }), " 다른 정보로 다시 조회하기"), renderNotFoundGuide()) : React.createElement("div", {
     className: "space-y-3"
-  }, lookupResult.map((item, idx) => React.createElement("div", {
+  }, [].concat(displayReservations.originals, displayReservations.orphanRequests).map((item, idx) => React.createElement(React.Fragment, {
+    key: idx
+  }, React.createElement("div", {
     key: idx,
     className: "border border-gray-100 rounded-2xl p-4 bg-gray-50 hover:bg-white hover:shadow-sm transition-all"
   }, React.createElement("div", {
@@ -2932,7 +3637,41 @@ var PhoneRentalApp = () => {
     className: "text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
   }, "복사")), React.createElement("p", {
     className: "text-[10px] text-gray-400 mt-2 text-center"
-  }, "* 기한 초과 시 별도 안내없이 신청내역이 삭제돼요.")))))))));
+  }, "* 기한 초과 시 별도 안내없이 신청내역이 삭제돼요.")),
+  // [NEW] 예약 취소/환불 버튼 (실제 대여 예약에만 노출, 이미 취소/환불된 건 제외)
+  (item.category === '예약신청' || !item.category) && !(item.status || '').includes('취소') && !(item.status || '').includes('환불') && item.category !== '연장신청' && item.category !== '백업신청' && item.category !== '취소신청' && React.createElement("div", {
+    className: "mt-3 pt-3 border-t border-gray-100 border-dashed"
+  }, React.createElement("button", {
+    onClick: () => {
+      setCancelTargetItem(item);
+      setIsCancelModalOpen(true);
+    },
+    className: "w-full text-[11px] font-bold text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center gap-1"
+  }, React.createElement(Icons.Trash2, {
+    size: 12
+  }), " 예약 취소 / 환불 신청")))), item.category === '예약신청' && getLinkedRequests(item).length > 0 && React.createElement("div", {
+    key: "req-" + idx,
+    className: "mt-2 pt-2 border-t border-dashed border-gray-200 space-y-1.5"
+  }, getLinkedRequests(item).map((req, ridx) => {
+    var label = REQUEST_LABEL[req.category] || {
+      text: req.category,
+      color: 'text-gray-600 bg-gray-50 border-gray-100'
+    };
+    return React.createElement("div", {
+      key: ridx,
+      className: `flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 ${label.color}`
+    }, React.createElement("div", {
+      className: "flex items-center gap-1.5 flex-1 overflow-hidden"
+    }, React.createElement("span", {
+      className: "text-[10px] font-extrabold shrink-0"
+    }, "↳"), React.createElement("span", {
+      className: "text-[11px] font-bold shrink-0"
+    }, label.text), React.createElement("span", {
+      className: "text-[10px] opacity-70 truncate"
+    }, req.scheduleName || '')), React.createElement("span", {
+      className: `text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${(req.status || '').includes('확정') ? 'bg-green-100 text-green-700' : 'bg-white/70'}`
+    }, req.status || '접수대기'));
+  }))))))));
   var renderCalendarDays = () => {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -3202,76 +3941,136 @@ var PhoneRentalApp = () => {
       }, "취소를 원하신다면 아래 버튼을 눌러 카카오톡 채널로 문의해주세요. 직원이 빠르게 도와드릴게요! 💖"), React.createElement("button", {
         onClick: () => setShowKakaoModal(true),
         className: "w-full bg-yellow-400 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2"
-      }, React.createElement(Icons.MessageHeart, {
+      }, React.createElement(Icons.MessageLines, {
         size: 18
       }), " 카카오톡 1:1 취소 접수하기"))
     }];
-    var handleSendChatMessage = text => {
+    // [NEW] 키워드 기반 폴백 (AI 실패/미설정 시 사용) — 기존 로직 보존
+    var getKeywordFallback = text => {
+      var query = text.toLowerCase().replace(/\s+/g, '');
+      var foundAnswer = null;
+      var maxScore = 0;
+      var bestMatchAnswer = null;
+      for (var faq of faqsData) {
+        var score = 0;
+        if (faq.keywords) {
+          for (var kw of faq.keywords) {
+            if (text.toLowerCase().includes(kw) || query.includes(kw)) {
+              score += kw.length;
+            }
+          }
+        }
+        if (faq.q.toLowerCase().replace(/\s+/g, '').includes(query) && query.length > 1) {
+          score += 10;
+        }
+        if (score > 0 && score > maxScore) {
+          maxScore = score;
+          bestMatchAnswer = faq.a;
+        }
+      }
+      if (bestMatchAnswer) foundAnswer = bestMatchAnswer;
+      if (!foundAnswer) {
+        for (var _faq of faqsData) {
+          if (typeof _faq.a === 'string' && _faq.a.toLowerCase().replace(/\s+/g, '').includes(query)) {
+            foundAnswer = _faq.a;
+            break;
+          }
+        }
+      }
+      var isRentalInquiry = false;
+      var isLookupInquiry = false;
+      if (!foundAnswer) {
+        if (query.includes('안녕') || query.includes('반갑')) foundAnswer = '안녕하세요! 세린캠 AI 챗봇입니다 🤖\n무엇을 도와드릴까요?';else if (query.includes('고마워') || query.includes('감사') || query.includes('최고')) foundAnswer = '도움이 되셨다니 정말 다행이에요! ✨\n더 궁금하신 점이 있다면 언제든 물어보세요.';else if (query.includes('상담') || query.includes('사람') || query.includes('직원') || query.includes('카톡')) foundAnswer = '자세한 상담이 필요하신가요?\n아래 버튼을 눌러 카카오톡 채널로 문의해주시면 직원이 직접 친절하게 답변해 드릴게요! 💬';else if (query.includes('가격') || query.includes('요금') || query.includes('얼마') || query.includes('비용') || query.includes('금액')) {
+          foundAnswer = '대여 요금은 선택하시는 대여 기종, 사용 일수, 리뷰 할인 혜택, 수령/반납 방법에 따라 금액이 모두 다르게 책정됩니다! 💸\n\n정확한 대여 금액은 아래 예약하기 버튼을 눌러 원하시는 옵션을 선택하시면 결제 전에 바로 확인하실 수 있어요!';
+          isRentalInquiry = true;
+        } else if (query.includes('대여가능') || query.includes('예약가능') || (query.includes('대여') || query.includes('예약')) && (query.includes('가능') || query.includes('있나') || query.includes('되나')) || /\d+월/.test(query) && (query.includes('가능') || query.includes('있나') || query.includes('되나'))) {
+          foundAnswer = '원하시는 날짜의 대여 가능 여부는 예약 화면에서 날짜와 기종을 선택하시면 실시간 마감 여부를 바로 확인하실 수 있어요! 📅\n\n아래 예약하기 버튼을 눌러 지금 바로 확인해 보세요!';
+          isRentalInquiry = true;
+        } else if (query.includes('조회') || query.includes('내역') || query.includes('예약확인') || query.includes('신청확인')) {
+          foundAnswer = '고객님의 예약 내역이 궁금하신가요?\n\n아래 [내 예약 조회하기] 버튼을 눌러 성함과 연락처를 입력하시면 바로 확인하실 수 있어요! 🔍';
+          isLookupInquiry = true;
+        }
+      }
+      return {
+        sender: 'bot',
+        text: foundAnswer ? foundAnswer : '앗, 죄송해요! 질문하신 내용은 아직 제가 완벽하게 배우지 못했어요 😢\n\n정확하고 빠른 안내를 위해 아래 카카오톡 상담 버튼을 눌러주세요!',
+        showKakaoBtn: !isRentalInquiry && !isLookupInquiry && (!foundAnswer || query.includes('카톡') || query.includes('상담') || query.includes('사람') || query.includes('환불') || query.includes('취소')),
+        showRentalBtn: isRentalInquiry,
+        showLookupBtn: isLookupInquiry
+      };
+    };
+    // [NEW] 봇 응답 텍스트로 상황 버튼(예약/조회/카톡) 자동 판단
+    var deriveActionFlags = answer => {
+      var a = (answer || '').toLowerCase();
+      var wantRental = /예약하기|예약 화면|바로 예약|대여 가능|요금|금액|얼마|가격/.test(a);
+      var wantLookup = /예약 조회|내 예약|조회하기|예약 내역/.test(a);
+      var wantKakao = /카카오톡|상담|환불|취소|직원/.test(a);
+      return {
+        showRentalBtn: wantRental && !wantLookup,
+        showLookupBtn: wantLookup,
+        showKakaoBtn: wantKakao && !wantRental && !wantLookup
+      };
+    };
+    var handleSendChatMessage = async text => {
       if (!text.trim() || isBotTyping) return;
+      var userText = text;
       var newUserMsg = {
         sender: 'user',
-        text: text
+        text: userText
       };
+      // 최근 대화 맥락(최대 8턴) 구성 — 문자열 답변만 히스토리에 포함
+      var history = chatMessages.filter(m => typeof m.text === 'string').slice(-8).map(m => ({
+        role: m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text
+      }));
       setChatMessages(prev => [...prev, newUserMsg]);
       setChatInput('');
       setIsBotTyping(true);
-      setTimeout(() => {
-        var query = text.toLowerCase().replace(/\s+/g, '');
-        var foundAnswer = null;
-        var maxScore = 0;
-        var bestMatchAnswer = null;
-        for (var faq of faqsData) {
-          var score = 0;
-          if (faq.keywords) {
-            for (var kw of faq.keywords) {
-              if (text.toLowerCase().includes(kw) || query.includes(kw)) {
-                score += kw.length;
-              }
-            }
-          }
-          if (faq.q.toLowerCase().replace(/\s+/g, '').includes(query) && query.length > 1) {
-            score += 10;
-          }
-          if (score > 0 && score > maxScore) {
-            maxScore = score;
-            bestMatchAnswer = faq.a;
-          }
-        }
-        if (bestMatchAnswer) {
-          foundAnswer = bestMatchAnswer;
-        }
-        if (!foundAnswer) {
-          for (var _faq of faqsData) {
-            if (typeof _faq.a === 'string' && _faq.a.toLowerCase().replace(/\s+/g, '').includes(query)) {
-              foundAnswer = _faq.a;
-              break;
-            }
-          }
-        }
-        var isRentalInquiry = false;
-        var isLookupInquiry = false;
-        if (!foundAnswer) {
-          if (query.includes('안녕') || query.includes('반갑')) foundAnswer = '안녕하세요! 세린캠 AI 챗봇입니다 🤖\n무엇을 도와드릴까요?';else if (query.includes('고마워') || query.includes('감사') || query.includes('최고')) foundAnswer = '도움이 되셨다니 정말 다행이에요! ✨\n더 궁금하신 점이 있다면 언제든 물어보세요.';else if (query.includes('상담') || query.includes('사람') || query.includes('직원') || query.includes('카톡')) foundAnswer = '자세한 상담이 필요하신가요?\n아래 버튼을 눌러 카카오톡 채널로 문의해주시면 직원이 직접 친절하게 답변해 드릴게요! 💬';else if (query.includes('가격') || query.includes('요금') || query.includes('얼마') || query.includes('비용') || query.includes('금액')) {
-            foundAnswer = '대여 요금은 선택하시는 대여 기종, 사용 일수, 리뷰 할인 혜택, 수령/반납 방법에 따라 금액이 모두 다르게 책정됩니다! 💸\n\n정확한 대여 금액은 아래 예약하기 버튼을 눌러 원하시는 옵션을 선택하시면 결제 전에 바로 확인하실 수 있어요!';
-            isRentalInquiry = true;
-          } else if (query.includes('대여가능') || query.includes('예약가능') || (query.includes('대여') || query.includes('예약')) && (query.includes('가능') || query.includes('있나') || query.includes('되나')) || /\d+월/.test(query) && (query.includes('가능') || query.includes('있나') || query.includes('되나'))) {
-            foundAnswer = '원하시는 날짜의 대여 가능 여부는 예약 화면에서 날짜와 기종을 선택하시면 실시간 마감 여부를 바로 확인하실 수 있어요! 📅\n\n아래 예약하기 버튼을 눌러 지금 바로 확인해 보세요!';
-            isRentalInquiry = true;
-          } else if (query.includes('조회') || query.includes('내역') || query.includes('예약확인') || query.includes('신청확인')) {
-            foundAnswer = '고객님의 예약 내역이 궁금하신가요?\n\n아래 [내 예약 조회하기] 버튼을 눌러 성함과 연락처를 입력하시면 바로 확인하실 수 있어요! 🔍';
-            isLookupInquiry = true;
-          }
-        }
-        var newBotMsg = {
-          sender: 'bot',
-          text: foundAnswer ? foundAnswer : '앗, 죄송해요! 질문하신 내용은 아직 제가 완벽하게 배우지 못했어요 😢\n\n정확하고 빠른 안내를 위해 아래 카카오톡 상담 버튼을 눌러주세요!',
-          showKakaoBtn: !isRentalInquiry && !isLookupInquiry && (!foundAnswer || query.includes('카톡') || query.includes('상담') || query.includes('사람') || query.includes('환불') || query.includes('취소')),
-          showRentalBtn: isRentalInquiry,
-          showLookupBtn: isLookupInquiry
-        };
-        setChatMessages(prev => [...prev, newBotMsg]);
+      // AI 호출을 위한 Edge Function URL (config에서 주입, 없으면 프로젝트 기본 경로)
+      var fnBase = (window.SERINCAM_CONFIG && window.SERINCAM_CONFIG.SUPABASE_URL) || SUPABASE_URL;
+      var aiUrl = fnBase ? fnBase.replace(/\/$/, '') + '/functions/v1/chatbot' : null;
+      var pushBot = msg => {
+        setChatMessages(prev => [...prev, msg]);
         setIsBotTyping(false);
-      }, 800);
+      };
+      if (!aiUrl) {
+        // URL 자체가 없으면 즉시 폴백
+        setTimeout(() => pushBot(getKeywordFallback(userText)), 500);
+        return;
+      }
+      try {
+        var controller = new AbortController();
+        var timer = setTimeout(() => controller.abort(), 15000); // 15초 타임아웃
+        var resp = await fetch(aiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'apikey': SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({
+            message: userText,
+            history: history
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        if (!resp.ok) throw new Error('AI 응답 오류 ' + resp.status);
+        var data = await resp.json();
+        var answer = (data && (data.reply || data.answer || data.text) || '').trim();
+        if (!answer) throw new Error('빈 응답');
+        var flags = deriveActionFlags(answer);
+        pushBot({
+          sender: 'bot',
+          text: answer,
+          showKakaoBtn: flags.showKakaoBtn,
+          showRentalBtn: flags.showRentalBtn,
+          showLookupBtn: flags.showLookupBtn
+        });
+      } catch (e) {
+        // 네트워크/키/타임아웃 실패 → 키워드 폴백으로 자연스럽게 대체
+        pushBot(getKeywordFallback(userText));
+      }
     };
     var toggleFaq = index => {
       setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -3328,9 +4127,8 @@ var PhoneRentalApp = () => {
     }, msg.text), msg.showKakaoBtn && React.createElement("button", {
       onClick: () => setShowKakaoModal(true),
       className: "mt-3 w-full bg-[#FAE100] text-[#373737] py-2.5 rounded-xl text-[11px] font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-1.5"
-    }, React.createElement(Icons.MessageCircle, {
-      size: 14,
-      className: "fill-current"
+    }, React.createElement(Icons.MessageLines, {
+      size: 14
     }), " 상담원 연결하기"), msg.showRentalBtn && React.createElement("button", {
       onClick: () => handleRentalStart(),
       className: "mt-3 w-full bg-blue-500 text-white py-2.5 rounded-xl text-[11px] font-bold shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-1.5"
@@ -3469,9 +4267,8 @@ var PhoneRentalApp = () => {
     }, "카카오톡으로 언제든지 편하게 문의해주세요!", React.createElement("br", null), "친절하고 빠르게 답변해 드릴게요 😊"), React.createElement("button", {
       onClick: () => setShowKakaoModal(true),
       className: "w-full bg-[#FAE100] text-[#373737] py-3.5 rounded-xl font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-2 text-sm"
-    }, React.createElement(Icons.MessageCircle, {
-      size: 18,
-      className: "fill-current"
+    }, React.createElement(Icons.MessageLines, {
+      size: 18
     }), " 카카오톡 1:1 문의하기")));
   };
   var renderBlogModal = () => React.createElement("div", {
@@ -3650,6 +4447,14 @@ var PhoneRentalApp = () => {
   }, "* MYBOX 앱 > 우측 상단 프로필 > 이용권 구매", React.createElement("br", null), "(첫 달 무료 이벤트가 있는지 확인해보세요!)"))), blogModal.type === 'camera' && React.createElement("div", {
     className: "space-y-5"
   }, React.createElement("div", {
+    className: "flex bg-gray-100 p-1 rounded-xl"
+  }, React.createElement("button", {
+    onClick: () => setCameraModalTab('galaxy'),
+    className: `flex-1 py-2 rounded-lg text-xs font-bold transition-all ${cameraModalTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
+  }, "갤럭시 울트라"), React.createElement("button", {
+    onClick: () => setCameraModalTab('iphone'),
+    className: `flex-1 py-2 rounded-lg text-xs font-bold transition-all ${cameraModalTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
+  }, "아이폰 프로")), cameraModalTab === 'galaxy' && React.createElement("div", {
     className: "space-y-4"
   }, React.createElement("div", null, React.createElement("div", {
     className: "flex items-center gap-2 mb-3"
@@ -3722,7 +4527,7 @@ var PhoneRentalApp = () => {
     className: "text-xs font-bold text-gray-800 bg-white px-2 py-0.5 rounded border border-gray-200"
   }, "중앙")), React.createElement("p", {
     className: "text-[11px] text-gray-500 leading-snug"
-  }, "포커스는 중앙으로 기본 설정되어있으나, 한번 더 확인해 주세요"))))), React.createElement("div", {
+  }, "포커스는 중앙으로 기본 설정되어있으나, 한번 더 확인해 주세요"))))), cameraModalTab === 'galaxy' && React.createElement("div", {
     className: "mt-2"
   }, React.createElement("button", {
     onClick: () => {
@@ -3732,7 +4537,98 @@ var PhoneRentalApp = () => {
     className: "w-full bg-green-50 text-green-600 border border-green-200 py-3 rounded-xl font-bold shadow-sm hover:bg-green-100 transition-colors flex items-center justify-center gap-2 text-sm"
   }, React.createElement("span", {
     className: "text-lg"
-  }, "📗"), " 세린캠 블로그에서 자세히 보기")))), React.createElement("div", {
+  }, "📗"), " 세린캠 블로그에서 자세히 보기"))), cameraModalTab === 'iphone' && React.createElement("div", {
+    className: "space-y-4"
+  }, React.createElement("div", null, React.createElement("div", {
+    className: "flex items-center gap-2 mb-3"
+  }, React.createElement("div", {
+    className: "bg-gray-100 p-1.5 rounded-lg"
+  }, React.createElement(Icons.Apple, {
+    size: 16,
+    className: "text-gray-600"
+  })), React.createElement("h4", {
+    className: "font-bold text-gray-800 text-sm"
+  }, "아이폰 프로 콘서트 카메라 설정")), React.createElement("div", {
+    className: "space-y-3"
+  }, React.createElement("div", {
+    className: "bg-gray-50 border border-gray-100 rounded-xl p-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center mb-1.5"
+  }, React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, "1. 비디오 녹화"), React.createElement("span", {
+    className: "text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100"
+  }, "4K 60fps")), React.createElement("p", {
+    className: "text-[11px] text-gray-500 leading-snug"
+  }, React.createElement("strong", null, "설정 > 카메라 > 비디오 녹화"), "에서 4K 60fps를 선택해주세요.")), React.createElement("div", {
+    className: "bg-gray-50 border border-gray-100 rounded-xl p-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center mb-1.5"
+  }, React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, "2. 안정화 향상"), React.createElement("span", {
+    className: "text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100"
+  }, "켜기")), React.createElement("p", {
+    className: "text-[11px] text-gray-500 leading-snug"
+  }, "손떨림 방지 기능이에요. 켜두시면 흔들림이 확 줄어들어요.")), React.createElement("div", {
+    className: "bg-gray-50 border border-gray-100 rounded-xl p-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center mb-1.5"
+  }, React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, "3. 자동 FPS"), React.createElement("span", {
+    className: "text-xs font-bold text-red-500 bg-white px-2 py-0.5 rounded border border-red-100"
+  }, "끄기")), React.createElement("p", {
+    className: "text-[11px] text-gray-500 leading-snug"
+  }, "켜져 있으면 어두운 곳에서 프레임이 자동으로 떨어져요. 반드시 꺼주세요!")), React.createElement("div", {
+    className: "bg-gray-50 border border-gray-100 rounded-xl p-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center mb-1.5"
+  }, React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, "4. 화이트밸런스 잠금"), React.createElement("span", {
+    className: "text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100"
+  }, "켜기")), React.createElement("p", {
+    className: "text-[11px] text-gray-500 leading-snug"
+  }, "무대 조명이 바뀔 때마다 색감이 흔들리는 걸 막아줘요.")), React.createElement("div", {
+    className: "bg-gray-50 border border-gray-100 rounded-xl p-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center mb-1.5"
+  }, React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, "5. 비디오 포맷"), React.createElement("span", {
+    className: "text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100"
+  }, "높은 호환성")), React.createElement("p", {
+    className: "text-[11px] text-gray-500 leading-snug"
+  }, "다른 기기로 옮겼을 때 재생이 안 되는 문제를 예방해줘요.")), React.createElement("div", {
+    className: "bg-gray-50 border border-gray-100 rounded-xl p-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center mb-1.5"
+  }, React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, "6. 설정 유지 > 노출 조절"), React.createElement("span", {
+    className: "text-xs font-bold text-blue-600 bg-white px-2 py-0.5 rounded border border-blue-100"
+  }, "켜기")), React.createElement("p", {
+    className: "text-[11px] text-gray-500 leading-snug"
+  }, "촬영 때마다 밝기를 다시 맞출 필요 없이, 조절해둔 값이 그대로 유지돼요.")), React.createElement("div", {
+    className: "bg-blue-50 border border-blue-100 rounded-xl p-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center mb-1.5"
+  }, React.createElement("span", {
+    className: "text-xs font-bold text-blue-800"
+  }, "7. 줌 배율"), React.createElement("span", {
+    className: "text-xs font-bold text-white bg-blue-500 px-2 py-0.5 rounded"
+  }, "4배 추천")), React.createElement("p", {
+    className: "text-[11px] text-blue-700 leading-snug break-keep mb-2"
+  }, "줌을 너무 크게 당기면 화질이 떨어져요. ", React.createElement("strong", null, "4배줌"), "을 추천드려요!"), React.createElement("div", {
+    className: "bg-white rounded-lg p-2.5 border border-blue-100"
+  }, React.createElement("p", {
+    className: "text-[11px] text-blue-700 leading-relaxed break-keep"
+  }, React.createElement("strong", {
+    className: "text-red-500"
+  }, "⚠️ 중요! "), React.createElement("strong", null, "화면의 '4x' 버튼을 눌러서"), " 촬영해야 망원 렌즈로 찍혀요. 손가락으로 화면을 벌려서(핀치) 당기면 ", React.createElement("strong", {
+    className: "text-red-500"
+  }, "망원 렌즈가 적용되지 않아요!")))))))), React.createElement("div", {
     className: "mt-4 pt-3 border-t border-gray-100"
   }, React.createElement("button", {
     onClick: () => setBlogModal({
@@ -3866,21 +4762,180 @@ var PhoneRentalApp = () => {
   }), " 반납방법 자세히 보기"), React.createElement("p", {
     className: "text-xs text-gray-500 leading-snug"
   }, "택배, 퀵, 현장반납 등 ", React.createElement("br", null), "상황별 반납 방법을 상세하게 알려드려요 🚚"))));
-  var renderExtensionPage = () => {
-    var extPricePerDay = extModel === 'galaxy' ? 15000 : 20000;
-    var extTotal = extPricePerDay * extDays;
-    return React.createElement("div", {
-      className: "animate-slide-in space-y-6"
-    }, React.createElement("div", {
+  // [NEW] 대상 예약 선택 시: 폼 자동 채움 + 기종 자동 감지
+  var selectServiceReservation = (serviceType, res) => {
+    setServiceTarget(res);
+    if (serviceType === 'ext') {
+      setExtModel(detectExtModel(res.model));
+      setExtDays(1);
+      setExtForm({
+        name: res.name || '',
+        phone: res.phone || ''
+      });
+    } else {
+      setBackupForm({
+        name: res.name || '',
+        phone: res.phone || ''
+      });
+    }
+  };
+  // [NEW] 예약조회 게이트: 미조회 → 조회폼 / 조회완료 → 예약선택 / 선택완료 → null(호출부가 본문 렌더)
+  var renderServiceGate = (serviceType, title, iconAccentClass) => {
+    var header = React.createElement("div", {
       className: "flex items-center gap-3 mb-6"
     }, React.createElement("button", {
-      onClick: () => setViewMode('dashboard'),
+      onClick: () => {
+        setServiceTarget(null);
+        setViewMode('dashboard');
+      },
       className: "p-2 bg-white rounded-full shadow-sm"
     }, React.createElement(Icons.ChevronLeft, {
       className: "w-5 h-5 text-gray-600"
     })), React.createElement("h2", {
       className: "text-xl font-bold text-gray-800"
-    }, "대여 기간 연장")), React.createElement("div", {
+    }, title));
+    // 1) 미조회 → 조회 폼
+    if (!lookupResult) {
+      return React.createElement("div", {
+        className: "animate-slide-in space-y-6"
+      }, header, React.createElement("div", {
+        className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4"
+      }, React.createElement("div", {
+        className: "text-center mb-2"
+      }, React.createElement("div", {
+        className: `w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${iconAccentClass}`
+      }, React.createElement(Icons.Search, {
+        size: 30
+      })), React.createElement("h3", {
+        className: "font-bold text-gray-800"
+      }, "먼저 예약을 조회해주세요"), React.createElement("p", {
+        className: "text-xs text-gray-500 mt-1 leading-relaxed"
+      }, "예약 시 입력한 성함·연락처로 조회 후,", React.createElement("br", null), serviceType === 'ext' ? "연장할 예약을 선택해요." : "백업 대행할 예약을 선택해요.")), React.createElement("input", {
+        type: "text",
+        placeholder: "성함",
+        className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
+        value: lookupName,
+        onChange: e => setLookupName(e.target.value)
+      }), React.createElement("input", {
+        type: "text",
+        placeholder: "연락처 (010-0000-0000)",
+        className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
+        value: lookupPhone,
+        onChange: e => setLookupPhone(formatPhone(e.target.value)),
+        onKeyPress: e => e.key === 'Enter' && handleLookup()
+      }), React.createElement("button", {
+        onClick: () => handleLookup(),
+        disabled: isSearching,
+        className: `w-full py-4 rounded-xl font-bold shadow-md transition-all flex justify-center items-center gap-2 ${isSearching ? 'bg-blue-300 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`
+      }, isSearching ? React.createElement(React.Fragment, null, React.createElement(Icons.RefreshCw, {
+        size: 18,
+        className: "animate-spin-slow"
+      }), " 조회 중...") : React.createElement(React.Fragment, null, React.createElement(Icons.Search, {
+        size: 18
+      }), " 내 예약 조회하기"))));
+    }
+    // 2) 조회됐지만 신청 가능한 예약 없음
+    if (eligibleReservations.length === 0) {
+      return React.createElement("div", {
+        className: "animate-slide-in space-y-6"
+      }, header, React.createElement("div", {
+        className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center py-10"
+      }, React.createElement("div", {
+        className: "w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3"
+      }, React.createElement(Icons.Search, {
+        size: 24,
+        className: "text-gray-300"
+      })), React.createElement("p", {
+        className: "font-bold text-gray-600 mb-1 text-sm"
+      }, "신청 가능한 예약이 없어요"), React.createElement("p", {
+        className: "text-[11px] text-gray-400 mb-4 leading-relaxed"
+      }, "확정 또는 접수된 대여 예약이 있어야", React.createElement("br", null), serviceType === 'ext' ? "연장 신청이 가능해요." : "백업 대행 신청이 가능해요."), React.createElement("button", {
+        onClick: () => {
+          setLookupResult(null);
+          setLookupName('');
+          setLookupPhone('');
+        },
+        className: "text-[11px] font-bold text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors shadow-sm"
+      }, React.createElement(Icons.RefreshCw, {
+        size: 10,
+        className: "inline mr-1"
+      }), " 다른 정보로 조회하기")));
+    }
+    // 3) 대상 미선택 → 예약 선택 리스트
+    if (!serviceTarget) {
+      return React.createElement("div", {
+        className: "animate-slide-in space-y-6"
+      }, header, React.createElement("div", {
+        className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
+      }, React.createElement("div", {
+        className: "flex justify-between items-center mb-4 pb-2 border-b border-gray-100"
+      }, React.createElement("h3", {
+        className: "font-bold text-gray-800 text-sm"
+      }, React.createElement("span", {
+        className: "text-blue-500"
+      }, formatNameMasking(lookupName)), "님, 예약을 선택하세요"), React.createElement("button", {
+        onClick: handleLogoutClick,
+        className: "text-[11px] text-gray-400 hover:text-gray-600"
+      }, "로그아웃")), React.createElement("div", {
+        className: "space-y-3"
+      }, eligibleReservations.map((item, idx) => React.createElement("button", {
+        key: idx,
+        onClick: () => selectServiceReservation(serviceType, item),
+        className: "w-full text-left border border-gray-100 rounded-2xl p-4 bg-gray-50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all active:scale-95"
+      }, React.createElement("div", {
+        className: "flex justify-between items-center mb-1.5"
+      }, React.createElement("span", {
+        className: `text-[10px] font-bold px-2 py-0.5 rounded-md ${(item.status || '').includes('확정') ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-500'}`
+      }, item.status || '접수대기'), React.createElement(Icons.ChevronRight, {
+        size: 16,
+        className: "text-gray-300"
+      })), React.createElement("h4", {
+        className: "font-bold text-gray-800 text-sm mb-1"
+      }, item.model), item.startDate && React.createElement("p", {
+        className: "text-xs text-gray-500"
+      }, "대여기간 ", formatDisplayDate(item.startDate), " ~ ", formatDisplayDate(item.endDate)))))));
+    }
+    return null;
+  };
+  // [NEW] 선택된 예약 요약 배너 (본문 상단 공통)
+  var renderTargetBanner = serviceType => React.createElement("div", {
+    className: "bg-blue-50 border border-blue-100 rounded-2xl p-3.5 flex items-center justify-between gap-2"
+  }, React.createElement("div", {
+    className: "min-w-0"
+  }, React.createElement("p", {
+    className: "text-[10px] font-bold text-blue-400 mb-0.5"
+  }, "선택한 예약"), React.createElement("p", {
+    className: "text-sm font-bold text-gray-800 truncate"
+  }, serviceTarget ? serviceTarget.model : ''), serviceTarget && serviceTarget.startDate && React.createElement("p", {
+    className: "text-[11px] text-gray-500 truncate"
+  }, formatDisplayDate(serviceTarget.startDate), " ~ ", formatDisplayDate(serviceTarget.endDate))), React.createElement("button", {
+    onClick: () => setServiceTarget(null),
+    className: "shrink-0 text-[11px] font-bold text-blue-500 bg-white border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+  }, "예약 변경"));
+  var renderExtensionPage = () => {
+    // [NEW] 예약조회 게이트 우선 처리
+    var gate = renderServiceGate('ext', "대여 기간 연장", "bg-blue-50 text-blue-500");
+    if (gate) return gate;
+    var extPricePerDay = extModel === 'galaxy' ? 15000 : 20000;
+    var extTotal = extPricePerDay * extDays;
+    // [NEW] 기존 반납일 → 연장 후 반납일 계산
+    var origEnd = serviceTarget ? serviceTarget.endDate : null;
+    var newEnd = origEnd ? addDaysDot(origEnd, extDays) : null;
+    return React.createElement("div", {
+      className: "animate-slide-in space-y-6"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-6"
+    }, React.createElement("button", {
+      onClick: () => {
+        setServiceTarget(null);
+        setViewMode('dashboard');
+      },
+      className: "p-2 bg-white rounded-full shadow-sm"
+    }, React.createElement(Icons.ChevronLeft, {
+      className: "w-5 h-5 text-gray-600"
+    })), React.createElement("h2", {
+      className: "text-xl font-bold text-gray-800"
+    }, "대여 기간 연장")), renderTargetBanner('ext'), React.createElement("div", {
       className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100"
     }, React.createElement("div", {
       className: "w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500"
@@ -3892,7 +4947,7 @@ var PhoneRentalApp = () => {
       className: "space-y-4 mt-6"
     }, React.createElement("div", null, React.createElement("label", {
       className: "text-xs font-bold text-gray-500 ml-1"
-    }, "기종 선택"), React.createElement("div", {
+    }, "기종 (자동 감지)"), React.createElement("div", {
       className: "flex bg-gray-100 p-1 rounded-xl mt-1"
     }, React.createElement("button", {
       onClick: () => setExtModel('galaxy'),
@@ -3912,7 +4967,22 @@ var PhoneRentalApp = () => {
     }, extDays, "일"), React.createElement("button", {
       onClick: () => setExtDays(extDays + 1),
       className: "w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center text-gray-600 font-bold"
-    }, "+"))), React.createElement("div", {
+    }, "+"))),
+    // [NEW] 반납일 변경 미리보기
+    origEnd && React.createElement("div", {
+      className: "bg-blue-50 p-4 rounded-xl border border-blue-100"
+    }, React.createElement("p", {
+      className: "text-xs font-bold text-blue-500 mb-2"
+    }, "반납일 변경 미리보기"), React.createElement("div", {
+      className: "flex items-center justify-center gap-2 text-sm"
+    }, React.createElement("span", {
+      className: "font-bold text-gray-400 line-through"
+    }, formatDisplayDate(origEnd)), React.createElement(Icons.ChevronRight, {
+      size: 16,
+      className: "text-blue-400"
+    }), React.createElement("span", {
+      className: "font-bold text-blue-600"
+    }, formatDisplayDate(newEnd)))), React.createElement("div", {
       className: "bg-gray-50 p-4 rounded-xl flex justify-between items-center"
     }, React.createElement("span", {
       className: "font-bold text-gray-600"
@@ -3922,7 +4992,7 @@ var PhoneRentalApp = () => {
       className: "pt-2 border-t border-gray-100"
     }, React.createElement("p", {
       className: "text-xs font-bold text-gray-500 mb-2"
-    }, "신청자 정보"), React.createElement("div", {
+    }, "신청자 정보 (예약 기준 자동 입력)"), React.createElement("div", {
       className: "space-y-2"
     }, React.createElement("input", {
       type: "text",
@@ -3944,7 +5014,15 @@ var PhoneRentalApp = () => {
       })
     })))), React.createElement("button", {
       disabled: isSubmitting,
-      onClick: () => handleExtensionSubmit(extTotal),
+      onClick: () => setServiceConfirm({
+        type: 'ext',
+        model: extModel,
+        days: extDays,
+        amount: extTotal,
+        origEnd: origEnd,
+        newEnd: newEnd,
+        resModel: serviceTarget ? serviceTarget.model : ''
+      }),
       className: "w-full bg-blue-500 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 mt-4"
     }, isSubmitting ? '처리 중...' : '연장 신청하기')));
   };
@@ -3965,7 +5043,7 @@ var PhoneRentalApp = () => {
     className: "mb-10"
   }, React.createElement("h3", {
     className: "font-bold text-gray-800 mb-3 flex items-center gap-2"
-  }, React.createElement(Icons.Copy, {
+  }, React.createElement(Icons.Image, {
     size: 20,
     className: "text-gray-400"
   }), " 직접 백업하기"), React.createElement("div", {
@@ -4102,30 +5180,378 @@ var PhoneRentalApp = () => {
   }, "이용 요금"), React.createElement("span", {
     className: "text-sm font-bold text-blue-600"
   }, "10,000원")), React.createElement("div", {
-    className: "space-y-2 mb-3"
-  }, React.createElement("input", {
-    type: "text",
-    placeholder: "성함",
-    className: "w-full p-2 bg-white rounded-lg outline-none text-sm border border-blue-100 placeholder-blue-300",
-    value: backupForm.name,
-    onChange: e => setBackupForm({
-      ...backupForm,
-      name: e.target.value
-    })
-  }), React.createElement("input", {
-    type: "text",
-    placeholder: "연락처",
-    className: "w-full p-2 bg-white rounded-lg outline-none text-sm border border-blue-100 placeholder-blue-300",
-    value: backupForm.phone,
-    onChange: e => setBackupForm({
-      ...backupForm,
-      phone: formatPhone(e.target.value)
-    })
-  })), React.createElement("button", {
+    className: "bg-white p-3 rounded-lg mb-3 border border-blue-100"
+  }, React.createElement("p", {
+    className: "text-[11px] text-blue-600 leading-relaxed break-keep flex items-start gap-1.5"
+  }, React.createElement(Icons.ShieldCheck, {
+    size: 14,
+    className: "shrink-0 mt-0.5"
+  }), React.createElement("span", null, "예약 내역을 조회한 뒤 ", React.createElement("strong", null, "대상 예약을 선택"), "해서 신청하는 방식으로 바뀌었어요. 어떤 예약의 백업인지 정확히 접수돼요."))), React.createElement("button", {
     disabled: isSubmitting,
-    onClick: handleBackupSubmit,
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('backupApply');
+    },
     className: "w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
-  }, isSubmitting ? '처리 중...' : '데이터 백업 신청하기'))));
+  }, React.createElement(Icons.Search, {
+    size: 16
+  }), " 예약 조회 후 백업 대행 신청"))));
+  // [NEW] 백업 대행 신청 전용 페이지 (예약조회 게이트 → 대상 선택 → 확인 팝업)
+  var renderBackupApplyPage = () => {
+    var gate = renderServiceGate('backup', "데이터 백업 대행", "bg-purple-50 text-purple-500");
+    if (gate) return gate;
+    return React.createElement("div", {
+      className: "animate-slide-in space-y-6"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-6"
+    }, React.createElement("button", {
+      onClick: () => {
+        setServiceTarget(null);
+        setViewMode('backup');
+      },
+      className: "p-2 bg-white rounded-full shadow-sm"
+    }, React.createElement(Icons.ChevronLeft, {
+      className: "w-5 h-5 text-gray-600"
+    })), React.createElement("h2", {
+      className: "text-xl font-bold text-gray-800"
+    }, "데이터 백업 대행")), renderTargetBanner('backup'), React.createElement("div", {
+      className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-5"
+    }, React.createElement("div", {
+      className: "w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto text-purple-500"
+    }, React.createElement(Icons.Image, {
+      size: 30
+    })), React.createElement("div", {
+      className: "text-center"
+    }, React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800 mb-1"
+    }, "백업 대행 신청"), React.createElement("p", {
+      className: "text-xs text-gray-500 leading-relaxed"
+    }, "반납 시 직원이 사진·영상을", React.createElement("br", null), "안전하게 옮겨드려요.")), React.createElement("div", {
+      className: "bg-purple-50 p-4 rounded-xl border border-purple-100 space-y-2"
+    }, React.createElement("div", {
+      className: "flex justify-between text-sm"
+    }, React.createElement("span", {
+      className: "text-gray-500"
+    }, "서비스"), React.createElement("span", {
+      className: "font-bold text-gray-800"
+    }, "데이터 백업 대행")), React.createElement("div", {
+      className: "flex justify-between text-sm"
+    }, React.createElement("span", {
+      className: "text-gray-500"
+    }, "이용 요금"), React.createElement("span", {
+      className: "font-bold text-purple-600"
+    }, "10,000원"))),
+    // [NEW] 백업 대행 안내사항 (신청 화면에서 안내)
+    React.createElement("div", {
+      className: "pt-1"
+    }, React.createElement("h4", {
+      className: "font-bold text-gray-800 mb-0.5 flex items-center gap-2"
+    }, React.createElement(Icons.HelpCircle, {
+      size: 20,
+      className: "text-blue-500"
+    }), "백업 대행 안내사항"), React.createElement("p", {
+      className: "text-xs text-gray-400 mb-3 ml-7"
+    }, "신청 전 꼭 확인해주세요"),
+    // 진행 방식
+    React.createElement("div", {
+      className: "bg-blue-50 p-4 rounded-2xl border border-blue-100 mb-3"
+    }, React.createElement("p", {
+      className: "text-sm font-bold text-blue-800 mb-2 flex items-center gap-2"
+    }, React.createElement(Icons.Cloud, {
+      size: 16
+    }), "네이버 마이박스로 진행돼요"), React.createElement("div", {
+      className: "space-y-2"
+    }, React.createElement("p", {
+      className: "text-xs text-blue-700 leading-relaxed break-keep flex items-start gap-2"
+    }, React.createElement("span", {
+      className: "font-bold shrink-0"
+    }, "·"), React.createElement("span", null, "반납 전 대여폰에 ", React.createElement("strong", null, "마이박스 로그인"), "과 ", React.createElement("strong", null, "충분한 용량 확보"), "가 필요해요.")), React.createElement("p", {
+      className: "text-xs text-blue-700 leading-relaxed break-keep flex items-start gap-2"
+    }, React.createElement("span", {
+      className: "font-bold shrink-0"
+    }, "·"), React.createElement("span", null, "백업 ", React.createElement("strong", null, "시작"), " 시와 ", React.createElement("strong", null, "완료"), " 시 모두 알림톡으로 안내드려요.")), React.createElement("p", {
+      className: "text-xs text-blue-700 leading-relaxed break-keep flex items-start gap-2"
+    }, React.createElement("span", {
+      className: "font-bold shrink-0"
+    }, "·"), React.createElement("span", null, "소요시간은 촬영 용량에 따라 다르며 ", React.createElement("strong", null, "평균 1일"), " 정도예요.")))),
+    // 개인정보 보호 (초기화)
+    React.createElement("div", {
+      className: "bg-green-50 p-4 rounded-2xl border border-green-100 mb-3"
+    }, React.createElement("p", {
+      className: "text-sm font-bold text-green-700 mb-2 flex items-center gap-2"
+    }, React.createElement(Icons.ShieldCheck, {
+      size: 16
+    }), "백업 완료 후 자동 초기화"), React.createElement("p", {
+      className: "text-xs text-green-700 leading-relaxed break-keep mb-2"
+    }, "개인정보 보호를 위해 백업 완료 ", React.createElement("strong", null, "4시간 뒤"), " 대여폰이 자동 초기화됩니다."), React.createElement("div", {
+      className: "bg-white p-2.5 rounded-lg border border-green-100"
+    }, React.createElement("p", {
+      className: "text-[11px] text-green-700 leading-relaxed break-keep"
+    }, "초기화되는 건 ", React.createElement("strong", null, "대여폰(울트라)"), " 뿐이에요. 네이버 마이박스에 저장된 데이터는 ", React.createElement("strong", null, "그대로 유지"), "됩니다."))),
+    // 주의사항 (추가 비용)
+    React.createElement("div", {
+      className: "bg-red-50 p-4 rounded-2xl border border-red-100"
+    }, React.createElement("p", {
+      className: "text-sm font-bold text-red-500 mb-2 flex items-center gap-2"
+    }, React.createElement(Icons.Clock, {
+      size: 16
+    }), "용량 미확보 시 추가 비용이 발생해요"), React.createElement("p", {
+      className: "text-xs text-red-500 leading-relaxed break-keep"
+    }, "마이박스 용량을 확보하지 않은 채 반납하셔서 ", React.createElement("strong", null, "5시간 이상 백업을 시작하지 못할 경우"), ", 대여 연장 비용이 함께 청구됩니다."))), React.createElement("div", {
+      className: "pt-1"
+    }, React.createElement("p", {
+      className: "text-xs font-bold text-gray-500 mb-2"
+    }, "신청자 정보 (예약 기준 자동 입력)"), React.createElement("div", {
+      className: "space-y-2"
+    }, React.createElement("input", {
+      type: "text",
+      placeholder: "성함",
+      className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm",
+      value: backupForm.name,
+      onChange: e => setBackupForm({
+        ...backupForm,
+        name: e.target.value
+      })
+    }), React.createElement("input", {
+      type: "text",
+      placeholder: "연락처 (010-0000-0000)",
+      className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm",
+      value: backupForm.phone,
+      onChange: e => setBackupForm({
+        ...backupForm,
+        phone: formatPhone(e.target.value)
+      })
+    }))), React.createElement("button", {
+      disabled: isSubmitting,
+      onClick: () => setServiceConfirm({
+        type: 'backup',
+        amount: 10000,
+        resModel: serviceTarget ? serviceTarget.model : ''
+      }),
+      className: "w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+    }, isSubmitting ? '처리 중...' : '백업 대행 신청하기')));
+  };
+  // [NEW] 수령 방법 안내 페이지
+  var renderPickupGuidePage = () => {
+    var methods = [{
+      icon: Icons.Truck,
+      color: 'bg-blue-50 text-blue-500',
+      title: '택배 수령',
+      fee: '+4,000원',
+      badge: '가장 많이 이용해요',
+      badgeColor: 'bg-blue-100 text-blue-600',
+      points: ['대여 시작일 **1일 전 도착**을 원칙으로 우체국 택배로 발송해요.', '예) 1월 10일 대여 → **1월 9일 도착 예정**', '송장번호는 발송 당일 저녁 **알림톡**으로 안내드려요.', '정확한 도착 시간은 담당 우체국 기사님께 문의하시면 가장 정확해요.']
+    }, {
+      icon: Icons.Rocket,
+      color: 'bg-sky-50 text-sky-500',
+      title: '퀵 수령',
+      fee: '거리 비례',
+      badge: '당일 가능',
+      badgeColor: 'bg-red-100 text-red-500',
+      hasQuickFee: true,
+      points: ['카카오T 퀵으로 원하시는 장소까지 **바로 배송**해드려요.', '주문 후 **6시간 이내 도착** 예정이에요.', '요금은 거리에 따라 달라져요. 아래에서 미리 확인해보세요!']
+    }, {
+      icon: Icons.MapPin,
+      color: 'bg-purple-50 text-purple-500',
+      title: '공연장 수령',
+      fee: '+4,000원',
+      badge: '수도권 15곳',
+      badgeColor: 'bg-purple-100 text-purple-600',
+      points: ['보통 **사운드체크 1시간 전** 또는 **본 공연 2시간 전**에 공연장 근처에서 전달해드려요.', '정확한 장소·시간은 대여 시작일 **1일 전 알림톡**으로 상세히 안내드려요.', '공연장별 스케줄에 따라 가능 여부가 달라져요.']
+    }, {
+      icon: Icons.Building2,
+      color: 'bg-emerald-50 text-emerald-400',
+      title: '사무실 수령',
+      fee: '무료',
+      badge: '당일 가능',
+      badgeColor: 'bg-red-100 text-red-500',
+      points: ['**인천 검단구 이음4로6, KR법조타워 7층 710호**', '아라역 도보 2분 거리예요.', '직접 방문하시면 **바로 픽업** 가능해요.']
+    }];
+    return React.createElement("div", {
+      className: "animate-slide-in space-y-6"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-6"
+    }, React.createElement("button", {
+      onClick: () => setViewMode('dashboard'),
+      className: "p-2 bg-white rounded-full shadow-sm"
+    }, React.createElement(Icons.ChevronLeft, {
+      className: "w-5 h-5 text-gray-600"
+    })), React.createElement("h2", {
+      className: "text-xl font-bold text-gray-800"
+    }, "수령 방법 안내")), React.createElement("div", {
+      className: "bg-blue-50 border border-blue-100 rounded-2xl p-4"
+    }, React.createElement("p", {
+      className: "text-xs text-blue-700 leading-relaxed break-keep"
+    }, "예약할 때 편하신 수령 방법을 선택하실 수 있어요. 날짜와 지역에 따라 일부 방법은 마감될 수 있으니 예약 화면에서 확인해주세요!")), methods.map((m, i) => React.createElement("div", {
+      key: i,
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-3"
+    }, React.createElement("div", {
+      className: `w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${m.color}`
+    }, React.createElement(m.icon, {
+      size: 20
+    })), React.createElement("div", {
+      className: "flex-1 overflow-hidden"
+    }, React.createElement("div", {
+      className: "flex items-center gap-1.5"
+    }, React.createElement("h3", {
+      className: "font-bold text-gray-800 text-[15px]"
+    }, m.title), React.createElement("span", {
+      className: `text-[10px] font-bold px-1.5 py-0.5 rounded ${m.badgeColor}`
+    }, m.badge)), React.createElement("p", {
+      className: "text-[11px] font-bold text-gray-400 mt-0.5"
+    }, "이용 요금 ", m.fee))), React.createElement("div", {
+      className: "space-y-2"
+    }, m.points.map((p, pi) => React.createElement("div", {
+      key: pi,
+      className: "flex items-start gap-2"
+    }, React.createElement("span", {
+      className: "text-blue-400 font-bold text-xs shrink-0 mt-0.5"
+    }, "·"), React.createElement("p", {
+      className: "text-xs text-gray-600 leading-relaxed break-keep flex-1"
+    }, p.split('**').map((seg, si) => si % 2 === 1 ? React.createElement("strong", {
+      key: si,
+      className: seg.indexOf('⚠️') === 0 ? "text-red-500" : "text-gray-800"
+    }, seg) : seg))))),
+    // [NEW] 퀵 수령 카드에만: 카카오T퀵 예상 비용 조회
+    m.hasQuickFee && React.createElement("div", {
+      className: "mt-3 pt-3 border-t border-gray-100 border-dashed"
+    }, React.createElement("p", {
+      className: "text-[11px] font-bold text-gray-500 mb-2 flex items-center gap-1"
+    }, React.createElement(Icons.MapPin, {
+      size: 12,
+      className: "text-sky-400"
+    }), " 카카오T퀵 예상 비용 조회"), React.createElement("button", {
+      type: "button",
+      onClick: handleQuickFeeAddressSearch,
+      className: "w-full flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2.5 text-xs text-left hover:bg-gray-100 transition-colors border border-gray-100"
+    }, React.createElement("span", {
+      className: quickFeeAddress ? "text-gray-700 truncate mr-2" : "text-gray-400"
+    }, quickFeeAddress || "받으실 주소 검색하기"), React.createElement(Icons.Search, {
+      size: 14,
+      className: "text-sky-400 shrink-0"
+    })), quickFeeLoading && React.createElement("p", {
+      className: "text-[11px] text-gray-400 mt-2"
+    }, "예상 요금을 계산하고 있어요..."), quickFeeError && React.createElement("p", {
+      className: "text-[11px] text-red-500 font-bold mt-2"
+    }, quickFeeError), quickFeeResult && React.createElement("div", {
+      className: "mt-2 bg-sky-50 rounded-xl px-3 py-2.5 border border-sky-100"
+    }, React.createElement("div", {
+      className: "flex items-center justify-between"
+    }, React.createElement("span", {
+      className: "text-[11px] text-gray-500"
+    }, "사무실 기준 약 ", quickFeeResult.distanceKm, "km"), React.createElement("span", {
+      className: "text-sm font-extrabold text-sky-600"
+    }, "약 ", quickFeeResult.estimatedFee.toLocaleString(), "원")), React.createElement("p", {
+      className: "text-[10px] text-gray-400 mt-1 break-keep"
+    }, "⚠️ 거리 기반 추정 금액으로 실제 카카오T퀵 요금과 다를 수 있어요."))))), React.createElement("button", {
+      onClick: () => setShowKakaoModal(true),
+      className: "w-full bg-yellow-400 text-gray-800 py-3.5 rounded-2xl font-bold shadow-sm hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 text-sm"
+    }, React.createElement(Icons.MessageLines, {
+      size: 16
+    }), " 더 궁금한 점은 카카오톡 문의"));
+  };
+  // [NEW] 반납 방법 안내 페이지
+  var renderReturnGuidePage = () => {
+    var methods = [{
+      icon: Icons.Truck,
+      color: 'bg-blue-50 text-blue-500',
+      title: '택배 반납',
+      fee: '무료',
+      badge: '우체국 택배만',
+      badgeColor: 'bg-blue-100 text-blue-600',
+      points: ['**① 우체국 직접 방문 (추천)** — 반납일 당일 **오후 4시 전**까지 근처 우체국 창구에서 "우체국 택배"로 접수해주세요.', '**② 우체국 방문택배** — 반납일 **전날** 인터넷우체국에서 방문접수를 신청하고, 당일 오전에 포장해서 문 앞에 두시면 기사님이 픽업해가세요.', '**편의점 택배·타 택배사는 이용 불가**예요. 파손·분실 위험이 커서, 무단 이용 시 피해는 고객님 부담이 됩니다.']
+    }, {
+      icon: Icons.Rocket,
+      color: 'bg-red-50 text-red-500',
+      title: '당일 반납',
+      fee: '+15,000원',
+      badge: '공연 당일',
+      badgeColor: 'bg-red-100 text-red-500',
+      points: ['공연이 끝나고 무겁게 들고 가실 필요 없어요!', '공연 종료 후 **약 30분 이내**에 지정된 장소에서 직원에게 바로 반납하시면 돼요.', '반납하시면서 **데이터 백업도 현장에서** 도와드려요.', '**⚠️ 현장 스케줄이 있는 날짜만 신청 가능해요!**']
+    }, {
+      icon: Icons.MapPin,
+      color: 'bg-purple-50 text-purple-500',
+      title: '공연장 반납',
+      fee: '무료',
+      badge: '현장 스케줄 필요',
+      badgeColor: 'bg-purple-100 text-purple-600',
+      points: ['공연장 근처에서 직원에게 직접 반납하실 수 있어요.', '정확한 장소·시간은 알림톡으로 안내드려요.', '**⚠️ 현장 스케줄이 있는 날짜만 신청 가능해요!**']
+    }, {
+      icon: Icons.Building2,
+      color: 'bg-emerald-50 text-emerald-400',
+      title: '사무실 반납',
+      fee: '무료',
+      badge: '직접 방문',
+      badgeColor: 'bg-green-100 text-green-600',
+      points: ['**인천 검단구 이음4로6, KR법조타워 7층 710호** (아라역 도보 2분)', '반납일 **오전 10시까지** 방문해주세요.', '대여 기간 내라면 **더 일찍 미리 반납**하셔도 괜찮아요.']
+    }, {
+      icon: Icons.Box,
+      color: 'bg-orange-50 text-orange-600',
+      title: '방문 수거',
+      fee: '셀프 신청',
+      badge: '편하게 집에서',
+      badgeColor: 'bg-orange-50 text-orange-600',
+      points: ['기사님이 직접 방문해서 수거해가세요.', '집 앞에 포장해두시면 되어 가장 편해요.', '신청 방법은 홈 화면에 있는 **"우체국 방문택배 신청"** 버튼을 눌러 확인해주세요!']
+    }];
+    return React.createElement("div", {
+      className: "animate-slide-in space-y-6"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-6"
+    }, React.createElement("button", {
+      onClick: () => setViewMode('dashboard'),
+      className: "p-2 bg-white rounded-full shadow-sm"
+    }, React.createElement(Icons.ChevronLeft, {
+      className: "w-5 h-5 text-gray-600"
+    })), React.createElement("h2", {
+      className: "text-xl font-bold text-gray-800"
+    }, "반납 방법 안내")), React.createElement("div", {
+      className: "bg-red-50 border border-red-100 rounded-2xl p-4"
+    }, React.createElement("p", {
+      className: "text-xs font-bold text-red-500 mb-1 flex items-center gap-1.5"
+    }, React.createElement(Icons.Clock, {
+      size: 14
+    }), " 반납 지연 시 주의해주세요"), React.createElement("p", {
+      className: "text-[11px] text-red-400 leading-relaxed break-keep"
+    }, "사전 협의 없는 무단 지연 시 ", React.createElement("strong", null, "1일당 50,000원"), "의 연체료가 발생해요. 반납일을 미루셔야 한다면 미리 ", React.createElement("strong", null, "대여연장"), "을 신청해주세요!")), methods.map((m, i) => React.createElement("div", {
+      key: i,
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-3"
+    }, React.createElement("div", {
+      className: `w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${m.color}`
+    }, React.createElement(m.icon, {
+      size: 20
+    })), React.createElement("div", {
+      className: "flex-1 overflow-hidden"
+    }, React.createElement("div", {
+      className: "flex items-center gap-1.5"
+    }, React.createElement("h3", {
+      className: "font-bold text-gray-800 text-[15px]"
+    }, m.title), React.createElement("span", {
+      className: `text-[10px] font-bold px-1.5 py-0.5 rounded ${m.badgeColor}`
+    }, m.badge)), React.createElement("p", {
+      className: "text-[11px] font-bold text-gray-400 mt-0.5"
+    }, "이용 요금 ", m.fee))), React.createElement("div", {
+      className: "space-y-2"
+    }, m.points.map((p, pi) => React.createElement("div", {
+      key: pi,
+      className: "flex items-start gap-2"
+    }, React.createElement("span", {
+      className: "text-blue-400 font-bold text-xs shrink-0 mt-0.5"
+    }, "·"), React.createElement("p", {
+      className: "text-xs text-gray-600 leading-relaxed break-keep flex-1"
+    }, p.split('**').map((seg, si) => si % 2 === 1 ? React.createElement("strong", {
+      key: si,
+      className: seg.indexOf('⚠️') === 0 ? "text-red-500" : "text-gray-800"
+    }, seg) : seg))))))), React.createElement("button", {
+      onClick: () => setShowKakaoModal(true),
+      className: "w-full bg-yellow-400 text-gray-800 py-3.5 rounded-2xl font-bold shadow-sm hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 text-sm"
+    }, React.createElement(Icons.MessageLines, {
+      size: 16
+    }), " 더 궁금한 점은 카카오톡 문의"));
+  };
   var renderManualPage = () => React.createElement("div", {
     className: "animate-slide-in space-y-6"
   }, React.createElement("div", {
@@ -4213,7 +5639,7 @@ var PhoneRentalApp = () => {
   })), React.createElement("button", {
     onClick: () => setShowKakaoModal(true),
     className: "w-full mt-3 bg-yellow-50 text-yellow-600 border border-yellow-100 py-4 rounded-xl font-bold hover:bg-yellow-100 transition-colors flex items-center justify-center gap-2"
-  }, React.createElement(Icons.MessageHeart, {
+  }, React.createElement(Icons.MessageLines, {
     size: 18
   }), " 1:1 문의하기")));
   var renderChecklistPage = () => React.createElement("div", {
@@ -4400,6 +5826,161 @@ var PhoneRentalApp = () => {
       className: "text-sm"
     }, "아직 작성된 후기가 없어요 😢"))));
   };
+  // [NEW] 예약변경 신청 페이지 (기종/날짜/수령방법 변경 + 예상금액 자동계산)
+  // [NEW] 예약변경 페이지 (대여 모델만 변경)
+  var renderChangeApplyPage = () => {
+    if (!changeTargetItem) {
+      return React.createElement("div", {
+        className: "animate-slide-in space-y-6"
+      }, React.createElement("div", {
+        className: "flex items-center gap-3 mb-6"
+      }, React.createElement("button", {
+        onClick: () => setViewMode('lookup'),
+        className: "p-2 bg-white rounded-full shadow-sm"
+      }, React.createElement(Icons.ChevronLeft, {
+        className: "w-5 h-5 text-gray-600"
+      })), React.createElement("h2", {
+        className: "text-xl font-bold text-gray-800"
+      }, "기종 변경")), React.createElement("div", {
+        className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center py-10"
+      }, React.createElement("p", {
+        className: "text-sm text-gray-500"
+      }, "변경할 예약을 먼저 선택해주세요.")));
+    }
+    var calc = calcChangeTotal(changeForm);
+    var oldPrice = Number(changeTargetItem.totalPrice) || 0;
+    var diff = calc ? calc.total - oldPrice : 0;
+    var origPhone = findPhoneByModel(changeTargetItem.model);
+    var blockReason = getChangeBlockReason(changeForm);
+    var isChangedModel = !!changeForm.modelId && (!origPhone || changeForm.modelId !== origPhone.id);
+    return React.createElement("div", {
+      className: "animate-slide-in space-y-6"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-6"
+    }, React.createElement("button", {
+      onClick: () => {
+        setChangeTargetItem(null);
+        setViewMode('lookup');
+      },
+      className: "p-2 bg-white rounded-full shadow-sm"
+    }, React.createElement(Icons.ChevronLeft, {
+      className: "w-5 h-5 text-gray-600"
+    })), React.createElement("h2", {
+      className: "text-xl font-bold text-gray-800"
+    }, "기종 변경")),
+    // 현재 예약 요약
+    React.createElement("div", {
+      className: "bg-blue-50 border border-blue-100 rounded-2xl p-3.5"
+    }, React.createElement("p", {
+      className: "text-[10px] font-bold text-blue-400 mb-0.5"
+    }, "현재 예약"), React.createElement("p", {
+      className: "text-sm font-bold text-gray-800"
+    }, changeTargetItem.model), React.createElement("p", {
+      className: "text-[11px] text-gray-500"
+    }, formatDisplayDate(changeTargetItem.startDate), " ~ ", formatDisplayDate(changeTargetItem.endDate), " · ", changeTargetItem.delivery || '-', " · ", oldPrice.toLocaleString(), "원")),
+    // 안내
+    React.createElement("div", {
+      className: "bg-gray-50 border border-gray-100 rounded-2xl p-3.5"
+    }, React.createElement("p", {
+      className: "text-[11px] text-gray-500 leading-relaxed break-keep"
+    }, "* 기종만 변경할 수 있어요. 대여 날짜·수령/반납 방법을 바꾸시려면 ", React.createElement("strong", {
+      className: "text-gray-700"
+    }, "카카오톡 상담"), "으로 문의해주세요.")),
+    // 기종 선택
+    React.createElement("div", {
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-4"
+    }, React.createElement("div", null, React.createElement("h3", {
+      className: "font-bold text-gray-800 flex items-center gap-2 mb-3"
+    }, React.createElement(Icons.Smartphone, {
+      size: 18,
+      className: "text-blue-400"
+    }), " 변경할 기종"), React.createElement("div", {
+      className: "flex bg-gray-100 p-1 rounded-xl mb-3"
+    }, React.createElement("button", {
+      onClick: () => setChgTab('galaxy'),
+      className: `flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${chgTab === 'galaxy' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
+    }, "Galaxy"), React.createElement("button", {
+      onClick: () => setChgTab('iphone'),
+      className: `flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${chgTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
+    }, "iPhone")), React.createElement("div", {
+      className: "grid grid-cols-2 gap-2"
+    }, (phones[chgTab] || []).map(p => {
+      var mBlocked = isChangeModelBlocked(p.name, changeTargetItem.startDate, changeTargetItem.endDate);
+      var isSel = changeForm.modelId === p.id;
+      var isOrig = origPhone && origPhone.id === p.id;
+      var changed = isSel && !isOrig;
+      return React.createElement("div", {
+        key: p.id,
+        onClick: () => {
+          if (mBlocked) {
+            showAppToast(MODEL_DISABLED[p.name] ? `${p.name}은(는) 품절이에요.` : '기존 대여 기간에 해당 기종이 마감되었어요.');
+            return;
+          }
+          setChangeForm({
+            modelId: p.id
+          });
+        },
+        className: `relative p-3 rounded-2xl border-2 transition-all cursor-pointer ${mBlocked ? 'opacity-60 bg-gray-50 border-gray-200 cursor-not-allowed' : isSel ? changed ? 'border-rose-500 bg-rose-50 shadow-md' : 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-100 bg-white hover:border-blue-200'}`
+      }, React.createElement("div", {
+        className: "flex justify-between items-center mb-2"
+      }, React.createElement("span", {
+        className: `text-[10px] font-extrabold px-2 py-0.5 rounded-md ${mBlocked ? 'bg-gray-200 text-gray-500' : changed ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600'}`
+      }, p.tag), React.createElement("div", {
+        className: `w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel ? changed ? 'border-rose-500 bg-red-500' : 'border-blue-500 bg-blue-500' : 'border-gray-300 bg-white'}`
+      }, isSel && React.createElement(Icons.Check, {
+        size: 12,
+        className: "text-white"
+      }))), React.createElement("h4", {
+        className: `font-bold text-[13px] leading-tight mb-1 ${mBlocked ? 'text-gray-400' : 'text-gray-800'}`
+      }, p.name), React.createElement("p", {
+        className: `text-[11px] font-bold ${mBlocked ? 'text-gray-400' : isOrig ? 'text-blue-500' : 'text-gray-500'}`
+      }, mBlocked ? MODEL_DISABLED[p.name] ? '품절' : '기간 내 마감' : isOrig ? '현재 기종' : `${p.basePrice.toLocaleString()}원~`));
+    }))),
+    // 예상 금액
+    calc ? React.createElement("div", {
+      className: "bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-2"
+    }, React.createElement("div", {
+      className: "flex justify-between text-sm"
+    }, React.createElement("span", {
+      className: "text-gray-500"
+    }, "기존 결제 금액"), React.createElement("span", {
+      className: "font-bold text-gray-400"
+    }, oldPrice.toLocaleString(), "원")), React.createElement("div", {
+      className: "flex justify-between text-sm"
+    }, React.createElement("span", {
+      className: "text-gray-500"
+    }, "변경 후 예상 금액"), React.createElement("span", {
+      className: "font-bold text-gray-400"
+    }, calc.total.toLocaleString(), "원")), React.createElement("div", {
+      className: `flex justify-between items-center rounded-xl px-3 py-2.5 mt-1 ${diff > 0 ? 'bg-red-50 border border-red-100' : diff < 0 ? 'bg-blue-50 border border-blue-100' : 'bg-white border border-gray-200'}`
+    }, React.createElement("span", {
+      className: `text-sm font-bold ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-blue-600' : 'text-gray-400'}`
+    }, diff > 0 ? '추가 결제 금액' : diff < 0 ? '돌려받을 금액' : '차액'), React.createElement("span", {
+      className: `text-sm font-bold ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-blue-600' : 'text-gray-400'}`
+    }, diff > 0 ? '+' : diff < 0 ? '-' : '', Math.abs(diff).toLocaleString(), "원")), React.createElement("p", {
+      className: `text-[11px] font-bold text-center pt-1 ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-blue-500' : 'text-gray-400'}`
+    }, diff > 0 ? '신청 후 30분 이내에 추가 금액을 입금해주세요' : diff < 0 ? '담당자 확인 후 환불해드려요' : '금액 변동이 없어요')) : React.createElement("div", {
+      className: "bg-gray-50 rounded-2xl p-4 border border-gray-100 text-center"
+    }, React.createElement("p", {
+      className: "text-xs text-gray-400"
+    }, "변경할 기종을 선택하면 예상 금액이 표시돼요.")), blockReason && isChangedModel && React.createElement("div", {
+      className: "bg-red-50 border border-red-100 rounded-2xl p-3.5"
+    }, React.createElement("p", {
+      className: "text-xs font-bold text-red-500 leading-relaxed break-keep"
+    }, "🚨 ", blockReason)), React.createElement("p", {
+      className: "text-[11px] text-gray-400 leading-relaxed break-keep"
+    }, "* 변경 신청 후 담당자 확인이 필요해요. 재고 상황에 따라 변경이 어려울 수 있으며, 확정 시 알림톡으로 안내드려요."), React.createElement("button", {
+      disabled: isSubmitting || !calc || !!blockReason,
+      onClick: () => {
+        if (blockReason) {
+          showAppToast(blockReason);
+          return;
+        }
+        setIsChangeConfirmOpen(true);
+      },
+      className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2 ${calc && !blockReason ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
+    }, isSubmitting ? '처리 중...' : '기종 변경 신청하기')));
+  };
   var renderSuccessPage = () => {
     var type = successData ? successData.type : '완료';
     var name = successData ? successData.name : '고객';
@@ -4416,6 +5997,12 @@ var PhoneRentalApp = () => {
     } else if (type === '백업') {
       titleMsg = "백업 신청 완료!";
       statusMsg = "담당자가 확인 후 연락드리겠습니다.";
+    } else if (type === '취소') {
+      titleMsg = "취소 신청 완료!";
+      statusMsg = amount > 0 ? "담당자 확인 후 환불이 진행됩니다." : "취소 신청이 접수되었습니다.";
+    } else if (type === '변경') {
+      titleMsg = "변경 신청 완료!";
+      statusMsg = "담당자 확인 후 변경이 확정됩니다.";
     }
     return React.createElement("div", {
       className: "animate-slide-in h-full flex flex-col justify-center items-center p-6 text-center"
@@ -4450,13 +6037,24 @@ var PhoneRentalApp = () => {
       size: 18
     }), " 내 예약 조회하기")) : React.createElement("div", {
       className: "bg-gray-50 p-5 rounded-2xl w-full mb-6 border border-gray-100"
-    }, React.createElement("div", {
+    }, successData && successData.changeNote && React.createElement("div", {
       className: "flex justify-between items-center mb-3 pb-3 border-b border-gray-200"
     }, React.createElement("span", {
       className: "text-sm font-bold text-gray-600"
-    }, "결제하실 금액"), React.createElement("span", {
-      className: "text-lg font-bold text-blue-500"
-    }, amount.toLocaleString(), "원")), pMethod === 'transfer' || type !== '예약' ? React.createElement("div", {
+    }, "변경 내용"), React.createElement("span", {
+      className: "text-xs font-bold text-blue-500 text-right break-keep",
+      style: {
+        maxWidth: '60%'
+      }
+    }, successData.changeNote)), React.createElement("div", {
+      className: "flex justify-between items-center mb-3 pb-3 border-b border-gray-200"
+    }, React.createElement("span", {
+      className: "text-sm font-bold text-gray-600"
+    }, type === '취소' ? "환불 예정 금액" : "결제하실 금액"), React.createElement("span", {
+      className: `text-lg font-bold ${type === '취소' && amount === 0 ? 'text-red-500' : 'text-blue-500'}`
+    }, amount.toLocaleString(), "원")), type === '취소' ? React.createElement("p", {
+      className: "text-[11px] text-gray-500 text-center leading-relaxed break-keep"
+    }, amount > 0 ? "담당자 확인 후 결제하신 수단으로 환불이 진행돼요." : "규정상 환불되는 금액은 없지만, 취소 신청은 정상 접수되었어요.") : pMethod === 'transfer' || type !== '예약' ? React.createElement("div", {
       className: "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200"
     }, React.createElement("div", {
       className: "text-left"
@@ -4484,9 +6082,11 @@ var PhoneRentalApp = () => {
       className: "flex items-center justify-center w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition-colors text-sm gap-2"
     }, "네이버 스토어 결제하러 가기 ", React.createElement(Icons.ExternalLink, {
       size: 14
-    })))), type !== '예약' && React.createElement("div", {
+    })))), type !== '예약' && type !== '취소' && React.createElement("div", {
       className: "bg-yellow-50 p-4 rounded-xl text-xs text-yellow-700 text-left w-full mb-8 leading-relaxed"
-    }, React.createElement("strong", null, "⏳ 안내사항"), React.createElement("br", null), "입금(결제)이 확인되면 확정 알림톡이 발송됩니다.", React.createElement("br", null), React.createElement("span", {
+    }, React.createElement("strong", null, "⏳ 안내사항"), React.createElement("br", null), React.createElement("strong", {
+      className: "text-red-500"
+    }, "결제는 신청 후 30분 이내"), "에 완료해주세요.", React.createElement("br", null), "입금(결제)이 확인되면 확정 알림톡이 발송됩니다.", React.createElement("br", null), React.createElement("span", {
       className: "opacity-80"
     }, "※ 늦은 밤이나 새벽에 신청하신 경우, 확정 안내까지 시간이 다소 소요될 수 있습니다.")), React.createElement("button", {
       onClick: handleGoHome,
@@ -4498,9 +6098,12 @@ var PhoneRentalApp = () => {
   }, React.createElement("div", {
     className: "w-full max-w-md bg-white shadow-xl min-h-screen relative pb-10"
   }, React.createElement("header", {
-    className: `sticky z-50 bg-white/80 backdrop-blur-md px-4 py-2 flex justify-between items-center border-b border-gray-100 transition-all duration-300 ${showHeader ? 'top-0' : '-top-20'}`
+    className: `sticky ${serviceConfirm || isReviewModalOpen || isLogoutModalOpen || isConfirmModalOpen || isCancelModalOpen || isPhoneCheckModalOpen || isChangeConfirmOpen || isBlogConfirmOpen || showKakaoModal || blogModal.open || isSubmitting ? 'z-40' : 'z-50'} bg-white/80 backdrop-blur-md px-4 py-2 flex justify-between items-center border-b border-gray-100 transition-all duration-300 ${showHeader ? 'top-0' : '-top-20'}`
   }, React.createElement("div", {
-    className: "flex items-center gap-1 cursor-pointer",
+    className: "flex items-center gap-1 cursor-pointer overflow-hidden",
+    style: {
+      minWidth: 0
+    },
     onClick: () => handleNavChange('home')
   }, CUSTOM_LOGO_URL ? React.createElement("img", {
     src: CUSTOM_LOGO_URL,
@@ -4513,10 +6116,15 @@ var PhoneRentalApp = () => {
   })), React.createElement("h1", {
     className: "text-lg font-extrabold text-gray-800 tracking-tight font-sans"
   }, "세린캠"))), React.createElement("div", {
-    className: "relative"
+    className: "flex items-center gap-1.5 shrink-0",
+    style: {
+      flexWrap: 'nowrap'
+    }
+  }, React.createElement("div", {
+    className: "relative shrink-0"
   }, React.createElement("button", {
     onClick: () => setIsLangOpen(!isLangOpen),
-    className: "flex items-center gap-1 text-[11px] font-bold text-gray-600 bg-white hover:bg-gray-50 px-2.5 py-1.5 rounded-xl transition-colors border border-gray-200 shadow-sm"
+    className: "flex items-center gap-1 text-[11px] font-bold text-gray-600 bg-white hover:bg-gray-50 px-2.5 py-1.5 rounded-xl transition-colors border border-gray-200 shadow-sm whitespace-nowrap"
   }, React.createElement(Icons.Globe, {
     size: 14,
     className: "text-blue-500"
@@ -4550,67 +6158,155 @@ var PhoneRentalApp = () => {
   }, l.label, lang === l.code && React.createElement(Icons.Check, {
     size: 12,
     className: "text-blue-500"
-  }))))))), (activeNav === 'home' || activeNav === 'rental' || activeNav === 'qna' || activeNav === 'mypage') && React.createElement("div", {
+  })))))),
+  // [NEW] 헤더 우측: 예약조회 드롭다운
+  React.createElement("div", {
+    className: "relative shrink-0"
+  }, React.createElement("button", {
+    onClick: () => {
+      setIsLangOpen(false);
+      setIsLookupMenuOpen(!isLookupMenuOpen);
+    },
+    className: `flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-colors border shadow-sm ${activeNav === 'mypage' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`
+  }, React.createElement(Icons.Search, {
+    size: 14,
+    className: activeNav === 'mypage' ? 'text-white' : 'text-blue-500'
+  }), React.createElement("span", {
+    className: "whitespace-nowrap"
+  }, (() => {
+    // [NEW] 조회 전 또는 예약 내역이 없으면: "예약 조회" / 예약이 있을 때만: "OOO님"
+    if (!lookupResult || lookupResult.length === 0 || !lookupName) return t('bookingLookup');
+    var n = String(lookupName).trim();
+    if (n.length > 4) n = n.slice(0, 4) + '..';
+    return n + '님';
+  })()), React.createElement(Icons.ChevronRight, {
+    size: 12,
+    className: `transform transition-transform ${activeNav === 'mypage' ? 'text-white' : 'text-gray-400'} ${isLookupMenuOpen ? '-rotate-90' : 'rotate-90'}`
+  })), isLookupMenuOpen && React.createElement(React.Fragment, null, React.createElement("div", {
+    className: "fixed inset-0 z-40",
+    onClick: () => setIsLookupMenuOpen(false)
+  }), React.createElement("div", {
+    className: "absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden z-50 animate-fade-in origin-top-right"
+  }, [{
+    label: '내 예약 보기',
+    icon: Icons.Search,
+    onClick: () => handleNavChange('mypage')
+  }, {
+    label: '예약 취소',
+    icon: Icons.Trash2,
+    onClick: () => {
+      var target = eligibleReservations[0];
+      if (!target) {
+        handleNavChange('mypage');
+        showAppToast('예약을 먼저 조회해주세요.');
+        return;
+      }
+      setCancelTargetItem(target);
+      setIsCancelModalOpen(true);
+    }
+  }, {
+    label: '대여모델 변경',
+    icon: Icons.Smartphone,
+    onClick: () => {
+      var target = eligibleReservations[0];
+      if (!target) {
+        handleNavChange('mypage');
+        showAppToast('예약을 먼저 조회해주세요.');
+        return;
+      }
+      if ((target.trackingNumber || '').toString().trim()) {
+        showAppToast('이미 발송되어 변경이 어려워요. 카카오톡으로 문의해주세요.');
+        return;
+      }
+      var p = findPhoneByModel(target.model);
+      setChangeTargetItem(target);
+      setChangeForm({
+        modelId: p ? p.id : ''
+      });
+      setChgTab(p && String(p.id).startsWith('i') ? 'iphone' : 'galaxy');
+      setViewMode('changeApply');
+    }
+  }, {
+    label: '대여연장',
+    icon: Icons.CalendarPlus,
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('extension');
+    }
+  }, {
+    label: '데이터 백업 신청',
+    icon: Icons.Image,
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('backupApply');
+    }
+  }].map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: () => {
+      setIsLookupMenuOpen(false);
+      it.onClick();
+    },
+    className: "w-full text-left px-3.5 py-3 text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2 border-b border-gray-50"
+  }, React.createElement(it.icon, {
+    size: 14,
+    className: "text-blue-500 shrink-0"
+  }), React.createElement("span", {
+    className: "whitespace-nowrap"
+  }, it.label)))))))), (activeNav === 'home' || activeNav === 'rental' || activeNav === 'qna' || activeNav === 'mypage') && React.createElement("div", {
     className: "p-5"
   }, activeNav === 'home' && viewMode === 'dashboard' && React.createElement("div", {
     className: "space-y-6 animate-slide-in pb-24"
+  },
+  // [NEW] 상단 네비 메뉴바 (드롭다운)
+  React.createElement("div", {
+    className: "relative bg-white rounded-2xl shadow-sm border border-gray-100"
   }, React.createElement("div", {
-    className: "w-full h-36 bg-gray-200 rounded-[2rem] overflow-hidden shadow-sm relative group cursor-pointer"
-  }, React.createElement("div", {
-    className: "flex h-full transition-transform duration-500 ease-out",
+    className: "flex items-center"
+  }, NAV_MENUS.map(menu => React.createElement("button", {
+    key: menu.key,
+    onClick: () => setOpenNavMenu(openNavMenu === menu.key ? null : menu.key),
+    className: `flex-1 flex items-center justify-center gap-1 py-3 text-xs font-bold transition-colors ${openNavMenu === menu.key ? 'text-blue-600' : 'text-gray-700 hover:text-blue-500'}`
+  }, React.createElement(menu.icon, {
+    size: 14,
+    className: `shrink-0 ${openNavMenu === menu.key ? 'text-blue-600' : 'text-blue-500'}`
+  }), React.createElement("span", {
+    className: "whitespace-nowrap"
+  }, menu.label), React.createElement("span", {
+    className: `transition-transform ${openNavMenu === menu.key ? '-rotate-90' : 'rotate-90'}`,
     style: {
-      transform: `translateX(-${currentBannerIndex * 100}%)`
+      display: 'inline-flex'
     }
-  }, bannerData.map(banner => React.createElement("div", {
-    key: banner.id,
-    className: "w-full h-full flex-shrink-0 relative",
-    onClick: () => {
-      if (banner.type === 'external') {
-        window.open(banner.link, '_blank');
-      } else {
-        setActiveTab(banner.targetTab);
-        handleRentalStart();
-      }
-    }
-  }, React.createElement("img", {
-    src: banner.image,
-    alt: "Banner",
-    className: "w-full h-full object-cover"
-  })))), React.createElement("button", {
-    onClick: handlePrevBanner,
-    className: "absolute left-0 top-0 w-12 h-full flex items-center justify-center z-20 group"
-  }, React.createElement("div", {
-    className: "w-7 h-7 bg-black/20 group-hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all"
-  }, React.createElement(Icons.ChevronLeft, {
-    size: 16
-  }))), React.createElement("button", {
-    onClick: handleNextBanner,
-    className: "absolute right-0 top-0 w-12 h-full flex items-center justify-center z-20 group"
-  }, React.createElement("div", {
-    className: "w-7 h-7 bg-black/20 group-hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all"
   }, React.createElement(Icons.ChevronRight, {
-    size: 16
-  }))), React.createElement("div", {
-    className: "absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-20 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-sm"
-  }, bannerData.map((_, idx) => React.createElement("div", {
-    key: idx,
-    className: `h-1.5 rounded-full transition-all duration-300 ${idx === currentBannerIndex ? 'bg-white w-4' : 'bg-white/50 w-1.5'}`
-  })))), React.createElement("div", {
-    className: "bg-blue-50/80 p-3 rounded-2xl border border-blue-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between cursor-pointer group hover:bg-blue-100/50 transition-colors",
-    onClick: () => alert("📢 세린캠 안내사항\n\n• " + notices.join('\n\n• '))
+    size: 12
+  }))))), openNavMenu && React.createElement("div", {
+    className: "absolute left-0 right-0 bg-white border border-gray-100 shadow-lg rounded-2xl overflow-hidden z-20 animate-fade-in",
+    style: {
+      top: 'calc(100% + 6px)'
+    }
+  }, (NAV_MENUS.find(m => m.key === openNavMenu) || {
+    items: []
+  }).items.map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: () => {
+      setOpenNavMenu(null);
+      it.onClick();
+    },
+    className: "w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors border-b border-gray-50"
   }, React.createElement("div", {
-    className: "flex items-center gap-2.5 overflow-hidden w-full pl-1"
-  }, React.createElement("span", {
-    className: "bg-white text-blue-500 text-[10px] font-extrabold px-2 py-1 rounded-lg shrink-0 shadow-sm"
-  }, t('noticeBadge')), React.createElement("div", {
-    className: "flex-1 overflow-hidden relative h-[18px]"
-  }, notices.map((notice, idx) => React.createElement("p", {
-    key: idx,
-    className: `absolute w-full text-xs font-bold text-gray-700 truncate transition-all duration-500 ease-in-out ${idx === noticeIndex ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`
-  }, notice)))), React.createElement(Icons.ChevronRight, {
-    size: 16,
-    className: "text-blue-300 group-hover:text-blue-500 transition-colors shrink-0"
+    className: "w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0"
+  }, React.createElement(it.icon, {
+    size: 17
   })), React.createElement("div", {
+    className: "flex-1 overflow-hidden"
+  }, React.createElement("p", {
+    className: "text-sm font-bold text-gray-800"
+  }, it.label), React.createElement("p", {
+    className: "text-[11px] text-gray-400 truncate"
+  }, it.desc)), React.createElement(Icons.ChevronRight, {
+    size: 14,
+    className: "text-gray-300 shrink-0"
+  }))))),
+React.createElement("div", {
     className: "grid grid-cols-2 gap-3 mt-2"
   }, React.createElement("div", {
     className: "col-span-2 bg-gradient-to-br from-blue-50/80 via-white to-pink-50/80 rounded-3xl p-5 relative overflow-hidden cursor-pointer group transition-all duration-300 animate-neon-border border-blue-300",
@@ -4676,23 +6372,29 @@ var PhoneRentalApp = () => {
     className: "rotate-135"
   })))), React.createElement("div", {
     className: "bg-white rounded-[2rem] p-5 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all flex flex-col justify-between aspect-[4/3]",
-    onClick: () => setViewMode('lookup')
+    onClick: () => {
+      var el = document.getElementById('venue-section');
+      if (el) el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
   }, React.createElement("div", {
     className: "w-12 h-12 bg-sky-50 text-sky-400 rounded-full flex items-center justify-center"
-  }, React.createElement(Icons.Search, {
+  }, React.createElement(Icons.MapPin, {
     size: 22
   })), React.createElement("div", {
     className: "mt-2"
   }, React.createElement("h3", {
     className: "font-bold text-gray-800 text-[15px]"
-  }, t('bookingLookup')), React.createElement("p", {
-    className: "text-[11px] text-gray-400 mt-0.5"
-  }, t('bookingLookupSub')))), React.createElement("div", {
+  }, t('pickupZone')), React.createElement("p", {
+    className: "text-[11px] text-gray-400 mt-0.5 leading-snug break-keep"
+  }, t('pickupZoneSub')))), React.createElement("div", {
     className: "bg-white rounded-[2rem] p-5 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all flex flex-col justify-between aspect-[4/3]",
     onClick: () => setViewMode('manual')
   }, React.createElement("div", {
     className: "w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center"
-  }, React.createElement(Icons.BookOpen, {
+  }, React.createElement(Icons.ListChecks, {
     size: 22
   })), React.createElement("div", {
     className: "mt-2"
@@ -4701,48 +6403,6 @@ var PhoneRentalApp = () => {
   }, t('userGuide')), React.createElement("p", {
     className: "text-[11px] text-gray-400 mt-0.5"
   }, t('userGuideSub'))))), React.createElement("div", {
-    className: "bg-white rounded-[2rem] p-5 shadow-sm border border-gray-100"
-  }, React.createElement("h3", {
-    className: "font-extrabold text-gray-800 text-base mb-4 px-1 flex items-center gap-2"
-  }, t('quickMenu')), React.createElement("div", {
-    className: "flex justify-between items-start px-2"
-  }, React.createElement("div", {
-    onClick: () => setShowKakaoModal(true),
-    className: "flex flex-col items-center gap-2 cursor-pointer group shrink-0"
-  }, React.createElement("div", {
-    className: "w-14 h-14 bg-gradient-to-br from-rose-50 to-pink-100 text-pink-400 rounded-[1.1rem] flex items-center justify-center shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),_0_6px_12px_rgba(244,114,182,0.2)] border border-pink-50/50 group-hover:-translate-y-1 transition-all duration-300"
-  }, React.createElement(Icons.Smile, {
-    size: 26
-  })), React.createElement("span", {
-    className: "text-[11px] font-bold text-gray-700 whitespace-nowrap"
-  }, t('cs'))), React.createElement("div", {
-    onClick: () => setViewMode('backup'),
-    className: "flex flex-col items-center gap-2 cursor-pointer group shrink-0"
-  }, React.createElement("div", {
-    className: "w-14 h-14 bg-gradient-to-br from-violet-50 to-purple-100 text-purple-400 rounded-[1.1rem] flex items-center justify-center shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),_0_6px_12px_rgba(167,139,250,0.2)] border border-purple-50/50 group-hover:-translate-y-1 transition-all duration-300"
-  }, React.createElement(Icons.Copy, {
-    size: 24
-  })), React.createElement("span", {
-    className: "text-[11px] font-bold text-gray-700 whitespace-nowrap"
-  }, t('backup'))), React.createElement("div", {
-    onClick: () => setViewMode('extension'),
-    className: "flex flex-col items-center gap-2 cursor-pointer group shrink-0"
-  }, React.createElement("div", {
-    className: "w-14 h-14 bg-gradient-to-br from-cyan-50 to-sky-100 text-sky-400 rounded-[1.1rem] flex items-center justify-center shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),_0_6px_12px_rgba(56,189,248,0.2)] border border-sky-50/50 group-hover:-translate-y-1 transition-all duration-300"
-  }, React.createElement(Icons.CalendarPlus, {
-    size: 24
-  })), React.createElement("span", {
-    className: "text-[11px] font-bold text-gray-700 whitespace-nowrap"
-  }, t('extension'))), React.createElement("div", {
-    onClick: () => handleNavChange('qna'),
-    className: "flex flex-col items-center gap-2 cursor-pointer group shrink-0"
-  }, React.createElement("div", {
-    className: "w-14 h-14 bg-gradient-to-br from-teal-50 to-emerald-100 text-emerald-400 rounded-[1.1rem] flex items-center justify-center shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),_0_6px_12px_rgba(52,211,153,0.2)] border border-emerald-50/50 group-hover:-translate-y-1 transition-all duration-300"
-  }, React.createElement(Icons.Headphones, {
-    size: 24
-  })), React.createElement("span", {
-    className: "text-[11px] font-bold text-gray-700 whitespace-nowrap"
-  }, t('faq'))))), React.createElement("div", {
     className: "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100"
   }, React.createElement("div", {
     className: "flex justify-between items-end mb-5"
@@ -4909,7 +6569,8 @@ var PhoneRentalApp = () => {
   }, React.createElement(Icons.MapPin, {
     size: 10
   }), " ", v.info ? '정보보기' : '위치보기'))))), React.createElement("div", {
-    className: "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden"
+    id: "recommend-section",
+    className: "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden scroll-mt-24"
   }, React.createElement("div", {
     className: "relative z-10"
   }, React.createElement("h3", {
@@ -5030,7 +6691,7 @@ var PhoneRentalApp = () => {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
@@ -5054,7 +6715,7 @@ var PhoneRentalApp = () => {
     className: "mb-3"
   }, React.createElement("h3", {
     className: "font-bold text-gray-800 flex items-center gap-2"
-  }, React.createElement(Icons.Ticket, {
+  }, React.createElement(Icons.MapPin, {
     size: 18,
     className: shakePeriodBox ? "text-red-500" : "text-blue-400"
   }), t('howManyDays')), React.createElement("p", {
@@ -5221,7 +6882,7 @@ var PhoneRentalApp = () => {
     className: `absolute -top-2.5 text-white text-[10px] font-extrabold px-3 py-0.5 rounded-full shadow-sm transition-all ${paymentError ? 'bg-red-500' : 'bg-gradient-to-r from-pink-500 to-rose-400'}`
   }, "EVENT"), React.createElement("div", {
     className: `w-8 h-8 rounded-full flex items-center justify-center mb-1 transition-colors ${paymentError ? 'bg-white text-red-500 shadow-sm' : paymentMethod === 'transfer' ? 'bg-white text-blue-500 shadow-sm' : 'bg-gray-100'}`
-  }, React.createElement(Icons.Banknote, {
+  }, React.createElement(Icons.Coins, {
     size: 18
   })), React.createElement("span", {
     className: "text-xs font-bold"
@@ -5450,7 +7111,7 @@ var PhoneRentalApp = () => {
     className: "flex justify-between items-start"
   }, React.createElement("span", {
     className: `font-bold ${deliveryErr === 'quick' ? 'text-red-600' : isQuickPickupBlocked ? 'text-gray-500' : 'text-gray-800'}`
-  }, "퀵 서비스"), React.createElement(Icons.Zap, {
+  }, "퀵 서비스"), React.createElement(Icons.Rocket, {
     size: 20,
     className: deliveryErr === 'quick' ? 'text-red-500' : isQuickPickupBlocked ? 'text-gray-400' : 'text-blue-400'
   })), React.createElement("p", {
@@ -5465,9 +7126,6 @@ var PhoneRentalApp = () => {
         triggerDeliveryErr('venue', "🚨 해당 일자 공연장수령 마감");
         return;
       }
-      if (isRestrictedVenueDate && deliveryMethod !== 'venue') {
-        showAppToast("6월 20, 21일은 특정 공연장에서만 수령 가능해요! 🏟️");
-      }
       selectDeliveryMethod('venue');
     },
     className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'venue' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'venue' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${isVenuePickupBlocked && deliveryErr !== 'venue' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`
@@ -5475,7 +7133,7 @@ var PhoneRentalApp = () => {
     className: "flex justify-between items-start"
   }, React.createElement("span", {
     className: `font-bold ${deliveryErr === 'venue' ? 'text-red-600' : isVenuePickupBlocked ? 'text-gray-500' : 'text-gray-800'}`
-  }, "공연장 수령"), React.createElement(Icons.Ticket, {
+  }, "공연장 수령"), React.createElement(Icons.MapPin, {
     size: 20,
     className: deliveryErr === 'venue' ? 'text-red-500' : isVenuePickupBlocked ? 'text-gray-400' : 'text-blue-400'
   })), React.createElement("p", {
@@ -5497,7 +7155,7 @@ var PhoneRentalApp = () => {
     className: "flex justify-between items-start"
   }, React.createElement("span", {
     className: `font-bold ${deliveryErr === 'office' ? 'text-red-600' : isOfficePickupBlocked ? 'text-gray-500' : 'text-gray-800'}`
-  }, "사무실 수령"), React.createElement(Icons.MapPin, {
+  }, "사무실 수령"), React.createElement(Icons.Building2, {
     size: 20,
     className: deliveryErr === 'office' ? 'text-red-500' : isOfficePickupBlocked ? 'text-gray-400' : 'text-blue-400'
   })), React.createElement("p", {
@@ -5572,7 +7230,7 @@ var PhoneRentalApp = () => {
       className: "flex justify-between items-start"
     }, React.createElement("span", {
       className: "font-bold text-gray-800"
-    }, "사무실 반납"), React.createElement(Icons.MapPin, {
+    }, "사무실 반납"), React.createElement(Icons.Building2, {
       size: 20,
       className: "text-rose-500"
     })), React.createElement("p", {
@@ -5610,7 +7268,7 @@ var PhoneRentalApp = () => {
       className: "flex justify-between items-start"
     }, React.createElement("span", {
       className: `font-bold ${returnErr === 'venue' ? 'text-red-600' : !isOnsiteAvailable ? 'text-gray-400' : 'text-gray-800'}`
-    }, "공연장 반납"), React.createElement(Icons.Ticket, {
+    }, "공연장 반납"), React.createElement(Icons.MapPin, {
       size: 20,
       className: returnErr === 'venue' ? 'text-red-500' : !isOnsiteAvailable ? 'text-gray-400' : "text-rose-500"
     })), React.createElement("p", {
@@ -5781,7 +7439,7 @@ var PhoneRentalApp = () => {
     className: "text-xs font-bold text-gray-500 ml-1"
   }, "일정명"), React.createElement("div", {
     className: "flex items-center bg-gray-50 rounded-xl px-3 mt-1"
-  }, React.createElement(Icons.Ticket, {
+  }, React.createElement(Icons.MapPin, {
     size: 18,
     className: "text-gray-400"
   }), React.createElement("input", {
@@ -5815,40 +7473,7 @@ var PhoneRentalApp = () => {
     className: "text-xs font-bold text-gray-500 ml-1 mb-2 block"
   }, "공연장 위치 및 시간 안내"), React.createElement("div", {
     className: "bg-gray-50 p-4 rounded-xl border border-gray-100"
-  }, isRestrictedVenueDate ? React.createElement("div", {
-    className: "mb-3"
-  }, React.createElement("p", {
-    className: "text-[11px] text-red-500 font-bold mb-2 bg-red-50 p-2 rounded-lg border border-red-100"
-  }, "🚨 6월 20, 21일은 아래 공연장에서만 수령이 가능합니다."), React.createElement("div", {
-    className: "grid grid-cols-2 gap-2"
-  }, (() => {
-    var allowedVenues = [venueList.Seoul.find(v => v.name === '고려대 화정체육관'), venueList.Incheon.find(v => v.name === '인천 아시아드 주경기장' || v.name === '아시아드 주경기장'), venueList.Seoul.find(v => v.name === '잠실 실내체육관')].filter(Boolean);
-    return allowedVenues.map(v => React.createElement("div", {
-      key: v.name,
-      onClick: () => {
-        if (v.info) {
-          setSelectedVenue(v);
-          setShowVenueInfoModal(true);
-        }
-        setUserInfo({
-          ...userInfo,
-          address: v.name,
-          detailAddress: '공연장 수령'
-        });
-      },
-      className: `relative p-3 rounded-xl transition-all flex flex-col justify-center text-center cursor-pointer border-2 group ${userInfo.address === v.name ? 'bg-blue-50 border-blue-400' : 'bg-white border-transparent hover:border-blue-200 shadow-sm'}`
-    }, userInfo.address === v.name && React.createElement("div", {
-      className: "absolute top-1.5 right-1.5 text-blue-500"
-    }, React.createElement(Icons.CheckCircle, {
-      size: 14
-    })), React.createElement("span", {
-      className: `text-[13px] font-bold ${userInfo.address === v.name ? 'text-blue-600' : 'text-gray-700 group-hover:text-blue-600'} mb-1 truncate`
-    }, v.name), React.createElement("span", {
-      className: `text-[10px] flex items-center justify-center gap-1 z-10 relative transition-colors ${userInfo.address === v.name ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-500'}`
-    }, React.createElement(Icons.MapPin, {
-      size: 10
-    }), " 자세히 보기")));
-  })())) : React.createElement(React.Fragment, null, React.createElement("div", {
+  }, React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex bg-gray-200/50 p-1 rounded-lg mb-3"
   }, ['Seoul', 'Incheon', 'Gyeonggi'].map(region => React.createElement("button", {
     key: region,
@@ -5892,15 +7517,14 @@ var PhoneRentalApp = () => {
     }, entry.hours)) : null);
   })(), !hasVenueWhitelistNow() && React.createElement("input", {
     type: "text",
-    className: `w-full p-2.5 bg-white border border-gray-200 rounded-lg outline-none text-sm transition-colors ${isRestrictedVenueDate ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-gray-800 focus:border-blue-300 placeholder-gray-300'}`,
-    placeholder: isRestrictedVenueDate ? "해당 일자는 직접 입력이 불가능해요!" : "원하시는 공연장이 없으면 직접 입력해주세요!",
+    className: "w-full p-2.5 bg-white border border-gray-200 rounded-lg outline-none text-sm transition-colors text-gray-800 focus:border-blue-300 placeholder-gray-300",
+    placeholder: "원하시는 공연장이 없으면 직접 입력해주세요!",
     value: userInfo.address,
     onChange: e => setUserInfo({
       ...userInfo,
       address: e.target.value,
       detailAddress: '공연장 수령'
-    }),
-    readOnly: isRestrictedVenueDate
+    })
   })), React.createElement("p", {
     className: "text-[11px] text-gray-400 mt-2 ml-1 leading-snug"
   }, "✅ 공연장 수령인원이 ", React.createElement("strong", null, "5명이하인 경우"), " 수령방법이 변경될 수 있어요."), React.createElement("p", {
@@ -6108,11 +7732,11 @@ var PhoneRentalApp = () => {
     className: "flex items-center gap-1"
   }, deliveryMethod === 'post' && React.createElement(Icons.Truck, {
     size: 11
-  }), deliveryMethod === 'quick' && React.createElement(Icons.Zap, {
+  }), deliveryMethod === 'quick' && React.createElement(Icons.Rocket, {
     size: 11
-  }), deliveryMethod === 'venue' && React.createElement(Icons.Ticket, {
+  }), deliveryMethod === 'venue' && React.createElement(Icons.MapPin, {
     size: 11
-  }), deliveryMethod === 'office' && React.createElement(Icons.MapPin, {
+  }), deliveryMethod === 'office' && React.createElement(Icons.Building2, {
     size: 11
   }), deliveryMethod === 'post' ? '택배' : deliveryMethod === 'quick' ? '퀵' : deliveryMethod === 'venue' ? '공연장' : deliveryMethod === 'office' ? '사무실' : '미선택'), React.createElement("span", {
     className: "opacity-40"
@@ -6123,11 +7747,11 @@ var PhoneRentalApp = () => {
     className: "transform scale-x-[-1]"
   }), returnMethod === 'post' && React.createElement(Icons.Box, {
     size: 11
-  }), returnMethod === 'office' && React.createElement(Icons.MapPin, {
+  }), returnMethod === 'office' && React.createElement(Icons.Building2, {
     size: 11
   }), returnMethod === 'sameday' && React.createElement(Icons.Zap, {
     size: 11
-  }), returnMethod === 'venue' && React.createElement(Icons.Ticket, {
+  }), returnMethod === 'venue' && React.createElement(Icons.MapPin, {
     size: 11
   }), returnMethod === 'pickup' ? '방문' : returnMethod === 'post' ? '택배' : returnMethod === 'office' ? '사무실' : returnMethod === 'sameday' ? '당일' : returnMethod === 'venue' ? '공연장' : '미선택'))), React.createElement("div", {
     className: "flex flex-col items-end justify-center gap-1 pl-2 border-l border-sky-300/30"
@@ -6250,7 +7874,7 @@ var PhoneRentalApp = () => {
     className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all"
   }, React.createElement("div", {
     className: "w-14 h-14 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4"
-  }, React.createElement(Icons.MessageHeart, {
+  }, React.createElement(Icons.MessageLines, {
     size: 28
   })), React.createElement("h3", {
     className: "text-lg font-bold text-gray-800 mb-2"
@@ -6298,11 +7922,11 @@ var PhoneRentalApp = () => {
     className: "w-14 h-14 bg-sky-100 text-sky-500 rounded-full flex items-center justify-center mx-auto mb-4"
   }, deliveryConfirmPopup === 'post' && React.createElement(Icons.Truck, {
     size: 28
-  }), deliveryConfirmPopup === 'quick' && React.createElement(Icons.Zap, {
+  }), deliveryConfirmPopup === 'quick' && React.createElement(Icons.Rocket, {
     size: 28
-  }), deliveryConfirmPopup === 'venue' && React.createElement(Icons.Ticket, {
+  }), deliveryConfirmPopup === 'venue' && React.createElement(Icons.MapPin, {
     size: 28
-  }), deliveryConfirmPopup === 'office' && React.createElement(Icons.MapPin, {
+  }), deliveryConfirmPopup === 'office' && React.createElement(Icons.Building2, {
     size: 28
   })), React.createElement("h3", {
     className: "text-lg font-bold text-gray-800 mb-3 text-center"
@@ -6377,11 +8001,11 @@ var PhoneRentalApp = () => {
     className: "w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4"
   }, returnConfirmPopup === 'post' && React.createElement(Icons.Box, {
     size: 28
-  }), returnConfirmPopup === 'office' && React.createElement(Icons.MapPin, {
+  }), returnConfirmPopup === 'office' && React.createElement(Icons.Building2, {
     size: 28
   }), returnConfirmPopup === 'sameday' && React.createElement(Icons.Zap, {
     size: 28
-  }), returnConfirmPopup === 'venue' && React.createElement(Icons.Ticket, {
+  }), returnConfirmPopup === 'venue' && React.createElement(Icons.MapPin, {
     size: 28
   })), React.createElement("h3", {
     className: "text-lg font-bold text-gray-800 mb-3 text-center"
@@ -7202,30 +8826,374 @@ var PhoneRentalApp = () => {
   }, "취소"), React.createElement("button", {
     onClick: handleLogoutConfirm,
     className: "flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm"
-  }, "로그아웃")))), isBlogConfirmOpen && React.createElement("div", {
-    className: "fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
+  }, "로그아웃")))), isBlogConfirmOpen && (() => {
+    // [NEW] 이동 대상에 따라 문구/아이콘 자동 전환 (네이버 블로그 / 카카오맵 / X)
+    var url = blogTargetUrl || '';
+    var dest = {
+      emoji: '📗',
+      name: '세린캠 네이버 블로그',
+      bg: 'bg-green-100 text-green-600',
+      btn: 'bg-green-500 hover:bg-green-600'
+    };
+    if (url.includes('kko.to') || url.includes('kakao')) {
+      dest = {
+        emoji: '📍',
+        name: '세린캠 카카오맵',
+        bg: 'bg-yellow-50 text-yellow-600',
+        btn: 'bg-yellow-400 hover:bg-yellow-500'
+      };
+    } else if (url.includes('twitter.com') || url.includes('x.com')) {
+      dest = {
+        emoji: '𝕏',
+        name: '세린캠 X(트위터)',
+        bg: 'bg-gray-100 text-gray-700',
+        btn: 'bg-gray-800 hover:bg-gray-700'
+      };
+    }
+    return React.createElement("div", {
+      className: "fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
+    }, React.createElement("div", {
+      className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all"
+    }, React.createElement("div", {
+      className: `w-14 h-14 ${dest.bg} rounded-full flex items-center justify-center mx-auto mb-4`
+    }, React.createElement("span", {
+      className: "text-2xl"
+    }, dest.emoji)), React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800 mb-2"
+    }, "이동하시겠어요?"), React.createElement("p", {
+      className: "text-sm text-gray-500 mb-6 leading-relaxed"
+    }, React.createElement("strong", null, dest.name), "로", React.createElement("br", null), "이동합니다."), React.createElement("div", {
+      className: "flex gap-2"
+    }, React.createElement("button", {
+      onClick: () => setIsBlogConfirmOpen(false),
+      className: "flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm"
+    }, "취소"), React.createElement("button", {
+      onClick: () => {
+        setIsBlogConfirmOpen(false);
+        window.open(blogTargetUrl || 'https://blog.naver.com/serin_day', '_blank');
+      },
+      className: `flex-1 py-3 rounded-xl ${dest.btn} text-white font-bold transition-colors text-sm`
+    }, "이동하기"))));
+  })(), isCancelModalOpen && cancelTargetItem && (() => {
+    var refundInfo = calcRefund(cancelTargetItem);
+    var isRefundable = refundInfo.refund > 0;
+    return React.createElement("div", {
+      className: "fixed inset-0 z-[120] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
+      onClick: () => {
+        setIsCancelModalOpen(false);
+        setCancelTargetItem(null);
+      }
+    }, React.createElement("div", {
+      className: "bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto animate-bounce-in",
+      onClick: e => e.stopPropagation()
+    }, React.createElement("div", {
+      className: "p-6 pb-4 text-center"
+    }, React.createElement("div", {
+      className: "w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3"
+    }, React.createElement(Icons.Trash2, {
+      size: 28
+    })), React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800"
+    }, "예약 취소 / 환불 신청"), React.createElement("p", {
+      className: "text-xs text-gray-400 mt-1"
+    }, cancelTargetItem.model)),
+    // 제5조 규정 표
+    React.createElement("div", {
+      className: "px-6"
+    }, React.createElement("p", {
+      className: "text-xs font-bold text-gray-600 mb-2"
+    }, "취소/환불 규정 (이용약관 제5조)"), React.createElement("table", {
+      className: "w-full text-center text-[11px] border border-gray-200 rounded-lg overflow-hidden"
+    }, React.createElement("thead", {
+      className: "bg-gray-100 font-bold text-gray-700"
+    }, React.createElement("tr", null, React.createElement("th", {
+      className: "p-2 border-r border-gray-200"
+    }, "신청 시점"), React.createElement("th", {
+      className: "p-2"
+    }, "환불금액"))), React.createElement("tbody", null, React.createElement("tr", {
+      className: `border-t border-gray-200 ${refundInfo.rule === 'full' ? 'bg-blue-50' : ''}`
+    }, React.createElement("td", {
+      className: "p-2 border-r border-gray-200"
+    }, "결제 24시간 이내"), React.createElement("td", {
+      className: "p-2 font-bold text-blue-500"
+    }, "100% 환불")), React.createElement("tr", {
+      className: `border-t border-gray-200 ${refundInfo.rule === 'penalty' ? 'bg-blue-50' : ''}`
+    }, React.createElement("td", {
+      className: "p-2 border-r border-gray-200"
+    }, "결제 24시간 이후"), React.createElement("td", {
+      className: "p-2 font-bold"
+    }, "위약금 1만원 차감")), React.createElement("tr", {
+      className: `border-t border-gray-200 ${refundInfo.rule === 'd2' || refundInfo.rule === 'shipped' ? 'bg-red-50 text-red-600' : 'text-gray-600'}`
+    }, React.createElement("td", {
+      className: "p-2 border-r border-gray-200 font-bold"
+    }, "대여일 2일 전 ~"), React.createElement("td", {
+      className: "p-2 font-bold"
+    }, "환불 불가 (0%)")))), React.createElement("p", {
+      className: "text-[10px] text-gray-400 mt-1"
+    }, "* 제품 발송(송장번호 등록) 후에는 시점 무관 환불 불가")),
+    // 자동 계산 결과
+    React.createElement("div", {
+      className: "px-6 mt-4"
+    }, React.createElement("div", {
+      className: `rounded-2xl p-4 border ${isRefundable ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-100'}`
+    }, React.createElement("div", {
+      className: "flex justify-between items-center mb-1"
+    }, React.createElement("span", {
+      className: "text-xs font-bold text-gray-500"
+    }, "결제 금액"), React.createElement("span", {
+      className: "text-sm font-bold text-gray-700"
+    }, (Number(cancelTargetItem.totalPrice) || 0).toLocaleString(), "원")), refundInfo.penalty ? React.createElement("div", {
+      className: "flex justify-between items-center mb-1"
+    }, React.createElement("span", {
+      className: "text-xs font-bold text-gray-500"
+    }, "위약금"), React.createElement("span", {
+      className: "text-sm font-bold text-red-500"
+    }, "- ", refundInfo.penalty.toLocaleString(), "원")) : null, React.createElement("div", {
+      className: "flex justify-between items-center pt-2 mt-1 border-t border-dashed " + (isRefundable ? 'border-blue-200' : 'border-red-200')
+    }, React.createElement("span", {
+      className: "text-sm font-bold text-gray-700"
+    }, "실제 환불 금액"), React.createElement("span", {
+      className: `text-lg font-bold ${isRefundable ? 'text-blue-600' : 'text-red-500'}`
+    }, refundInfo.refund.toLocaleString(), "원"))), React.createElement("p", {
+      className: `text-[11px] leading-relaxed break-keep mt-2 ${isRefundable ? 'text-gray-500' : 'text-red-500 font-bold'}`
+    }, isRefundable ? '위 금액이 환불될 예정이에요. (' + refundInfo.label + ')' : '현재는 ' + refundInfo.label + '에 해당해 환불되는 금액은 없어요. 취소 신청은 가능하지만 환불금은 발생하지 않아요.')),
+    // 버튼
+    React.createElement("div", {
+      className: "flex gap-2 p-6 pt-4"
+    }, React.createElement("button", {
+      onClick: () => {
+        setIsCancelModalOpen(false);
+        setCancelTargetItem(null);
+      },
+      className: "w-20 shrink-0 py-3.5 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm"
+    }, "닫기"), React.createElement("button", {
+      disabled: isSubmitting,
+      onClick: () => handleCancelRequest(),
+      className: "flex-1 py-3.5 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600 transition-colors text-sm shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap"
+    }, isSubmitting ? '처리 중...' : React.createElement(React.Fragment, null, React.createElement(Icons.Check, {
+      size: 16
+    }), " 취소 신청하기")))));
+  })(), isChangeConfirmOpen && changeTargetItem && (() => {
+    var calc = calcChangeTotal(changeForm);
+    if (!calc) return null;
+    var oldPrice = Number(changeTargetItem.totalPrice) || 0;
+    var diff = calc.total - oldPrice;
+    return React.createElement("div", {
+      className: "fixed inset-0 z-[120] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
+      onClick: () => setIsChangeConfirmOpen(false)
+    }, React.createElement("div", {
+      className: "bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto animate-bounce-in",
+      onClick: e => e.stopPropagation()
+    }, React.createElement("div", {
+      className: "p-6 pb-4 text-center"
+    }, React.createElement("div", {
+      className: "w-14 h-14 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-3"
+    }, React.createElement(Icons.CalendarPlus, {
+      size: 28
+    })), React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800"
+    }, "기종 변경 신청 전 확인해주세요")), React.createElement("div", {
+      className: "px-6"
+    }, React.createElement("div", {
+      className: "bg-gray-50 rounded-2xl p-4 space-y-2 border border-gray-100"
+    }, React.createElement("div", {
+      className: "flex justify-between text-sm"
+    }, React.createElement("span", {
+      className: "text-gray-400"
+    }, "기종"), React.createElement("span", {
+      className: "font-bold text-gray-700 text-right break-keep",
+      style: {
+        maxWidth: '65%'
+      }
+    }, calc.phone.name)), React.createElement("div", {
+      className: "flex justify-between text-sm"
+    }, React.createElement("span", {
+      className: "text-gray-400"
+    }, "현재 기종"), React.createElement("span", {
+      className: "font-bold text-gray-500 text-right break-keep line-through",
+      style: {
+        maxWidth: '65%'
+      }
+    }, changeTargetItem.model)), React.createElement("div", {
+      className: "flex justify-between text-sm"
+    }, React.createElement("span", {
+      className: "text-gray-400"
+    }, "대여 기간"), React.createElement("span", {
+      className: "font-bold text-gray-700 text-right break-keep",
+      style: {
+        maxWidth: '65%'
+      }
+    }, formatDisplayDate(changeTargetItem.startDate), " ~ ", formatDisplayDate(changeTargetItem.endDate))), React.createElement("div", {
+      className: "flex justify-between items-center pt-2 border-t border-gray-200 border-dashed"
+    }, React.createElement("span", {
+      className: "font-bold text-gray-600 text-sm"
+    }, "변경 후 금액"), React.createElement("span", {
+      className: "text-lg font-bold text-blue-500"
+    }, calc.total.toLocaleString(), "원")),
+    // [NEW] 추가 결제 / 돌려받을 금액 강조 행
+    React.createElement("div", {
+      className: `flex justify-between items-center rounded-xl px-3 py-2.5 mt-2 ${diff > 0 ? 'bg-red-50 border border-red-100' : diff < 0 ? 'bg-blue-50 border border-blue-100' : 'bg-white border border-gray-200'}`
+    }, React.createElement("span", {
+      className: `text-sm font-bold ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-blue-600' : 'text-gray-400'}`
+    }, diff > 0 ? '추가 결제 금액' : diff < 0 ? '돌려받을 금액' : '차액'), React.createElement("span", {
+      className: `text-sm font-bold ${diff > 0 ? 'text-red-500' : diff < 0 ? 'text-blue-600' : 'text-gray-400'}`
+    }, diff > 0 ? '+' : diff < 0 ? '-' : '', Math.abs(diff).toLocaleString(), "원")))), React.createElement("div", {
+      className: "px-6 mt-3"
+    }, React.createElement("div", {
+      className: `border rounded-2xl p-4 ${diff > 0 ? 'bg-red-50 border-red-100' : 'bg-blue-50 border-blue-100'}`
+    }, React.createElement("p", {
+      className: `text-sm font-bold mb-1.5 flex items-center gap-1.5 ${diff > 0 ? 'text-red-500' : 'text-blue-600'}`
+    }, React.createElement(Icons.Clock, {
+      size: 16
+    }), diff > 0 ? ' 추가 결제가 필요해요' : diff < 0 ? ' 차액이 환불돼요' : ' 금액 변동 없음'), React.createElement("p", {
+      className: `text-[11px] leading-relaxed break-keep ${diff > 0 ? 'text-red-400' : 'text-blue-500'}`
+    }, diff > 0 ? '추가 금액 ' + diff.toLocaleString() + '원을 신청 후 30분 이내에 입금해주세요. 미입금 시 변경이 반영되지 않을 수 있어요.' : diff < 0 ? '차액 ' + Math.abs(diff).toLocaleString() + '원은 담당자 확인 후 환불해드려요.' : '결제하실 금액이 달라지지 않아요.'))), diff > 0 && React.createElement("div", {
+      className: "px-6 mt-3"
+    }, React.createElement("div", {
+      className: "flex justify-between items-center bg-blue-50 p-3.5 rounded-2xl border border-blue-100"
+    }, React.createElement("div", null, React.createElement("p", {
+      className: "text-[10px] text-blue-400 mb-0.5 font-medium"
+    }, "예금주: 한승윤"), React.createElement("p", {
+      className: "text-sm font-bold text-blue-600 tracking-tight"
+    }, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
+      onClick: () => copyToClipboard("3333209712773"),
+      className: "text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
+    }, "복사"))), React.createElement("div", {
+      className: "flex gap-2 p-6 pt-4"
+    }, React.createElement("button", {
+      onClick: () => setIsChangeConfirmOpen(false),
+      className: "w-20 shrink-0 py-3.5 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm"
+    }, "취소"), React.createElement("button", {
+      disabled: isSubmitting,
+      onClick: () => handleChangeSubmit(),
+      className: "flex-1 py-3.5 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+    }, isSubmitting ? '처리 중...' : React.createElement(React.Fragment, null, React.createElement(Icons.Check, {
+      size: 16
+    }), " 확인하고 신청")))));
+  })(), serviceConfirm && React.createElement("div", {
+    className: "fixed inset-0 z-[120] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
+    onClick: () => setServiceConfirm(null)
   }, React.createElement("div", {
-    className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all"
+    className: "bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto animate-bounce-in",
+    onClick: e => e.stopPropagation()
   }, React.createElement("div", {
-    className: "w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4"
+    className: "p-6 pb-4 text-center"
+  }, React.createElement("div", {
+    className: "w-14 h-14 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-3"
+  }, serviceConfirm.type === 'ext' ? React.createElement(Icons.Clock, {
+    size: 28
+  }) : React.createElement(Icons.Image, {
+    size: 26
+  })), React.createElement("h3", {
+    className: "text-lg font-bold text-gray-800"
+  }, serviceConfirm.type === 'ext' ? "연장 신청 전 확인해주세요" : "백업 대행 신청 전 확인해주세요")),
+  // 변경 요약
+  React.createElement("div", {
+    className: "px-6"
+  }, React.createElement("div", {
+    className: "bg-gray-50 rounded-2xl p-4 space-y-2 border border-gray-100"
+  }, serviceConfirm.resModel && React.createElement("div", {
+    className: "flex justify-between text-sm"
   }, React.createElement("span", {
-    className: "text-2xl"
-  }, "📗")), React.createElement("h3", {
-    className: "text-lg font-bold text-gray-800 mb-2"
-  }, "블로그로 이동하시겠어요?"), React.createElement("p", {
-    className: "text-sm text-gray-500 mb-6 leading-relaxed"
-  }, "자세한 안내를 확인하기 위해", React.createElement("br", null), React.createElement("strong", null, "세린캠 네이버 블로그"), "로 이동합니다."), React.createElement("div", {
-    className: "flex gap-2"
+    className: "text-gray-400"
+  }, "대상 예약"), React.createElement("span", {
+    className: "font-bold text-gray-700 text-right break-keep",
+    style: {
+      maxWidth: '65%'
+    }
+  }, serviceConfirm.resModel)), serviceConfirm.type === 'ext' ? React.createElement(React.Fragment, null, React.createElement("div", {
+    className: "flex justify-between text-sm"
+  }, React.createElement("span", {
+    className: "text-gray-400"
+  }, "연장 기간"), React.createElement("span", {
+    className: "font-bold text-gray-700"
+  }, serviceConfirm.days, "일")), serviceConfirm.origEnd && React.createElement("div", {
+    className: "flex justify-between items-center text-sm pt-2 border-t border-gray-200 border-dashed"
+  }, React.createElement("span", {
+    className: "text-gray-400"
+  }, "반납일"), React.createElement("span", {
+    className: "font-bold text-right"
+  }, React.createElement("span", {
+    className: "text-gray-400 line-through mr-1"
+  }, formatDisplayDate(serviceConfirm.origEnd)), React.createElement("span", {
+    className: "text-blue-600"
+  }, "→ ", formatDisplayDate(serviceConfirm.newEnd))))) : React.createElement("div", {
+    className: "flex justify-between text-sm"
+  }, React.createElement("span", {
+    className: "text-gray-400"
+  }, "변경 내용"), React.createElement("span", {
+    className: "font-bold text-gray-700 text-right break-keep",
+    style: {
+      maxWidth: '65%'
+    }
+  }, "반납 시 백업 대행 진행")), React.createElement("div", {
+    className: "flex justify-between items-center pt-2 border-t border-gray-200 border-dashed"
+  }, React.createElement("span", {
+    className: "font-bold text-gray-600 text-sm"
+  }, "결제 금액"), React.createElement("span", {
+    className: "text-lg font-bold text-blue-500"
+  }, Number(serviceConfirm.amount).toLocaleString(), "원")))),
+  // 30분 결제 안내
+  React.createElement("div", {
+    className: "px-6 mt-3"
+  }, React.createElement("div", {
+    className: "bg-red-50 border border-red-100 rounded-2xl p-4"
+  }, React.createElement("p", {
+    className: "text-sm font-bold text-red-500 mb-1.5 flex items-center gap-1.5"
+  }, React.createElement(Icons.Clock, {
+    size: 16
+  }), " 결제는 30분 이내 완료해주세요"), React.createElement("p", {
+    className: "text-[11px] text-red-400 leading-relaxed break-keep"
+  }, "신청 후 ", React.createElement("strong", null, "30분 이내"), "에 아래 계좌로 입금해주셔야 해요. 시간 내 미입금 시 ", serviceConfirm.type === 'ext' ? "연장이 반영되지 않고 " : "백업 대행이 접수되지 않고 ", "신청이 자동 취소될 수 있어요."))),
+  // [NEW] 백업 신청 시 핵심 주의사항 요약
+  serviceConfirm.type === 'backup' && React.createElement("div", {
+    className: "px-6 mt-3"
+  }, React.createElement("div", {
+    className: "bg-blue-50 border border-blue-100 rounded-2xl p-4"
+  }, React.createElement("p", {
+    className: "text-sm font-bold text-blue-800 mb-2 flex items-center gap-2"
+  }, React.createElement(Icons.Cloud, {
+    size: 16
+  }), " 반납 전 꼭 확인해주세요"), React.createElement("p", {
+    className: "text-xs text-blue-700 leading-relaxed break-keep mb-1.5"
+  }, "· 대여폰에 ", React.createElement("strong", null, "네이버 마이박스 로그인"), " + ", React.createElement("strong", null, "용량 확보")), React.createElement("p", {
+    className: "text-xs text-blue-700 leading-relaxed break-keep mb-1.5"
+  }, "· 백업 완료 4시간 뒤 대여폰 자동 초기화 (마이박스 데이터는 유지)"), React.createElement("p", {
+    className: "text-xs text-red-500 leading-relaxed break-keep font-bold"
+  }, "· 용량 미확보로 5시간 이상 백업 지연 시 연장 비용 추가 청구"))),
+  // 계좌 안내
+  React.createElement("div", {
+    className: "px-6 mt-3"
+  }, React.createElement("div", {
+    className: "flex justify-between items-center bg-blue-50 p-3.5 rounded-2xl border border-blue-100"
+  }, React.createElement("div", null, React.createElement("p", {
+    className: "text-[10px] text-blue-400 mb-0.5 font-medium"
+  }, "예금주: 한승윤"), React.createElement("p", {
+    className: "text-sm font-bold text-blue-600 tracking-tight"
+  }, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
+    onClick: () => copyToClipboard("3333209712773"),
+    className: "text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
+  }, "복사"))),
+  // 버튼
+  React.createElement("div", {
+    className: "flex gap-2 p-6 pt-4"
   }, React.createElement("button", {
-    onClick: () => setIsBlogConfirmOpen(false),
-    className: "flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm"
+    onClick: () => setServiceConfirm(null),
+    className: "w-20 shrink-0 py-3.5 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors text-sm"
   }, "취소"), React.createElement("button", {
     onClick: () => {
-      setIsBlogConfirmOpen(false);
-      window.open(blogTargetUrl || 'https://blog.naver.com/serin_day', '_blank');
+      var payload = serviceConfirm;
+      setServiceConfirm(null);
+      if (payload.type === 'ext') {
+        handleExtensionSubmit(payload.amount);
+      } else {
+        handleBackupSubmit();
+      }
     },
-    className: "flex-1 py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 transition-colors text-sm"
-  }, "이동하기")))), isSubmitting && React.createElement("div", {
+    className: "flex-1 py-3.5 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+  }, React.createElement(Icons.Check, {
+    size: 16
+  }), " 확인하고 신청")))), isSubmitting && React.createElement("div", {
     className: "fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
   }, React.createElement("div", {
     className: "bg-white rounded-3xl p-6 w-full max-w-[280px] shadow-2xl text-center flex flex-col items-center"
