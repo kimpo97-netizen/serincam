@@ -83,6 +83,10 @@
             75% { transform: translateX(-5px); }
         }
         .animate-shake { animation: shake 0.3s ease-in-out; }
+
+        /* [NEW] 공연 날짜 강조 - 글씨 커졌다 작아졌다 펄스 애니메이션 */
+        @keyframes concertDayPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+        .animate-concert-pulse { display: inline-block; animation: concertDayPulse 1.2s ease-in-out infinite; }
         
         /* [NEW] 달력 슬라이드 애니메이션 */
         @keyframes calendarSlideNext { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
@@ -1263,6 +1267,7 @@ var PhoneRentalApp = () => {
   var CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/f5e0c0aeb40c188053fcb94b24f732c4.png";
   var [selectedPhone, setSelectedPhone] = useState(null);
   var [startDate, setStartDate] = useState(null);
+  var [concertDateHint, setConcertDateHint] = useState(null); // [NEW] {start, end} 공연 예약 버튼으로 진입 시 캘린더에 날짜 포인트 표시
   var [endDate, setEndDate] = useState(null);
   var [usageDays, setUsageDays] = useState(null);
   var [dateWarning, setDateWarning] = useState(null);
@@ -1320,6 +1325,8 @@ var PhoneRentalApp = () => {
   var [showChatbotConfirmModal, setShowChatbotConfirmModal] = useState(false);
   var [showVenueInfoModal, setShowVenueInfoModal] = useState(false);
   var [selectedVenue, setSelectedVenue] = useState(null);
+  var [showConcertModal, setShowConcertModal] = useState(false); // [NEW] 다가오는 공연 상세 모달
+  var [selectedConcert, setSelectedConcert] = useState(null);     // [NEW] 선택된 공연
   var [showDateGuide, setShowDateGuide] = useState(false);
   var [showNotFoundGuide, setShowNotFoundGuide] = useState(false);
   var [alimtalkStatus, setAlimtalkStatus] = useState(null);
@@ -1397,6 +1404,33 @@ var PhoneRentalApp = () => {
   var [chgTab, setChgTab] = useState('galaxy');
   // [NEW] 상단 네비 메뉴바: 열려있는 드롭다운 key (null이면 닫힘)
   var [openNavMenu, setOpenNavMenu] = useState(null);
+  var [navSearchQuery, setNavSearchQuery] = useState(''); // [NEW] 홈 상단 통합 검색
+  var [showSearchPage, setShowSearchPage] = useState(false); // [NEW] 전체화면 검색 페이지
+  var [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      var raw = localStorage.getItem('serincam_recent_searches');
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }); // [NEW] 최근 검색어 (기기 저장)
+  var addRecentSearch = term => {
+    var v = (term || '').trim();
+    if (!v) return;
+    setRecentSearches(prev => {
+      var next = [v, ...prev.filter(x => x !== v)].slice(0, 8);
+      try {
+        localStorage.setItem('serincam_recent_searches', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  };
+  var clearRecentSearches = () => {
+    setRecentSearches([]);
+    try {
+      localStorage.removeItem('serincam_recent_searches');
+    } catch (e) {}
+  };
   // [NEW] 헤더 예약조회 드롭다운 열림 상태
   var [isLookupMenuOpen, setIsLookupMenuOpen] = useState(false);
   // [NEW] 상단 네비 메뉴바 구성 (전문 홈페이지형 드롭다운)
@@ -1542,6 +1576,67 @@ var PhoneRentalApp = () => {
     }]
   }];
 
+  // [NEW] 우측 상단 예약조회 드롭다운 항목 (검색바에서도 동일 항목 재사용)
+  var LOOKUP_QUICK_ACTIONS = [{
+    label: '내 예약 보기',
+    desc: '예약 상태 확인',
+    icon: Icons.Search,
+    onClick: () => handleNavChange('mypage')
+  }, {
+    label: '예약 취소',
+    desc: '취소 및 환불 신청',
+    icon: Icons.Trash2,
+    onClick: () => {
+      var target = eligibleReservations[0];
+      if (!target) {
+        handleNavChange('mypage');
+        showAppToast('예약을 먼저 조회해주세요.');
+        return;
+      }
+      setCancelTargetItem(target);
+      setIsCancelModalOpen(true);
+    }
+  }, {
+    label: '대여모델 변경',
+    desc: '다른 기종으로 변경 신청',
+    icon: Icons.Smartphone,
+    onClick: () => {
+      var target = eligibleReservations[0];
+      if (!target) {
+        handleNavChange('mypage');
+        showAppToast('예약을 먼저 조회해주세요.');
+        return;
+      }
+      if ((target.trackingNumber || '').toString().trim()) {
+        showAppToast('이미 발송되어 변경이 어려워요. 카카오톡으로 문의해주세요.');
+        return;
+      }
+      var p = findPhoneByModel(target.model);
+      setChangeTargetItem(target);
+      setChangeForm({
+        modelId: p ? p.id : ''
+      });
+      setChgTab(p && String(p.id).startsWith('i') ? 'iphone' : 'galaxy');
+      setViewMode('changeApply');
+    }
+  }, {
+    label: '대여연장',
+    desc: '대여 기간 연장 신청',
+    icon: Icons.CalendarPlus,
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('extension');
+    }
+  }, {
+    label: '데이터 백업 신청',
+    desc: '촬영본 백업 대행 신청',
+    icon: Icons.Image,
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('backupApply');
+    }
+  }];
+
   var [isChangeConfirmOpen, setIsChangeConfirmOpen] = useState(false);
   var [openFaqIndex, setOpenFaqIndex] = useState(null);
   var [activeFaqCategory, setActiveFaqCategory] = useState('전체');
@@ -1574,6 +1669,51 @@ var PhoneRentalApp = () => {
     }), 2500);
   };
   var t = key => TRANSLATIONS[lang]?.[key] || TRANSLATIONS['KO'][key] || key;
+
+  // [NEW] 활용 꿀팁 4종 (검색바에서도 동일 항목 재사용, 다국어 t() 그대로 사용)
+  var TIP_QUICK_ACTIONS = [{
+    label: t('tip1'),
+    desc: t('tip1Sub'),
+    icon: Icons.Truck,
+    onClick: () => setBlogModal({
+      open: true,
+      type: 'post'
+    })
+  }, {
+    label: t('tip2'),
+    desc: t('tip2Sub'),
+    icon: Icons.Camera,
+    onClick: () => setBlogModal({
+      open: true,
+      type: 'camera'
+    })
+  }, {
+    label: t('tip3'),
+    desc: t('tip3Sub'),
+    icon: Icons.LogOut,
+    onClick: () => setBlogModal({
+      open: true,
+      type: 'logout'
+    })
+  }, {
+    label: t('tip4'),
+    desc: t('tip4Sub'),
+    icon: Icons.CheckSquare,
+    onClick: () => setViewMode('checklist')
+  }];
+
+  // [NEW] 상단 검색바용 평탄화 인덱스 (모든 메뉴 항목 + 우측상단 예약조회 드롭다운 + 활용 꿀팁을 검색 대상으로)
+  var NAV_SEARCH_INDEX = LOOKUP_QUICK_ACTIONS.map(it => Object.assign({}, it, {
+    cat: '예약조회'
+  })).concat(TIP_QUICK_ACTIONS.map(it => Object.assign({}, it, {
+    cat: '활용 꿀팁'
+  }))).concat(NAV_MENUS.reduce((acc, m) => acc.concat(m.items.map(it => Object.assign({}, it, {
+    cat: m.label
+  }))), []));
+
+  // [NEW] 인기 검색어 (전체화면 검색 페이지용, 큐레이션)
+  var POPULAR_SEARCHES = ['카메라 세팅', '픽업존', '반납 방법', '대여연장', '데이터 백업', '환불', '기종 변경', '체크리스트'];
+
   var [paymentError, setPaymentError] = useState(false);
   var [reviewError, setReviewError] = useState(false);
   var triggerPaymentError = () => {
@@ -1783,6 +1923,88 @@ var PhoneRentalApp = () => {
     });
     return result;
   })();
+  // ===== [NEW] 다가오는 공연 (홈 배너) : admin_settings.upcoming_concerts =====
+  var CONCERT_WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+  // "YYYY-M-D" (앞자리 0 없음) → Date(0시 기준)
+  var parseConcertKey = s => {
+    if (!s) return null;
+    var p = String(s).split('-').map(Number);
+    if (p.length < 3 || !p[0] || !p[1] || !p[2]) return null;
+    var d = new Date(p[0], p[1] - 1, p[2]);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+  // 공연장 이름으로 "주요 공연장 위치"(venueList) 정보 찾기 (없으면 null)
+  var findVenueInfo = name => {
+    if (!name) return null;
+    var target = String(name).trim();
+    var found = null;
+    Object.keys(venueList).forEach(region => {
+      (venueList[region] || []).forEach(v => {
+        if (v && v.name && String(v.name).trim() === target) found = v.info || null;
+      });
+    });
+    return found;
+  };
+  // [NEW] 접속 기기의 시간대와 무관하게 "한국 날짜" 기준 오늘 자정을 구함 (디데이 계산용)
+  var getKSTToday = () => {
+    var now = new Date();
+    var kstInstant = new Date(now.getTime() + 9 * 60 * 60000); // UTC+9로 보정된 시각
+    return new Date(kstInstant.getUTCFullYear(), kstInstant.getUTCMonth(), kstInstant.getUTCDate());
+  };
+  // 종료일(없으면 시작일)이 지난 공연은 자동으로 숨기고, 시작일 오름차순 정렬
+  var getUpcomingConcerts = () => {
+    var raw = remoteSettings && remoteSettings.upcoming_concerts;
+    if (!Array.isArray(raw)) return [];
+    var today = getKSTToday(); // [NEW] 한국 날짜 기준
+    return raw.map(c => {
+      var start = parseConcertKey(c.date);
+      var end = parseConcertKey(c.endDate) || start;
+      var dday = start ? Math.round((start - today) / 86400000) : null;
+      return { ...c, _start: start, _end: end, _dday: dday };
+    }).filter(c => {
+      if (!c._end) return true; // 날짜 파싱 실패 시 일단 노출
+      return c._end.getTime() >= today.getTime();
+    }).sort((a, b) => a._start && b._start ? a._start - b._start : 0);
+  };
+  var upcomingConcerts = getUpcomingConcerts();
+  var hasUpcomingConcerts = upcomingConcerts.length > 0;
+  // 공연 날짜 범위를 "7/17(금) ~ 7/19(일)" 형식으로 포맷
+  var formatConcertRange = c => {
+    if (!c._start) return '';
+    var s = `${c._start.getMonth() + 1}/${c._start.getDate()}(${CONCERT_WEEKDAYS[c._start.getDay()]})`;
+    if (c._end && c._end.getTime() !== c._start.getTime()) {
+      return `${s} ~ ${c._end.getMonth() + 1}/${c._end.getDate()}(${CONCERT_WEEKDAYS[c._end.getDay()]})`;
+    }
+    return s;
+  };
+  // 홈 그리드용 공연 카드 1개 렌더 (날짜 1줄 · 장소 1줄)
+  var renderConcertCard = (c, i) => {
+    var dday = c._dday;
+    var ddayText = dday === null ? '' : dday > 0 ? `D-${dday}` : 'D-DAY';
+    var ddayCls = dday !== null && dday <= 0 ? 'bg-red-500 text-white' : 'bg-blue-500 text-white';
+    return React.createElement("button", {
+      key: i,
+      onClick: () => {
+        setSelectedConcert(c);
+        setShowConcertModal(true);
+      },
+      className: "text-left bg-gradient-to-br from-blue-50 to-pink-50/80 rounded-2xl p-3 border border-blue-100 shadow-sm active:scale-95 transition-all flex flex-col min-h-[72px]"
+    }, React.createElement("div", {
+      className: "flex items-center justify-between mb-1.5"
+    }, ddayText ? React.createElement("span", {
+      className: `text-[10px] font-black px-1.5 py-0.5 rounded-md ${ddayCls}`
+    }, ddayText) : React.createElement("span", null), React.createElement(Icons.ChevronRight, {
+      size: 14,
+      className: "text-blue-300"
+    })), React.createElement("p", {
+      className: "text-[13px] font-extrabold text-gray-800 leading-tight break-keep"
+    }, c.artist), React.createElement("p", {
+      className: "text-[10px] font-bold text-blue-500 mt-1"
+    }, formatConcertRange(c)), c.venue ? React.createElement("p", {
+      className: "text-[10px] font-bold text-gray-500 mt-0.5 break-keep leading-snug"
+    }, "📍 " + c.venue) : null);
+  };
   var fetchReviews = async () => {
     try {
       var {
@@ -2635,7 +2857,7 @@ var PhoneRentalApp = () => {
     },
     백업신청: {
       text: '데이터백업 신청',
-      color: 'text-purple-600 bg-purple-50 border-purple-100'
+      color: 'text-purple-600 bg-purple-50/50 border-purple-100/50'
     },
     취소신청: {
       text: '취소/환불 신청',
@@ -2645,6 +2867,21 @@ var PhoneRentalApp = () => {
       text: '기종변경 신청',
       color: 'text-rose-600 bg-rose-50 border-rose-100'
     }
+  };
+  // [NEW] 부가옵션(신청건) 한 줄 요약 — 2x2 그리드 카드용
+  var summarizeRequest = req => {
+    var s = req.scheduleName || '';
+    if (req.category === '변경신청') {
+      var m = s.match(/([0-9]{2}[A-Za-z]{1,3})\s*→\s*([0-9]{2}[A-Za-z]{1,3})/);
+      return m ? m[1] + ' → ' + m[2] : '기종 변경';
+    }
+    if (req.category === '연장신청') {
+      var d = (req.model || s).match(/\+\s*(\d+)\s*일/);
+      return d ? '+' + d[1] + '일 연장' : '대여 연장';
+    }
+    if (req.category === '백업신청') return '촬영본 백업';
+    if (req.category === '취소신청') return '취소 · 환불';
+    return '';
   };
   // origin_ref(JSON: {orderTime, name, phone, startDate, endDate, model})로 원예약을 찾아 연결
   var findOriginalFor = reqRow => {
@@ -2897,7 +3134,7 @@ var PhoneRentalApp = () => {
     var origModel = String(target.model || '');
     var suffix = origModel.includes('+') ? origModel.slice(origModel.indexOf('+')) : '';
     var newShortModel = toShortModel(calc.phone.name) + suffix;
-    // 날짜/수령/반납은 기존 예약 그대로 유지하고, 기종만 변경
+    // 날짜는 기존 예약 그대로 유지하고, 기종만 변경 (수령/반납 방법은 이 신청 건과 무관하므로 '-'로 표시)
     var orderData = {
       category: '변경신청',
       status: '예약신청',
@@ -2907,8 +3144,8 @@ var PhoneRentalApp = () => {
       phone: target.phone || '',
       startDate: target.startDate || '',
       endDate: target.endDate || '',
-      delivery: target.delivery || '',
-      returnMethod: target.returnMethod || '',
+      delivery: '-',
+      returnMethod: '-',
       totalPrice: calc.total,
       scheduleName: (target.name || '') + '님 기종변경 | ' + origModel + ' → ' + newShortModel + ' | 변경후 ' + calc.total.toLocaleString() + '원 (' + (diff > 0 ? '추가 +' + diff.toLocaleString() : diff < 0 ? '차감 ' + diff.toLocaleString() : '차액없음') + ')',
       origin_ref: buildOriginRef(target)
@@ -3046,6 +3283,7 @@ var PhoneRentalApp = () => {
     setSelectedPhone(null);
     setStartDate(null);
     setEndDate(null);
+    setConcertDateHint(null); // [NEW]
     setInsurance('none');
     setUserInfo({
       name: '',
@@ -3315,11 +3553,12 @@ var PhoneRentalApp = () => {
       }
     }
   };
-  var handleRentalStart = method => {
+  var handleRentalStart = (method, concertRange) => {
     if (method) setDeliveryMethod(method);else {
       setDeliveryMethod(null);
       setReturnMethod(null);
     }
+    setConcertDateHint(concertRange || null); // [NEW] 공연 경유 진입이 아니면 하이라이트 초기화
     setViewMode('rental');
     setStep(1);
     setActiveNav('rental');
@@ -3651,26 +3890,27 @@ React.createElement("div", {
     size: 12
   }), " 예약 취소 / 환불 신청")))), item.category === '예약신청' && getLinkedRequests(item).length > 0 && React.createElement("div", {
     key: "req-" + idx,
-    className: "mt-2 pt-2 border-t border-dashed border-gray-200 space-y-1.5"
+    className: "mt-2 pt-2 border-t border-dashed border-gray-200 grid grid-cols-2 gap-1.5"
   }, getLinkedRequests(item).map((req, ridx) => {
     var label = REQUEST_LABEL[req.category] || {
       text: req.category,
       color: 'text-gray-600 bg-gray-50 border-gray-100'
     };
+    var summary = summarizeRequest(req);
+    var done = /확정|완료/.test(req.status || '');
+    var statusText = req.status === '예약신청' ? '처리중' : req.status || '접수대기'; // [NEW] 부가옵션 상태 표기: 예약신청 → 처리중
     return React.createElement("div", {
       key: ridx,
-      className: `flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 ${label.color}`
+      className: `rounded-xl border p-2 flex flex-col gap-1 ${label.color}`
     }, React.createElement("div", {
-      className: "flex items-center gap-1.5 flex-1 overflow-hidden"
+      className: "flex items-center justify-between gap-1"
     }, React.createElement("span", {
-      className: "text-[10px] font-extrabold shrink-0"
-    }, "↳"), React.createElement("span", {
-      className: "text-[11px] font-bold shrink-0"
+      className: "text-[11px] font-extrabold truncate"
     }, label.text), React.createElement("span", {
-      className: "text-[10px] opacity-70 truncate"
-    }, req.scheduleName || '')), React.createElement("span", {
-      className: `text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${(req.status || '').includes('확정') ? 'bg-green-100 text-green-700' : 'bg-white/70'}`
-    }, req.status || '접수대기'));
+      className: `text-[9px] font-bold px-1 py-0.5 rounded shrink-0 ${done ? 'bg-green-100 text-green-700' : 'bg-white/70'}`
+    }, statusText)), summary ? React.createElement("span", {
+      className: "text-[10px] font-bold opacity-80 truncate"
+    }, summary) : null);
   }))))))));
   var renderCalendarDays = () => {
     var today = new Date();
@@ -3696,16 +3936,19 @@ React.createElement("div", {
       var isStart = startDate && thisDate.getTime() === startDate.getTime();
       var isEnd = visualEndDate && thisDate.getTime() === visualEndDate.getTime();
       var isInRange = startDate && visualEndDate && thisDate > startDate && thisDate < visualEndDate;
+      // [NEW] 공연 예약 버튼으로 진입 시, 해당 공연 날짜(예: 17~19일)를 캘린더에서 한눈에 보이도록 포인트 표시(펄스 애니메이션)
+      var isConcertDay = concertDateHint && concertDateHint.start && thisDate.getTime() >= concertDateHint.start.getTime() && thisDate.getTime() <= (concertDateHint.end || concertDateHint.start).getTime();
       if (isPast) className += "text-gray-300 cursor-not-allowed";else if (isBlocked) className += "bg-gray-100 text-gray-300 cursor-not-allowed decoration-slice ";else if (isStart || isEnd) className += "bg-blue-400 text-white font-bold shadow-md transform scale-105 z-10";else if (isInRange) className += "bg-blue-50 text-blue-600";else {
         className += "hover:bg-gray-50 ";
         if (holidayName || dayOfWeek === 0) className += "text-red-500 ";else if (dayOfWeek === 6) className += "text-blue-500 ";else className += "text-gray-700 ";
+        if (isConcertDay) className += "font-bold ";
       }
       daysArray.push(React.createElement("div", {
         key: d,
         onClick: () => !isPast && !isBlocked && handleDateClick(d),
         className: className
       }, React.createElement("span", {
-        className: isStart || isEnd ? "text-lg" : ""
+        className: (isStart || isEnd ? "text-lg " : "") + (isConcertDay && !isPast && !isBlocked ? "animate-concert-pulse" : "")
       }, d), isBlocked && React.createElement("span", {
         className: "text-[8px] text-red-400 font-bold block -mt-0.5"
       }, "마감"), holidayName && !isStart && !isEnd && !isBlocked && React.createElement("span", {
@@ -5877,7 +6120,7 @@ React.createElement("div", {
       className: "text-sm font-bold text-gray-800"
     }, changeTargetItem.model), React.createElement("p", {
       className: "text-[11px] text-gray-500"
-    }, formatDisplayDate(changeTargetItem.startDate), " ~ ", formatDisplayDate(changeTargetItem.endDate), " · ", changeTargetItem.delivery || '-', " · ", oldPrice.toLocaleString(), "원")),
+    }, formatDisplayDate(changeTargetItem.startDate), " ~ ", formatDisplayDate(changeTargetItem.endDate), " · ", oldPrice.toLocaleString(), "원")),
     // 안내
     React.createElement("div", {
       className: "bg-gray-50 border border-gray-100 rounded-2xl p-3.5"
@@ -6187,60 +6430,7 @@ React.createElement("div", {
     onClick: () => setIsLookupMenuOpen(false)
   }), React.createElement("div", {
     className: "absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden z-50 animate-fade-in origin-top-right"
-  }, [{
-    label: '내 예약 보기',
-    icon: Icons.Search,
-    onClick: () => handleNavChange('mypage')
-  }, {
-    label: '예약 취소',
-    icon: Icons.Trash2,
-    onClick: () => {
-      var target = eligibleReservations[0];
-      if (!target) {
-        handleNavChange('mypage');
-        showAppToast('예약을 먼저 조회해주세요.');
-        return;
-      }
-      setCancelTargetItem(target);
-      setIsCancelModalOpen(true);
-    }
-  }, {
-    label: '대여모델 변경',
-    icon: Icons.Smartphone,
-    onClick: () => {
-      var target = eligibleReservations[0];
-      if (!target) {
-        handleNavChange('mypage');
-        showAppToast('예약을 먼저 조회해주세요.');
-        return;
-      }
-      if ((target.trackingNumber || '').toString().trim()) {
-        showAppToast('이미 발송되어 변경이 어려워요. 카카오톡으로 문의해주세요.');
-        return;
-      }
-      var p = findPhoneByModel(target.model);
-      setChangeTargetItem(target);
-      setChangeForm({
-        modelId: p ? p.id : ''
-      });
-      setChgTab(p && String(p.id).startsWith('i') ? 'iphone' : 'galaxy');
-      setViewMode('changeApply');
-    }
-  }, {
-    label: '대여연장',
-    icon: Icons.CalendarPlus,
-    onClick: () => {
-      setServiceTarget(null);
-      setViewMode('extension');
-    }
-  }, {
-    label: '데이터 백업 신청',
-    icon: Icons.Image,
-    onClick: () => {
-      setServiceTarget(null);
-      setViewMode('backupApply');
-    }
-  }].map((it, i) => React.createElement("button", {
+  }, LOOKUP_QUICK_ACTIONS.map((it, i) => React.createElement("button", {
     key: i,
     onClick: () => {
       setIsLookupMenuOpen(false);
@@ -6257,27 +6447,25 @@ React.createElement("div", {
   }, activeNav === 'home' && viewMode === 'dashboard' && React.createElement("div", {
     className: "space-y-6 animate-slide-in pb-24"
   },
-  // [NEW] 상단 네비 메뉴바 (드롭다운)
+  // [NEW] 상단 카테고리 필터칩 (아이콘 없는 알약형 드롭다운)
   React.createElement("div", {
-    className: "relative bg-white rounded-2xl shadow-sm border border-gray-100"
+    className: "relative"
   }, React.createElement("div", {
-    className: "flex items-center"
+    className: "flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"
   }, NAV_MENUS.map(menu => React.createElement("button", {
     key: menu.key,
     onClick: () => setOpenNavMenu(openNavMenu === menu.key ? null : menu.key),
-    className: `flex-1 flex items-center justify-center gap-1 py-3 text-xs font-bold transition-colors ${openNavMenu === menu.key ? 'text-blue-600' : 'text-gray-700 hover:text-blue-500'}`
-  }, React.createElement(menu.icon, {
-    size: 14,
-    className: `shrink-0 ${openNavMenu === menu.key ? 'text-blue-600' : 'text-blue-500'}`
-  }), React.createElement("span", {
+    className: `flex items-center gap-1 shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-xs font-bold transition-colors ${openNavMenu === menu.key ? 'border-blue-300 bg-blue-50 text-blue-600' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}`
+  }, React.createElement("span", {
     className: "whitespace-nowrap"
   }, menu.label), React.createElement("span", {
-    className: `transition-transform ${openNavMenu === menu.key ? '-rotate-90' : 'rotate-90'}`,
+    className: `transition-transform ${openNavMenu === menu.key ? 'rotate-180' : ''}`,
     style: {
       display: 'inline-flex'
     }
   }, React.createElement(Icons.ChevronRight, {
-    size: 12
+    size: 12,
+    className: "rotate-90"
   }))))), openNavMenu && React.createElement("div", {
     className: "absolute left-0 right-0 bg-white border border-gray-100 shadow-lg rounded-2xl overflow-hidden z-20 animate-fade-in",
     style: {
@@ -6306,6 +6494,16 @@ React.createElement("div", {
     size: 14,
     className: "text-gray-300 shrink-0"
   }))))),
+  // [NEW] 카테고리 ↔ 예약버튼 사이 검색바 — 탭하면 전체화면 검색 페이지로 전환
+  React.createElement("button", {
+    onClick: () => setShowSearchPage(true),
+    className: "w-full flex items-center gap-2 bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3 text-left"
+  }, React.createElement(Icons.Search, {
+    size: 16,
+    className: "text-blue-400 shrink-0"
+  }), React.createElement("span", {
+    className: "flex-1 text-sm text-gray-300"
+  }, "찾으시는 내용을 검색해보세요")),
 React.createElement("div", {
     className: "grid grid-cols-2 gap-3 mt-2"
   }, React.createElement("div", {
@@ -6327,7 +6525,9 @@ React.createElement("div", {
     className: "text-[18px] font-extrabold text-gray-800 tracking-tight flex items-center gap-1 mb-3"
   }, t('bookNowTitle'), " ", React.createElement("span", {
     className: "text-base group-hover:animate-bounce ml-1"
-  }, "☁️")), React.createElement("div", {
+  }, "☁️")), hasUpcomingConcerts ? React.createElement("p", {
+    className: "text-[11px] font-bold text-gray-500 leading-snug mt-0.5"
+  }, "✅ ", t('noSignup'), " · ", t('noDeposit'), " · ", t('sameDay'), " · ", t('venuePickup')) : React.createElement("div", {
     className: "grid grid-cols-2 gap-2"
   }, React.createElement("div", {
     className: "flex items-start gap-1.5 bg-blue-50/50 p-2 rounded-xl border border-blue-100/50"
@@ -6370,7 +6570,19 @@ React.createElement("div", {
   }, React.createElement(Icons.ArrowLeft, {
     size: 20,
     className: "rotate-135"
-  })))), React.createElement("div", {
+  })))), hasUpcomingConcerts && React.createElement("div", {
+    className: "col-span-2 bg-white rounded-3xl p-4 shadow-sm border border-gray-100 animate-fade-in"
+  }, React.createElement("div", {
+    className: "flex items-center justify-between mb-3"
+  }, React.createElement("h3", {
+    className: "font-extrabold text-gray-800 text-[15px] flex items-center gap-1.5"
+  }, React.createElement("span", {
+    className: "text-lg"
+  }, "🎤"), " 다가오는 공연"), React.createElement("span", {
+    className: "text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full"
+  }, upcomingConcerts.length + "개 공연")), React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, upcomingConcerts.map((c, i) => renderConcertCard(c, i)))), React.createElement("div", {
     className: "bg-white rounded-[2rem] p-5 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all flex flex-col justify-between aspect-[4/3]",
     onClick: () => {
       var el = document.getElementById('venue-section');
@@ -7473,48 +7685,53 @@ React.createElement("div", {
     className: "text-xs font-bold text-gray-500 ml-1 mb-2 block"
   }, "공연장 위치 및 시간 안내"), React.createElement("div", {
     className: "bg-gray-50 p-4 rounded-xl border border-gray-100"
-  }, React.createElement(React.Fragment, null, React.createElement("div", {
-    className: "flex bg-gray-200/50 p-1 rounded-lg mb-3"
-  }, ['Seoul', 'Incheon', 'Gyeonggi'].map(region => React.createElement("button", {
-    key: region,
-    onClick: () => setVenueTab(region),
-    className: `flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${venueTab === region ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
-  }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기'))), React.createElement("div", {
-    className: "grid grid-cols-2 gap-2 mb-3"
-  }, venueList[venueTab].filter(v => !isVenueBlockedOnStartDate(v.name) && isVenueAllowedOnStartDate(v.name)).map((v, i) => React.createElement("div", {
-    key: i,
-    onClick: () => {
-      if (v.info) {
-        setSelectedVenue(v);
-        setShowVenueInfoModal(true);
-      } else {
-        window.open(`https://map.naver.com/p/search/${v.name}`, '_blank');
-      }
-    },
-    className: `relative p-3 rounded-xl transition-all flex flex-col justify-center text-center cursor-pointer border-2 group ${userInfo.address === v.name ? 'bg-blue-50 border-blue-400' : 'bg-white border-transparent hover:border-blue-200 shadow-sm'}`
-  }, userInfo.address === v.name && React.createElement("div", {
-    className: "absolute top-1.5 right-1.5 text-blue-500"
-  }, React.createElement(Icons.CheckCircle, {
-    size: 14
-  })), React.createElement("span", {
-    className: `text-[13px] font-bold ${userInfo.address === v.name ? 'text-blue-600' : 'text-gray-700 group-hover:text-blue-600'} mb-1 truncate`
-  }, v.name), React.createElement("span", {
-    className: `text-[10px] flex items-center justify-center gap-1 z-10 relative transition-colors ${userInfo.address === v.name ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-500'}`
-  }, React.createElement(Icons.MapPin, {
-    size: 10
-  }), " ", v.info ? '자세히 보기' : '위치보기'))))), (() => {
-    // [NEW] 관리자가 이 날짜에 공연장 화이트리스트(venue_available_dates)를 지정해두었으면 안내 문구 표시 (운영시간 굵게)
+  }, (() => {
+    // [NEW] 관리자가 이 날짜에 공연장을 지정해두면 지역탭을 없애고 "픽업 가능한 공연장"만 통합 노출
     var entry = getVenueDateEntry();
-    var hasWhitelist = !!(entry && entry.venues && entry.venues.length > 0);
-    if (!startDate || !hasWhitelist) return null;
-    var m = startDate.getMonth() + 1;
-    var d = startDate.getDate();
-    var wk = daysOfWeek[startDate.getDay()];
-    return React.createElement("p", {
-      className: "text-[12px] text-blue-600 font-bold mb-2 ml-1 leading-snug"
-    }, "📍 ", `${m}월 ${d}일 (${wk}) 공연장 픽업 가능해요`, entry.hours ? React.createElement("span", null, " · 운영시간 ", React.createElement("strong", {
-      className: "font-extrabold"
-    }, entry.hours)) : null);
+    var isWhitelisted = hasVenueWhitelistNow();
+    // 노출할 공연장 목록 (화이트리스트면 전 지역 통합, 아니면 선택된 지역탭)
+    var shownVenues = isWhitelisted ? Object.keys(venueList).reduce((acc, region) => acc.concat(venueList[region]), []).filter(v => !isVenueBlockedOnStartDate(v.name) && isVenueAllowedOnStartDate(v.name)) : venueList[venueTab].filter(v => !isVenueBlockedOnStartDate(v.name) && isVenueAllowedOnStartDate(v.name));
+    var header = isWhitelisted ? React.createElement("div", {
+      className: "flex items-center justify-between gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2 mb-3"
+    }, React.createElement("span", {
+      className: "text-xs font-extrabold text-blue-600 flex items-center gap-1.5"
+    }, React.createElement(Icons.MapPin, {
+      size: 13
+    }), " 픽업 가능한 공연장"), entry && entry.hours ? React.createElement("span", {
+      className: "text-[11px] font-bold text-gray-500 shrink-0"
+    }, "운영시간 ", React.createElement("strong", {
+      className: "font-extrabold text-gray-700"
+    }, entry.hours)) : null) : React.createElement("div", {
+      className: "flex bg-gray-200/50 p-1 rounded-lg mb-3"
+    }, ['Seoul', 'Incheon', 'Gyeonggi'].map(region => React.createElement("button", {
+      key: region,
+      onClick: () => setVenueTab(region),
+      className: `flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${venueTab === region ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
+    }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기')));
+    return React.createElement(React.Fragment, null, header, React.createElement("div", {
+      className: "grid grid-cols-2 gap-2 mb-3"
+    }, shownVenues.map((v, i) => React.createElement("div", {
+      key: i,
+      onClick: () => {
+        if (v.info) {
+          setSelectedVenue(v);
+          setShowVenueInfoModal(true);
+        } else {
+          window.open(`https://map.naver.com/p/search/${v.name}`, '_blank');
+        }
+      },
+      className: `relative p-3 rounded-xl transition-all flex flex-col justify-center text-center cursor-pointer border-2 group ${userInfo.address === v.name ? 'bg-blue-50 border-blue-400' : 'bg-white border-transparent hover:border-blue-200 shadow-sm'}`
+    }, userInfo.address === v.name && React.createElement("div", {
+      className: "absolute top-1.5 right-1.5 text-blue-500"
+    }, React.createElement(Icons.CheckCircle, {
+      size: 14
+    })), React.createElement("span", {
+      className: `text-[13px] font-bold ${userInfo.address === v.name ? 'text-blue-600' : 'text-gray-700 group-hover:text-blue-600'} mb-1 truncate`
+    }, v.name), React.createElement("span", {
+      className: `text-[10px] flex items-center justify-center gap-1 z-10 relative transition-colors ${userInfo.address === v.name ? 'text-blue-400' : 'text-gray-400 group-hover:text-blue-500'}`
+    }, React.createElement(Icons.MapPin, {
+      size: 10
+    }), " ", v.info ? '자세히 보기' : '위치보기')))));
   })(), !hasVenueWhitelistNow() && React.createElement("input", {
     type: "text",
     className: "w-full p-2.5 bg-white border border-gray-200 rounded-lg outline-none text-sm transition-colors text-gray-800 focus:border-blue-300 placeholder-gray-300",
@@ -8121,7 +8338,84 @@ React.createElement("div", {
     className: "w-full bg-blue-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
   }, React.createElement(Icons.CheckCircle, {
     size: 16
-  }), " 이 공연장으로 선택하기")))), showDateGuide && React.createElement("div", {
+  }), " 이 공연장으로 선택하기")))), showConcertModal && selectedConcert && (() => {
+    // [NEW] 다가오는 공연 상세 모달 — 장소/시간은 "주요 공연장 위치"(venueList) 기준,
+    // 수령시간은 관리자가 입력한 pickupTime이 있으면 그 값 우선
+    var c = selectedConcert;
+    var info = findVenueInfo(c.venue);
+    var timeText = c.pickupTime && c.pickupTime.trim() ? c.pickupTime.trim() : info ? info.time : '';
+    var placeMain = info ? info.place : c.venue || '';
+    var placeDetail = info ? info.placeDetail : '';
+    var noteText = info ? info.note : '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.';
+    var dLabel = formatConcertRange(c);
+    var mapQ = placeMain || c.venue || '';
+    return React.createElement("div", {
+      className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
+      onClick: () => setShowConcertModal(false)
+    }, React.createElement("div", {
+      className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative max-h-[85vh] overflow-y-auto terms-scroll",
+      onClick: e => e.stopPropagation()
+    }, React.createElement("button", {
+      onClick: () => setShowConcertModal(false),
+      className: "absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+    }, React.createElement(Icons.X, {
+      size: 24
+    })), React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800 mb-1 flex items-center gap-2 pr-6"
+    }, React.createElement("span", {
+      className: "text-xl"
+    }, "🎤"), " ", c.artist), dLabel ? React.createElement("div", {
+      className: "flex w-fit items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-lg mt-1 whitespace-nowrap"
+    }, React.createElement(Icons.Calendar, {
+      size: 13,
+      className: "shrink-0"
+    }), " ", dLabel) : null, React.createElement("div", {
+      className: "mt-4 space-y-3"
+    }, React.createElement("div", {
+      className: "bg-gray-50 p-3 rounded-xl border border-gray-100"
+    }, React.createElement("p", {
+      className: "text-xs font-bold text-gray-600 mb-1"
+    }, "📍 수령/반납 장소"), React.createElement("p", {
+      className: "text-sm font-bold text-blue-600"
+    }, placeMain || '현장 안내'), placeDetail ? React.createElement("div", {
+      className: "mt-2 bg-white p-2 rounded-lg text-xs text-gray-600 border border-gray-100 flex gap-1.5 items-start"
+    }, React.createElement("span", {
+      className: "text-blue-500 mt-0.5"
+    }, "↳"), React.createElement("span", null, placeDetail)) : null, c.venue && placeMain && c.venue !== placeMain ? React.createElement("p", {
+      className: "text-[10px] text-gray-400 mt-1.5"
+    }, "공연장: ", c.venue) : null), React.createElement("div", {
+      className: "bg-gray-50 p-3 rounded-xl border border-gray-100"
+    }, React.createElement("p", {
+      className: "text-xs font-bold text-gray-600 mb-1"
+    }, "⏰ 수령 시간"), React.createElement("p", {
+      className: "text-xs text-gray-700 leading-relaxed whitespace-pre-line"
+    }, timeText || '사운드체크 1시간전 또는 공연시작 2시간전 예정')), noteText ? React.createElement("p", {
+      className: "text-[11px] text-red-500 flex items-start gap-1"
+    }, React.createElement("span", null, "*"), " ", noteText) : null), React.createElement("div", {
+      className: "mt-5 flex flex-col gap-2"
+    }, mapQ ? React.createElement("button", {
+      onClick: () => window.open(`https://map.naver.com/p/search/${encodeURIComponent(mapQ)}`, '_blank'),
+      className: "w-full py-3 rounded-xl font-bold bg-green-500 text-white hover:bg-green-600 shadow-md transition-colors flex items-center justify-center gap-2 text-sm"
+    }, "네이버 지도로 위치 보기 ", React.createElement(Icons.ExternalLink, {
+      size: 14
+    })) : null, React.createElement("button", {
+      onClick: () => {
+        // [NEW] 이 공연으로 예약 시작: 수령방법=공연장, 공연장 위치=이 공연장, 일정명=공연명 자동 세팅
+        setShowConcertModal(false);
+        setUserInfo(u => ({
+          ...u,
+          address: c.venue || '',
+          detailAddress: '공연장 수령',
+          scheduleName: c.artist || ''
+        }));
+        handleRentalStart('venue', { start: c._start, end: c._end || c._start });
+        if (c._start) setCurrentMonth(new Date(c._start.getFullYear(), c._start.getMonth(), 1)); // [NEW] 공연 달로 캘린더 자동 이동
+      },
+      className: "w-full py-3 rounded-xl font-bold bg-blue-500 text-white hover:bg-blue-600 shadow-md transition-colors flex items-center justify-center gap-2 text-sm"
+    }, React.createElement(Icons.Ticket, {
+      size: 16
+    }), " 선택한 공연 예약하기"))));
+  })(), showDateGuide && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
     onClick: () => setShowDateGuide(false)
   }, React.createElement("div", {
@@ -9212,7 +9506,158 @@ React.createElement("div", {
     size: 16
   }), " 화면을 절대 끄거나 닫지 마세요!"), React.createElement("p", {
     className: "text-[11px] text-red-400 leading-snug break-keep"
-  }, "완료 화면이 뜰 때까지 창을 끄거나", React.createElement("br", null), "뒤로 가기를 누르지 말아주세요 🙏", React.createElement("br", null), isReviewModalOpen ? '리뷰 등록이 누락될 수 있어요' : '예약이 누락될 수 있어요', React.createElement("br", null), React.createElement("br", null), "예상 소요 시간: 5초")))), toast.show && React.createElement("div", {
+  }, "완료 화면이 뜰 때까지 창을 끄거나", React.createElement("br", null), "뒤로 가기를 누르지 말아주세요 🙏", React.createElement("br", null), isReviewModalOpen ? '리뷰 등록이 누락될 수 있어요' : '예약이 누락될 수 있어요', React.createElement("br", null), React.createElement("br", null), "예상 소요 시간: 5초")))), showSearchPage && React.createElement("div", {
+    className: "fixed inset-0 z-[110] bg-white flex flex-col animate-fade-in"
+  }, React.createElement("div", {
+    className: "flex items-center gap-2 p-4 border-b border-gray-100 shrink-0"
+  }, React.createElement("button", {
+    onClick: () => setShowSearchPage(false),
+    className: "shrink-0 text-gray-600 p-1"
+  }, React.createElement(Icons.ArrowLeft, {
+    size: 22
+  })), React.createElement("div", {
+    className: "flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2.5"
+  }, React.createElement(Icons.Search, {
+    size: 16,
+    className: "text-gray-400 shrink-0"
+  }), React.createElement("input", {
+    autoFocus: true,
+    type: "text",
+    value: navSearchQuery,
+    onChange: e => setNavSearchQuery(e.target.value),
+    onKeyDown: e => {
+      if (e.key === 'Enter' && navSearchQuery.trim()) addRecentSearch(navSearchQuery);
+    },
+    placeholder: "검색어를 입력해주세요",
+    className: "flex-1 outline-none text-sm bg-transparent placeholder-gray-300 text-gray-700"
+  }), navSearchQuery ? React.createElement("button", {
+    onClick: () => setNavSearchQuery(''),
+    className: "shrink-0 text-gray-300 hover:text-gray-600"
+  }, React.createElement(Icons.X, {
+    size: 16
+  })) : null)), React.createElement("div", {
+    className: "flex-1 overflow-y-auto pb-24"
+  }, navSearchQuery.trim() ? (() => {
+    var q = navSearchQuery.trim().toLowerCase();
+    var results = NAV_SEARCH_INDEX.filter(it => (it.label + ' ' + (it.desc || '') + ' ' + (it.cat || '')).toLowerCase().includes(q));
+    if (results.length === 0) return React.createElement("div", {
+      className: "text-center text-xs text-gray-400 py-12 px-5"
+    }, "검색 결과가 없어요. 다른 키워드로 검색해보세요.");
+    return React.createElement("div", {
+      className: "pt-2"
+    }, results.map((it, i) => React.createElement("button", {
+      key: i,
+      onClick: () => {
+        addRecentSearch(it.label);
+        setShowSearchPage(false);
+        setNavSearchQuery('');
+        it.onClick();
+      },
+      className: "w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-blue-50 transition-colors border-b border-gray-100"
+    }, React.createElement("div", {
+      className: "w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0"
+    }, React.createElement(it.icon, {
+      size: 17
+    })), React.createElement("div", {
+      className: "flex-1 overflow-hidden"
+    }, React.createElement("p", {
+      className: "text-sm font-bold text-gray-800"
+    }, it.label), React.createElement("p", {
+      className: "text-[11px] text-gray-400 truncate"
+    }, it.cat + ' · ' + (it.desc || ''))), React.createElement(Icons.ChevronRight, {
+      size: 14,
+      className: "text-gray-300 shrink-0"
+    }))));
+  })() : React.createElement("div", {
+    className: "px-5 pt-5"
+  }, recentSearches.length > 0 && React.createElement("div", null, React.createElement("div", {
+    className: "flex items-center justify-between mb-3"
+  }, React.createElement("h3", {
+    className: "font-extrabold text-gray-800 text-[15px]"
+  }, "최근 검색어"), React.createElement("button", {
+    onClick: clearRecentSearches,
+    className: "text-[11px] text-gray-400 font-bold hover:text-gray-600"
+  }, "모두 지우기")), React.createElement("div", {
+    className: "flex gap-2 overflow-x-auto no-scrollbar"
+  }, recentSearches.map((term, i) => React.createElement("button", {
+    key: i,
+    onClick: () => setNavSearchQuery(term),
+    className: "flex items-center gap-1.5 bg-gray-50 hover:bg-gray-100 rounded-full px-3 py-2 text-xs font-bold text-gray-600 transition-colors shrink-0"
+  }, term, React.createElement("span", {
+    onClick: e => {
+      e.stopPropagation();
+      setRecentSearches(prev => {
+        var next = prev.filter(t => t !== term);
+        try {
+          localStorage.setItem('serincam_recent_searches', JSON.stringify(next));
+        } catch (er) {}
+        return next;
+      });
+    },
+    className: "text-gray-300 hover:text-gray-600"
+  }, React.createElement(Icons.X, {
+    size: 12
+  })))))), React.createElement("div", { className: "mt-10" }, React.createElement("h3", {
+    className: "font-extrabold text-gray-800 text-[15px] mb-3"
+  }, "예약조회 바로가기"), React.createElement("div", {
+    className: "grid grid-cols-2 gap-2.5"
+  }, LOOKUP_QUICK_ACTIONS.slice(0, 4).map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: () => {
+      setShowSearchPage(false);
+      it.onClick();
+    },
+    className: "flex items-center gap-2.5 bg-white border border-gray-100 shadow-sm rounded-2xl px-3.5 py-3.5 text-left hover:bg-blue-50 transition-colors"
+  }, React.createElement("div", {
+    className: "w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0"
+  }, React.createElement(it.icon, {
+    size: 15
+  })), React.createElement("span", {
+    className: "text-[13px] font-bold text-gray-700 truncate"
+  }, it.label)))), React.createElement("div", { className: "mt-10" }, React.createElement("h3", {
+    className: "font-extrabold text-gray-800 text-[15px] mb-3"
+  }, "인기 검색어"), React.createElement("div", {
+    className: "grid grid-cols-2 gap-4"
+  }, POPULAR_SEARCHES.map((term, i) => React.createElement("button", {
+    key: i,
+    onClick: () => setNavSearchQuery(term),
+    className: "flex items-center gap-2.5 text-left py-1.5"
+  }, React.createElement("span", {
+    className: "text-sm font-black text-blue-500 w-4 shrink-0"
+  }, i + 1), React.createElement("span", {
+    className: "text-sm font-bold text-gray-700 truncate"
+  }, term)))), React.createElement("div", { className: "mt-10" }, React.createElement("h3", {
+    className: "font-extrabold text-gray-800 text-[15px] mb-3"
+  }, "바로가기"), React.createElement("div", {
+    className: "grid grid-cols-2 gap-3"
+  }, [{
+    label: 'AI 챗봇 상담',
+    icon: Icons.MessageSquare,
+    onClick: () => {
+      setQnaMode('chatbot');
+      handleNavChange('qna');
+    }
+  }, {
+    label: '자주 묻는 질문',
+    icon: Icons.HelpCircle,
+    onClick: () => {
+      setQnaMode('list');
+      handleNavChange('qna');
+    }
+  }].map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: () => {
+      setShowSearchPage(false);
+      it.onClick();
+    },
+    className: "flex items-center gap-2.5 bg-white border border-gray-100 shadow-sm rounded-2xl px-3.5 py-3.5 text-left hover:bg-blue-50 transition-colors"
+  }, React.createElement("div", {
+    className: "w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0"
+  }, React.createElement(it.icon, {
+    size: 15
+  })), React.createElement("span", {
+    className: "text-[13px] font-bold text-gray-700 truncate"
+  }, it.label)))))))))), toast.show && React.createElement("div", {
     className: "fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none"
   }, React.createElement("div", {
     className: "bg-gray-800/90 backdrop-blur-md text-white px-6 py-5 rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.3)] flex flex-col items-center text-center animate-bounce-in w-64"
