@@ -116,6 +116,20 @@
         .terms-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
         
         .safe-area-pb { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* [NEW] 부가옵션(취소·환불/연장) 신청 중인 값에 은은하게 표시되는 불빛 효과 */
+        @keyframes softGlow {
+            0%, 100% { box-shadow: 0 0 0 rgba(59, 130, 246, 0); background-color: rgba(59, 130, 246, 0.06); }
+            50% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.45); background-color: rgba(59, 130, 246, 0.12); }
+        }
+        .animate-soft-glow { animation: softGlow 2.2s ease-in-out infinite; border-radius: 6px; }
+
+        /* [NEW] 뱃지(배경색 있는 요소)용 - 배경색은 유지하고 링 형태의 불빛만 */
+        @keyframes softGlowRing {
+            0%, 100% { box-shadow: 0 0 0 rgba(59, 130, 246, 0); }
+            50% { box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.55); }
+        }
+        .animate-soft-glow-badge { animation: softGlowRing 2.2s ease-in-out infinite; }
     </style>
 <style id="serincam-tailwind">
 *,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.inset-y-0{top:0;bottom:0}.-bottom-6{bottom:-1.5rem}.-right-1{right:-.25rem}.-right-6{right:-1.5rem}.-top-2\.5{top:-.625rem}.-top-20{top:-5rem}.-top-28{top:-7rem}.-top-6{top:-1.5rem}.bottom-2{bottom:.5rem}.bottom-3{bottom:.75rem}.bottom-6{bottom:1.5rem}.bottom-\[-20px\]{bottom:-20px}.left-0{left:0}.left-1\/2{left:50%}.left-2{left:.5rem}.left-5{left:1.25rem}.right-0{right:0}.right-1{right:.25rem}.right-1\.5{right:.375rem}.right-12{right:3rem}.right-2{right:.5rem}.right-3{right:.75rem}.right-4{right:1rem}.right-6{right:1.5rem}.right-full{right:100%}.top-0{top:0}.top-1{top:.25rem}.top-1\.5{top:.375rem}.top-1\/2{top:50%}.top-10{top:2.5rem}.top-2{top:.5rem}.top-4{top:1rem}.top-6{top:1.5rem}.z-10{z-index:10}.z-20{z-index:20}.z-40{z-index:40}.z-50{z-index:50}.z-\[10000\]{z-index:10000}.z-\[100\]{z-index:100}.z-\[110\]{z-index:110}.z-\[80\]{z-index:80}.z-\[90\]{z-index:90}.z-\[9999\]{z-index:9999}.col-span-2{grid-column:span 2/span 2}.-mx-2{margin-left:-.5rem;margin-right:-.5rem}.mx-0\.5{margin-left:.125rem;margin-right:.125rem}.mx-1{margin-left:.25rem;margin-right:.25rem}.mx-auto{margin-left:auto;margin-right:auto}.my-0\.5{margin-top:.125rem;margin-bottom:.125rem}.-ml-2{margin-left:-.5rem}.-ml-px{margin-left:-1px}.-mt-0\.5{margin-top:-.125rem}.-mt-1{margin-top:-.25rem}.mb-0{margin-bottom:0}.mb-0\.5{margin-bottom:.125rem}.mb-1{margin-bottom:.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:.5rem}.mb-2\.5{margin-bottom:.625rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.ml-0\.5{margin-left:.125rem}.ml-1{margin-left:.25rem}.ml-7{margin-left:1.75rem}.ml-\[26px\]{margin-left:26px}.mr-1{margin-right:.25rem}.mr-2{margin-right:.5rem}.mr-3{margin-right:.75rem}.mt-0{margin-top:0}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-10{margin-top:2.5rem}.mt-2{margin-top:.5rem}.mt-2\.5{margin-top:.625rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.mt-auto{margin-top:auto}.line-clamp-2{-webkit-line-clamp:2}.line-clamp-2,.line-clamp-3{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical}.line-clamp-3{-webkit-line-clamp:3}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.aspect-\[4\/3\]{aspect-ratio:4/3}.h-1{height:.25rem}.h-1\.5{height:.375rem}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-12{height:3rem}.h-14{height:3.5rem}.h-16{height:4rem}.h-2{height:.5rem}.h-2\.5{height:.625rem}.h-20{height:5rem}.h-24{height:6rem}.h-28{height:7rem}.h-3{height:.75rem}.h-3\.5{height:.875rem}.h-36{height:9rem}.h-4{height:1rem}.h-40{height:10rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-64{height:16rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-\[18px\]{height:18px}.h-\[46px\]{height:46px}.h-\[520px\]{height:520px}.h-full{height:100%}.max-h-0{max-height:0}.max-h-24{max-height:6rem}.max-h-\[250px\]{max-height:250px}.max-h-\[600px\]{max-height:600px}.max-h-\[70vh\]{max-height:70vh}.max-h-\[800px\]{max-height:800px}.max-h-\[80vh\]{max-height:80vh}.max-h-\[85vh\]{max-height:85vh}.max-h-\[90vh\]{max-height:90vh}.min-h-\[110px\]{min-height:110px}.min-h-\[44px\]{min-height:44px}.min-h-\[72px\]{min-height:72px}.min-h-screen{min-height:100vh}.w-0\.5{width:.125rem}.w-1\.5{width:.375rem}.w-1\/2{width:50%}.w-1\/3{width:33.333333%}.w-10{width:2.5rem}.w-11{width:2.75rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-16{width:4rem}.w-2{width:.5rem}.w-2\/3{width:66.666667%}.w-20{width:5rem}.w-24{width:6rem}.w-28{width:7rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-64{width:16rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-auto{width:auto}.w-fit{width:-moz-fit-content;width:fit-content}.w-full{width:100%}.w-px{width:1px}.min-w-\[240px\]{min-width:240px}.min-w-\[65px\]{min-width:65px}.max-w-\[160px\]{max-width:160px}.max-w-\[180px\]{max-width:180px}.max-w-\[280px\]{max-width:280px}.max-w-\[75\%\]{max-width:75%}.max-w-full{max-width:100%}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.max-w-xs{max-width:20rem}.flex-1{flex:1 1 0%}.flex-shrink-0,.shrink-0{flex-shrink:0}.origin-top-right{transform-origin:top right}.-translate-x-1\/2{--tw-translate-x:-50%}.-translate-x-1\/2,.-translate-y-1\/2{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-1\/2{--tw-translate-y:-50%}.translate-y-0{--tw-translate-y:0px}.translate-y-0,.translate-y-4{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.translate-y-4{--tw-translate-y:1rem}.-rotate-90{--tw-rotate:-90deg}.-rotate-90,.rotate-180{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.rotate-180{--tw-rotate:180deg}.rotate-45{--tw-rotate:45deg}.rotate-45,.rotate-90{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.rotate-90{--tw-rotate:90deg}.scale-100{--tw-scale-x:1;--tw-scale-y:1}.scale-100,.scale-105{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-105{--tw-scale-x:1.05;--tw-scale-y:1.05}.scale-x-\[-1\]{--tw-scale-x:-1}.scale-x-\[-1\],.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.animate-bounce{animation:bounce 1s infinite}@keyframes ping{75%,to{transform:scale(2);opacity:0}}.animate-ping{animation:ping 1s cubic-bezier(0,0,.2,1) infinite}@keyframes spin{to{transform:rotate(1turn)}}.animate-spin{animation:spin 1s linear infinite}.cursor-default{cursor:default}.cursor-not-allowed{cursor:not-allowed}.cursor-pointer{cursor:pointer}.cursor-zoom-out{cursor:zoom-out}.select-all{-webkit-user-select:all;-moz-user-select:all;user-select:all}.resize-none{resize:none}.snap-x{scroll-snap-type:x var(--tw-scroll-snap-strictness)}.snap-center{scroll-snap-align:center}.scroll-mt-24{scroll-margin-top:6rem}.list-disc{list-style-type:disc}.appearance-none{-webkit-appearance:none;-moz-appearance:none;appearance:none}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-cols-7{grid-template-columns:repeat(7,minmax(0,1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-x-1{-moz-column-gap:.25rem;column-gap:.25rem}.gap-y-2{row-gap:.5rem}.space-y-0>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0px*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0px*var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.space-y-8>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem*var(--tw-space-y-reverse))}.divide-x>:not([hidden])~:not([hidden]){--tw-divide-x-reverse:0;border-right-width:calc(1px*var(--tw-divide-x-reverse));border-left-width:calc(1px*(1 - var(--tw-divide-x-reverse)))}.divide-gray-100>:not([hidden])~:not([hidden]){--tw-divide-opacity:1;border-color:rgb(243 244 246/var(--tw-divide-opacity,1))}.self-end{align-self:flex-end}.self-center{align-self:center}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis}.truncate,.whitespace-nowrap{white-space:nowrap}.whitespace-pre-line{white-space:pre-line}.whitespace-pre-wrap{white-space:pre-wrap}.break-keep{word-break:keep-all}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[1\.1rem\]{border-radius:1.1rem}.rounded-\[1\.25rem\]{border-radius:1.25rem}.rounded-\[1\.5rem\]{border-radius:1.5rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.rounded-xl{border-radius:.75rem}.rounded-br-lg{border-bottom-right-radius:.5rem}.rounded-tl-sm{border-top-left-radius:.125rem}.rounded-tr-sm{border-top-right-radius:.125rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-l-4{border-left-width:4px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-black\/5{border-color:rgba(0,0,0,.05)}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254/var(--tw-border-opacity,1))}.border-blue-100\/50{border-color:rgba(219,234,254,.5)}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254/var(--tw-border-opacity,1))}.border-blue-300{--tw-border-opacity:1;border-color:rgb(147 197 253/var(--tw-border-opacity,1))}.border-blue-400{--tw-border-opacity:1;border-color:rgb(96 165 250/var(--tw-border-opacity,1))}.border-blue-50{--tw-border-opacity:1;border-color:rgb(239 246 255/var(--tw-border-opacity,1))}.border-blue-500{--tw-border-opacity:1;border-color:rgb(59 130 246/var(--tw-border-opacity,1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208/var(--tw-border-opacity,1))}.border-emerald-50\/50{border-color:rgba(236,253,245,.5)}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246/var(--tw-border-opacity,1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235/var(--tw-border-opacity,1))}.border-gray-200\/50{border-color:rgba(229,231,235,.5)}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219/var(--tw-border-opacity,1))}.border-gray-800{--tw-border-opacity:1;border-color:rgb(31 41 55/var(--tw-border-opacity,1))}.border-green-100{--tw-border-opacity:1;border-color:rgb(220 252 231/var(--tw-border-opacity,1))}.border-green-200{--tw-border-opacity:1;border-color:rgb(187 247 208/var(--tw-border-opacity,1))}.border-green-400{--tw-border-opacity:1;border-color:rgb(74 222 128/var(--tw-border-opacity,1))}.border-green-500{--tw-border-opacity:1;border-color:rgb(34 197 94/var(--tw-border-opacity,1))}.border-orange-100{--tw-border-opacity:1;border-color:rgb(255 237 213/var(--tw-border-opacity,1))}.border-pink-100\/50{border-color:rgba(252,231,243,.5)}.border-pink-50\/50{border-color:rgba(253,242,248,.5)}.border-purple-100\/50{border-color:rgba(243,232,255,.5)}.border-purple-50\/50{border-color:rgba(250,245,255,.5)}.border-red-100{--tw-border-opacity:1;border-color:rgb(254 226 226/var(--tw-border-opacity,1))}.border-red-200{--tw-border-opacity:1;border-color:rgb(254 202 202/var(--tw-border-opacity,1))}.border-red-300{--tw-border-opacity:1;border-color:rgb(252 165 165/var(--tw-border-opacity,1))}.border-red-400{--tw-border-opacity:1;border-color:rgb(248 113 113/var(--tw-border-opacity,1))}.border-rose-100{--tw-border-opacity:1;border-color:rgb(255 228 230/var(--tw-border-opacity,1))}.border-rose-100\/50{border-color:rgba(255,228,230,.5)}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211/var(--tw-border-opacity,1))}.border-rose-500{--tw-border-opacity:1;border-color:rgb(244 63 94/var(--tw-border-opacity,1))}.border-sky-100\/50{border-color:rgba(224,242,254,.5)}.border-sky-300\/30{border-color:rgba(125,211,252,.3)}.border-sky-300\/50{border-color:rgba(125,211,252,.5)}.border-sky-50\/50{border-color:rgba(240,249,255,.5)}.border-sky-500{--tw-border-opacity:1;border-color:rgb(14 165 233/var(--tw-border-opacity,1))}.border-transparent{border-color:transparent}.border-white{--tw-border-opacity:1;border-color:rgb(255 255 255/var(--tw-border-opacity,1))}.border-white\/20{border-color:hsla(0,0%,100%,.2)}.border-yellow-100{--tw-border-opacity:1;border-color:rgb(254 249 195/var(--tw-border-opacity,1))}.border-yellow-200{--tw-border-opacity:1;border-color:rgb(254 240 138/var(--tw-border-opacity,1))}.border-yellow-400{--tw-border-opacity:1;border-color:rgb(250 204 21/var(--tw-border-opacity,1))}.border-l-blue-400{--tw-border-opacity:1;border-left-color:rgb(96 165 250/var(--tw-border-opacity,1))}.bg-\[\#03C75A\]{--tw-bg-opacity:1;background-color:rgb(3 199 90/var(--tw-bg-opacity,1))}.bg-\[\#F9FAFB\]{--tw-bg-opacity:1;background-color:rgb(249 250 251/var(--tw-bg-opacity,1))}.bg-\[\#FAE100\]{--tw-bg-opacity:1;background-color:rgb(250 225 0/var(--tw-bg-opacity,1))}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0/var(--tw-bg-opacity,1))}.bg-black\/20{background-color:rgba(0,0,0,.2)}.bg-black\/50{background-color:rgba(0,0,0,.5)}.bg-black\/60{background-color:rgba(0,0,0,.6)}.bg-black\/90{background-color:rgba(0,0,0,.9)}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254/var(--tw-bg-opacity,1))}.bg-blue-200\/40{background-color:rgba(191,219,254,.4)}.bg-blue-300{--tw-bg-opacity:1;background-color:rgb(147 197 253/var(--tw-bg-opacity,1))}.bg-blue-400{--tw-bg-opacity:1;background-color:rgb(96 165 250/var(--tw-bg-opacity,1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.bg-blue-50\/30{background-color:rgba(239,246,255,.3)}.bg-blue-50\/50{background-color:rgba(239,246,255,.5)}.bg-blue-50\/80{background-color:rgba(239,246,255,.8)}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246/var(--tw-bg-opacity,1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245/var(--tw-bg-opacity,1))}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246/var(--tw-bg-opacity,1))}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235/var(--tw-bg-opacity,1))}.bg-gray-200\/50{background-color:rgba(229,231,235,.5)}.bg-gray-300{--tw-bg-opacity:1;background-color:rgb(209 213 219/var(--tw-bg-opacity,1))}.bg-gray-400{--tw-bg-opacity:1;background-color:rgb(156 163 175/var(--tw-bg-opacity,1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251/var(--tw-bg-opacity,1))}.bg-gray-50\/50{background-color:rgba(249,250,251,.5)}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55/var(--tw-bg-opacity,1))}.bg-gray-800\/90{background-color:rgba(31,41,55,.9)}.bg-gray-900{--tw-bg-opacity:1;background-color:rgb(17 24 39/var(--tw-bg-opacity,1))}.bg-green-100{--tw-bg-opacity:1;background-color:rgb(220 252 231/var(--tw-bg-opacity,1))}.bg-green-50{--tw-bg-opacity:1;background-color:rgb(240 253 244/var(--tw-bg-opacity,1))}.bg-green-500{--tw-bg-opacity:1;background-color:rgb(34 197 94/var(--tw-bg-opacity,1))}.bg-orange-50{--tw-bg-opacity:1;background-color:rgb(255 247 237/var(--tw-bg-opacity,1))}.bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243/var(--tw-bg-opacity,1))}.bg-pink-200\/40{background-color:rgba(251,207,232,.4)}.bg-pink-50\/50{background-color:rgba(253,242,248,.5)}.bg-pink-500{--tw-bg-opacity:1;background-color:rgb(236 72 153/var(--tw-bg-opacity,1))}.bg-purple-100{--tw-bg-opacity:1;background-color:rgb(243 232 255/var(--tw-bg-opacity,1))}.bg-purple-50\/50{background-color:rgba(250,245,255,.5)}.bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity,1))}.bg-red-50{--tw-bg-opacity:1;background-color:rgb(254 242 242/var(--tw-bg-opacity,1))}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68/var(--tw-bg-opacity,1))}.bg-rose-400{--tw-bg-opacity:1;background-color:rgb(251 113 133/var(--tw-bg-opacity,1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242/var(--tw-bg-opacity,1))}.bg-sky-100{--tw-bg-opacity:1;background-color:rgb(224 242 254/var(--tw-bg-opacity,1))}.bg-sky-400{--tw-bg-opacity:1;background-color:rgb(56 189 248/var(--tw-bg-opacity,1))}.bg-sky-50{--tw-bg-opacity:1;background-color:rgb(240 249 255/var(--tw-bg-opacity,1))}.bg-sky-50\/50{background-color:rgba(240,249,255,.5)}.bg-sky-700\/20{background-color:rgba(3,105,161,.2)}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-white\/20{background-color:hsla(0,0%,100%,.2)}.bg-white\/40{background-color:hsla(0,0%,100%,.4)}.bg-white\/50{background-color:hsla(0,0%,100%,.5)}.bg-white\/60{background-color:hsla(0,0%,100%,.6)}.bg-white\/70{background-color:hsla(0,0%,100%,.7)}.bg-white\/80{background-color:hsla(0,0%,100%,.8)}.bg-yellow-100{--tw-bg-opacity:1;background-color:rgb(254 249 195/var(--tw-bg-opacity,1))}.bg-yellow-400{--tw-bg-opacity:1;background-color:rgb(250 204 21/var(--tw-bg-opacity,1))}.bg-yellow-50{--tw-bg-opacity:1;background-color:rgb(254 252 232/var(--tw-bg-opacity,1))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gradient-stops))}.from-blue-100{--tw-gradient-from:#dbeafe var(--tw-gradient-from-position);--tw-gradient-to:rgba(219,234,254,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-blue-400{--tw-gradient-from:#60a5fa var(--tw-gradient-from-position);--tw-gradient-to:rgba(96,165,250,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-blue-50{--tw-gradient-from:#eff6ff var(--tw-gradient-from-position);--tw-gradient-to:rgba(239,246,255,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-blue-50\/80{--tw-gradient-from:rgba(239,246,255,.8) var(--tw-gradient-from-position);--tw-gradient-to:rgba(239,246,255,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-blue-500{--tw-gradient-from:#3b82f6 var(--tw-gradient-from-position);--tw-gradient-to:rgba(59,130,246,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-cyan-50{--tw-gradient-from:#ecfeff var(--tw-gradient-from-position);--tw-gradient-to:rgba(236,254,255,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-pink-500{--tw-gradient-from:#ec4899 var(--tw-gradient-from-position);--tw-gradient-to:rgba(236,72,153,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-rose-50{--tw-gradient-from:#fff1f2 var(--tw-gradient-from-position);--tw-gradient-to:rgba(255,241,242,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-teal-50{--tw-gradient-from:#f0fdfa var(--tw-gradient-from-position);--tw-gradient-to:rgba(240,253,250,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-violet-50{--tw-gradient-from:#f5f3ff var(--tw-gradient-from-position);--tw-gradient-to:rgba(245,243,255,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.via-white{--tw-gradient-to:hsla(0,0%,100%,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),#fff var(--tw-gradient-via-position),var(--tw-gradient-to)}.to-blue-200{--tw-gradient-to:#bfdbfe var(--tw-gradient-to-position)}.to-blue-400{--tw-gradient-to:#60a5fa var(--tw-gradient-to-position)}.to-emerald-100{--tw-gradient-to:#d1fae5 var(--tw-gradient-to-position)}.to-indigo-50{--tw-gradient-to:#eef2ff var(--tw-gradient-to-position)}.to-indigo-500{--tw-gradient-to:#6366f1 var(--tw-gradient-to-position)}.to-pink-100{--tw-gradient-to:#fce7f3 var(--tw-gradient-to-position)}.to-pink-50\/80{--tw-gradient-to:rgba(253,242,248,.8) var(--tw-gradient-to-position)}.to-purple-100{--tw-gradient-to:#f3e8ff var(--tw-gradient-to-position)}.to-rose-400{--tw-gradient-to:#fb7185 var(--tw-gradient-to-position)}.to-sky-100{--tw-gradient-to:#e0f2fe var(--tw-gradient-to-position)}.decoration-slice{-webkit-box-decoration-break:slice;box-decoration-break:slice}.fill-current{fill:currentColor}.fill-yellow-400{fill:#facc15}.object-contain{-o-object-fit:contain;object-fit:contain}.object-cover{-o-object-fit:cover;object-fit:cover}.p-0\.5{padding:.125rem}.p-1{padding:.25rem}.p-1\.5{padding:.375rem}.p-2{padding:.5rem}.p-2\.5{padding:.625rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-1{padding-left:.25rem;padding-right:.25rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-12{padding-top:3rem;padding-bottom:3rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-3\.5{padding-top:.875rem;padding-bottom:.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-0{padding-bottom:0}.pb-10{padding-bottom:2.5rem}.pb-2{padding-bottom:.5rem}.pb-20{padding-bottom:5rem}.pb-24{padding-bottom:6rem}.pb-3{padding-bottom:.75rem}.pb-4{padding-bottom:1rem}.pl-1{padding-left:.25rem}.pl-11{padding-left:2.75rem}.pl-2{padding-left:.5rem}.pl-4{padding-left:1rem}.pr-1{padding-right:.25rem}.pr-10{padding-right:2.5rem}.pr-2{padding-right:.5rem}.pr-3{padding-right:.75rem}.pr-4{padding-right:1rem}.pr-5{padding-right:1.25rem}.pt-0{padding-top:0}.pt-0\.5{padding-top:.125rem}.pt-2{padding-top:.5rem}.pt-3{padding-top:.75rem}.pt-4{padding-top:1rem}.pt-5{padding-top:1.25rem}.pt-6{padding-top:1.5rem}.pt-8{padding-top:2rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.font-sans{font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-\[15px\]{font-size:15px}.text-\[18px\]{font-size:18px}.text-\[8px\]{font-size:8px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-normal{font-weight:400}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.025em}.tracking-wider{letter-spacing:.05em}.tracking-widest{letter-spacing:.1em}.text-\[\#373737\]{--tw-text-opacity:1;color:rgb(55 55 55/var(--tw-text-opacity,1))}.text-blue-300{--tw-text-opacity:1;color:rgb(147 197 253/var(--tw-text-opacity,1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235/var(--tw-text-opacity,1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216/var(--tw-text-opacity,1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175/var(--tw-text-opacity,1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105/var(--tw-text-opacity,1))}.text-gray-300{--tw-text-opacity:1;color:rgb(209 213 219/var(--tw-text-opacity,1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175/var(--tw-text-opacity,1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128/var(--tw-text-opacity,1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99/var(--tw-text-opacity,1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81/var(--tw-text-opacity,1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55/var(--tw-text-opacity,1))}.text-green-400{--tw-text-opacity:1;color:rgb(74 222 128/var(--tw-text-opacity,1))}.text-green-500{--tw-text-opacity:1;color:rgb(34 197 94/var(--tw-text-opacity,1))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74/var(--tw-text-opacity,1))}.text-green-700{--tw-text-opacity:1;color:rgb(21 128 61/var(--tw-text-opacity,1))}.text-green-800{--tw-text-opacity:1;color:rgb(22 101 52/var(--tw-text-opacity,1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22/var(--tw-text-opacity,1))}.text-orange-600{--tw-text-opacity:1;color:rgb(234 88 12/var(--tw-text-opacity,1))}.text-orange-800{--tw-text-opacity:1;color:rgb(154 52 18/var(--tw-text-opacity,1))}.text-pink-400{--tw-text-opacity:1;color:rgb(244 114 182/var(--tw-text-opacity,1))}.text-pink-500{--tw-text-opacity:1;color:rgb(236 72 153/var(--tw-text-opacity,1))}.text-purple-400{--tw-text-opacity:1;color:rgb(192 132 252/var(--tw-text-opacity,1))}.text-purple-500{--tw-text-opacity:1;color:rgb(168 85 247/var(--tw-text-opacity,1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234/var(--tw-text-opacity,1))}.text-red-300{--tw-text-opacity:1;color:rgb(252 165 165/var(--tw-text-opacity,1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113/var(--tw-text-opacity,1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68/var(--tw-text-opacity,1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.text-red-700{--tw-text-opacity:1;color:rgb(185 28 28/var(--tw-text-opacity,1))}.text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94/var(--tw-text-opacity,1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72/var(--tw-text-opacity,1))}.text-sky-400{--tw-text-opacity:1;color:rgb(56 189 248/var(--tw-text-opacity,1))}.text-sky-500{--tw-text-opacity:1;color:rgb(14 165 233/var(--tw-text-opacity,1))}.text-sky-600{--tw-text-opacity:1;color:rgb(2 132 199/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-white\/70{color:hsla(0,0%,100%,.7)}.text-white\/80{color:hsla(0,0%,100%,.8)}.text-white\/90{color:hsla(0,0%,100%,.9)}.text-yellow-400{--tw-text-opacity:1;color:rgb(250 204 21/var(--tw-text-opacity,1))}.text-yellow-500{--tw-text-opacity:1;color:rgb(234 179 8/var(--tw-text-opacity,1))}.text-yellow-600{--tw-text-opacity:1;color:rgb(202 138 4/var(--tw-text-opacity,1))}.text-yellow-700{--tw-text-opacity:1;color:rgb(161 98 7/var(--tw-text-opacity,1))}.text-yellow-800{--tw-text-opacity:1;color:rgb(133 77 14/var(--tw-text-opacity,1))}.underline{text-decoration-line:underline}.line-through{text-decoration-line:line-through}.decoration-orange-300{text-decoration-color:#fdba74}.decoration-2{text-decoration-thickness:2px}.underline-offset-2{text-underline-offset:2px}.placeholder-blue-300::-moz-placeholder{--tw-placeholder-opacity:1;color:rgb(147 197 253/var(--tw-placeholder-opacity,1))}.placeholder-blue-300::placeholder{--tw-placeholder-opacity:1;color:rgb(147 197 253/var(--tw-placeholder-opacity,1))}.placeholder-gray-300::-moz-placeholder{--tw-placeholder-opacity:1;color:rgb(209 213 219/var(--tw-placeholder-opacity,1))}.placeholder-gray-300::placeholder{--tw-placeholder-opacity:1;color:rgb(209 213 219/var(--tw-placeholder-opacity,1))}.opacity-0{opacity:0}.opacity-100{opacity:1}.opacity-40{opacity:.4}.opacity-50{opacity:.5}.opacity-60{opacity:.6}.opacity-70{opacity:.7}.opacity-80{opacity:.8}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-2xl,.shadow-\[0_0_15px_rgba\(96\2c 165\2c 250\2c 0\.5\)\]{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_0_15px_rgba\(96\2c 165\2c 250\2c 0\.5\)\]{--tw-shadow:0 0 15px rgba(96,165,250,.5);--tw-shadow-colored:0 0 15px var(--tw-shadow-color)}.shadow-\[0_10px_40px_rgba\(0\2c 0\2c 0\2c 0\.3\)\]{--tw-shadow:0 10px 40px rgba(0,0,0,.3);--tw-shadow-colored:0 10px 40px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_2px_10px_rgba\(0\2c 0\2c 0\2c 0\.02\)\]{--tw-shadow:0 2px 10px rgba(0,0,0,.02);--tw-shadow-colored:0 2px 10px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(99\2c 102\2c 241\2c 0\.4\)\]{--tw-shadow:0 4px 15px rgba(99,102,241,.4);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_4px_20px_rgba\(0\2c 0\2c 0\2c 0\.1\)\]{--tw-shadow:0 4px 20px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 20px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[inset_0_2px_4px_rgba\(255\2c 255\2c 255\2c 0\.9\)\2c _0_6px_12px_rgba\(167\2c 139\2c 250\2c 0\.2\)\]{--tw-shadow:inset 0 2px 4px hsla(0,0%,100%,.9),0 6px 12px rgba(167,139,250,.2);--tw-shadow-colored:inset 0 2px 4px var(--tw-shadow-color),0 6px 12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[inset_0_2px_4px_rgba\(255\2c 255\2c 255\2c 0\.9\)\2c _0_6px_12px_rgba\(244\2c 114\2c 182\2c 0\.2\)\]{--tw-shadow:inset 0 2px 4px hsla(0,0%,100%,.9),0 6px 12px rgba(244,114,182,.2);--tw-shadow-colored:inset 0 2px 4px var(--tw-shadow-color),0 6px 12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[inset_0_2px_4px_rgba\(255\2c 255\2c 255\2c 0\.9\)\2c _0_6px_12px_rgba\(52\2c 211\2c 153\2c 0\.2\)\]{--tw-shadow:inset 0 2px 4px hsla(0,0%,100%,.9),0 6px 12px rgba(52,211,153,.2);--tw-shadow-colored:inset 0 2px 4px var(--tw-shadow-color),0 6px 12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[inset_0_2px_4px_rgba\(255\2c 255\2c 255\2c 0\.9\)\2c _0_6px_12px_rgba\(56\2c 189\2c 248\2c 0\.2\)\]{--tw-shadow:inset 0 2px 4px hsla(0,0%,100%,.9),0 6px 12px rgba(56,189,248,.2);--tw-shadow-colored:inset 0 2px 4px var(--tw-shadow-color),0 6px 12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgba(0,0,0,.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color)}.shadow-inner,.shadow-lg{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-md{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.shadow-md,.shadow-sm{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-blue-100{--tw-shadow-color:#dbeafe;--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-2,.ring-4{box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-4{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color)}.ring-blue-50{--tw-ring-opacity:1;--tw-ring-color:rgb(239 246 255/var(--tw-ring-opacity,1))}.ring-sky-200\/50{--tw-ring-color:rgba(186,230,253,.5)}.blur-xl{--tw-blur:blur(24px)}.blur-xl,.drop-shadow-md{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-md{--tw-drop-shadow:drop-shadow(0 4px 3px rgba(0,0,0,.07)) drop-shadow(0 2px 2px rgba(0,0,0,.06))}.drop-shadow-sm{--tw-drop-shadow:drop-shadow(0 1px 1px rgba(0,0,0,.05))}.drop-shadow-sm,.grayscale{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.grayscale{--tw-grayscale:grayscale(100%)}.grayscale-\[30\%\]{--tw-grayscale:grayscale(30%)}.filter,.grayscale-\[30\%\]{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-\[1px\]{--tw-backdrop-blur:blur(1px)}.backdrop-blur-\[1px\],.backdrop-blur-md{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-300{transition-duration:.3s}.duration-500{transition-duration:.5s}.duration-700{transition-duration:.7s}.ease-in-out{transition-timing-function:cubic-bezier(.4,0,.2,1)}.ease-out{transition-timing-function:cubic-bezier(0,0,.2,1)}.hover\:-translate-y-1:hover{--tw-translate-y:-0.25rem}.hover\:-translate-y-1:hover,.hover\:scale-105:hover{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05}.hover\:scale-110:hover{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:border-blue-100:hover{--tw-border-opacity:1;border-color:rgb(219 234 254/var(--tw-border-opacity,1))}.hover\:border-blue-200:hover{--tw-border-opacity:1;border-color:rgb(191 219 254/var(--tw-border-opacity,1))}.hover\:border-blue-300:hover{--tw-border-opacity:1;border-color:rgb(147 197 253/var(--tw-border-opacity,1))}.hover\:bg-\[\#FDD835\]:hover{--tw-bg-opacity:1;background-color:rgb(253 216 53/var(--tw-bg-opacity,1))}.hover\:bg-blue-100:hover{--tw-bg-opacity:1;background-color:rgb(219 234 254/var(--tw-bg-opacity,1))}.hover\:bg-blue-100\/50:hover{background-color:rgba(219,234,254,.5)}.hover\:bg-blue-50:hover{--tw-bg-opacity:1;background-color:rgb(239 246 255/var(--tw-bg-opacity,1))}.hover\:bg-blue-500:hover{--tw-bg-opacity:1;background-color:rgb(59 130 246/var(--tw-bg-opacity,1))}.hover\:bg-blue-600:hover{--tw-bg-opacity:1;background-color:rgb(37 99 235/var(--tw-bg-opacity,1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216/var(--tw-bg-opacity,1))}.hover\:bg-emerald-100:hover{--tw-bg-opacity:1;background-color:rgb(209 250 229/var(--tw-bg-opacity,1))}.hover\:bg-gray-100:hover{--tw-bg-opacity:1;background-color:rgb(243 244 246/var(--tw-bg-opacity,1))}.hover\:bg-gray-200:hover{--tw-bg-opacity:1;background-color:rgb(229 231 235/var(--tw-bg-opacity,1))}.hover\:bg-gray-50:hover{--tw-bg-opacity:1;background-color:rgb(249 250 251/var(--tw-bg-opacity,1))}.hover\:bg-gray-700:hover{--tw-bg-opacity:1;background-color:rgb(55 65 81/var(--tw-bg-opacity,1))}.hover\:bg-gray-800:hover{--tw-bg-opacity:1;background-color:rgb(31 41 55/var(--tw-bg-opacity,1))}.hover\:bg-green-100:hover{--tw-bg-opacity:1;background-color:rgb(220 252 231/var(--tw-bg-opacity,1))}.hover\:bg-green-600:hover{--tw-bg-opacity:1;background-color:rgb(22 163 74/var(--tw-bg-opacity,1))}.hover\:bg-red-100:hover{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity,1))}.hover\:bg-rose-500:hover{--tw-bg-opacity:1;background-color:rgb(244 63 94/var(--tw-bg-opacity,1))}.hover\:bg-white:hover{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.hover\:bg-yellow-100:hover{--tw-bg-opacity:1;background-color:rgb(254 249 195/var(--tw-bg-opacity,1))}.hover\:bg-yellow-500:hover{--tw-bg-opacity:1;background-color:rgb(234 179 8/var(--tw-bg-opacity,1))}.hover\:text-blue-400:hover{--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.hover\:text-blue-500:hover{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.hover\:text-gray-600:hover{--tw-text-opacity:1;color:rgb(75 85 99/var(--tw-text-opacity,1))}.hover\:text-gray-800:hover{--tw-text-opacity:1;color:rgb(31 41 55/var(--tw-text-opacity,1))}.hover\:text-green-500:hover{--tw-text-opacity:1;color:rgb(34 197 94/var(--tw-text-opacity,1))}.hover\:text-rose-500:hover{--tw-text-opacity:1;color:rgb(244 63 94/var(--tw-text-opacity,1))}.hover\:text-sky-500:hover{--tw-text-opacity:1;color:rgb(14 165 233/var(--tw-text-opacity,1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.hover\:shadow-\[0_6px_20px_rgba\(99\2c 102\2c 241\2c 0\.6\)\]:hover{--tw-shadow:0 6px 20px rgba(99,102,241,.6);--tw-shadow-colored:0 6px 20px var(--tw-shadow-color)}.hover\:shadow-\[0_6px_20px_rgba\(99\2c 102\2c 241\2c 0\.6\)\]:hover,.hover\:shadow-md:hover{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.hover\:shadow-md:hover{--tw-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color),0 2px 4px -2px var(--tw-shadow-color)}.hover\:shadow-sm:hover{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.focus\:border-blue-200:focus{--tw-border-opacity:1;border-color:rgb(191 219 254/var(--tw-border-opacity,1))}.focus\:border-blue-300:focus{--tw-border-opacity:1;border-color:rgb(147 197 253/var(--tw-border-opacity,1))}.focus\:border-blue-400:focus{--tw-border-opacity:1;border-color:rgb(96 165 250/var(--tw-border-opacity,1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-blue-50:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(239 246 255/var(--tw-ring-opacity,1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:bg-gray-100:active{--tw-bg-opacity:1;background-color:rgb(243 244 246/var(--tw-bg-opacity,1))}.group:hover .group-hover\:-translate-y-1{--tw-translate-y:-0.25rem}.group:hover .group-hover\:-translate-y-1,.group:hover .group-hover\:translate-x-1{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:translate-x-1{--tw-translate-x:0.25rem}.group:hover .group-hover\:scale-105{--tw-scale-x:1.05;--tw-scale-y:1.05}.group:hover .group-hover\:scale-105,.group:hover .group-hover\:scale-110{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1}.group:hover .group-hover\:scale-125{--tw-scale-x:1.25;--tw-scale-y:1.25;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%,to{transform:translateY(-25%);animation-timing-function:cubic-bezier(.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,.2,1)}}.group:hover .group-hover\:animate-bounce{animation:bounce 1s infinite}.group:hover .group-hover\:bg-black\/40{background-color:rgba(0,0,0,.4)}.group:hover .group-hover\:bg-blue-50\/50{background-color:rgba(239,246,255,.5)}.group:hover .group-hover\:bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246/var(--tw-bg-opacity,1))}.group:hover .group-hover\:text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-green-600{--tw-text-opacity:1;color:rgb(22 163 74/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-purple-500{--tw-text-opacity:1;color:rgb(168 85 247/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-red-500{--tw-text-opacity:1;color:rgb(239 68 68/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-yellow-500{--tw-text-opacity:1;color:rgb(234 179 8/var(--tw-text-opacity,1))}.group:hover .group-hover\:text-yellow-600{--tw-text-opacity:1;color:rgb(202 138 4/var(--tw-text-opacity,1))}.group:hover .group-hover\:opacity-100{opacity:1}
@@ -1628,7 +1642,7 @@ var PhoneRentalApp = () => {
       setViewMode('extension');
     }
   }, {
-    label: '데이터 백업 신청',
+    label: '데이터 백업',
     desc: '촬영본 백업 대행 신청',
     icon: Icons.Image,
     onClick: () => {
@@ -1669,6 +1683,8 @@ var PhoneRentalApp = () => {
     }), 2500);
   };
   var t = key => TRANSLATIONS[lang]?.[key] || TRANSLATIONS['KO'][key] || key;
+  // [NEW] 부가옵션(취소/연장/변경/백업) 신청건 클릭 시 뜨는 안내 팝업
+  var [requestPopup, setRequestPopup] = useState(null); // 신청건 원본(req) 저장, null이면 닫힘
 
   // [NEW] 활용 꿀팁 4종 (검색바에서도 동일 항목 재사용, 다국어 t() 그대로 사용)
   var TIP_QUICK_ACTIONS = [{
@@ -2868,6 +2884,45 @@ var PhoneRentalApp = () => {
       color: 'text-rose-600 bg-rose-50 border-rose-100'
     }
   };
+  // [NEW] 부가옵션 클릭 시 뜨는 안내 팝업 콘텐츠 (아이콘/색상/제목/설명)
+  var REQUEST_POPUP_INFO = {
+    취소신청: {
+      icon: Icons.Trash2,
+      accent: 'text-red-500 bg-red-50',
+      title: '취소·환불 신청 접수',
+      desc: '취소·환불 신청이 접수되어 확인 중이에요. 담당자 확인 후 처리가 완료되면 예약 상태와 결제금액이 업데이트돼요.',
+      titleDone: '취소·환불 처리 완료',
+      descDone: '취소·환불 신청이 처리 완료됐어요. 환불은 영업일 기준 3~5일 소요 됩니다.'
+    },
+    연장신청: {
+      icon: Icons.Clock,
+      accent: 'text-blue-500 bg-blue-50',
+      title: '대여 연장 신청 접수',
+      desc: '반납일 연장 신청이 접수되어 확인 중이에요. 처리가 완료되면 반납일이 연장된 날짜로 업데이트돼요.',
+      titleDone: '대여 연장 확정',
+      descDone: '반납일 연장이 확정됐어요. 변경된 반납일에 맞춰 반납해주시면 돼요.'
+    },
+    변경신청: {
+      icon: Icons.Smartphone,
+      accent: 'text-rose-500 bg-rose-50',
+      title: '기종 변경 신청 접수',
+      desc: '대여 기종 변경 신청이 접수되어 확인 중이에요. 처리가 완료되면 대여모델이 변경된 기종으로 업데이트돼요.',
+      titleDone: '기종 변경 확정',
+      descDone: '기종 변경이 확정됐어요. 변경된 기종으로 대여가 진행돼요.'
+    },
+    백업신청: {
+      icon: Icons.Image,
+      accent: 'text-purple-500 bg-purple-50',
+      title: '데이터 백업 신청 접수',
+      desc: '반납 시 촬영본을 안전하게 옮겨드릴게요. 백업 신청은 반납 전까지 접수 상태로 유지돼요.',
+      titleDone: '데이터 백업 신청 확정',
+      descDone: '데이터 백업이 시작되면 알림톡으로 안내드릴게요.'
+    }
+  };
+  // [NEW] 부가옵션 팝업 열기 — 신청건(req)을 그대로 저장
+  var openRequestPopup = req => setRequestPopup(req);
+  // [NEW] 부가옵션 상태 표기: 예약신청 → 처리중
+  var reqStatusLabel = req => req.status === '예약신청' ? '처리중' : req.status || '접수대기';
   // [NEW] 부가옵션(신청건) 한 줄 요약 — 2x2 그리드 카드용
   var summarizeRequest = req => {
     var s = req.scheduleName || '';
@@ -3574,6 +3629,47 @@ var PhoneRentalApp = () => {
       setViewMode('qna');
     } else if (nav === 'mypage') {
       setViewMode('lookup');
+    } else if (nav === 'my') {
+      setViewMode('myPage');
+    }
+  };
+  // [NEW] 하단 네비게이션 4탭: 홈 / 검색(예약조회) / 챗봇 / MY
+  var BOTTOM_NAV_ITEMS = [{
+    nav: 'home',
+    label: '홈',
+    icon: Icons.Home,
+    onClick: () => handleNavChange('home'),
+    isActive: () => !showSearchPage && activeNav === 'home'
+  }, {
+    nav: 'search',
+    label: '검색',
+    icon: Icons.Search,
+    // [NEW] 홈 상단 "찾으시는 내용을 검색해보세요"와 동일한 전체화면 검색 오픈
+    onClick: () => setShowSearchPage(true),
+    isActive: () => showSearchPage
+  }, {
+    nav: 'qna',
+    label: '챗봇',
+    icon: Icons.Bot,
+    onClick: () => handleNavChange('qna'),
+    isActive: () => !showSearchPage && activeNav === 'qna'
+  }, {
+    nav: 'my',
+    label: 'MY',
+    icon: Icons.User,
+    onClick: () => handleNavChange('my'),
+    isActive: () => !showSearchPage && activeNav === 'my'
+  }];
+  // [NEW] 하단 네비게이션은 각 탭의 최상위 화면에서만 노출 (연장/변경/백업 등 하위 플로우에서는 숨김)
+  var showBottomNav = ['dashboard', 'lookup', 'qna', 'myPage'].includes(viewMode);
+  // [NEW] 연장/백업 등 서비스 신청 화면의 뒤로가기 — MY탭에서 들어왔으면 MY로, 아니면 홈으로
+  var goBackFromService = () => {
+    setServiceTarget(null);
+    if (activeNav === 'my') {
+      setViewMode('myPage');
+    } else {
+      setActiveNav('home');
+      setViewMode('dashboard');
     }
   };
   useEffect(() => {
@@ -3651,115 +3747,38 @@ var PhoneRentalApp = () => {
   }, React.createElement(Icons.MessageLines, {
     size: 18
   }), " 카카오톡 채널 문의하기")))));
-  var renderLookupPage = () => React.createElement("div", {
-    className: "animate-slide-in space-y-6"
-  }, React.createElement("div", {
-    className: "flex items-center gap-3 mb-6"
-  }, activeNav !== 'mypage' && React.createElement("button", {
-    onClick: () => setViewMode('dashboard'),
-    className: "p-2 bg-white rounded-full shadow-sm"
-  }, React.createElement(Icons.ChevronLeft, {
-    className: "w-5 h-5 text-gray-600"
-  })), React.createElement("h2", {
-    className: "text-xl font-bold text-gray-800"
-  }, "예약 조회")), React.createElement("div", {
-    className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100"
-  }, !lookupResult ? React.createElement("div", {
-    className: "space-y-4"
-  }, React.createElement("div", {
-    className: "text-center mb-6"
-  }, React.createElement("div", {
-    className: "w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500"
-  }, React.createElement(Icons.User, {
-    size: 32
-  })), React.createElement("h3", {
-    className: "font-bold text-gray-800"
-  }, "예약자 정보를 입력해주세요"), React.createElement("p", {
-    className: "text-xs text-gray-500 mt-1"
-  }, "예약 시 입력한 성함과 연락처로 조회됩니다.")), React.createElement("input", {
-    type: "text",
-    placeholder: "성함",
-    className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
-    value: lookupName,
-    onChange: e => setLookupName(e.target.value)
-  }), React.createElement("input", {
-    type: "text",
-    placeholder: "연락처 (010-0000-0000)",
-    className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
-    value: lookupPhone,
-    onChange: e => setLookupPhone(formatPhone(e.target.value)),
-    onKeyPress: e => e.key === 'Enter' && handleLookup()
-  }), React.createElement("button", {
-    onClick: () => handleLookup(),
-    disabled: isSearching,
-    className: `w-full py-4 rounded-xl font-bold shadow-md transition-all flex justify-center items-center gap-2 mt-2 ${isSearching ? 'bg-blue-300 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`
-  }, isSearching ? React.createElement(React.Fragment, null, React.createElement(Icons.RefreshCw, {
-    size: 18,
-    className: "animate-spin-slow"
-  }), " 조회 중...") : React.createElement(React.Fragment, null, React.createElement(Icons.Search, {
-    size: 18
-  }), " 내역 조회하기"))) : React.createElement("div", {
-    className: "space-y-4 animate-fade-in"
-  },
-React.createElement("div", {
-    className: "flex justify-between items-center mb-4 pb-2 border-b border-gray-100"
-  }, React.createElement("h3", {
-    className: "font-bold text-gray-800"
-  }, React.createElement("span", {
-    className: "text-blue-500"
-  }, formatNameMasking(lookupName)), "님의 예약"), React.createElement("div", {
-    className: "flex items-center gap-3"
-  }, React.createElement("button", {
-    onClick: handleRefresh,
-    disabled: isSearching,
-    className: `text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1 transition-colors ${isSearching ? 'opacity-50 cursor-not-allowed' : ''}`
-  }, React.createElement(Icons.RefreshCw, {
-    size: 11,
-    className: isSearching ? 'animate-spin' : ''
-  }), isSearching ? '조회중' : '새로고침'), React.createElement("div", {
-    className: "w-px h-2.5 bg-gray-300"
-  }), React.createElement("button", {
-    onClick: handleLogoutClick,
-    className: "text-xs text-gray-400 hover:text-gray-600"
-  }, "로그아웃"))), lookupResult.length === 0 ? React.createElement("div", {
-    className: "text-center py-6 animate-fade-in"
-  }, React.createElement("div", {
-    className: "w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3"
-  }, React.createElement(Icons.Search, {
-    size: 24,
-    className: "text-gray-300"
-  })), React.createElement("p", {
-    className: "font-bold text-gray-600 mb-1 text-sm"
-  }, "예약 내역이 없습니다."), React.createElement("p", {
-    className: "text-[11px] text-gray-400 mb-2"
-  }, "입력하신 정보로 조회된 내역이 없어요."), React.createElement("button", {
-    onClick: () => {
-      setLookupResult(null);
-      setLookupName('');
-      setLookupPhone('');
-    },
-    className: "mt-2 mb-6 text-[11px] font-bold text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors shadow-sm"
-  }, React.createElement(Icons.RefreshCw, {
-    size: 10,
-    className: "inline mr-1"
-  }), " 다른 정보로 다시 조회하기"), renderNotFoundGuide()) : React.createElement("div", {
-    className: "space-y-3"
-  }, [].concat(displayReservations.originals, displayReservations.orphanRequests).map((item, idx) => React.createElement(React.Fragment, {
-    key: idx
-  }, React.createElement("div", {
+  // [NEW] 예약 카드 렌더러 — 예약조회 페이지와 MY 페이지에서 공용으로 사용
+  var renderReservationCard = (item, idx) => React.createElement("div", {
     key: idx,
     className: "border border-gray-100 rounded-2xl p-4 bg-gray-50 hover:bg-white hover:shadow-sm transition-all"
   }, React.createElement("div", {
     className: "flex justify-between items-start mb-2"
-  }, React.createElement("span", {
-    className: `text-[10px] font-bold px-2 py-0.5 rounded-md ${(item.status || '').includes('확정') ? 'bg-green-100 text-green-600' : (item.status || '').includes('취소') || (item.status || '').includes('환불') ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-500'}`
-  }, item.status || '접수대기'), React.createElement("span", {
+  }, (() => {
+    var cancelReq = getLinkedRequests(item).find(r => r.category === '취소신청');
+    var cancelDone = cancelReq && /확정|완료/.test(cancelReq.status || '');
+    var backupReq = getLinkedRequests(item).find(r => r.category === '백업신청');
+    return React.createElement("div", {
+      className: "flex items-center gap-1.5"
+    }, React.createElement("span", {
+      onClick: cancelReq ? () => openRequestPopup(cancelReq) : undefined,
+      className: `text-[10px] font-bold px-2 py-0.5 rounded-md ${cancelReq ? `cursor-pointer bg-red-100 text-red-600 ${cancelDone ? '' : 'animate-soft-glow-badge'}` : (item.status || '').includes('확정') ? 'bg-green-100 text-green-600' : (item.status || '').includes('취소') || (item.status || '').includes('환불') ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-500'}`
+    }, cancelReq ? cancelDone ? '취소' : '취소 처리중' : item.status || '접수대기'), backupReq && React.createElement("span", {
+      onClick: () => openRequestPopup(backupReq),
+      className: "text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-600 animate-soft-glow-badge cursor-pointer"
+    }, "백업신청"));
+  })(), React.createElement("span", {
     className: "text-[10px] text-gray-400"
-  }, item.orderTime ? String(item.orderTime).includes('T') ? formatDisplayDate(item.orderTime) : item.orderTime : '-')), React.createElement("h4", {
-    className: "font-bold text-gray-800 text-sm mb-2"
-  }, item.model, " ", item.scheduleName && React.createElement("span", {
-    className: "text-xs font-normal text-gray-500 ml-1"
-  }, "| ", item.scheduleName)), React.createElement("div", {
+  }, item.orderTime ? String(item.orderTime).includes('T') ? formatDisplayDate(item.orderTime) : item.orderTime : '-')), (() => {
+    var changeReq = getLinkedRequests(item).find(r => r.category === '변경신청');
+    return React.createElement("h4", {
+      className: "font-bold text-gray-800 text-sm mb-2"
+    }, changeReq ? React.createElement("span", {
+      onClick: () => openRequestPopup(changeReq),
+      className: "animate-soft-glow px-1 cursor-pointer"
+    }, item.model) : item.model, " ", item.scheduleName && React.createElement("span", {
+      className: "text-xs font-normal text-gray-500 ml-1"
+    }, "| ", item.scheduleName));
+  })(), React.createElement("div", {
     className: "text-xs text-gray-500 space-y-1.5 pt-2 border-t border-gray-200/50"
   }, React.createElement("div", {
     className: "flex justify-between"
@@ -3776,13 +3795,19 @@ React.createElement("div", {
     style: {
       maxWidth: '70%'
     }
-  }, item.address)), item.startDate && React.createElement("div", {
-    className: "flex justify-between mt-1"
-  }, React.createElement("span", {
-    className: "text-gray-400"
-  }, "대여 기간"), React.createElement("span", {
-    className: "font-bold text-gray-700"
-  }, formatDisplayDate(item.startDate), " ~ ", formatDisplayDate(item.endDate))), React.createElement("div", {
+  }, item.address)), item.startDate && (() => {
+    var extReq = getLinkedRequests(item).find(r => r.category === '연장신청');
+    return React.createElement("div", {
+      className: "flex justify-between mt-1"
+    }, React.createElement("span", {
+      className: "text-gray-400"
+    }, "대여 기간"), React.createElement("span", {
+      className: "font-bold text-gray-700"
+    }, formatDisplayDate(item.startDate), " ~ ", extReq ? React.createElement("span", {
+      onClick: () => openRequestPopup(extReq),
+      className: "animate-soft-glow px-1.5 cursor-pointer"
+    }, formatDisplayDate(item.endDate)) : formatDisplayDate(item.endDate)));
+  })(), React.createElement("div", {
     className: "flex justify-between"
   }, React.createElement("span", {
     className: "text-gray-400 shrink-0"
@@ -3888,30 +3913,103 @@ React.createElement("div", {
     className: "w-full text-[11px] font-bold text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center gap-1"
   }, React.createElement(Icons.Trash2, {
     size: 12
-  }), " 예약 취소 / 환불 신청")))), item.category === '예약신청' && getLinkedRequests(item).length > 0 && React.createElement("div", {
-    key: "req-" + idx,
-    className: "mt-2 pt-2 border-t border-dashed border-gray-200 grid grid-cols-2 gap-1.5"
-  }, getLinkedRequests(item).map((req, ridx) => {
-    var label = REQUEST_LABEL[req.category] || {
-      text: req.category,
-      color: 'text-gray-600 bg-gray-50 border-gray-100'
-    };
-    var summary = summarizeRequest(req);
-    var done = /확정|완료/.test(req.status || '');
-    var statusText = req.status === '예약신청' ? '처리중' : req.status || '접수대기'; // [NEW] 부가옵션 상태 표기: 예약신청 → 처리중
-    return React.createElement("div", {
-      key: ridx,
-      className: `rounded-xl border p-2 flex flex-col gap-1 ${label.color}`
-    }, React.createElement("div", {
-      className: "flex items-center justify-between gap-1"
-    }, React.createElement("span", {
-      className: "text-[11px] font-extrabold truncate"
-    }, label.text), React.createElement("span", {
-      className: `text-[9px] font-bold px-1 py-0.5 rounded shrink-0 ${done ? 'bg-green-100 text-green-700' : 'bg-white/70'}`
-    }, statusText)), summary ? React.createElement("span", {
-      className: "text-[10px] font-bold opacity-80 truncate"
-    }, summary) : null);
-  }))))))));
+  }), " 예약 취소 / 환불 신청"))));
+  var renderLookupPage = () => React.createElement("div", {
+    className: "animate-slide-in space-y-6"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3 mb-6"
+  }, React.createElement("button", {
+    onClick: () => handleNavChange('my'),
+    className: "p-2 bg-white rounded-full shadow-sm"
+  }, React.createElement(Icons.ChevronLeft, {
+    className: "w-5 h-5 text-gray-600"
+  })), React.createElement("h2", {
+    className: "text-xl font-bold text-gray-800"
+  }, "예약 조회")), React.createElement("div", {
+    className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100"
+  }, !lookupResult ? React.createElement("div", {
+    className: "space-y-4"
+  }, React.createElement("div", {
+    className: "text-center mb-6"
+  }, React.createElement("div", {
+    className: "w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500"
+  }, React.createElement(Icons.User, {
+    size: 32
+  })), React.createElement("h3", {
+    className: "font-bold text-gray-800"
+  }, "예약자 정보를 입력해주세요"), React.createElement("p", {
+    className: "text-xs text-gray-500 mt-1"
+  }, "예약 시 입력한 성함과 연락처로 조회됩니다.")), React.createElement("input", {
+    type: "text",
+    placeholder: "성함",
+    className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
+    value: lookupName,
+    onChange: e => setLookupName(e.target.value)
+  }), React.createElement("input", {
+    type: "text",
+    placeholder: "연락처 (010-0000-0000)",
+    className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
+    value: lookupPhone,
+    onChange: e => setLookupPhone(formatPhone(e.target.value)),
+    onKeyPress: e => e.key === 'Enter' && handleLookup()
+  }), React.createElement("button", {
+    onClick: () => handleLookup(),
+    disabled: isSearching,
+    className: `w-full py-4 rounded-xl font-bold shadow-md transition-all flex justify-center items-center gap-2 mt-2 ${isSearching ? 'bg-blue-300 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`
+  }, isSearching ? React.createElement(React.Fragment, null, React.createElement(Icons.RefreshCw, {
+    size: 18,
+    className: "animate-spin-slow"
+  }), " 조회 중...") : React.createElement(React.Fragment, null, React.createElement(Icons.Search, {
+    size: 18
+  }), " 내역 조회하기"))) : React.createElement("div", {
+    className: "space-y-4 animate-fade-in"
+  },
+React.createElement("div", {
+    className: "flex justify-between items-center mb-4 pb-2 border-b border-gray-100"
+  }, React.createElement("h3", {
+    className: "font-bold text-gray-800"
+  }, React.createElement("span", {
+    className: "text-blue-500"
+  }, formatNameMasking(lookupName)), "님의 예약"), React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, React.createElement("button", {
+    onClick: handleRefresh,
+    disabled: isSearching,
+    className: `text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1 transition-colors ${isSearching ? 'opacity-50 cursor-not-allowed' : ''}`
+  }, React.createElement(Icons.RefreshCw, {
+    size: 11,
+    className: isSearching ? 'animate-spin' : ''
+  }), isSearching ? '조회중' : '새로고침'), React.createElement("div", {
+    className: "w-px h-2.5 bg-gray-300"
+  }), React.createElement("button", {
+    onClick: handleLogoutClick,
+    className: "text-xs text-gray-400 hover:text-gray-600"
+  }, "로그아웃"))), lookupResult.length === 0 ? React.createElement("div", {
+    className: "text-center py-6 animate-fade-in"
+  }, React.createElement("div", {
+    className: "w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3"
+  }, React.createElement(Icons.Search, {
+    size: 24,
+    className: "text-gray-300"
+  })), React.createElement("p", {
+    className: "font-bold text-gray-600 mb-1 text-sm"
+  }, "예약 내역이 없습니다."), React.createElement("p", {
+    className: "text-[11px] text-gray-400 mb-2"
+  }, "입력하신 정보로 조회된 내역이 없어요."), React.createElement("button", {
+    onClick: () => {
+      setLookupResult(null);
+      setLookupName('');
+      setLookupPhone('');
+    },
+    className: "mt-2 mb-6 text-[11px] font-bold text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors shadow-sm"
+  }, React.createElement(Icons.RefreshCw, {
+    size: 10,
+    className: "inline mr-1"
+  }), " 다른 정보로 다시 조회하기"), renderNotFoundGuide()) : React.createElement("div", {
+    className: "space-y-3"
+  }, [].concat(displayReservations.originals, displayReservations.orphanRequests).map((item, idx) => React.createElement(React.Fragment, {
+    key: idx
+  }, renderReservationCard(item, idx)))))));
   var renderCalendarDays = () => {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -3960,6 +4058,89 @@ React.createElement("div", {
     }
     return daysArray;
   };
+  // [NEW] 마이페이지 (하단 네비 'MY' 탭) — 예약조회(lookupResult)를 재사용한 대시보드
+  var renderMyPage = () => React.createElement("div", {
+    className: "animate-slide-in space-y-5 pb-24"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3 mb-1"
+  }, React.createElement("h2", {
+    className: "text-xl font-bold text-gray-800"
+  }, "마이페이지")), React.createElement("div", {
+    className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
+  }, !lookupResult ? React.createElement("div", {
+    className: "text-center py-3"
+  }, React.createElement("div", {
+    className: "w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500"
+  }, React.createElement(Icons.User, {
+    size: 32
+  })), React.createElement("h3", {
+    className: "font-bold text-gray-800 mb-1"
+  }, "아직 조회된 예약이 없어요"), React.createElement("p", {
+    className: "text-xs text-gray-500 mb-4"
+  }, "예약 시 입력한 성함과 연락처로 내 정보를 확인할 수 있어요."), React.createElement("button", {
+    onClick: () => handleNavChange('mypage'),
+    className: "w-full py-3.5 rounded-xl font-bold shadow-md bg-blue-500 text-white hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-2"
+  }, React.createElement(Icons.Search, {
+    size: 16
+  }), "예약 조회하러 가기")) : React.createElement("div", {
+    className: "flex items-center justify-between animate-fade-in"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3 min-w-0"
+  }, React.createElement("div", {
+    className: "w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shrink-0"
+  }, React.createElement(Icons.User, {
+    size: 22
+  })), React.createElement("div", {
+    className: "min-w-0"
+  }, React.createElement("p", {
+    className: "font-bold text-gray-800 text-sm truncate"
+  }, formatNameMasking(lookupName), "님"), React.createElement("button", {
+    onClick: () => handleNavChange('mypage'),
+    className: "text-[11px] text-gray-400 hover:text-blue-500 transition-colors"
+  }, "예약 내역 ", lookupResult.length, "건"))), React.createElement("button", {
+    onClick: handleLogoutClick,
+    className: "text-[11px] font-bold text-gray-400 hover:text-gray-600 flex items-center gap-1 shrink-0"
+  }, React.createElement(Icons.LogOut, {
+    size: 12
+  }), "로그아웃"))), React.createElement("div", {
+    className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
+  }, React.createElement("h3", {
+    className: "font-bold text-gray-800 text-sm mb-3"
+  }, "빠른 메뉴"), React.createElement("div", {
+    className: "grid grid-cols-4 gap-2"
+  }, LOOKUP_QUICK_ACTIONS.filter(it => it.label !== '내 예약 보기').map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: it.onClick,
+    className: "flex flex-col items-center gap-1.5 bg-gray-50 hover:bg-blue-50 border border-gray-100 rounded-2xl p-2.5 text-center transition-colors"
+  }, React.createElement("div", {
+    className: "w-8 h-8 rounded-full bg-white text-blue-500 flex items-center justify-center shadow-sm shrink-0"
+  }, React.createElement(it.icon, {
+    size: 15
+  })), React.createElement("span", {
+    className: "text-[10px] font-bold text-gray-700 leading-tight"
+  }, it.label))))), lookupResult && displayReservations.originals.length > 0 && React.createElement("div", {
+    className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 animate-fade-in"
+  }, React.createElement("div", {
+    className: "flex items-center justify-between mb-3"
+  }, React.createElement("h3", {
+    className: "font-bold text-gray-800 text-sm"
+  }, "최근 예약"), React.createElement("button", {
+    onClick: () => handleNavChange('mypage'),
+    className: "text-[11px] font-bold text-blue-500 flex items-center gap-0.5"
+  }, "전체보기", React.createElement(Icons.ChevronRight, {
+    size: 12
+  }))), React.createElement("div", {
+    className: "space-y-2"
+  }, displayReservations.originals.slice(0, 3).map((item, idx) => renderReservationCard(item, idx)))), React.createElement("div", {
+    className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
+  }, React.createElement("h3", {
+    className: "font-bold text-gray-800 text-sm mb-3"
+  }, "고객센터"), React.createElement("a", {
+    href: "http://pf.kakao.com/_kiQkG/chat",
+    target: "_blank",
+    rel: "noopener",
+    className: "w-full bg-yellow-50 text-yellow-600 border border-yellow-100 py-3.5 rounded-xl font-bold hover:bg-yellow-100 transition-colors flex items-center justify-center gap-2"
+  }, "1:1 카카오톡 문의하기")));
   var renderQnaPage = () => {
     var FAQ_CATEGORIES = ['전체', '이용안내', '예약', '수령', '반납', '백업', '환불/취소', '기타'];
     var faqsData = [{
@@ -5027,10 +5208,7 @@ React.createElement("div", {
     var header = React.createElement("div", {
       className: "flex items-center gap-3 mb-6"
     }, React.createElement("button", {
-      onClick: () => {
-        setServiceTarget(null);
-        setViewMode('dashboard');
-      },
+      onClick: goBackFromService,
       className: "p-2 bg-white rounded-full shadow-sm"
     }, React.createElement(Icons.ChevronLeft, {
       className: "w-5 h-5 text-gray-600"
@@ -5169,10 +5347,7 @@ React.createElement("div", {
     }, React.createElement("div", {
       className: "flex items-center gap-3 mb-6"
     }, React.createElement("button", {
-      onClick: () => {
-        setServiceTarget(null);
-        setViewMode('dashboard');
-      },
+      onClick: goBackFromService,
       className: "p-2 bg-white rounded-full shadow-sm"
     }, React.createElement(Icons.ChevronLeft, {
       className: "w-5 h-5 text-gray-600"
@@ -5274,7 +5449,7 @@ React.createElement("div", {
   }, React.createElement("div", {
     className: "flex items-center gap-3 mb-6"
   }, React.createElement("button", {
-    onClick: () => setViewMode('dashboard'),
+    onClick: goBackFromService,
     className: "p-2 bg-white rounded-full shadow-sm"
   }, React.createElement(Icons.ChevronLeft, {
     className: "w-5 h-5 text-gray-600"
@@ -6078,7 +6253,7 @@ React.createElement("div", {
       }, React.createElement("div", {
         className: "flex items-center gap-3 mb-6"
       }, React.createElement("button", {
-        onClick: () => setViewMode('lookup'),
+        onClick: () => setViewMode(activeNav === 'my' ? 'myPage' : 'lookup'),
         className: "p-2 bg-white rounded-full shadow-sm"
       }, React.createElement(Icons.ChevronLeft, {
         className: "w-5 h-5 text-gray-600"
@@ -6103,7 +6278,7 @@ React.createElement("div", {
     }, React.createElement("button", {
       onClick: () => {
         setChangeTargetItem(null);
-        setViewMode('lookup');
+        setViewMode(activeNav === 'my' ? 'myPage' : 'lookup');
       },
       className: "p-2 bg-white rounded-full shadow-sm"
     }, React.createElement(Icons.ChevronLeft, {
@@ -6339,7 +6514,7 @@ React.createElement("div", {
   return React.createElement("div", {
     className: "min-h-screen flex justify-center font-sans"
   }, React.createElement("div", {
-    className: "w-full max-w-md bg-white shadow-xl min-h-screen relative pb-10"
+    className: `w-full max-w-md bg-white shadow-xl min-h-screen relative ${showBottomNav ? 'pb-20' : 'pb-10'}`
   }, React.createElement("header", {
     className: `sticky ${serviceConfirm || isReviewModalOpen || isLogoutModalOpen || isConfirmModalOpen || isCancelModalOpen || isPhoneCheckModalOpen || isChangeConfirmOpen || isBlogConfirmOpen || showKakaoModal || blogModal.open || isSubmitting ? 'z-40' : 'z-50'} bg-white/80 backdrop-blur-md px-4 py-2 flex justify-between items-center border-b border-gray-100 transition-all duration-300 ${showHeader ? 'top-0' : '-top-20'}`
   }, React.createElement("div", {
@@ -6442,7 +6617,7 @@ React.createElement("div", {
     className: "text-blue-500 shrink-0"
   }), React.createElement("span", {
     className: "whitespace-nowrap"
-  }, it.label)))))))), (activeNav === 'home' || activeNav === 'rental' || activeNav === 'qna' || activeNav === 'mypage') && React.createElement("div", {
+  }, it.label)))))))), (activeNav === 'home' || activeNav === 'rental' || activeNav === 'qna' || activeNav === 'mypage' || activeNav === 'my') && React.createElement("div", {
     className: "p-5"
   }, activeNav === 'home' && viewMode === 'dashboard' && React.createElement("div", {
     className: "space-y-6 animate-slide-in pb-24"
@@ -6901,7 +7076,7 @@ React.createElement("div", {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
@@ -8064,26 +8239,7 @@ React.createElement("div", {
       setStep(4);
     },
     className: `flex-1 py-3.5 rounded-xl font-bold transition-all text-sm shadow-md flex justify-center items-center ${isPhoneCheckDisabled ? 'bg-gray-300 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`
-  }, isPhoneCheckDisabled ? `맞아요! (${phoneCheckCountdown}초)` : '맞아요!')))), React.createElement("div", {
-    className: "fixed bottom-6 w-full max-w-md z-50 pointer-events-none"
-  }, React.createElement("div", {
-    className: "flex justify-end pr-5"
-  }, React.createElement("button", {
-    onClick: () => setShowChatbotConfirmModal(true),
-    className: "pointer-events-auto relative group flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full shadow-[0_4px_15px_rgba(99,102,241,0.4)] hover:shadow-[0_6px_20px_rgba(99,102,241,0.6)] transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 animate-bounce-in z-50"
-  }, React.createElement("div", {
-    className: "absolute inset-0 rounded-full border-2 border-white/20 animate-ping",
-    style: {
-      animationDuration: '3s'
-    }
-  }), React.createElement(Icons.Bot, {
-    size: 28,
-    className: "text-white"
-  }), activeNav !== 'qna' && React.createElement("div", {
-    className: "absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-  }, "무엇이든 물어보세요!", React.createElement("div", {
-    className: "absolute top-1/2 -translate-y-1/2 -right-1 w-2 h-2 bg-gray-800 transform rotate-45"
-  }))))), showKakaoModal && React.createElement("div", {
+  }, isPhoneCheckDisabled ? `맞아요! (${phoneCheckCountdown}초)` : '맞아요!')))), showKakaoModal && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
   }, React.createElement("div", {
     className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all"
@@ -9179,8 +9335,16 @@ React.createElement("div", {
       className: "bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto animate-bounce-in",
       onClick: e => e.stopPropagation()
     }, React.createElement("div", {
-      className: "p-6 pb-4 text-center"
-    }, React.createElement("div", {
+      className: "p-6 pb-4 text-center relative"
+    }, React.createElement("button", {
+      onClick: () => {
+        setIsCancelModalOpen(false);
+        setCancelTargetItem(null);
+      },
+      className: "absolute top-4 right-4 p-1.5 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+    }, React.createElement(Icons.X, {
+      size: 18
+    })), React.createElement("div", {
       className: "w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3"
     }, React.createElement(Icons.Trash2, {
       size: 28
@@ -9655,7 +9819,27 @@ React.createElement("div", {
     size: 15
   })), React.createElement("span", {
     className: "text-[13px] font-bold text-gray-700 truncate"
-  }, it.label)))))))))), toast.show && React.createElement("div", {
+  }, it.label)))))))))), showBottomNav && React.createElement("nav", {
+    className: "z-40 mx-auto w-full max-w-md bg-white backdrop-blur-md border-t border-gray-100",
+    style: {
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      paddingBottom: 'env(safe-area-inset-bottom)'
+    }
+  }, React.createElement("div", {
+    className: "flex px-2 pt-2 pb-2"
+  }, BOTTOM_NAV_ITEMS.map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: it.onClick,
+    className: `flex-1 flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors ${it.isActive() ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'}`
+  }, React.createElement(it.icon, {
+    size: 22,
+    strokeWidth: it.isActive() ? 2.4 : 2
+  }), React.createElement("span", {
+    className: `text-[10px] font-bold ${it.isActive() ? 'text-blue-500' : 'text-gray-400'}`
+  }, it.label))))), toast.show && React.createElement("div", {
     className: "fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none"
   }, React.createElement("div", {
     className: "bg-gray-800/90 backdrop-blur-md text-white px-6 py-5 rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.3)] flex flex-col items-center text-center animate-bounce-in w-64"
@@ -9678,7 +9862,80 @@ React.createElement("div", {
     alt: "확대된 리뷰 사진",
     className: "max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-bounce-in cursor-default",
     onClick: e => e.stopPropagation()
-  }))));
+  })), requestPopup && React.createElement("div", {
+    className: "fixed inset-0 z-[10000] bg-black/60 flex items-center justify-center p-4 animate-fade-in",
+    onClick: () => setRequestPopup(null)
+  }, React.createElement("div", {
+    className: "bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 animate-bounce-in",
+    onClick: e => e.stopPropagation()
+  }, function () {
+    var info = REQUEST_POPUP_INFO[requestPopup.category] || {
+      icon: Icons.FileText,
+      accent: 'text-gray-500 bg-gray-50',
+      title: requestPopup.category,
+      desc: ''
+    };
+    var isDone = /확정|완료/.test(requestPopup.status || '');
+    var popupTitle = isDone && info.titleDone ? info.titleDone : info.title;
+    var popupDesc = isDone && info.descDone ? info.descDone : info.desc;
+    var originInfo = function () {
+      try {
+        return JSON.parse(requestPopup.origin_ref || 'null');
+      } catch (e) {
+        return null;
+      }
+    }();
+    var compareRow = null;
+    if (requestPopup.category === '연장신청') {
+      compareRow = {
+        label: '반납일',
+        before: formatDisplayDate(requestPopup.startDate),
+        after: formatDisplayDate(requestPopup.endDate)
+      };
+    } else if (requestPopup.category === '변경신청') {
+      compareRow = {
+        label: '대여모델',
+        before: (originInfo && originInfo.model) || '-',
+        after: (requestPopup.model || '').replace(' (변경신청)', '')
+      };
+    }
+    return React.createElement(React.Fragment, null, React.createElement("div", {
+      className: `w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${info.accent}`
+    }, React.createElement(info.icon, {
+      size: 22
+    })), React.createElement("h3", {
+      className: "text-base font-bold text-gray-800 text-center mb-2"
+    }, popupTitle), React.createElement("p", {
+      className: "text-xs text-gray-500 text-center leading-relaxed mb-4"
+    }, popupDesc), React.createElement("div", {
+      className: "bg-gray-50 rounded-xl p-3 space-y-1.5 mb-5"
+    }, compareRow && React.createElement("div", {
+      className: "flex justify-between items-center text-xs pb-2 mb-1.5 border-b border-gray-200"
+    }, React.createElement("span", {
+      className: "text-gray-400"
+    }, compareRow.label), React.createElement("span", {
+      className: "font-bold text-gray-700"
+    }, compareRow.before, React.createElement("span", {
+      className: "text-gray-300 mx-1"
+    }, "→"), React.createElement("span", {
+      className: "text-blue-500"
+    }, compareRow.after))), React.createElement("div", {
+      className: "flex justify-between text-xs"
+    }, React.createElement("span", {
+      className: "text-gray-400"
+    }, "신청 시각"), React.createElement("span", {
+      className: "font-bold text-gray-700"
+    }, requestPopup.orderTime || '-')), React.createElement("div", {
+      className: "flex justify-between text-xs"
+    }, React.createElement("span", {
+      className: "text-gray-400"
+    }, "현재 상태"), React.createElement("span", {
+      className: "font-bold text-blue-500"
+    }, reqStatusLabel(requestPopup)))), React.createElement("button", {
+      onClick: () => setRequestPopup(null),
+      className: "w-full py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-sm"
+    }, "확인"));
+  }()))));
 };
 var root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(React.createElement(PhoneRentalApp, null));
