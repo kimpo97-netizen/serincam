@@ -1591,68 +1591,118 @@ var PhoneRentalApp = () => {
   }];
 
   // [NEW] 우측 상단 예약조회 드롭다운 항목 (검색바에서도 동일 항목 재사용)
+  // [NEW] MY페이지 "자주 묻는 질문" 미니 아코디언
+  var MY_PAGE_FAQ = [{
+    icon: Icons.Truck,
+    q: '택배 도착은 언제 하나요?',
+    a: [{
+      t: '택배 도착은 '
+    }, {
+      t: '대여시작일 하루 전',
+      b: true
+    }, {
+      t: '에 도착 예정이며, 배송이 시작되면 '
+    }, {
+      t: '카카오 알림톡',
+      b: true
+    }, {
+      t: '으로 안내드려요!\n도착 시간은 배송이 시작되면 기사님께 직접 연락해보셔야 정확히 알 수 있어요.'
+    }]
+  }, {
+    icon: Icons.Ticket,
+    q: '공연장 수령 안내는 언제 해주나요?',
+    a: [{
+      t: '전날 밤~당일 오전 중'
+    }, {
+      t: '에 자세히 안내드립니다!\n수령 시간은 대부분 '
+    }, {
+      t: '사운드체크 1시간 전',
+      b: true
+    }, {
+      t: ' 또는 '
+    }, {
+      t: '공연 시작 2시간 전',
+      b: true
+    }, {
+      t: '에 진행돼요.'
+    }]
+  }, {
+    icon: Icons.Clock,
+    q: '반납 안내는 언제 해주시나요?',
+    a: [{
+      t: '반납일 1일 전 오후 6시 30분 전후',
+      b: true
+    }, {
+      t: '로 카카오 알림톡으로 안내드려요!'
+    }]
+  }, {
+    icon: Icons.Star,
+    q: '리뷰는 언제 어떻게 남겨야 하나요?',
+    a: [{
+      t: '반납일로부터 5일 이내',
+      b: true
+    }, {
+      t: ' 남겨주셔야 해요!\n양식은 반납 확인되면 카카오 알림톡으로 안내드릴게요!'
+    }]
+  }];
   var LOOKUP_QUICK_ACTIONS = [{
     label: '내 예약 보기',
     desc: '예약 상태 확인',
     icon: Icons.Search,
     onClick: () => handleNavChange('mypage')
   }, {
-    label: '예약 취소',
+    label: '취소',
     desc: '취소 및 환불 신청',
+    fullLabel: '예약 취소하기',
     icon: Icons.Trash2,
+    accent: 'bg-red-50 text-red-500',
     onClick: () => {
-      var target = eligibleReservations[0];
-      if (!target) {
-        handleNavChange('mypage');
-        showAppToast('예약을 먼저 조회해주세요.');
-        return;
-      }
-      setCancelTargetItem(target);
-      setIsCancelModalOpen(true);
+      setServiceTarget(null);
+      setViewMode('cancelPicker');
     }
   }, {
-    label: '대여모델 변경',
+    label: '변경',
     desc: '다른 기종으로 변경 신청',
+    fullLabel: '대여모델 변경하기',
     icon: Icons.Smartphone,
+    accent: 'bg-rose-50 text-rose-500',
     onClick: () => {
-      var target = eligibleReservations[0];
-      if (!target) {
-        handleNavChange('mypage');
-        showAppToast('예약을 먼저 조회해주세요.');
-        return;
-      }
-      if ((target.trackingNumber || '').toString().trim()) {
-        showAppToast('이미 발송되어 변경이 어려워요. 카카오톡으로 문의해주세요.');
-        return;
-      }
-      var p = findPhoneByModel(target.model);
-      setChangeTargetItem(target);
-      setChangeForm({
-        modelId: p ? p.id : ''
-      });
-      setChgTab(p && String(p.id).startsWith('i') ? 'iphone' : 'galaxy');
-      setViewMode('changeApply');
+      setServiceTarget(null);
+      setViewMode('changePicker');
     }
   }, {
-    label: '대여연장',
+    label: '연장',
     desc: '대여 기간 연장 신청',
+    fullLabel: '대여기간 연장하기',
     icon: Icons.CalendarPlus,
+    accent: 'bg-blue-50 text-blue-500',
     onClick: () => {
       setServiceTarget(null);
       setViewMode('extension');
     }
   }, {
-    label: '데이터 백업',
+    label: '백업',
     desc: '촬영본 백업 대행 신청',
+    fullLabel: '데이터 백업 맡기기',
     icon: Icons.Image,
+    accent: 'bg-purple-50 text-purple-500',
     onClick: () => {
       setServiceTarget(null);
       setViewMode('backupApply');
     }
   }];
+  // [NEW] MY페이지 "예약 관리" 리스트용 — 기존 4개 신청 항목 + 수령/반납방법 변경 안내
+  var RESERVATION_MANAGE_ROWS = LOOKUP_QUICK_ACTIONS.filter(it => it.label !== '내 예약 보기').concat([{
+    fullLabel: '수령 및 반납방법 변경',
+    icon: Icons.Box,
+    accent: 'bg-orange-50 text-orange-600',
+    onClick: () => setShowMethodChangeNotice(true)
+  }]);
 
   var [isChangeConfirmOpen, setIsChangeConfirmOpen] = useState(false);
   var [openFaqIndex, setOpenFaqIndex] = useState(null);
+  var [openMyFaqIndex, setOpenMyFaqIndex] = useState(null);
+  var [showMethodChangeNotice, setShowMethodChangeNotice] = useState(false);
   var [activeFaqCategory, setActiveFaqCategory] = useState('전체');
   var [faqSearchQuery, setFaqSearchQuery] = useState('');
   var [qnaMode, setQnaMode] = useState('chatbot');
@@ -2237,7 +2287,7 @@ var PhoneRentalApp = () => {
     var refundInfo = calcRefund(target);
     var orderData = {
       category: '취소신청',
-      status: '예약신청',
+      status: '확정',
       orderTime: new Date().toLocaleString('ko-KR'),
       model: (target.model || '') + ' 취소/환불',
       name: target.name || '',
@@ -2246,7 +2296,9 @@ var PhoneRentalApp = () => {
       endDate: target.endDate || '',
       // 환불 예정 금액을 totalPrice로 기록 (관리자가 확인)
       totalPrice: refundInfo.refund,
-      scheduleName: (target.name || '') + '님 취소/환불신청 | 환불예정 ' + refundInfo.refund.toLocaleString() + '원 (' + refundInfo.label + ')' + (target.scheduleName ? ' | 원예약: ' + target.model + ' | ' + target.scheduleName : ''),
+      // [NEW] 원예약 시 입력했던 환불계좌를 그대로 가져와 신청건에도 기록 (관리자가 바로 확인 가능하도록)
+      account: target.account || '',
+      scheduleName: (target.name || '') + '님 취소/환불신청 | 환불예정 ' + refundInfo.refund.toLocaleString() + '원 (' + refundInfo.label + ')' + (target.account ? ' | 환불계좌: ' + target.account : '') + (target.scheduleName ? ' | 원예약: ' + target.model + ' | ' + target.scheduleName : ''),
       origin_ref: buildOriginRef(target)
     };
     try {
@@ -2254,6 +2306,7 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      handleRefresh(); // [NEW] 취소 신청 후 예약내역 자동 새로고침
       setIsSubmitting(false);
       setIsCancelModalOpen(false);
       setCancelTargetItem(null);
@@ -2862,6 +2915,13 @@ var PhoneRentalApp = () => {
     var st = r.status || '';
     if (cat === '연장신청' || cat === '백업신청' || cat === '취소신청' || cat === '변경신청') return false;
     if (st.includes('취소') || st.includes('환불')) return false;
+    // [NEW] 이미 지난(반납일이 오늘 이전인) 예약은 부가옵션 신청 대상에서 제외
+    var end = parseResDate(r.endDate);
+    if (end) {
+      var todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      if (end < todayStart) return false;
+    }
     return true;
   });
   // [NEW] 원예약에 연결된 진행중 신청(연장/백업/취소/변경)을 origin_ref로 매칭해 하위 표시
@@ -2962,6 +3022,8 @@ var PhoneRentalApp = () => {
       return findOriginalFor(r) === original;
     });
   };
+  // [NEW] 이미 처리중(예약신청 상태)인 같은 종류의 부가옵션 신청이 있는지 확인 — 중복 신청 방지
+  var hasPendingRequest = (item, category) => getLinkedRequests(item).some(r => r.category === category && r.status === '예약신청');
   // 표시용 리스트: 원예약(+연결된 신청 내포) 먼저, 그다음 원예약과 매칭 안 된 신청건(구버전 등 예외 케이스만)
   var displayReservations = (() => {
     var all = lookupResult || [];
@@ -3202,7 +3264,9 @@ var PhoneRentalApp = () => {
       delivery: '-',
       returnMethod: '-',
       totalPrice: calc.total,
-      scheduleName: (target.name || '') + '님 기종변경 | ' + origModel + ' → ' + newShortModel + ' | 변경후 ' + calc.total.toLocaleString() + '원 (' + (diff > 0 ? '추가 +' + diff.toLocaleString() : diff < 0 ? '차감 ' + diff.toLocaleString() : '차액없음') + ')',
+      // [NEW] 차액 환불이 필요할 수 있어 원예약의 환불계좌를 그대로 가져와 신청건에도 기록
+      account: target.account || '',
+      scheduleName: (target.name || '') + '님 기종변경 | ' + origModel + ' → ' + newShortModel + ' | 변경후 ' + calc.total.toLocaleString() + '원 (' + (diff > 0 ? '추가 +' + diff.toLocaleString() : diff < 0 ? '차감 ' + diff.toLocaleString() : '차액없음') + ')' + (diff < 0 && target.account ? ' | 환불계좌: ' + target.account : ''),
       origin_ref: buildOriginRef(target)
     };
     try {
@@ -3210,6 +3274,7 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      handleRefresh(); // [NEW] 변경 신청 후 예약내역 자동 새로고침
       setIsSubmitting(false);
       setIsChangeConfirmOpen(false);
       setChangeTargetItem(null);
@@ -3400,6 +3465,7 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      handleRefresh(); // [NEW] 연장 신청 후 예약내역 자동 새로고침
       setSuccessData({
         type: '연장',
         name: extForm.name,
@@ -3449,6 +3515,7 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      handleRefresh(); // [NEW] 백업 신청 후 예약내역 자동 새로고침
       setSuccessData({
         type: '백업',
         name: backupForm.name,
@@ -3901,19 +3968,7 @@ var PhoneRentalApp = () => {
     className: "text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
   }, "복사")), React.createElement("p", {
     className: "text-[10px] text-gray-400 mt-2 text-center"
-  }, "* 기한 초과 시 별도 안내없이 신청내역이 삭제돼요.")),
-  // [NEW] 예약 취소/환불 버튼 (실제 대여 예약에만 노출, 이미 취소/환불된 건 제외)
-  (item.category === '예약신청' || !item.category) && !(item.status || '').includes('취소') && !(item.status || '').includes('환불') && item.category !== '연장신청' && item.category !== '백업신청' && item.category !== '취소신청' && React.createElement("div", {
-    className: "mt-3 pt-3 border-t border-gray-100 border-dashed"
-  }, React.createElement("button", {
-    onClick: () => {
-      setCancelTargetItem(item);
-      setIsCancelModalOpen(true);
-    },
-    className: "w-full text-[11px] font-bold text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center gap-1"
-  }, React.createElement(Icons.Trash2, {
-    size: 12
-  }), " 예약 취소 / 환불 신청"))));
+  }, "* 기한 초과 시 별도 안내없이 신청내역이 삭제돼요."))));
   var renderLookupPage = () => React.createElement("div", {
     className: "animate-slide-in space-y-6"
   }, React.createElement("div", {
@@ -4062,10 +4117,12 @@ React.createElement("div", {
   var renderMyPage = () => React.createElement("div", {
     className: "animate-slide-in space-y-5 pb-24"
   }, React.createElement("div", {
-    className: "flex items-center gap-3 mb-1"
+    className: "mb-1"
   }, React.createElement("h2", {
     className: "text-xl font-bold text-gray-800"
-  }, "마이페이지")), React.createElement("div", {
+  }, "마이페이지"), React.createElement("p", {
+    className: "text-xs text-gray-400 mt-0.5"
+  }, "예약부터 부가옵션 신청 현황까지 한눈에 확인하세요")), React.createElement("div", {
     className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
   }, !lookupResult ? React.createElement("div", {
     className: "text-center py-3"
@@ -4083,11 +4140,11 @@ React.createElement("div", {
   }, React.createElement(Icons.Search, {
     size: 16
   }), "예약 조회하러 가기")) : React.createElement("div", {
-    className: "flex items-center justify-between animate-fade-in"
+    className: "flex items-center justify-between gap-3 animate-fade-in"
   }, React.createElement("div", {
     className: "flex items-center gap-3 min-w-0"
   }, React.createElement("div", {
-    className: "w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shrink-0"
+    className: "w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 shrink-0 ring-2 ring-blue-50"
   }, React.createElement(Icons.User, {
     size: 22
   })), React.createElement("div", {
@@ -4096,52 +4153,97 @@ React.createElement("div", {
     className: "font-bold text-gray-800 text-sm truncate"
   }, formatNameMasking(lookupName), "님"), React.createElement("button", {
     onClick: () => handleNavChange('mypage'),
-    className: "text-[11px] text-gray-400 hover:text-blue-500 transition-colors"
-  }, "예약 내역 ", lookupResult.length, "건"))), React.createElement("button", {
+    className: "text-[11px] text-gray-400 hover:text-blue-500 transition-colors text-left w-fit"
+  }, "예약내역 ", displayReservations.originals.length, "건"))), React.createElement("button", {
     onClick: handleLogoutClick,
     className: "text-[11px] font-bold text-gray-400 hover:text-gray-600 flex items-center gap-1 shrink-0"
   }, React.createElement(Icons.LogOut, {
     size: 12
-  }), "로그아웃"))), React.createElement("div", {
-    className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
-  }, React.createElement("h3", {
-    className: "font-bold text-gray-800 text-sm mb-3"
-  }, "빠른 메뉴"), React.createElement("div", {
-    className: "grid grid-cols-4 gap-2"
-  }, LOOKUP_QUICK_ACTIONS.filter(it => it.label !== '내 예약 보기').map((it, i) => React.createElement("button", {
-    key: i,
-    onClick: it.onClick,
-    className: "flex flex-col items-center gap-1.5 bg-gray-50 hover:bg-blue-50 border border-gray-100 rounded-2xl p-2.5 text-center transition-colors"
-  }, React.createElement("div", {
-    className: "w-8 h-8 rounded-full bg-white text-blue-500 flex items-center justify-center shadow-sm shrink-0"
-  }, React.createElement(it.icon, {
-    size: 15
-  })), React.createElement("span", {
-    className: "text-[10px] font-bold text-gray-700 leading-tight"
-  }, it.label))))), lookupResult && displayReservations.originals.length > 0 && React.createElement("div", {
+  }), "로그아웃"))), lookupResult && displayReservations.originals.length > 0 && React.createElement("div", {
     className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 animate-fade-in"
   }, React.createElement("div", {
     className: "flex items-center justify-between mb-3"
   }, React.createElement("h3", {
-    className: "font-bold text-gray-800 text-sm"
-  }, "최근 예약"), React.createElement("button", {
+    className: "font-bold text-gray-800 text-sm flex items-center gap-1.5"
+  }, React.createElement(Icons.Clock, {
+    size: 13,
+    className: "text-gray-300"
+  }), "최근 예약"), React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, React.createElement("button", {
+    onClick: handleRefresh,
+    disabled: isSearching,
+    className: `text-[11px] text-gray-400 hover:text-blue-500 flex items-center gap-1 transition-colors ${isSearching ? 'opacity-50 cursor-not-allowed' : ''}`
+  }, React.createElement(Icons.RefreshCw, {
+    size: 11,
+    className: isSearching ? 'animate-spin' : ''
+  }), isSearching ? '조회중' : '새로고침'), React.createElement("button", {
     onClick: () => handleNavChange('mypage'),
     className: "text-[11px] font-bold text-blue-500 flex items-center gap-0.5"
   }, "전체보기", React.createElement(Icons.ChevronRight, {
     size: 12
-  }))), React.createElement("div", {
+  })))), React.createElement("div", {
     className: "space-y-2"
-  }, displayReservations.originals.slice(0, 3).map((item, idx) => renderReservationCard(item, idx)))), React.createElement("div", {
+  }, displayReservations.originals.slice(0, 1).map((item, idx) => renderReservationCard(item, idx)))), React.createElement("div", null, React.createElement("h3", {
+    className: "text-xs font-bold text-gray-400 px-1 mb-2"
+  }, "예약 관리"), React.createElement("div", {
+    className: "bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
+  }, RESERVATION_MANAGE_ROWS.map((it, i, arr) => React.createElement("button", {
+    key: i,
+    onClick: it.onClick,
+    className: `w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`
+  }, React.createElement("div", {
+    className: `w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${it.accent || 'bg-blue-50 text-blue-500'}`
+  }, React.createElement(it.icon, {
+    size: 16
+  })), React.createElement("span", {
+    className: "flex-1 text-sm font-bold text-gray-700"
+  }, it.fullLabel || it.label), React.createElement(Icons.ChevronRight, {
+    size: 16,
+    className: "text-gray-300"
+  }))))), React.createElement("div", null, React.createElement("h3", {
+    className: "text-xs font-bold text-gray-400 px-1 mb-2"
+  }, "자주 묻는 질문"), React.createElement("div", {
+    className: "bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
+  }, MY_PAGE_FAQ.map((it, i, arr) => React.createElement("div", {
+    key: i,
+    className: i !== arr.length - 1 ? "border-b border-gray-100" : ""
+  }, React.createElement("button", {
+    onClick: () => setOpenMyFaqIndex(openMyFaqIndex === i ? null : i),
+    className: "w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 transition-colors"
+  }, React.createElement("div", {
+    className: "w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-blue-50 text-blue-500"
+  }, React.createElement(it.icon, {
+    size: 16
+  })), React.createElement("span", {
+    className: "flex-1 text-sm font-bold text-gray-700"
+  }, it.q), React.createElement(Icons.ChevronRight, {
+    size: 16,
+    className: `text-gray-300 transition-transform ${openMyFaqIndex === i ? 'rotate-90' : ''}`
+  })), openMyFaqIndex === i && React.createElement("p", {
+    className: "px-4 pb-4 pl-11 pt-2 text-xs text-gray-500 leading-relaxed whitespace-pre-line"
+  }, it.a.map((seg, j) => seg.b ? React.createElement("strong", {
+    key: j,
+    className: "font-bold text-gray-700"
+  }, seg.t) : seg.t)))))), React.createElement("div", {
     className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
-  }, React.createElement("h3", {
-    className: "font-bold text-gray-800 text-sm mb-3"
-  }, "고객센터"), React.createElement("a", {
+  }, React.createElement("div", {
+    className: "flex items-center gap-3 mb-3"
+  }, React.createElement("div", {
+    className: "w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center shrink-0"
+  }, React.createElement(Icons.Bot, {
+    size: 16
+  })), React.createElement("div", null, React.createElement("h3", {
+    className: "font-bold text-gray-800 text-sm"
+  }, "고객센터"), React.createElement("p", {
+    className: "text-[11px] text-gray-400"
+  }, "궁금한 점을 편하게 물어보세요"))), React.createElement("a", {
     href: "http://pf.kakao.com/_kiQkG/chat",
     target: "_blank",
     rel: "noopener",
     className: "w-full bg-yellow-50 text-yellow-600 border border-yellow-100 py-3.5 rounded-xl font-bold hover:bg-yellow-100 transition-colors flex items-center justify-center gap-2"
   }, "1:1 카카오톡 문의하기")));
-  var renderQnaPage = () => {
+    var renderQnaPage = () => {
     var FAQ_CATEGORIES = ['전체', '이용안내', '예약', '수령', '반납', '백업', '환불/취소', '기타'];
     var faqsData = [{
       category: '수령',
@@ -5188,6 +5290,25 @@ React.createElement("div", {
   }, "택배, 퀵, 현장반납 등 ", React.createElement("br", null), "상황별 반납 방법을 상세하게 알려드려요 🚚"))));
   // [NEW] 대상 예약 선택 시: 폼 자동 채움 + 기종 자동 감지
   var selectServiceReservation = (serviceType, res) => {
+    if (serviceType === 'cancel') {
+      setCancelTargetItem(res);
+      setIsCancelModalOpen(true);
+      return;
+    }
+    if (serviceType === 'change') {
+      if ((res.trackingNumber || '').toString().trim()) {
+        showAppToast('이미 발송되어 변경이 어려워요. 카카오톡으로 문의해주세요.');
+        return;
+      }
+      var p2 = findPhoneByModel(res.model);
+      setChangeTargetItem(res);
+      setChangeForm({
+        modelId: p2 ? p2.id : ''
+      });
+      setChgTab(p2 && String(p2.id).startsWith('i') ? 'iphone' : 'galaxy');
+      setViewMode('changeApply');
+      return;
+    }
     setServiceTarget(res);
     if (serviceType === 'ext') {
       setExtModel(detectExtModel(res.model));
@@ -5204,6 +5325,25 @@ React.createElement("div", {
     }
   };
   // [NEW] 예약조회 게이트: 미조회 → 조회폼 / 조회완료 → 예약선택 / 선택완료 → null(호출부가 본문 렌더)
+  // [NEW] 부가옵션 4종 공용 안내문구
+  var GATE_TEXT = {
+    ext: {
+      verb: '연장할',
+      full: '연장 신청'
+    },
+    backup: {
+      verb: '백업 대행할',
+      full: '백업 대행 신청'
+    },
+    cancel: {
+      verb: '취소·환불할',
+      full: '취소·환불 신청'
+    },
+    change: {
+      verb: '기종변경할',
+      full: '기종변경 신청'
+    }
+  };
   var renderServiceGate = (serviceType, title, iconAccentClass) => {
     var header = React.createElement("div", {
       className: "flex items-center gap-3 mb-6"
@@ -5231,7 +5371,7 @@ React.createElement("div", {
         className: "font-bold text-gray-800"
       }, "먼저 예약을 조회해주세요"), React.createElement("p", {
         className: "text-xs text-gray-500 mt-1 leading-relaxed"
-      }, "예약 시 입력한 성함·연락처로 조회 후,", React.createElement("br", null), serviceType === 'ext' ? "연장할 예약을 선택해요." : "백업 대행할 예약을 선택해요.")), React.createElement("input", {
+      }, "예약 시 입력한 성함·연락처로 조회 후,", React.createElement("br", null), GATE_TEXT[serviceType].verb + " 예약을 선택해요.")), React.createElement("input", {
         type: "text",
         placeholder: "성함",
         className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
@@ -5256,7 +5396,11 @@ React.createElement("div", {
       }), " 내 예약 조회하기"))));
     }
     // 2) 조회됐지만 신청 가능한 예약 없음
-    if (eligibleReservations.length === 0) {
+    var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : '취소신청';
+    var availableReservations = eligibleReservations.filter(r => serviceType === 'cancel' ?
+    // [NEW] 취소/환불은 예약 하나당 평생 1건만 — 상태 무관하게 이미 신청 이력이 있으면 제외
+    !getLinkedRequests(r).some(x => x.category === '취소신청') : !hasPendingRequest(r, pendingCategory));
+    if (availableReservations.length === 0) {
       return React.createElement("div", {
         className: "animate-slide-in space-y-6"
       }, header, React.createElement("div", {
@@ -5268,9 +5412,9 @@ React.createElement("div", {
         className: "text-gray-300"
       })), React.createElement("p", {
         className: "font-bold text-gray-600 mb-1 text-sm"
-      }, "신청 가능한 예약이 없어요"), React.createElement("p", {
+      }, eligibleReservations.length === 0 ? "신청 가능한 예약이 없어요" : "이미 처리중인 신청이 있어요"), React.createElement("p", {
         className: "text-[11px] text-gray-400 mb-4 leading-relaxed"
-      }, "확정 또는 접수된 대여 예약이 있어야", React.createElement("br", null), serviceType === 'ext' ? "연장 신청이 가능해요." : "백업 대행 신청이 가능해요."), React.createElement("button", {
+      }, eligibleReservations.length === 0 ? React.createElement(React.Fragment, null, "확정 또는 접수된 대여 예약이 있어야", React.createElement("br", null), GATE_TEXT[serviceType].full + "이 가능해요.") : React.createElement(React.Fragment, null, serviceType === 'cancel' ? "같은 예약에 대한 취소·환불 신청은 예약당" : "같은 예약에 대한 신청은 처리가 끝난 뒤", React.createElement("br", null), serviceType === 'cancel' ? "한 번만 가능해요." : "다시 신청할 수 있어요.")), React.createElement("button", {
         onClick: () => {
           setLookupResult(null);
           setLookupName('');
@@ -5299,7 +5443,7 @@ React.createElement("div", {
         className: "text-[11px] text-gray-400 hover:text-gray-600"
       }, "로그아웃")), React.createElement("div", {
         className: "space-y-3"
-      }, eligibleReservations.map((item, idx) => React.createElement("button", {
+      }, availableReservations.map((item, idx) => React.createElement("button", {
         key: idx,
         onClick: () => selectServiceReservation(serviceType, item),
         className: "w-full text-left border border-gray-100 rounded-2xl p-4 bg-gray-50 hover:bg-white hover:shadow-md hover:border-blue-200 transition-all active:scale-95"
@@ -6416,8 +6560,8 @@ React.createElement("div", {
       titleMsg = "백업 신청 완료!";
       statusMsg = "담당자가 확인 후 연락드리겠습니다.";
     } else if (type === '취소') {
-      titleMsg = "취소 신청 완료!";
-      statusMsg = amount > 0 ? "담당자 확인 후 환불이 진행됩니다." : "취소 신청이 접수되었습니다.";
+      titleMsg = "예약이 취소되었어요";
+      statusMsg = amount > 0 ? "환불할 금액이 있어 담당자가 확인 후 환불해 드릴게요." : "예약이 정상적으로 취소되었어요.";
     } else if (type === '변경') {
       titleMsg = "변경 신청 완료!";
       statusMsg = "담당자 확인 후 변경이 확정됩니다.";
@@ -6472,7 +6616,7 @@ React.createElement("div", {
       className: `text-lg font-bold ${type === '취소' && amount === 0 ? 'text-red-500' : 'text-blue-500'}`
     }, amount.toLocaleString(), "원")), type === '취소' ? React.createElement("p", {
       className: "text-[11px] text-gray-500 text-center leading-relaxed break-keep"
-    }, amount > 0 ? "담당자 확인 후 결제하신 수단으로 환불이 진행돼요." : "규정상 환불되는 금액은 없지만, 취소 신청은 정상 접수되었어요.") : pMethod === 'transfer' || type !== '예약' ? React.createElement("div", {
+    }, amount > 0 ? "예약은 취소되었고, 환불할 금액이 있어 담당자가 확인 후 환불해 드릴게요." : "규정상 환불되는 금액은 없지만, 예약은 정상적으로 취소되었어요.") : pMethod === 'transfer' || type !== '예약' ? React.createElement("div", {
       className: "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200"
     }, React.createElement("div", {
       className: "text-left"
@@ -6577,18 +6721,15 @@ React.createElement("div", {
     size: 12,
     className: "text-blue-500"
   })))))),
-  // [NEW] 헤더 우측: 예약조회 드롭다운
+  // [NEW] 헤더 우측: 프로필 버튼 (클릭 시 마이페이지로 이동)
   React.createElement("div", {
     className: "relative shrink-0"
   }, React.createElement("button", {
-    onClick: () => {
-      setIsLangOpen(false);
-      setIsLookupMenuOpen(!isLookupMenuOpen);
-    },
-    className: `flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-colors border shadow-sm ${activeNav === 'mypage' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`
-  }, React.createElement(Icons.Search, {
+    onClick: () => handleNavChange('my'),
+    className: `flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl transition-colors border shadow-sm ${activeNav === 'my' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`
+  }, React.createElement(Icons.User, {
     size: 14,
-    className: activeNav === 'mypage' ? 'text-white' : 'text-blue-500'
+    className: activeNav === 'my' ? 'text-white' : 'text-blue-500'
   }), React.createElement("span", {
     className: "whitespace-nowrap"
   }, (() => {
@@ -6597,27 +6738,7 @@ React.createElement("div", {
     var n = String(lookupName).trim();
     if (n.length > 4) n = n.slice(0, 4) + '..';
     return n + '님';
-  })()), React.createElement(Icons.ChevronRight, {
-    size: 12,
-    className: `transform transition-transform ${activeNav === 'mypage' ? 'text-white' : 'text-gray-400'} ${isLookupMenuOpen ? '-rotate-90' : 'rotate-90'}`
-  })), isLookupMenuOpen && React.createElement(React.Fragment, null, React.createElement("div", {
-    className: "fixed inset-0 z-40",
-    onClick: () => setIsLookupMenuOpen(false)
-  }), React.createElement("div", {
-    className: "absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden z-50 animate-fade-in origin-top-right"
-  }, LOOKUP_QUICK_ACTIONS.map((it, i) => React.createElement("button", {
-    key: i,
-    onClick: () => {
-      setIsLookupMenuOpen(false);
-      it.onClick();
-    },
-    className: "w-full text-left px-3.5 py-3 text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2 border-b border-gray-50"
-  }, React.createElement(it.icon, {
-    size: 14,
-    className: "text-blue-500 shrink-0"
-  }), React.createElement("span", {
-    className: "whitespace-nowrap"
-  }, it.label)))))))), (activeNav === 'home' || activeNav === 'rental' || activeNav === 'qna' || activeNav === 'mypage' || activeNav === 'my') && React.createElement("div", {
+  })()))))), (activeNav === 'home' || activeNav === 'rental' || activeNav === 'qna' || activeNav === 'mypage' || activeNav === 'my') && React.createElement("div", {
     className: "p-5"
   }, activeNav === 'home' && viewMode === 'dashboard' && React.createElement("div", {
     className: "space-y-6 animate-slide-in pb-24"
@@ -7076,7 +7197,7 @@ React.createElement("div", {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
@@ -9862,83 +9983,169 @@ React.createElement("div", {
     alt: "확대된 리뷰 사진",
     className: "max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-bounce-in cursor-default",
     onClick: e => e.stopPropagation()
-  })), requestPopup && React.createElement("div", {
+  })), requestPopup && (function () {
+  var info = REQUEST_POPUP_INFO[requestPopup.category] || {
+    icon: Icons.FileText,
+    accent: 'text-gray-500 bg-gray-50',
+    title: requestPopup.category,
+    desc: ''
+  };
+  var isDone = /확정|완료/.test(requestPopup.status || '');
+  var popupTitle = isDone && info.titleDone ? info.titleDone : info.title;
+  var popupDesc = isDone && info.descDone ? info.descDone : info.desc;
+  var originInfo = function () {
+    try {
+      return JSON.parse(requestPopup.origin_ref || 'null');
+    } catch (e) {
+      return null;
+    }
+  }();
+  var compareRow = null;
+  if (requestPopup.category === '연장신청') {
+    compareRow = {
+      label: '반납일',
+      before: formatDisplayDate(requestPopup.startDate),
+      after: formatDisplayDate(requestPopup.endDate)
+    };
+  } else if (requestPopup.category === '변경신청') {
+    compareRow = {
+      label: '대여모델',
+      before: (originInfo && originInfo.model) || '-',
+      after: (requestPopup.model || '').replace(' (변경신청)', '')
+    };
+  }
+  var iconCircle = React.createElement("div", {
+    className: `w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${info.accent}`
+  }, React.createElement(info.icon, {
+    size: 22
+  }));
+  var titleEl = React.createElement("h3", {
+    className: "text-base font-bold text-gray-800 text-center mb-2"
+  }, popupTitle);
+  var descEl = React.createElement("p", {
+    className: "text-xs text-gray-500 text-center leading-relaxed mb-4"
+  }, popupDesc);
+  var compareEl = compareRow ? React.createElement("div", {
+    className: "flex justify-between items-center text-xs pb-2 mb-1.5 border-b border-gray-200"
+  }, React.createElement("span", {
+    className: "text-gray-400"
+  }, compareRow.label), React.createElement("span", {
+    className: "font-bold text-gray-700"
+  }, compareRow.before, React.createElement("span", {
+    className: "text-gray-300 mx-1"
+  }, "→"), React.createElement("span", {
+    className: "text-blue-500"
+  }, compareRow.after))) : null;
+  var timeRow = React.createElement("div", {
+    className: "flex justify-between text-xs"
+  }, React.createElement("span", {
+    className: "text-gray-400"
+  }, "신청 시각"), React.createElement("span", {
+    className: "font-bold text-gray-700"
+  }, requestPopup.orderTime || '-'));
+  var statusRow = React.createElement("div", {
+    className: "flex justify-between text-xs"
+  }, React.createElement("span", {
+    className: "text-gray-400"
+  }, "현재 상태"), React.createElement("span", {
+    className: "font-bold text-blue-500"
+  }, reqStatusLabel(requestPopup)));
+  var infoBox = React.createElement("div", {
+    className: "bg-gray-50 rounded-xl p-3 space-y-1.5 mb-5"
+  }, compareEl, timeRow, statusRow);
+  var confirmBtn = React.createElement("button", {
+    onClick: () => setRequestPopup(null),
+    className: "w-full py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-sm"
+  }, "확인");
+  var cardContent = React.createElement(React.Fragment, null, iconCircle, titleEl, descEl, infoBox, confirmBtn);
+  var cardDiv = React.createElement("div", {
+    className: "bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 animate-bounce-in",
+    onClick: e => e.stopPropagation()
+  }, cardContent);
+  var backdropDiv = React.createElement("div", {
     className: "fixed inset-0 z-[10000] bg-black/60 flex items-center justify-center p-4 animate-fade-in",
     onClick: () => setRequestPopup(null)
+  }, cardDiv);
+  return backdropDiv;
+})(), showMethodChangeNotice && React.createElement("div", {
+    className: "fixed inset-0 z-[10000] bg-black/60 flex items-center justify-center p-4 animate-fade-in",
+    onClick: () => setShowMethodChangeNotice(false)
   }, React.createElement("div", {
     className: "bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 animate-bounce-in",
     onClick: e => e.stopPropagation()
-  }, function () {
-    var info = REQUEST_POPUP_INFO[requestPopup.category] || {
-      icon: Icons.FileText,
-      accent: 'text-gray-500 bg-gray-50',
-      title: requestPopup.category,
-      desc: ''
-    };
-    var isDone = /확정|완료/.test(requestPopup.status || '');
-    var popupTitle = isDone && info.titleDone ? info.titleDone : info.title;
-    var popupDesc = isDone && info.descDone ? info.descDone : info.desc;
-    var originInfo = function () {
-      try {
-        return JSON.parse(requestPopup.origin_ref || 'null');
-      } catch (e) {
-        return null;
-      }
-    }();
-    var compareRow = null;
-    if (requestPopup.category === '연장신청') {
-      compareRow = {
-        label: '반납일',
-        before: formatDisplayDate(requestPopup.startDate),
-        after: formatDisplayDate(requestPopup.endDate)
-      };
-    } else if (requestPopup.category === '변경신청') {
-      compareRow = {
-        label: '대여모델',
-        before: (originInfo && originInfo.model) || '-',
-        after: (requestPopup.model || '').replace(' (변경신청)', '')
-      };
-    }
-    return React.createElement(React.Fragment, null, React.createElement("div", {
-      className: `w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${info.accent}`
-    }, React.createElement(info.icon, {
-      size: 22
-    })), React.createElement("h3", {
-      className: "text-base font-bold text-gray-800 text-center mb-2"
-    }, popupTitle), React.createElement("p", {
-      className: "text-xs text-gray-500 text-center leading-relaxed mb-4"
-    }, popupDesc), React.createElement("div", {
-      className: "bg-gray-50 rounded-xl p-3 space-y-1.5 mb-5"
-    }, compareRow && React.createElement("div", {
-      className: "flex justify-between items-center text-xs pb-2 mb-1.5 border-b border-gray-200"
-    }, React.createElement("span", {
-      className: "text-gray-400"
-    }, compareRow.label), React.createElement("span", {
-      className: "font-bold text-gray-700"
-    }, compareRow.before, React.createElement("span", {
-      className: "text-gray-300 mx-1"
-    }, "→"), React.createElement("span", {
-      className: "text-blue-500"
-    }, compareRow.after))), React.createElement("div", {
-      className: "flex justify-between text-xs"
-    }, React.createElement("span", {
-      className: "text-gray-400"
-    }, "신청 시각"), React.createElement("span", {
-      className: "font-bold text-gray-700"
-    }, requestPopup.orderTime || '-')), React.createElement("div", {
-      className: "flex justify-between text-xs"
-    }, React.createElement("span", {
-      className: "text-gray-400"
-    }, "현재 상태"), React.createElement("span", {
-      className: "font-bold text-blue-500"
-    }, reqStatusLabel(requestPopup)))), React.createElement("button", {
-      onClick: () => setRequestPopup(null),
-      className: "w-full py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-sm"
-    }, "확인"));
-  }()))));
+  }, React.createElement("div", {
+    className: "w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-orange-50 text-orange-600"
+  }, React.createElement(Icons.Box, {
+    size: 22
+  })), React.createElement("h3", {
+    className: "text-base font-bold text-gray-800 text-center mb-2"
+  }, "수령·반납 방법 변경 안내"), React.createElement("p", {
+    className: "text-xs text-gray-500 text-center leading-relaxed mb-5"
+  }, "수령 및 반납 방법 변경은 홈페이지에서 직접 처리할 수 없어요.\n카카오톡 채널로 문의해주시면 확인 후 변경해드릴게요!"), React.createElement("a", {
+    href: "http://pf.kakao.com/_kiQkG/chat",
+    target: "_blank",
+    rel: "noopener",
+    onClick: () => setShowMethodChangeNotice(false),
+    className: "w-full bg-yellow-50 text-yellow-600 border border-yellow-100 py-3.5 rounded-xl font-bold hover:bg-yellow-100 transition-colors flex items-center justify-center gap-2 mb-2"
+  }, "카카오톡 채널로 이동"), React.createElement("button", {
+    onClick: () => setShowMethodChangeNotice(false),
+    className: "w-full py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-sm"
+  }, "닫기")))))
 };
+// [NEW] 특정 화면에서 알 수 없는 오류로 흰 화면만 나오는 문제 방지 — 렌더링 중 에러가 나도 흰 화면 대신 안내 화면을 보여줌
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasError: false
+    };
+  }
+  static getDerivedStateFromError(error) {
+    return {
+      hasError: true
+    };
+  }
+  componentDidCatch(error, info) {
+    console.error('세린캠 화면 오류:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return React.createElement("div", {
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          textAlign: 'center',
+          fontFamily: 'inherit'
+        }
+      }, React.createElement("p", {
+        style: {
+          fontWeight: 'bold',
+          marginBottom: '16px',
+          color: '#374151',
+          fontSize: '14px'
+        }
+      }, "일시적인 오류가 발생했어요.\n새로고침 후 다시 시도해주세요."), React.createElement("button", {
+        onClick: () => window.location.reload(),
+        style: {
+          padding: '12px 28px',
+          borderRadius: '12px',
+          background: '#3B82F6',
+          color: 'white',
+          fontWeight: 'bold',
+          border: 'none',
+          fontSize: '13px'
+        }
+      }, "새로고침"));
+    }
+    return this.props.children;
+  }
+}
 var root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(PhoneRentalApp, null));
+root.render(React.createElement(ErrorBoundary, null, React.createElement(PhoneRentalApp, null)));
 </script>
 </body>
 </html>
