@@ -2910,12 +2910,15 @@ var PhoneRentalApp = () => {
     }
   };
   // [NEW] 연장/백업 대상이 될 수 있는 "실제 대여 예약"만 필터 (연장/백업 신청건·취소·환불 제외)
-  var eligibleReservations = (lookupResult || []).filter(function (r) {
+  var eligibleReservationsBase = (lookupResult || []).filter(function (r) {
     var cat = r.category || '';
     var st = r.status || '';
     if (cat === '연장신청' || cat === '백업신청' || cat === '취소신청' || cat === '변경신청') return false;
     if (st.includes('취소') || st.includes('환불')) return false;
-    // [NEW] 이미 지난(반납일이 오늘 이전인) 예약은 부가옵션 신청 대상에서 제외
+    return true;
+  });
+  // [NEW] 취소/변경/백업은 이미 지난(반납일이 오늘 이전인) 예약을 신청 대상에서 제외. 대여연장은 지난 예약도 신청 가능해야 해서 제외 안 함(renderServiceGate에서 serviceType==='ext'일 때 eligibleReservationsBase를 직접 사용)
+  var eligibleReservations = eligibleReservationsBase.filter(function (r) {
     var end = parseResDate(r.endDate);
     if (end) {
       var todayStart = new Date();
@@ -5396,8 +5399,10 @@ React.createElement("div", {
       }), " 내 예약 조회하기"))));
     }
     // 2) 조회됐지만 신청 가능한 예약 없음
+    // [NEW] 대여연장은 반납일이 지난 예약도 신청 가능해야 하므로 날짜 필터가 없는 기본 목록을 사용
+    var eligibleForThis = serviceType === 'ext' ? eligibleReservationsBase : eligibleReservations;
     var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : '취소신청';
-    var availableReservations = eligibleReservations.filter(r => serviceType === 'cancel' ?
+    var availableReservations = eligibleForThis.filter(r => serviceType === 'cancel' ?
     // [NEW] 취소/환불은 예약 하나당 평생 1건만 — 상태 무관하게 이미 신청 이력이 있으면 제외
     !getLinkedRequests(r).some(x => x.category === '취소신청') : !hasPendingRequest(r, pendingCategory));
     if (availableReservations.length === 0) {
@@ -5412,9 +5417,9 @@ React.createElement("div", {
         className: "text-gray-300"
       })), React.createElement("p", {
         className: "font-bold text-gray-600 mb-1 text-sm"
-      }, eligibleReservations.length === 0 ? "신청 가능한 예약이 없어요" : "이미 처리중인 신청이 있어요"), React.createElement("p", {
+      }, eligibleForThis.length === 0 ? "신청 가능한 예약이 없어요" : "이미 처리중인 신청이 있어요"), React.createElement("p", {
         className: "text-[11px] text-gray-400 mb-4 leading-relaxed"
-      }, eligibleReservations.length === 0 ? React.createElement(React.Fragment, null, "확정 또는 접수된 대여 예약이 있어야", React.createElement("br", null), GATE_TEXT[serviceType].full + "이 가능해요.") : React.createElement(React.Fragment, null, serviceType === 'cancel' ? "같은 예약에 대한 취소·환불 신청은 예약당" : "같은 예약에 대한 신청은 처리가 끝난 뒤", React.createElement("br", null), serviceType === 'cancel' ? "한 번만 가능해요." : "다시 신청할 수 있어요.")), React.createElement("button", {
+      }, eligibleForThis.length === 0 ? React.createElement(React.Fragment, null, "확정 또는 접수된 대여 예약이 있어야", React.createElement("br", null), GATE_TEXT[serviceType].full + "이 가능해요.") : React.createElement(React.Fragment, null, serviceType === 'cancel' ? "같은 예약에 대한 취소·환불 신청은 예약당" : "같은 예약에 대한 신청은 처리가 끝난 뒤", React.createElement("br", null), serviceType === 'cancel' ? "한 번만 가능해요." : "다시 신청할 수 있어요.")), React.createElement("button", {
         onClick: () => {
           setLookupResult(null);
           setLookupName('');
