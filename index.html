@@ -5400,7 +5400,14 @@ React.createElement("div", {
     }
     // 2) 조회됐지만 신청 가능한 예약 없음
     // [NEW] 대여연장은 반납일이 지난 예약도 신청 가능해야 하므로 날짜 필터가 없는 기본 목록을 사용
-    var eligibleForThis = serviceType === 'ext' ? eligibleReservationsBase : eligibleReservations;
+    // [NEW] 대여연장은 지난 예약도 가능(날짜필터 없는 원본 사용), 대여모델 변경은 대여시작일 전에만 가능(오늘 이후 시작하는 예약만)
+    var eligibleForThis = serviceType === 'ext' ? eligibleReservationsBase : serviceType === 'change' ? eligibleReservations.filter(function (r) {
+      var start = parseResDate(r.startDate);
+      if (!start) return true;
+      var todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      return start > todayStart;
+    }) : eligibleReservations;
     var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : '취소신청';
     var availableReservations = eligibleForThis.filter(r => serviceType === 'cancel' ?
     // [NEW] 취소/환불은 예약 하나당 평생 1건만 — 상태 무관하게 이미 신청 이력이 있으면 제외
