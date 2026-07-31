@@ -32,7 +32,7 @@
     <!-- Babel 제거됨 -->
 
     <!-- 4. 카카오 우편번호 서비스 -->
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
     <!-- 5. 폰트 (Pretendard) -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -2788,64 +2788,86 @@ var PhoneRentalApp = () => {
     if (error && error.message) return error.message;
     return fallback;
   };
-  var handleAddressSearch = () => {
-    if (!window.daum || !window.daum.Postcode) {
-      alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+  // [NEW] 카카오(다음) 우편번호 서비스가 아직 로드되지 않았으면 그때그때 직접 불러온다
+  // (head의 <script> 태그가 CMS 삽입 과정에서 누락되거나, 로딩이 늦어도 주소검색 버튼이 죽지 않도록 방어)
+  var daumPostcodeLoadPromise = null;
+  var ensureDaumPostcode = () => {
+    if (window.daum && window.daum.Postcode) return Promise.resolve();
+    if (daumPostcodeLoadPromise) return daumPostcodeLoadPromise;
+    daumPostcodeLoadPromise = new Promise((resolve, reject) => {
+      var existing = document.querySelector('script[src*="postcode.v2.js"]');
+      var s = existing || document.createElement('script');
+      s.onload = () => resolve();
+      s.onerror = () => {
+        daumPostcodeLoadPromise = null;
+        reject(new Error('postcode script load failed'));
+      };
+      if (!existing) {
+        s.src = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+        document.head.appendChild(s);
+      } else if (window.daum && window.daum.Postcode) {
+        resolve();
+      }
+    });
+    return daumPostcodeLoadPromise;
+  };
+  var openDaumPostcode = oncomplete => {
+    // [NEW] 스크립트가 이미 로드돼 있으면 클릭 이벤트 안에서 동기적으로 바로 열어야
+    // 브라우저 팝업 차단에 걸리지 않는다 (Promise.then은 사용자 제스처 컨텍스트를 끊어버림)
+    if (window.daum && window.daum.Postcode) {
+      new daum.Postcode({
+        oncomplete
+      }).open();
       return;
     }
-    new daum.Postcode({
-      oncomplete: function (data) {
-        var fullAddress = data.address;
-        var extraAddress = '';
-        if (data.addressType === 'R') {
-          if (data.bname !== '') extraAddress += data.bname;
-          if (data.buildingName !== '') extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
-          fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
-        }
-        setUserInfo(prev => ({
-          ...prev,
-          zipcode: data.zonecode,
-          address: fullAddress
-        }));
+    ensureDaumPostcode().then(() => {
+      new daum.Postcode({
+        oncomplete
+      }).open();
+    }).catch(() => {
+      alert("우편번호 서비스를 불러오지 못했어요. 인터넷 연결을 확인 후 다시 시도해주세요.");
+    });
+  };
+  var handleAddressSearch = () => {
+    openDaumPostcode(data => {
+      var fullAddress = data.address;
+      var extraAddress = '';
+      if (data.addressType === 'R') {
+        if (data.bname !== '') extraAddress += data.bname;
+        if (data.buildingName !== '') extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+        fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
       }
-    }).open();
+      setUserInfo(prev => ({
+        ...prev,
+        zipcode: data.zonecode,
+        address: fullAddress
+      }));
+    });
   };
   // [NEW] 배송지 주소 변경 신청 - 새 주소 검색
   var handleAddressChangeSearch = () => {
-    if (!window.daum || !window.daum.Postcode) {
-      alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-      return;
-    }
-    new daum.Postcode({
-      oncomplete: function (data) {
-        var fullAddress = data.address;
-        var extraAddress = '';
-        if (data.addressType === 'R') {
-          if (data.bname !== '') extraAddress += data.bname;
-          if (data.buildingName !== '') extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
-          fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
-        }
-        setAddressForm(prev => ({
-          ...prev,
-          zipcode: data.zonecode,
-          address: fullAddress
-        }));
+    openDaumPostcode(data => {
+      var fullAddress = data.address;
+      var extraAddress = '';
+      if (data.addressType === 'R') {
+        if (data.bname !== '') extraAddress += data.bname;
+        if (data.buildingName !== '') extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+        fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
       }
-    }).open();
+      setAddressForm(prev => ({
+        ...prev,
+        zipcode: data.zonecode,
+        address: fullAddress
+      }));
+    });
   };
   // [NEW] 퀵서비스 예상 요금 - 목적지 주소 검색
   var handleQuickFeeAddressSearch = () => {
-    if (!window.daum || !window.daum.Postcode) {
-      alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-      return;
-    }
-    new daum.Postcode({
-      oncomplete: function (data) {
-        var fullAddress = data.address;
-        setQuickFeeAddress(fullAddress);
-        fetchQuickFeeEstimate(fullAddress);
-      }
-    }).open();
+    openDaumPostcode(data => {
+      var fullAddress = data.address;
+      setQuickFeeAddress(fullAddress);
+      fetchQuickFeeEstimate(fullAddress);
+    });
   };
   // [NEW] 퀵서비스 예상 요금 계산 (세린캠 사무실 기준 거리비례 추정)
   var fetchQuickFeeEstimate = async address => {
@@ -3496,7 +3518,7 @@ var PhoneRentalApp = () => {
       phone: target.phone || '',
       startDate: target.startDate || '',
       endDate: target.endDate || '',
-      zipCode: addressForm.zipcode || '',
+      zipcode: addressForm.zipcode || '',
       address: fullNewAddress,
       totalPrice: 0,
       scheduleName: (target.name || '') + '님 주소변경신청 | 새 주소: ' + fullNewAddress + (target.address ? ' | 기존 주소: ' + target.address : ''),
@@ -5877,7 +5899,9 @@ React.createElement("div", {
     var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : serviceType === 'address' ? '주소변경신청' : '취소신청';
     var availableReservations = eligibleForThis.filter(r => serviceType === 'cancel' ?
     // [NEW] 취소/환불은 예약 하나당 평생 1건만 — 상태 무관하게 이미 신청 이력이 있으면 제외
-    !getLinkedRequests(r).some(x => x.category === '취소신청') : !hasPendingRequest(r, pendingCategory));
+    !getLinkedRequests(r).some(x => x.category === '취소신청') :
+    // [NEW] 주소변경은 이미 처리중인 신청이 있어도 다시 신청할 수 있게 허용 (목록에서 배지로만 안내)
+    serviceType === 'address' ? true : !hasPendingRequest(r, pendingCategory));
     if (availableReservations.length === 0) {
       return React.createElement("div", {
         className: "animate-slide-in space-y-6"
@@ -5936,7 +5960,11 @@ React.createElement("div", {
         className: "font-bold text-gray-800 text-sm mb-1"
       }, item.model), item.startDate && React.createElement("p", {
         className: "text-xs text-gray-500"
-      }, "대여기간 ", formatDisplayDate(item.startDate), " ~ ", formatDisplayDate(item.endDate)))))));
+      }, "대여기간 ", formatDisplayDate(item.startDate), " ~ ", formatDisplayDate(item.endDate)),
+      // [NEW] 주소변경은 중복신청을 막지 않는 대신, 이미 처리중인 신청이 있으면 배지로 안내
+      serviceType === 'address' && hasPendingRequest(item, pendingCategory) && React.createElement("p", {
+        className: "text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 rounded-md px-2 py-1 mt-2 inline-block"
+      }, "⚠️ 이미 처리중인 주소변경 신청이 있어요"))))));
     }
     return null;
   };
@@ -7294,7 +7322,7 @@ React.createElement("div", {
     React.createElement("button", {
       disabled: !canSubmit,
       onClick: handleAddressChangeSubmit,
-      className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
+      className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-yellow-400 text-white hover:bg-yellow-500' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
     }, isSubmitting ? '처리 중...' : '주소 변경 신청하기'));
   };
   var renderSuccessPage = () => {
