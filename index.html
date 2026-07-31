@@ -1293,8 +1293,17 @@ var PhoneRentalApp = () => {
   // [NEW] 대여모델 한눈에 보기 - 몇 번째를 보고 있는지 + 3초마다 자동으로 오른쪽으로 스와이프
   var [showcaseIndex, setShowcaseIndex] = useState(0);
   var phoneShowcaseRef = useRef(null);
+  var phoneShowcasePausedRef = useRef(false);
+  var phoneShowcaseResumeTimerRef = useRef(null);
+  // [NEW] 사용자가 만지거나 스크롤하면 즉시 멈추고, 아무 동작이 없는 상태가 일정 시간(2.5초) 이어지면 자동으로 다시 재생
+  var pingPhoneShowcaseActivity = () => {
+    phoneShowcasePausedRef.current = true;
+    if (phoneShowcaseResumeTimerRef.current) clearTimeout(phoneShowcaseResumeTimerRef.current);
+    phoneShowcaseResumeTimerRef.current = setTimeout(() => { phoneShowcasePausedRef.current = false; }, 2500);
+  };
   useEffect(() => {
     var timer = setInterval(() => {
+      if (phoneShowcasePausedRef.current) return;
       // phones는 아래쪽에서 선언되지만, 이 콜백은 렌더 이후 비동기로 실행되므로 안전하게 참조 가능
       var total = (phones.galaxy || []).length + (phones.iphone || []).length;
       setShowcaseIndex(prev => (prev + 2) % (total || 1));
@@ -1442,6 +1451,7 @@ var PhoneRentalApp = () => {
   var reviewShowcaseRef = useRef(null);
   var reviewAnimFrameRef = useRef(null);
   var reviewPausedRef = useRef(false);
+  var reviewResumeTimerRef = useRef(null);
   var reviewCards = reviews.slice(0, 10);
   useEffect(() => {
     var el = reviewShowcaseRef.current;
@@ -1452,6 +1462,7 @@ var PhoneRentalApp = () => {
     // DOM의 scrollLeft는 매 프레임 정수로 반올림돼서, 프레임당 아주 작은 증가분을 el.scrollLeft += 로 누적하면
     // 반올림에 의해 증가분이 계속 사라져 버림 → 위치를 JS 변수(pos)로 정밀하게 직접 누적하고 매 프레임 그 값을 그대로 대입함
     var pos = el.scrollLeft;
+    var wasPaused = false;
     var computeSetWidth = () => {
       var firstDupCard = el.children[reviewCards.length];
       setWidthPx = firstDupCard ? firstDupCard.offsetLeft : el.scrollWidth / 2;
@@ -1461,10 +1472,16 @@ var PhoneRentalApp = () => {
       if (lastTs === null) lastTs = timestamp;
       var dt = timestamp - lastTs;
       lastTs = timestamp;
-      if (!reviewPausedRef.current && setWidthPx > 0) {
-        pos += speed * dt / 1000;
-        if (pos >= setWidthPx) pos -= setWidthPx;
-        el.scrollLeft = pos;
+      if (reviewPausedRef.current) {
+        wasPaused = true;
+      } else {
+        // 일시정지 동안 사용자가 직접 스크롤했을 수 있으니, 재생 재개 시 현재 위치로 다시 동기화(끊김/역주행 방지)
+        if (wasPaused) { pos = el.scrollLeft; wasPaused = false; }
+        if (setWidthPx > 0) {
+          pos += speed * dt / 1000;
+          if (pos >= setWidthPx) pos -= setWidthPx;
+          el.scrollLeft = pos;
+        }
       }
       reviewAnimFrameRef.current = requestAnimationFrame(step);
     };
@@ -1473,8 +1490,12 @@ var PhoneRentalApp = () => {
       if (reviewAnimFrameRef.current) cancelAnimationFrame(reviewAnimFrameRef.current);
     };
   }, [reviews]);
-  var pauseReviewScroll = () => { reviewPausedRef.current = true; };
-  var resumeReviewScroll = () => { reviewPausedRef.current = false; };
+  // [NEW] 사용자가 만지거나 스크롤하면 즉시 멈추고, 아무 동작이 없는 상태가 일정 시간(2.5초) 이어지면 자동으로 다시 재생
+  var pingReviewActivity = () => {
+    reviewPausedRef.current = true;
+    if (reviewResumeTimerRef.current) clearTimeout(reviewResumeTimerRef.current);
+    reviewResumeTimerRef.current = setTimeout(() => { reviewPausedRef.current = false; }, 2500);
+  };
   var fileInputRef = useRef(null);
   var [recVenue, setRecVenue] = useState('KSPO DOME');
   var [recSeat, setRecSeat] = useState('floor');
@@ -1512,6 +1533,13 @@ var PhoneRentalApp = () => {
   });
   // [NEW] 예약변경(대여모델만): 기종 탭
   var [chgTab, setChgTab] = useState('galaxy');
+  // [NEW] 배송지 주소 변경 신청: 대상 예약 + 새 주소 폼
+  var [addressTargetItem, setAddressTargetItem] = useState(null);
+  var [addressForm, setAddressForm] = useState({
+    zipcode: '',
+    address: '',
+    addressDetail: ''
+  });
   // [NEW] 상단 네비 메뉴바: 열려있는 드롭다운 key (null이면 닫힘)
   var [openNavMenu, setOpenNavMenu] = useState(null);
   var [navSearchQuery, setNavSearchQuery] = useState(''); // [NEW] 홈 상단 통합 검색
@@ -1736,7 +1764,7 @@ var PhoneRentalApp = () => {
     icon: Icons.Search,
     onClick: () => handleNavChange('mypage')
   }, {
-    label: '취소',
+    label: '취소/환불',
     desc: '취소 및 환불 신청',
     fullLabel: '예약 취소하기',
     icon: Icons.Trash2,
@@ -1746,7 +1774,7 @@ var PhoneRentalApp = () => {
       setViewMode('cancelPicker');
     }
   }, {
-    label: '변경',
+    label: '모델 변경',
     desc: '다른 기종으로 변경 신청',
     fullLabel: '대여모델 변경하기',
     icon: Icons.Smartphone,
@@ -1756,7 +1784,7 @@ var PhoneRentalApp = () => {
       setViewMode('changePicker');
     }
   }, {
-    label: '연장',
+    label: '대여 연장',
     desc: '대여 기간 연장 신청',
     fullLabel: '대여기간 연장하기',
     icon: Icons.CalendarPlus,
@@ -1766,7 +1794,7 @@ var PhoneRentalApp = () => {
       setViewMode('extension');
     }
   }, {
-    label: '백업',
+    label: '백업 신청',
     desc: '촬영본 백업 대행 신청',
     fullLabel: '데이터 백업 맡기기',
     icon: Icons.Image,
@@ -1775,9 +1803,20 @@ var PhoneRentalApp = () => {
       setServiceTarget(null);
       setViewMode('backupApply');
     }
+  }, {
+    label: '주소 변경',
+    desc: '배송지 주소 변경 신청',
+    fullLabel: '배송지 주소 변경하기',
+    icon: Icons.MapPin,
+    accent: 'bg-yellow-50 text-yellow-600',
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('addressPicker');
+    }
   }];
   // [NEW] MY페이지 "예약 관리" 리스트용 — 기존 4개 신청 항목 + 수령/반납방법 변경 안내
   var RESERVATION_MANAGE_ROWS = LOOKUP_QUICK_ACTIONS.filter(it => it.label !== '내 예약 보기').concat([{
+    label: '수령·반납 변경',
     fullLabel: '수령 및 반납방법 변경',
     icon: Icons.Box,
     accent: 'bg-orange-50 text-orange-600',
@@ -2513,7 +2552,7 @@ var PhoneRentalApp = () => {
       var month = startDate.getMonth() + 1;
       var day = startDate.getDate();
       var dateKey = `${year}-${month}-${day}`;
-      if (isSameDayStart || isPostDeadlinePassed || BLOCKED_POST_PICKUP_DATES.includes(dateKey)) {
+      if (isSameDayStart || BLOCKED_POST_PICKUP_DATES.includes(dateKey)) {
         setDeliveryMethod(null);
       }
     }
@@ -2526,7 +2565,7 @@ var PhoneRentalApp = () => {
         setDeliveryMethod(null);
       }
     }
-  }, [startDate, isSameDayStart, isPostDeadlinePassed, deliveryMethod]);
+  }, [startDate, isSameDayStart, deliveryMethod]);
   useEffect(() => {
     var savedUser = localStorage.getItem('pink_user');
     if (savedUser) {
@@ -2704,23 +2743,6 @@ var PhoneRentalApp = () => {
     var dateKey = `${year}-${month + 1}-${day}`;
     return startDate.getDay() === 0 || !!HOLIDAYS[dateKey];
   })();
-  var isPostDeadlinePassed = startDate && (() => {
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var limitDate = new Date(today);
-    var addedBusinessDays = 0;
-    while (addedBusinessDays < 1) {
-      limitDate.setDate(limitDate.getDate() + 1);
-      var y = limitDate.getFullYear();
-      var m = limitDate.getMonth();
-      var d = limitDate.getDate();
-      var key = `${y}-${m + 1}-${d}`;
-      if (limitDate.getDay() !== 0 && limitDate.getDay() !== 6 && !HOLIDAYS[key]) {
-        addedBusinessDays++;
-      }
-    }
-    return startDate <= limitDate;
-  })();
   var isPostPickupBlocked = startDate && (() => {
     var year = startDate.getFullYear();
     var month = startDate.getMonth() + 1;
@@ -2781,6 +2803,29 @@ var PhoneRentalApp = () => {
           fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
         }
         setUserInfo(prev => ({
+          ...prev,
+          zipcode: data.zonecode,
+          address: fullAddress
+        }));
+      }
+    }).open();
+  };
+  // [NEW] 배송지 주소 변경 신청 - 새 주소 검색
+  var handleAddressChangeSearch = () => {
+    if (!window.daum || !window.daum.Postcode) {
+      alert("우편번호 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+    new daum.Postcode({
+      oncomplete: function (data) {
+        var fullAddress = data.address;
+        var extraAddress = '';
+        if (data.addressType === 'R') {
+          if (data.bname !== '') extraAddress += data.bname;
+          if (data.buildingName !== '') extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+          fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
+        }
+        setAddressForm(prev => ({
           ...prev,
           zipcode: data.zonecode,
           address: fullAddress
@@ -3035,7 +3080,7 @@ var PhoneRentalApp = () => {
   var eligibleReservationsBase = (lookupResult || []).filter(function (r) {
     var cat = r.category || '';
     var st = r.status || '';
-    if (cat === '연장신청' || cat === '백업신청' || cat === '취소신청' || cat === '변경신청') return false;
+    if (cat === '연장신청' || cat === '백업신청' || cat === '취소신청' || cat === '변경신청' || cat === '주소변경신청') return false;
     if (st.includes('취소') || st.includes('환불')) return false;
     return true;
   });
@@ -3050,7 +3095,7 @@ var PhoneRentalApp = () => {
     return true;
   });
   // [NEW] 원예약에 연결된 진행중 신청(연장/백업/취소/변경)을 origin_ref로 매칭해 하위 표시
-  var REQUEST_CATEGORIES = ['연장신청', '백업신청', '취소신청', '변경신청'];
+  var REQUEST_CATEGORIES = ['연장신청', '백업신청', '취소신청', '변경신청', '주소변경신청'];
   var REQUEST_LABEL = {
     연장신청: {
       text: '대여연장 신청',
@@ -3067,6 +3112,10 @@ var PhoneRentalApp = () => {
     변경신청: {
       text: '기종변경 신청',
       color: 'text-rose-600 bg-rose-50 border-rose-100'
+    },
+    주소변경신청: {
+      text: '주소변경 신청',
+      color: 'text-yellow-600 bg-yellow-50 border-yellow-100'
     }
   };
   // [NEW] 부가옵션 클릭 시 뜨는 안내 팝업 콘텐츠 (아이콘/색상/제목/설명)
@@ -3102,6 +3151,14 @@ var PhoneRentalApp = () => {
       desc: '반납 시 촬영본을 안전하게 옮겨드릴게요. 백업 신청은 반납 전까지 접수 상태로 유지돼요.',
       titleDone: '데이터 백업 신청 확정',
       descDone: '데이터 백업이 시작되면 알림톡으로 안내드릴게요.'
+    },
+    주소변경신청: {
+      icon: Icons.MapPin,
+      accent: 'text-yellow-600 bg-yellow-50',
+      title: '주소 변경 신청 접수',
+      desc: '배송지 주소 변경 신청이 접수되어 확인 중이에요. 처리가 완료되면 배송지가 새 주소로 업데이트돼요.',
+      titleDone: '주소 변경 확정',
+      descDone: '배송지 주소가 변경됐어요. 변경된 주소로 배송이 진행돼요.'
     }
   };
   // [NEW] 부가옵션 팝업 열기 — 신청건(req)을 그대로 저장
@@ -3121,6 +3178,7 @@ var PhoneRentalApp = () => {
     }
     if (req.category === '백업신청') return '촬영본 백업';
     if (req.category === '취소신청') return '취소 · 환불';
+    if (req.category === '주소변경신청') return '배송지 변경';
     return '';
   };
   // origin_ref(JSON: {orderTime, name, phone, startDate, endDate, model})로 원예약을 찾아 연결
@@ -3413,6 +3471,55 @@ var PhoneRentalApp = () => {
     } catch (e) {
       setIsSubmitting(false);
       alert("변경 신청 전송에 실패했어요. 잠시 후 다시 시도해주세요.");
+    }
+  };
+  // [NEW] 배송지 주소 변경 신청 제출
+  var handleAddressChangeSubmit = async () => {
+    if (!addressTargetItem) return;
+    if (!sb) {
+      alert("시스템 오류: 연동 URL 미설정");
+      return;
+    }
+    if (!addressForm.address) {
+      alert("새 주소를 검색해주세요.");
+      return;
+    }
+    setIsSubmitting(true);
+    var target = addressTargetItem;
+    var fullNewAddress = addressForm.address + (addressForm.addressDetail ? ' ' + addressForm.addressDetail : '');
+    var orderData = {
+      category: '주소변경신청',
+      status: '예약신청',
+      orderTime: new Date().toLocaleString('ko-KR'),
+      model: (target.model || '') + ' 주소변경',
+      name: target.name || '',
+      phone: target.phone || '',
+      startDate: target.startDate || '',
+      endDate: target.endDate || '',
+      zipCode: addressForm.zipcode || '',
+      address: fullNewAddress,
+      totalPrice: 0,
+      scheduleName: (target.name || '') + '님 주소변경신청 | 새 주소: ' + fullNewAddress + (target.address ? ' | 기존 주소: ' + target.address : ''),
+      origin_ref: buildOriginRef(target)
+    };
+    try {
+      var {
+        error
+      } = await sb.from('reservations').insert(orderData);
+      if (error) throw error;
+      handleRefresh(); // [NEW] 주소변경 신청 후 예약내역 자동 새로고침
+      setIsSubmitting(false);
+      setAddressTargetItem(null);
+      setSuccessData({
+        type: '주소변경',
+        name: target.name || '',
+        amount: 0,
+        changeNote: '새 배송지: ' + fullNewAddress
+      });
+      setViewMode('success');
+    } catch (e) {
+      setIsSubmitting(false);
+      alert("주소 변경 신청 전송에 실패했어요. 잠시 후 다시 시도해주세요.");
     }
   };
   var resetDates = () => {
@@ -4350,21 +4457,18 @@ React.createElement("div", {
   }, displayReservations.originals.slice(0, 1).map((item, idx) => renderReservationCard(item, idx)))), React.createElement("div", null, React.createElement("h3", {
     className: "text-xs font-bold text-gray-400 px-1 mb-2"
   }, "예약 관리"), React.createElement("div", {
-    className: "bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
-  }, RESERVATION_MANAGE_ROWS.map((it, i, arr) => React.createElement("button", {
+    className: "grid grid-cols-3 gap-3 bg-white rounded-3xl shadow-sm border border-gray-100 p-4"
+  }, RESERVATION_MANAGE_ROWS.map((it, i) => React.createElement("button", {
     key: i,
     onClick: it.onClick,
-    className: `w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors text-left ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`
+    className: "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-colors"
   }, React.createElement("div", {
-    className: `w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${it.accent || 'bg-blue-50 text-blue-500'}`
+    className: `w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${it.accent || 'bg-blue-50 text-blue-500'}`
   }, React.createElement(it.icon, {
-    size: 16
+    size: 18
   })), React.createElement("span", {
-    className: "flex-1 text-sm font-bold text-gray-700"
-  }, it.fullLabel || it.label), React.createElement(Icons.ChevronRight, {
-    size: 16,
-    className: "text-gray-300"
-  }))))), React.createElement("div", null, React.createElement("h3", {
+    className: "text-xs font-bold text-gray-700"
+  }, it.label))))), React.createElement("div", null, React.createElement("h3", {
     className: "text-xs font-bold text-gray-400 px-1 mb-2"
   }, "자주 묻는 질문"), React.createElement("div", {
     className: "bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
@@ -5501,7 +5605,13 @@ React.createElement("div", {
       className: "text-lg"
     }, "📱"), " 대여모델 한눈에 보기"), React.createElement("div", {
       ref: phoneShowcaseRef,
-      className: "flex gap-3 overflow-x-auto pb-2 no-scrollbar snap-x -mx-2 px-2"
+      className: "flex gap-3 overflow-x-auto pb-2 no-scrollbar snap-x -mx-2 px-2",
+      onMouseDown: pingPhoneShowcaseActivity,
+      onTouchStart: pingPhoneShowcaseActivity,
+      onWheel: pingPhoneShowcaseActivity,
+      onMouseUp: pingPhoneShowcaseActivity,
+      onMouseLeave: pingPhoneShowcaseActivity,
+      onTouchEnd: pingPhoneShowcaseActivity
     }, cardEls), dotsEl);
   };
   var renderBlogPage = () => React.createElement("div", {
@@ -5650,6 +5760,20 @@ React.createElement("div", {
       setViewMode('changeApply');
       return;
     }
+    if (serviceType === 'address') {
+      if ((res.trackingNumber || '').toString().trim()) {
+        showAppToast('이미 발송되어 주소 변경이 어려워요. 카카오톡으로 문의해주세요.');
+        return;
+      }
+      setAddressTargetItem(res);
+      setAddressForm({
+        zipcode: '',
+        address: '',
+        addressDetail: ''
+      });
+      setViewMode('addressApply');
+      return;
+    }
     setServiceTarget(res);
     if (serviceType === 'ext') {
       setExtModel(detectExtModel(res.model));
@@ -5683,6 +5807,10 @@ React.createElement("div", {
     change: {
       verb: '기종변경할',
       full: '기종변경 신청'
+    },
+    address: {
+      verb: '주소를 변경할',
+      full: '주소 변경 신청'
     }
   };
   var renderServiceGate = (serviceType, title, iconAccentClass) => {
@@ -5738,15 +5866,15 @@ React.createElement("div", {
     }
     // 2) 조회됐지만 신청 가능한 예약 없음
     // [NEW] 대여연장은 반납일이 지난 예약도 신청 가능해야 하므로 날짜 필터가 없는 기본 목록을 사용
-    // [NEW] 대여연장은 지난 예약도 가능(날짜필터 없는 원본 사용), 대여모델 변경은 대여시작일 전에만 가능(오늘 이후 시작하는 예약만)
-    var eligibleForThis = serviceType === 'ext' ? eligibleReservationsBase : serviceType === 'change' ? eligibleReservations.filter(function (r) {
+    // [NEW] 대여연장은 지난 예약도 가능(날짜필터 없는 원본 사용), 대여모델 변경/주소변경은 대여시작일 전에만 가능(오늘 이후 시작하는 예약만)
+    var eligibleForThis = serviceType === 'ext' ? eligibleReservationsBase : serviceType === 'change' || serviceType === 'address' ? eligibleReservations.filter(function (r) {
       var start = parseResDate(r.startDate);
       if (!start) return true;
       var todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       return start > todayStart;
     }) : eligibleReservations;
-    var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : '취소신청';
+    var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : serviceType === 'address' ? '주소변경신청' : '취소신청';
     var availableReservations = eligibleForThis.filter(r => serviceType === 'cancel' ?
     // [NEW] 취소/환불은 예약 하나당 평생 1건만 — 상태 무관하게 이미 신청 이력이 있으면 제외
     !getLinkedRequests(r).some(x => x.category === '취소신청') : !hasPendingRequest(r, pendingCategory));
@@ -7081,6 +7209,94 @@ React.createElement("div", {
       className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2 ${calc && !blockReason ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
     }, isSubmitting ? '처리 중...' : '기종 변경 신청하기')));
   };
+  // [NEW] 배송지 주소 변경 신청 페이지
+  var renderAddressApplyPage = () => {
+    var backToList = () => {
+      setAddressTargetItem(null);
+      setViewMode(activeNav === 'my' ? 'myPage' : 'lookup');
+    };
+    if (!addressTargetItem) {
+      return React.createElement("div", {
+        className: "animate-slide-in space-y-6"
+      }, React.createElement("div", {
+        className: "flex items-center gap-3 mb-6"
+      }, React.createElement("button", {
+        onClick: backToList,
+        className: "p-2 bg-white rounded-full shadow-sm"
+      }, React.createElement(Icons.ChevronLeft, {
+        className: "w-5 h-5 text-gray-600"
+      })), React.createElement("h2", {
+        className: "text-xl font-bold text-gray-800"
+      }, "배송지 주소 변경")), React.createElement("div", {
+        className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center py-10"
+      }, React.createElement("p", {
+        className: "text-sm text-gray-500"
+      }, "변경할 예약을 먼저 선택해주세요.")));
+    }
+    var target = addressTargetItem;
+    var fullNewAddress = addressForm.address + (addressForm.addressDetail ? ' ' + addressForm.addressDetail : '');
+    var canSubmit = !!addressForm.address && !isSubmitting;
+    return React.createElement("div", {
+      className: "animate-slide-in space-y-6"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-6"
+    }, React.createElement("button", {
+      onClick: backToList,
+      className: "p-2 bg-white rounded-full shadow-sm"
+    }, React.createElement(Icons.ChevronLeft, {
+      className: "w-5 h-5 text-gray-600"
+    })), React.createElement("h2", {
+      className: "text-xl font-bold text-gray-800"
+    }, "배송지 주소 변경")),
+    // 현재 예약 요약
+    React.createElement("div", {
+      className: "bg-blue-50 border border-blue-100 rounded-2xl p-3.5"
+    }, React.createElement("p", {
+      className: "text-[10px] font-bold text-blue-400 mb-0.5"
+    }, "현재 예약"), React.createElement("p", {
+      className: "text-sm font-bold text-gray-800"
+    }, target.model), React.createElement("p", {
+      className: "text-[11px] text-gray-500"
+    }, formatDisplayDate(target.startDate), " ~ ", formatDisplayDate(target.endDate)), target.address && React.createElement("p", {
+      className: "text-[11px] text-gray-500 mt-1 pt-1 border-t border-blue-100"
+    }, "현재 배송지: ", target.address)),
+    // 안내
+    React.createElement("div", {
+      className: "bg-gray-50 border border-gray-100 rounded-2xl p-3.5"
+    }, React.createElement("p", {
+      className: "text-[11px] text-gray-500 leading-relaxed break-keep"
+    }, "* 이미 발송된 예약은 주소를 변경할 수 없어요. 신청 후 ", React.createElement("strong", {
+      className: "text-gray-700"
+    }, "담당자 확인"), "이 필요하며, 확정 시 새 주소로 업데이트돼요.")),
+    // 새 주소 입력
+    React.createElement("div", {
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-3"
+    }, React.createElement("h3", {
+      className: "font-bold text-gray-800 flex items-center gap-2 mb-1"
+    }, React.createElement(Icons.MapPin, {
+      size: 18,
+      className: "text-yellow-500"
+    }), " 새 배송지 주소"), React.createElement("button", {
+      onClick: handleAddressChangeSearch,
+      className: "w-full flex items-center justify-between bg-gray-50 rounded-xl px-3.5 py-3 text-sm text-left hover:bg-gray-100 transition-colors border border-gray-100"
+    }, React.createElement("span", {
+      className: addressForm.address ? "text-gray-800 font-bold truncate mr-2" : "text-gray-400"
+    }, addressForm.address ? `[${addressForm.zipcode}] ${addressForm.address}` : "주소 검색하기"), React.createElement(Icons.Search, {
+      size: 16,
+      className: "text-yellow-500 shrink-0"
+    })), addressForm.address && React.createElement("input", {
+      type: "text",
+      placeholder: "상세주소 (동/호수 등)",
+      value: addressForm.addressDetail,
+      onChange: e => setAddressForm(prev => ({ ...prev, addressDetail: e.target.value })),
+      className: "w-full p-3.5 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-yellow-300 transition-colors"
+    })),
+    React.createElement("button", {
+      disabled: !canSubmit,
+      onClick: handleAddressChangeSubmit,
+      className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
+    }, isSubmitting ? '처리 중...' : '주소 변경 신청하기'));
+  };
   var renderSuccessPage = () => {
     var type = successData ? successData.type : '완료';
     var name = successData ? successData.name : '고객';
@@ -7460,11 +7676,12 @@ React.createElement("div", {
   }, t('viewAll'))), React.createElement("div", {
     ref: reviewShowcaseRef,
     className: "flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2",
-    onMouseDown: pauseReviewScroll,
-    onTouchStart: pauseReviewScroll,
-    onMouseUp: resumeReviewScroll,
-    onMouseLeave: resumeReviewScroll,
-    onTouchEnd: resumeReviewScroll
+    onMouseDown: pingReviewActivity,
+    onTouchStart: pingReviewActivity,
+    onWheel: pingReviewActivity,
+    onMouseUp: pingReviewActivity,
+    onMouseLeave: pingReviewActivity,
+    onTouchEnd: pingReviewActivity
   }, reviewCards.concat(reviewCards.map(r => Object.assign({}, r, { _dupKey: r.id + '-dup' }))).map(review => React.createElement("div", {
     key: review._dupKey || review.id,
     className: "min-w-[240px] bg-gray-50 p-3.5 rounded-[1.5rem] cursor-pointer hover:shadow-md transition-all flex flex-col h-full border border-gray-100",
@@ -7673,7 +7890,7 @@ React.createElement("div", {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
@@ -8056,24 +8273,20 @@ React.createElement("div", {
         triggerDeliveryErr('post', "🚨 당일 대여는 택배수령 불가");
         return;
       }
-      if (isPostDeadlinePassed) {
-        triggerDeliveryErr('post', "🚨 택배수령 최소 2일전 가능");
-        return;
-      }
       if (isPostPickupBlocked) {
         triggerDeliveryErr('post', "🚨 해당 일자 택배수령 마감");
         return;
       }
       selectDeliveryMethod('post');
     },
-    className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'post' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked) && deliveryErr !== 'post' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`
+    className: `p-4 rounded-xl border-2 flex flex-col justify-between cursor-pointer transition-all min-h-[110px] ${deliveryErr === 'post' ? 'animate-shake border-red-400 bg-red-50' : deliveryMethod === 'post' ? 'border-sky-500 bg-sky-50' : 'border-gray-100 bg-white'} ${(isSameDayStart || isPostPickupBlocked) && deliveryErr !== 'post' ? 'opacity-50 grayscale cursor-not-allowed' : ''}`
   }, React.createElement("div", {
     className: "flex justify-between items-start"
   }, React.createElement("span", {
-    className: `font-bold ${deliveryErr === 'post' ? 'text-red-600' : isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? 'text-gray-500' : 'text-gray-800'}`
+    className: `font-bold ${deliveryErr === 'post' ? 'text-red-600' : isSameDayStart || isPostPickupBlocked ? 'text-gray-500' : 'text-gray-800'}`
   }, "택배 수령"), React.createElement(Icons.Truck, {
     size: 20,
-    className: deliveryErr === 'post' ? 'text-red-500' : isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? 'text-gray-400' : 'text-blue-400'
+    className: deliveryErr === 'post' ? 'text-red-500' : isSameDayStart || isPostPickupBlocked ? 'text-gray-400' : 'text-blue-400'
   })), React.createElement("p", {
     className: "text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep"
   }, startDate ? (() => {
@@ -8084,8 +8297,8 @@ React.createElement("div", {
       className: "text-sky-600 font-bold"
     }, prevDate.getMonth() + 1, "/", prevDate.getDate(), "(", dayStr, ") 택배 도착예정");
   })() : '대여시작일 1일전 도착예정'), React.createElement("p", {
-    className: `font-bold text-xs text-right mt-auto ${isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
-  }, isSameDayStart || isPostDeadlinePassed || isPostPickupBlocked ? '마감' : '+4,000원')), React.createElement("div", {
+    className: `font-bold text-xs text-right mt-auto ${isSameDayStart || isPostPickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
+  }, isSameDayStart || isPostPickupBlocked ? '마감' : '+4,000원')), React.createElement("div", {
     onClick: () => {
       if (isQuickPickupBlocked) {
         triggerDeliveryErr('quick', "🚨 해당 일자 퀵 수령 마감");
