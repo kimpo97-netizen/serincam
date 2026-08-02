@@ -152,7 +152,8 @@
 var {
   useState,
   useEffect,
-  useRef
+  useRef,
+  useMemo
 } = React;
 var CFG = window.SERINCAM_CONFIG || {};
 var SUPABASE_URL = CFG.SUPABASE_URL || "https://ttydslhchpzaehuphnkz.supabase.co";
@@ -1213,7 +1214,7 @@ var TRANSLATIONS = {
 var PhoneRentalApp = () => {
   // [NEW] 탭/카테고리 메뉴별 전용 URL(?page=...) 진입 시 처음부터 해당 화면으로 시작
   // page=mypage → 마이페이지 / page=lookup → 예약조회 / page=qna → 챗봇 / page=faq → 자주묻는질문
-  // page=manual → 이용가이드 / page=pickup → 수령방법 / page=return → 반납방법 / page=backup → 백업가이드
+  // page=manual → 이용가이드 / page=pickup → 수령방법 / page=return → 반납방법 / page=backup → 백업가이드 / page=backup-choice → 백업 방법 선택(직접/대행)
   // page=reviews → 홈페이지리뷰 / page=camera-galaxy, page=camera-iphone → 카메라 세팅 가이드
   // page=venue, page=recommend → 홈 화면의 해당 섹션으로 스크롤
   var PAGE_PARAM_MAP = {
@@ -1226,6 +1227,7 @@ var PhoneRentalApp = () => {
     pickup: { activeNav: 'home', viewMode: 'pickupGuide' },
     return: { activeNav: 'home', viewMode: 'returnGuide' },
     backup: { activeNav: 'home', viewMode: 'backup' },
+    'backup-choice': { activeNav: 'home', viewMode: 'backupChoice' },
     reviews: { activeNav: 'home', viewMode: 'reviews' },
     'camera-galaxy': { activeNav: 'home', viewMode: 'cameraSettings' },
     'camera-iphone': { activeNav: 'home', viewMode: 'cameraSettings' },
@@ -1314,7 +1316,7 @@ var PhoneRentalApp = () => {
     var total = (phones.galaxy || []).length + (phones.iphone || []).length;
     if (!el || total <= 1) return;
     var lastTs = null;
-    var speed = 30; // 초당 이동 픽셀
+    var speed = 40; // 초당 이동 픽셀 (리뷰 자동 스크롤과 동일한 속도)
     var setWidthPx = 0;
     var pos = el.scrollLeft;
     var wasPaused = false;
@@ -1347,7 +1349,10 @@ var PhoneRentalApp = () => {
     return () => {
       if (phoneShowcaseAnimFrameRef.current) cancelAnimationFrame(phoneShowcaseAnimFrameRef.current);
     };
-  }, []);
+    // [FIX] 대시보드가 언마운트됐다가 다시 마운트되면(다른 페이지 갔다 홈으로 복귀) el이 새 DOM 노드로 바뀌는데
+    // deps가 []라 effect가 재실행되지 않아, 이전(분리된) 노드를 계속 스크롤하며 화면상 애니메이션이 멈춘 것처럼 보였음.
+    // viewMode를 deps에 넣어 대시보드로 돌아올 때마다 최신 el을 다시 잡아 애니메이션을 재시작하도록 함.
+  }, [viewMode]);
   var bannerData = [{
     id: 1,
     image: "https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/13/9e2c4c902a64d98760ea86e487d66910.png",
@@ -1521,7 +1526,8 @@ var PhoneRentalApp = () => {
     return () => {
       if (reviewAnimFrameRef.current) cancelAnimationFrame(reviewAnimFrameRef.current);
     };
-  }, [reviews]);
+    // [FIX] 대여모델 캐러셀과 동일한 이유로 viewMode를 deps에 추가 - 대시보드 재마운트 시 el을 새로 잡아 재시작
+  }, [reviews, viewMode]);
   var fileInputRef = useRef(null);
   var [recVenue, setRecVenue] = useState('KSPO DOME');
   var [recSeat, setRecSeat] = useState('floor');
@@ -4037,7 +4043,7 @@ var PhoneRentalApp = () => {
     faIcon: 'fa-cloud-arrow-up',
     bg: '#CFFAFE',
     fg: '#0891B2',
-    onClick: () => { setViewMode('backup'); updateURLForNav('backup'); }
+    onClick: () => { setViewMode('backupChoice'); updateURLForNav('backup-choice'); }
   }, {
     label: '모델 추천',
     faIcon: 'fa-wand-magic-sparkles',
@@ -4572,7 +4578,7 @@ React.createElement("div", {
     className: "text-xs text-gray-400 mt-0.5"
   }, "예약부터 부가옵션 신청 현황까지 한눈에 확인하세요")), React.createElement("div", {
     className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
-  }, !lookupResult ? React.createElement("div", {
+  }, (!lookupResult || lookupResult.length === 0) ? React.createElement("div", {
     className: "text-center py-3"
   }, React.createElement("div", {
     className: "w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500"
@@ -5780,8 +5786,11 @@ React.createElement("div", {
       className: "grid grid-cols-2 gap-3"
     }, allModels.map(phone => renderPhoneCard(phone))));
   };
-  // [NEW] 홈화면 - 대여모델 한눈에 보기 (옆으로 넘겨보는 카드 슬라이더)
-  var renderPhoneShowcase = () => {
+  // [FIX] 카드 목록(cardEls)을 매 렌더마다 새로 만들면, 배너/공지 자동 회전(3~4초 간격)처럼 이 캐러셀과 무관한
+  // state가 바뀔 때도 12장의 카드 엘리먼트가 통째로 다시 생성돼 React가 매번 diff 작업을 하게 됨.
+  // 실기기(특히 저사양)에서 이 diff 비용이 rAF 스크롤과 겹치면 한 프레임에 몰아서 이동하는 것처럼 보여
+  // "약간 끊기는" 듯한 느낌을 줄 수 있어, phones/myReviews가 실제로 바뀔 때만 재계산되도록 메모이제이션함.
+  var phoneShowcaseCardEls = useMemo(() => {
     var allModels = [].concat(phones.galaxy || [], phones.iphone || []);
     // [NEW] 끊김 없이 순환하도록 카드 목록을 통째로 한 번 더 이어붙임 (리뷰 자동 스크롤과 동일한 방식)
     var buildShowcaseCard = (phone, dup) => renderPhoneCard(phone, { width: '47%', minWidth: '47%' }, {
@@ -5790,7 +5799,10 @@ React.createElement("div", {
       onMouseEnter: () => pauseShowcase(phoneShowcasePausedRef),
       onMouseLeave: () => resumeShowcase(phoneShowcasePausedRef)
     });
-    var cardEls = allModels.map(phone => buildShowcaseCard(phone, false)).concat(allModels.map(phone => buildShowcaseCard(phone, true)));
+    return allModels.map(phone => buildShowcaseCard(phone, false)).concat(allModels.map(phone => buildShowcaseCard(phone, true)));
+  }, [phones, myReviews]);
+  // [NEW] 홈화면 - 대여모델 한눈에 보기 (옆으로 넘겨보는 카드 슬라이더)
+  var renderPhoneShowcase = () => {
     return React.createElement("div", {
       className: "col-span-2 bg-white rounded-3xl p-4 shadow-sm border border-gray-100"
     }, React.createElement("div", {
@@ -5813,7 +5825,7 @@ React.createElement("div", {
       onMouseUp: () => resumeShowcase(phoneShowcasePausedRef),
       onMouseLeave: () => resumeShowcase(phoneShowcasePausedRef),
       onTouchEnd: () => resumeShowcase(phoneShowcasePausedRef)
-    }, cardEls));
+    }, phoneShowcaseCardEls));
   };
   var renderBlogPage = () => React.createElement("div", {
     className: "animate-slide-in space-y-6 pb-20"
@@ -6282,6 +6294,53 @@ React.createElement("div", {
       className: "w-full bg-blue-500 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 mt-4"
     }, isSubmitting ? '처리 중...' : '연장 신청하기')));
   };
+  // [NEW] 홈화면 '데이터백업' 버튼 진입 시 먼저 보여주는 선택 화면 - 직접 할지 세린캠에 맡길지 고르면 각각에 맞는 안내로 이동
+  var renderBackupChoicePage = () => React.createElement("div", {
+    className: "animate-slide-in space-y-6"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3 mb-2"
+  }, React.createElement("button", {
+    onClick: goBackFromService,
+    className: "p-2 bg-white rounded-full shadow-sm"
+  }, React.createElement(Icons.ChevronLeft, {
+    className: "w-5 h-5 text-gray-600"
+  })), React.createElement("h2", {
+    className: "text-xl font-bold text-gray-800"
+  }, "데이터 백업")), React.createElement("div", {
+    className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center"
+  }, React.createElement("div", {
+    className: "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4",
+    style: { backgroundColor: '#CFFAFE' }
+  }, React.createElement("i", {
+    className: "fa-solid fa-cloud-arrow-up",
+    style: { fontSize: 26, color: '#0891B2' }
+  })), React.createElement("h3", {
+    className: "font-bold text-gray-900 text-lg mb-2"
+  }, "직접 할래요"), React.createElement("p", {
+    className: "text-xs text-gray-500 leading-relaxed mb-5"
+  }, "네이버 MYBOX, 샌드애니웨어를 활용해", React.createElement("br", null), "촬영본을 내 기기로 직접 옮기는 방법을", React.createElement("br", null), "안내해 드려요."), React.createElement("button", {
+    onClick: () => { setViewMode('backup'); updateURLForNav('backup'); },
+    className: "w-full bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
+  }, "가이드 보기")), React.createElement("div", {
+    className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center"
+  }, React.createElement("div", {
+    className: "w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+  }, React.createElement("img", {
+    src: "세린캠메인로고_투명.png",
+    alt: "세린캠",
+    className: "w-11 h-11 object-contain"
+  })), React.createElement("div", {
+    className: "flex items-center justify-center gap-1.5 mb-2"
+  }, React.createElement("h3", {
+    className: "font-bold text-gray-900 text-lg"
+  }, "세린캠에게 맡길래요"), React.createElement("span", {
+    className: "text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full"
+  }, "추천")), React.createElement("p", {
+    className: "text-xs text-gray-500 leading-relaxed mb-5"
+  }, "단 10,000원으로 복잡한 과정 없이!", React.createElement("br", null), "세린캠이 빠르고 안전하게 알아서", React.createElement("br", null), "백업해 드려요."), React.createElement("button", {
+    onClick: () => { setServiceTarget(null); setViewMode('backupApply'); },
+    className: "w-full bg-blue-400 text-white py-3.5 rounded-xl font-bold hover:bg-blue-500 transition-colors shadow-sm text-sm"
+  }, "데이터 백업 신청하기")));
   var renderBackupPage = () => React.createElement("div", {
     className: "animate-slide-in space-y-6"
   }, React.createElement("div", {
@@ -6299,9 +6358,9 @@ React.createElement("div", {
     className: "mb-10"
   }, React.createElement("h3", {
     className: "font-bold text-gray-800 mb-3 flex items-center gap-2"
-  }, React.createElement(Icons.Image, {
-    size: 20,
-    className: "text-gray-400"
+  }, React.createElement("i", {
+    className: "fa-solid fa-cloud-arrow-up",
+    style: { fontSize: 18, color: '#0891B2' }
   }), " 직접 백업하기"), React.createElement("div", {
     className: "flex bg-gray-100 p-1 rounded-xl mb-6"
   }, React.createElement("button", {
@@ -6473,9 +6532,11 @@ React.createElement("div", {
     }, "데이터 백업 대행")), renderTargetBanner('backup'), React.createElement("div", {
       className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-5"
     }, React.createElement("div", {
-      className: "w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto text-purple-500"
-    }, React.createElement(Icons.Image, {
-      size: 30
+      className: "w-16 h-16 rounded-full flex items-center justify-center mx-auto",
+      style: { backgroundColor: '#CFFAFE' }
+    }, React.createElement("i", {
+      className: "fa-solid fa-cloud-arrow-up",
+      style: { fontSize: 28, color: '#0891B2' }
     })), React.createElement("div", {
       className: "text-center"
     }, React.createElement("h3", {
@@ -8246,7 +8307,7 @@ React.createElement("div", {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'tipsGuide' && renderTipsGuidePage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'backupChoice' && renderBackupChoicePage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'tipsGuide' && renderTipsGuidePage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
