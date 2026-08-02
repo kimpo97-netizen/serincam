@@ -1222,6 +1222,7 @@ var PhoneRentalApp = () => {
     qna: { activeNav: 'qna', viewMode: 'qna' },
     faq: { activeNav: 'qna', viewMode: 'qna' },
     manual: { activeNav: 'home', viewMode: 'manual' },
+    tips: { activeNav: 'home', viewMode: 'tipsGuide' },
     pickup: { activeNav: 'home', viewMode: 'pickupGuide' },
     return: { activeNav: 'home', viewMode: 'returnGuide' },
     backup: { activeNav: 'home', viewMode: 'backup' },
@@ -1372,6 +1373,7 @@ var PhoneRentalApp = () => {
     setCurrentBannerIndex(prev => (prev + 1) % bannerData.length);
   };
   var CUSTOM_LOGO_URL = "https://ecimg.cafe24img.com/pg1308b55930092073/serinday/file_data/f5e0c0aeb40c188053fcb94b24f732c4.png";
+
   var [selectedPhone, setSelectedPhone] = useState(null);
   var [startDate, setStartDate] = useState(null);
   var [concertDateHint, setConcertDateHint] = useState(null); // [NEW] {start, end} 공연 예약 버튼으로 진입 시 캘린더에 날짜 포인트 표시
@@ -4016,7 +4018,7 @@ var PhoneRentalApp = () => {
     fg: '#6366F1',
     onClick: () => handleRentalStart()
   }, {
-    label: '공연장픽업',
+    label: '공연장 픽업존',
     faIcon: 'fa-location-dot',
     bg: '#DBEAFE',
     fg: '#3B82F6',
@@ -4069,12 +4071,7 @@ var PhoneRentalApp = () => {
     faIcon: 'fa-lightbulb',
     bg: '#FEF3C7',
     fg: '#F59E0B',
-    onClick: () => {
-      setTimeout(() => {
-        var el = document.getElementById('home-tips-section');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
+    onClick: () => { setViewMode('tipsGuide'); updateURLForNav('tips'); }
   }, {
     label: '리뷰',
     faIcon: 'fa-star',
@@ -6590,6 +6587,98 @@ React.createElement("div", {
       className: "w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
     }, isSubmitting ? '처리 중...' : '백업 대행 신청하기')));
   };
+  // [NEW] 활용 꿀팁 전용 페이지
+  var renderTipsGuidePage = () => React.createElement("div", {
+    className: "animate-slide-in space-y-6"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3 mb-2"
+  }, React.createElement("button", {
+    onClick: () => { setViewMode('dashboard'); updateURLForNav('home'); },
+    className: "p-2 bg-white rounded-full shadow-sm"
+  }, React.createElement(Icons.ChevronLeft, {
+    className: "w-5 h-5 text-gray-600"
+  })), React.createElement("h2", {
+    className: "text-xl font-bold text-gray-800"
+  }, "활용 꿀팁")), React.createElement("div", {
+    className: "bg-white p-5 rounded-[2rem] shadow-sm border border-gray-100"
+  }, React.createElement("h3", {
+    className: "font-extrabold text-gray-800 text-lg mb-4"
+  }, t('tipsTitle')), React.createElement("div", {
+    className: "space-y-2"
+  }, React.createElement("div", {
+    onClick: () => setBlogModal({
+      open: true,
+      type: 'post'
+    }),
+    className: "flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 rounded-[1.25rem] cursor-pointer transition-colors group"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, React.createElement("div", {
+    className: "w-10 h-10 bg-white rounded-full flex items-center justify-center text-red-500 shadow-sm"
+  }, React.createElement(Icons.Truck, {
+    size: 20
+  })), React.createElement("div", null, React.createElement("p", {
+    className: "font-bold text-gray-800 text-sm"
+  }, t('tip1')), React.createElement("p", {
+    className: "text-[11px] text-gray-500 mt-0.5"
+  }, t('tip1Sub')))), React.createElement(Icons.ChevronRight, {
+    size: 18,
+    className: "text-red-300 group-hover:text-red-500 transition-colors"
+  })), React.createElement("div", {
+    onClick: () => setBlogModal({
+      open: true,
+      type: 'camera'
+    }),
+    className: "flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-[1.25rem] cursor-pointer transition-colors group"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, React.createElement("div", {
+    className: "w-10 h-10 bg-white rounded-full flex items-center justify-center text-green-500 shadow-sm"
+  }, React.createElement(Icons.Camera, {
+    size: 20
+  })), React.createElement("div", null, React.createElement("p", {
+    className: "font-bold text-gray-800 text-sm"
+  }, t('tip2')), React.createElement("p", {
+    className: "text-[11px] text-gray-500 mt-0.5"
+  }, t('tip2Sub')))), React.createElement(Icons.ChevronRight, {
+    size: 18,
+    className: "text-green-400 group-hover:text-green-600 transition-colors"
+  })), React.createElement("div", {
+    onClick: () => setBlogModal({
+      open: true,
+      type: 'logout'
+    }),
+    className: "flex items-center justify-between p-4 bg-yellow-50 hover:bg-yellow-100 rounded-[1.25rem] cursor-pointer transition-colors group"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, React.createElement("div", {
+    className: "w-10 h-10 bg-white rounded-full flex items-center justify-center text-yellow-500 shadow-sm"
+  }, React.createElement(Icons.LogOut, {
+    size: 20
+  })), React.createElement("div", null, React.createElement("p", {
+    className: "font-bold text-gray-800 text-sm"
+  }, t('tip3')), React.createElement("p", {
+    className: "text-[11px] text-gray-500 mt-0.5"
+  }, t('tip3Sub')))), React.createElement(Icons.ChevronRight, {
+    size: 18,
+    className: "text-yellow-400 group-hover:text-yellow-600 transition-colors"
+  })), React.createElement("div", {
+    onClick: () => setViewMode('checklist'),
+    className: "flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-[1.25rem] cursor-pointer transition-colors group"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, React.createElement("div", {
+    className: "w-10 h-10 bg-white rounded-full flex items-center justify-center text-blue-500 shadow-sm"
+  }, React.createElement(Icons.CheckSquare, {
+    size: 20
+  })), React.createElement("div", null, React.createElement("p", {
+    className: "font-bold text-gray-800 text-sm"
+  }, t('tip4')), React.createElement("p", {
+    className: "text-[11px] text-gray-500 mt-0.5"
+  }, t('tip4Sub')))), React.createElement(Icons.ChevronRight, {
+    size: 18,
+    className: "text-blue-300 group-hover:text-blue-500 transition-colors"
+  })))));
   // [NEW] 수령 방법 안내 페이지
   var renderPickupGuidePage = () => {
     var methods = [{
@@ -7926,39 +8015,7 @@ React.createElement("div", {
     className: "text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full"
   }, upcomingConcerts.length + "개 공연")), React.createElement("div", {
     className: "grid grid-cols-2 gap-2"
-  }, upcomingConcerts.map((c, i) => renderConcertCard(c, i)))), renderPhoneShowcase(), React.createElement("div", {
-    className: "bg-white rounded-[2rem] p-5 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all flex flex-col justify-between aspect-[4/3]",
-    onClick: () => {
-      var el = document.getElementById('venue-section');
-      if (el) el.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  }, React.createElement("div", {
-    className: "w-12 h-12 bg-sky-50 text-sky-400 rounded-full flex items-center justify-center"
-  }, React.createElement(Icons.MapPin, {
-    size: 22
-  })), React.createElement("div", {
-    className: "mt-2"
-  }, React.createElement("h3", {
-    className: "font-bold text-gray-800 text-[15px]"
-  }, t('pickupZone')), React.createElement("p", {
-    className: "text-[11px] text-gray-400 mt-0.5 leading-snug break-keep"
-  }, t('pickupZoneSub')))), React.createElement("div", {
-    className: "bg-white rounded-[2rem] p-5 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all flex flex-col justify-between aspect-[4/3]",
-    onClick: () => setViewMode('manual')
-  }, React.createElement("div", {
-    className: "w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center"
-  }, React.createElement(Icons.ListChecks, {
-    size: 22
-  })), React.createElement("div", {
-    className: "mt-2"
-  }, React.createElement("h3", {
-    className: "font-bold text-gray-800 text-[15px]"
-  }, t('userGuide')), React.createElement("p", {
-    className: "text-[11px] text-gray-400 mt-0.5"
-  }, t('userGuideSub'))))), React.createElement("div", {
+  }, upcomingConcerts.map((c, i) => renderConcertCard(c, i)))), renderPhoneShowcase()), React.createElement("div", {
     className: "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100"
   }, React.createElement("div", {
     className: "flex justify-between items-end mb-5"
@@ -8189,7 +8246,7 @@ React.createElement("div", {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'tipsGuide' && renderTipsGuidePage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
