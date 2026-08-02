@@ -1803,8 +1803,11 @@ var PhoneRentalApp = () => {
     label: '취소/환불',
     desc: '취소 및 환불 신청',
     fullLabel: '예약 취소하기',
-    icon: Icons.Trash2,
-    accent: 'bg-red-50 text-red-500',
+    icon: () => React.createElement("i", {
+      className: "fa-solid fa-calendar-xmark",
+      style: { fontSize: 16 }
+    }),
+    accent: 'bg-red-100 text-red-500',
     onClick: () => {
       setServiceTarget(null);
       setViewMode('cancelPicker');
@@ -1813,8 +1816,11 @@ var PhoneRentalApp = () => {
     label: '모델 변경',
     desc: '다른 기종으로 변경 신청',
     fullLabel: '대여모델 변경하기',
-    icon: Icons.Smartphone,
-    accent: 'bg-rose-50 text-rose-500',
+    icon: () => React.createElement("i", {
+      className: "fa-solid fa-mobile-screen-button",
+      style: { fontSize: 16 }
+    }),
+    accent: 'bg-sky-100 text-sky-500',
     onClick: () => {
       setServiceTarget(null);
       setViewMode('changePicker');
@@ -1823,7 +1829,14 @@ var PhoneRentalApp = () => {
     label: '대여 연장',
     desc: '대여 기간 연장 신청',
     fullLabel: '대여기간 연장하기',
-    icon: Icons.CalendarPlus,
+    // [NEW] 홈화면 '대여연장' 아이콘과 동일한 아이콘/색상(#D1FAE5, #10B981)으로 맞춤
+    icon: () => React.createElement("div", {
+      className: "w-full h-full rounded-full flex items-center justify-center",
+      style: { backgroundColor: '#D1FAE5' }
+    }, React.createElement("i", {
+      className: "fa-solid fa-calendar-plus",
+      style: { fontSize: 16, color: '#10B981' }
+    })),
     accent: 'bg-blue-50 text-blue-500',
     onClick: () => {
       setServiceTarget(null);
@@ -1833,7 +1846,11 @@ var PhoneRentalApp = () => {
     label: '백업 신청',
     desc: '촬영본 백업 대행 신청',
     fullLabel: '데이터 백업 맡기기',
-    icon: Icons.Image,
+    icon: () => React.createElement("img", {
+      src: "데이터백업_대행아이콘.png",
+      alt: "백업 신청",
+      className: "w-9 h-9 rounded-full object-cover"
+    }),
     accent: 'bg-purple-50 text-purple-500',
     onClick: () => {
       setServiceTarget(null);
@@ -1843,8 +1860,11 @@ var PhoneRentalApp = () => {
     label: '주소 변경',
     desc: '배송지 주소 변경 신청',
     fullLabel: '배송지 주소 변경하기',
-    icon: Icons.MapPin,
-    accent: 'bg-yellow-50 text-yellow-600',
+    icon: () => React.createElement("i", {
+      className: "fa-solid fa-house",
+      style: { fontSize: 16 }
+    }),
+    accent: 'bg-yellow-100 text-orange-600',
     onClick: () => {
       setServiceTarget(null);
       setViewMode('addressPicker');
@@ -1854,8 +1874,11 @@ var PhoneRentalApp = () => {
   var RESERVATION_MANAGE_ROWS = LOOKUP_QUICK_ACTIONS.filter(it => it.label !== '내 예약 보기').concat([{
     label: '수령·반납 변경',
     fullLabel: '수령 및 반납방법 변경',
-    icon: Icons.Box,
-    accent: 'bg-orange-50 text-orange-600',
+    icon: () => React.createElement("i", {
+      className: "fa-solid fa-pen-to-square",
+      style: { fontSize: 16 }
+    }),
+    accent: 'bg-gray-100 text-gray-600',
     onClick: () => setShowMethodChangeNotice(true)
   }]);
 
@@ -6323,13 +6346,11 @@ React.createElement("div", {
     className: "w-full bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
   }, "가이드 보기")), React.createElement("div", {
     className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center"
-  }, React.createElement("div", {
-    className: "w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
   }, React.createElement("img", {
-    src: "세린캠메인로고_투명.png",
-    alt: "세린캠",
-    className: "w-11 h-11 object-contain"
-  })), React.createElement("div", {
+    src: "데이터백업_대행아이콘.png",
+    alt: "데이터 백업 대행",
+    className: "w-16 h-auto mx-auto mb-4"
+  }), React.createElement("div", {
     className: "flex items-center justify-center gap-1.5 mb-2"
   }, React.createElement("h3", {
     className: "font-bold text-gray-900 text-lg"
