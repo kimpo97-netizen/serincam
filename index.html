@@ -1846,12 +1846,12 @@ var PhoneRentalApp = () => {
     label: '백업 신청',
     desc: '촬영본 백업 대행 신청',
     fullLabel: '데이터 백업 맡기기',
-    icon: () => React.createElement("img", {
-      src: "데이터백업_대행아이콘.png",
-      alt: "백업 신청",
-      className: "w-9 h-9 rounded-full object-cover"
+    // [NEW] 실사 이미지 대신, 참고 이미지(둥근 사각 기기 아이콘)를 다른 항목들과 같은 방식(FA 아이콘 + 원형 배경)으로 재현
+    icon: () => React.createElement("i", {
+      className: "fa-solid fa-hard-drive",
+      style: { fontSize: 16 }
     }),
-    accent: 'bg-purple-50 text-purple-500',
+    accent: 'bg-pink-100 text-pink-500',
     onClick: () => {
       setServiceTarget(null);
       setViewMode('backupApply');
@@ -2842,6 +2842,9 @@ var PhoneRentalApp = () => {
     if (raw.length < 8) return `${raw.slice(0, 3)}-${raw.slice(3)}`;
     return `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7, 11)}`;
   };
+  // [FIX] 성함에 공백(특히 끝에 실수로 들어가는 공백)이 저장되면, 예약조회가 이름을 정확히 일치시키는 방식이라
+  // 정상 예약인데도 조회 결과에서 통째로 빠지는 문제가 있었음. 애초에 입력 단계에서 공백을 못 넣게 막음.
+  var stripSpaces = value => value.replace(/\s/g, '');
   // [NEW] Edge Function 호출 실패 시, 응답 본문(JSON)에 담긴 실제 에러 메시지를 최대한 꺼내온다
   var getFnErrorMessage = async (error, fallback) => {
     try {
@@ -3279,7 +3282,7 @@ var PhoneRentalApp = () => {
     }
     if (!ref) return null;
     return (lookupResult || []).find(function (o) {
-      if (o.category !== '예약신청') return false;
+      if (REQUEST_CATEGORIES.includes(o.category)) return false;
       if (ref.orderTime && o.orderTime === ref.orderTime) return true;
       if (!ref.orderTime && o.name === ref.name && o.phone === ref.phone && o.startDate === ref.startDate && o.model === ref.model) return true;
       return false;
@@ -3299,7 +3302,10 @@ var PhoneRentalApp = () => {
   // 표시용 리스트: 원예약(+연결된 신청 내포) 먼저, 그다음 원예약과 매칭 안 된 신청건(구버전 등 예외 케이스만)
   var displayReservations = (() => {
     var all = lookupResult || [];
-    var originals = all.filter(r => r.category === '예약신청');
+    // [FIX] category가 정확히 '예약신청' 문자열일 때만 원예약으로 인정하면, 값이 비어있거나 다르게
+    // 저장된(레거시/관리자 입력 등) 원예약 행이 통째로 누락돼 "예약 5건 중 3건만 조회"처럼 보일 수 있음.
+    // 부가옵션 신청 5종(REQUEST_CATEGORIES)이 아닌 행은 전부 원예약으로 취급하도록 완화(eligibleReservationsBase와 동일한 기준).
+    var originals = all.filter(r => !REQUEST_CATEGORIES.includes(r.category));
     var linkedSet = new Set();
     originals.forEach(o => getLinkedRequests(o).forEach(r => linkedSet.add(r)));
     var orphanRequests = all.filter(r => REQUEST_CATEGORIES.includes(r.category) && !linkedSet.has(r));
@@ -4476,7 +4482,7 @@ var PhoneRentalApp = () => {
     placeholder: "성함",
     className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
     value: lookupName,
-    onChange: e => setLookupName(e.target.value)
+    onChange: e => setLookupName(stripSpaces(e.target.value))
   }), React.createElement("input", {
     type: "text",
     placeholder: "연락처 (010-0000-0000)",
@@ -6085,7 +6091,7 @@ React.createElement("div", {
         placeholder: "성함",
         className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
         value: lookupName,
-        onChange: e => setLookupName(e.target.value)
+        onChange: e => setLookupName(stripSpaces(e.target.value))
       }), React.createElement("input", {
         type: "text",
         placeholder: "연락처 (010-0000-0000)",
@@ -6292,7 +6298,7 @@ React.createElement("div", {
       value: extForm.name,
       onChange: e => setExtForm({
         ...extForm,
-        name: e.target.value
+        name: stripSpaces(e.target.value)
       })
     }), React.createElement("input", {
       type: "text",
@@ -6347,7 +6353,7 @@ React.createElement("div", {
   }, "가이드 보기")), React.createElement("div", {
     className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center"
   }, React.createElement("img", {
-    src: "데이터백업_대행아이콘.png",
+    src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABXCAYAAACTFMIVAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQLSURBVHhe7ZzPjtNGHMe/M46dOEs2CEVlKxVx48SFSx8AoV65Ig4VfQlegCNHHgCphx55gCLtA1SqKlXqE7RQlQLdXbJJ1o5nejBByyiTeOY3JrH9+0i5/Bx59/fJ/PPP9gittQbjjTQDjBsskAgLJMICibBAIiyQCAskwgKJsEAiLJAICyTCAomIL1ZM0IDOAJUDOgdQAFqV8VoQgJAAIkDEgIwBkZTxkNQuUF8AalF+9gE5KD+ibx7xozaBagGo2cfWtoeIGJDDUiaF4AL1Eig+lN21CYgEiEaA6JlHqhFUoJoDxZkZbQbRISBTM7qdYAKLKaDOzWizkAdAdMWMbiaIwOKsbH1tQKZla6wKeR1YTNsjD6thaGpG7ZAEqnnzu+061Hn1RuEtUC+bO2FUoTgrc9yGt8DigxlpH1Vy9BKoFs1Z51HQ2fYrKD+BMzPSXrbl6ixQX+zv5Vkd6LzM2YazwG1Nuo1sytlNoN58sraiFvaym5PALkwcNmy5OwlUHRr7TGy5Owns0uRhYsvdSSAKM9AhLLk7VWPyN/bB1J8C2Wlh+/88EIjHMTzro3YEEH9lBl0F/mNGCBQZ/vtpjpNjbf11vYmA3t0+Jg9TpJF50J/4uhlx7cIBOXsxw8nLGuSh7G7Llxd486L+NdeOBM4xPTZj4VHHOU7MYGB2JFBDf4k64jmgzFhgdiSwPbBAIiyQCAskwgKJsEAiLJDIji7lZnj1QwZ1N8bwToThjbC/4/LPJWa/5ZgfSxw+H+Ga+QVP1l3K7UhgjvlphHQsay0mqNMM2TgB8Qm2T+yRQC4mkOFiAgkuJhAhFBMigfRxiqNnA4zufIxdkRg9GeLoaR/pzUvf5WLCGr6NcXS7j3Q8wORBDxKAvNfH5GaC9HqKo/sBB70KNE/gvxqrpy3UOw0NQL8usBrtFtO629zn7GgWnuHV9xkst1q387VEckMj/1VDryahbySSaxrZH5cnpgjjH+tdB+6oBfYQ3zJjDvytkP1ySR4A/KWQ/W7M6rckPJ4bd2JHAhNMHvXQq3O4igSGj9LaBbp14cC3NdXpAu9/znEReq1xVWL0XYrDccD2EeK25vItPu82HUJEQG9iRl27cJ1dbt+x5O4kUMRmpDvYcncSKC0n6QK23J0EisSMdAdb7k4CIeivhzYROShzX4ebwNXJOsamnJ0Fir59QG0jIt78druzQKB807srbMvVT+DAPqi2CZFs7r7wFQiUr8m3nSo5egsUPbcXk5tGdFhtHwVvgUD5drc8MKPNRx5U3z+BJBAo9xio+seagEzd9k1wqsZsgjedCABvexIA3ngnELz1UyB487FQ8PZ3zDrI68CuwwKJsEAiLJAICyTCAomwQCIskAgLJPI/C0aeEyJ6/+oAAAAASUVORK5CYII=",
     alt: "데이터 백업 대행",
     className: "w-16 h-auto mx-auto mb-4"
   }), React.createElement("div", {
@@ -6648,7 +6654,7 @@ React.createElement("div", {
       value: backupForm.name,
       onChange: e => setBackupForm({
         ...backupForm,
-        name: e.target.value
+        name: stripSpaces(e.target.value)
       })
     }), React.createElement("input", {
       type: "text",
@@ -8000,8 +8006,8 @@ React.createElement("div", {
   }), React.createElement("span", {
     className: "whitespace-nowrap"
   }, (() => {
-    // [NEW] 조회 전 또는 예약 내역이 없으면: "예약 조회" / 예약이 있을 때만: "OOO님"
-    if (!lookupResult || lookupResult.length === 0 || !lookupName) return t('bookingLookup');
+    // [NEW] 조회 전 또는 예약 내역이 없으면: "마이페이지" / 예약이 있을 때만: "OOO님"
+    if (!lookupResult || lookupResult.length === 0 || !lookupName) return '마이페이지';
     var n = String(lookupName).trim();
     if (n.length > 4) n = n.slice(0, 4) + '..';
     return n + '님';
@@ -9016,7 +9022,7 @@ React.createElement("div", {
     value: userInfo.name,
     onChange: e => setUserInfo({
       ...userInfo,
-      name: e.target.value
+      name: stripSpaces(e.target.value)
     })
   }))), React.createElement("div", null, React.createElement("label", {
     className: "text-xs font-bold text-gray-500 ml-1"
