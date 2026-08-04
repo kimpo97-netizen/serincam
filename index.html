@@ -2482,7 +2482,7 @@ var PhoneRentalApp = () => {
       totalPrice: refundInfo.refund,
       // [NEW] 원예약 시 입력했던 환불계좌를 그대로 가져와 신청건에도 기록 (관리자가 바로 확인 가능하도록)
       account: target.account || '',
-      scheduleName: (target.name || '') + '님 취소/환불신청 | 환불예정 ' + refundInfo.refund.toLocaleString() + '원 (' + refundInfo.label + ')' + (target.account ? ' | 환불계좌: ' + target.account : '') + (target.scheduleName ? ' | 원예약: ' + target.model + ' | ' + target.scheduleName : ''),
+      scheduleName: `${target.name || ''}님 취소/환불신청\n환불예정: ${refundInfo.refund.toLocaleString()}원 (${refundInfo.label})` + (target.account ? `\n환불계좌: ${target.account}` : '') + (target.scheduleName ? `\n원예약: ${target.model} | ${target.scheduleName}` : ''),
       origin_ref: buildOriginRef(target)
     };
     try {
@@ -3544,7 +3544,7 @@ var PhoneRentalApp = () => {
       totalPrice: calc.total,
       // [NEW] 차액 환불이 필요할 수 있어 원예약의 환불계좌를 그대로 가져와 신청건에도 기록
       account: target.account || '',
-      scheduleName: (target.name || '') + '님 기종변경 | ' + origModel + ' → ' + newShortModel + ' | 변경후 ' + calc.total.toLocaleString() + '원 (' + (diff > 0 ? '추가 +' + diff.toLocaleString() : diff < 0 ? '차감 ' + diff.toLocaleString() : '차액없음') + ')' + (diff < 0 && target.account ? ' | 환불계좌: ' + target.account : ''),
+      scheduleName: `${target.name || ''}님 기종변경\n${origModel} → ${newShortModel}\n변경후 금액: ${calc.total.toLocaleString()}원 (${diff > 0 ? '추가 +' + diff.toLocaleString() : diff < 0 ? '차감 ' + diff.toLocaleString() : '차액없음'})` + (diff < 0 && target.account ? `\n환불계좌: ${target.account}` : ''),
       origin_ref: buildOriginRef(target)
     };
     try {
@@ -3594,7 +3594,7 @@ var PhoneRentalApp = () => {
       zipcode: addressForm.zipcode || '',
       address: fullNewAddress,
       totalPrice: 0,
-      scheduleName: (target.name || '') + '님 주소변경신청 | 새 주소: ' + fullNewAddress + (target.address ? ' | 기존 주소: ' + target.address : ''),
+      scheduleName: `${target.name || ''}님 주소변경신청\n새 주소: ${fullNewAddress}` + (target.address ? `\n기존 주소: ${target.address}` : ''),
       origin_ref: buildOriginRef(target)
     };
     try {
@@ -3783,7 +3783,7 @@ var PhoneRentalApp = () => {
       startDate: origEnd || '',
       endDate: newEnd || '',
       totalPrice: extTotal,
-      scheduleName: `${extForm.name}님 연장(+${extDays}일)${resInfo ? ' | 원예약: ' + resInfo : ''}`,
+      scheduleName: `${extForm.name}님 연장(+${extDays}일)${resInfo ? '\n원예약: ' + resInfo : ''}`,
       // [NEW] 원예약 지문: 입금확인(확정) 시 DB 트리거가 이 값으로 원예약을 찾아 endDate를 변경해요.
       origin_ref: buildOriginRef(serviceTarget)
     };
@@ -3833,7 +3833,7 @@ var PhoneRentalApp = () => {
       startDate: serviceTarget ? serviceTarget.startDate || '' : '',
       endDate: serviceTarget ? serviceTarget.endDate || '' : '',
       totalPrice: 10000,
-      scheduleName: `${backupForm.name}님 백업신청${resInfo ? ' | 원예약: ' + resInfo : ''}`,
+      scheduleName: `${backupForm.name}님 백업신청${resInfo ? '\n원예약: ' + resInfo : ''}`,
       // [NEW] 원예약 지문: 입금확인(확정) 시 DB 트리거가 이 값으로 원예약을 찾아 memo에 '백업'을 넣어요.
       origin_ref: buildOriginRef(serviceTarget)
     };
@@ -3861,7 +3861,7 @@ var PhoneRentalApp = () => {
       setIsSubmitting(false);
     }
   };
-  var handleLookup = async (nameParam = null, phoneParam = null, isRefresh = false) => {
+  var handleLookup = async (nameParam = null, phoneParam = null, isRefresh = false, goToMyPage = false) => {
     var targetName = (typeof nameParam === 'string' ? nameParam : lookupName).trim();
     var targetPhone = (typeof phoneParam === 'string' ? phoneParam : lookupPhone).trim();
     if (!targetName || !targetPhone || targetPhone.length < 10) {
@@ -3889,6 +3889,7 @@ var PhoneRentalApp = () => {
           name: targetName,
           phone: targetPhone
         }));
+        if (goToMyPage) handleNavChange('my');
       } else {
         if (!isRefresh) showAppToast("일치하는 예약 정보가 없습니다. 😢");
         setLookupResult([]);
@@ -4489,9 +4490,9 @@ var PhoneRentalApp = () => {
     className: "w-full p-3 bg-gray-50 rounded-xl outline-none text-sm border border-transparent focus:border-blue-200 transition-colors",
     value: lookupPhone,
     onChange: e => setLookupPhone(formatPhone(e.target.value)),
-    onKeyPress: e => e.key === 'Enter' && handleLookup()
+    onKeyPress: e => e.key === 'Enter' && handleLookup(null, null, false, true)
   }), React.createElement("button", {
-    onClick: () => handleLookup(),
+    onClick: () => handleLookup(null, null, false, true),
     disabled: isSearching,
     className: `w-full py-4 rounded-xl font-bold shadow-md transition-all flex justify-center items-center gap-2 mt-2 ${isSearching ? 'bg-blue-300 text-white cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'}`
   }, isSearching ? React.createElement(React.Fragment, null, React.createElement(Icons.RefreshCw, {
