@@ -3069,13 +3069,7 @@ var PhoneRentalApp = () => {
       }
     }
     while (currentDate <= targetEndDate) {
-      var year = currentDate.getFullYear();
-      var month = currentDate.getMonth() + 1;
-      var day = currentDate.getDate();
-      var dateKey = `${year}-${month}-${day}`;
-      if (!HOLIDAYS[dateKey]) {
-        count++;
-      }
+      count++;
       currentDate.setDate(currentDate.getDate() + 1);
     }
     return count;
