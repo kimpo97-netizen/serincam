@@ -1441,6 +1441,7 @@ var PhoneRentalApp = () => {
   var [selectedVenue, setSelectedVenue] = useState(null);
   var [showConcertModal, setShowConcertModal] = useState(false); // [NEW] 다가오는 공연 상세 모달
   var [selectedConcert, setSelectedConcert] = useState(null);     // [NEW] 선택된 공연
+  var [showAllServices, setShowAllServices] = useState(false); // [NEW] 홈 화면 서비스 아이콘 접기/펼치기
   var [showDateGuide, setShowDateGuide] = useState(false);
   var [showNotFoundGuide, setShowNotFoundGuide] = useState(false);
   var [alimtalkStatus, setAlimtalkStatus] = useState(null);
@@ -4048,11 +4049,11 @@ var PhoneRentalApp = () => {
     fg: '#6366F1',
     onClick: () => handleRentalStart()
   }, {
-    label: '공연장 픽업존',
-    faIcon: 'fa-location-dot',
-    bg: '#DBEAFE',
-    fg: '#3B82F6',
-    onClick: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); }
+    label: '꿀팁',
+    faIcon: 'fa-lightbulb',
+    bg: '#FEF3C7',
+    fg: '#F59E0B',
+    onClick: () => { setViewMode('tipsGuide'); updateURLForNav('tips'); }
   }, {
     label: '대여연장',
     faIcon: 'fa-calendar-plus',
@@ -4097,11 +4098,11 @@ var PhoneRentalApp = () => {
       updateURLForNav('camera-galaxy');
     }
   }, {
-    label: '꿀팁',
-    faIcon: 'fa-lightbulb',
-    bg: '#FEF3C7',
-    fg: '#F59E0B',
-    onClick: () => { setViewMode('tipsGuide'); updateURLForNav('tips'); }
+    label: '공연장 픽업존',
+    faIcon: 'fa-location-dot',
+    bg: '#DBEAFE',
+    fg: '#3B82F6',
+    onClick: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); }
   }, {
     label: '리뷰',
     faIcon: 'fa-star',
@@ -7994,6 +7995,49 @@ React.createElement("div", {
   }), React.createElement("span", {
     className: "flex-1 text-sm text-gray-300"
   }, "찾으시는 내용을 검색해보세요")),
+React.createElement("div", {
+    className: "bg-white rounded-3xl shadow-sm border border-gray-100 p-4"
+  }, React.createElement("div", {
+    className: "flex items-center justify-between mb-3 px-1"
+  }, React.createElement("h3", {
+    className: "text-sm font-bold text-gray-700"
+  }, "✨ 자주 찾는 서비스"), React.createElement("button", {
+    onClick: () => setShowAllServices(!showAllServices),
+    className: "flex items-center gap-0.5 text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+  }, showAllServices ? '접기' : '더보기', React.createElement(Icons.ChevronRight, {
+    size: 12,
+    className: `transform transition-transform duration-300 ${showAllServices ? '-rotate-90' : 'rotate-90'}`
+  }))), React.createElement("div", {
+    style: {
+      overflow: 'hidden',
+      transition: 'max-height 0.25s ease-in-out',
+      maxHeight: showAllServices ? '400px' : '84px'
+    }
+  }, React.createElement("div", {
+    style: showAllServices ? { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', rowGap: '18px', columnGap: '4px' } : { display: 'flex', gap: '4px', overflowX: 'auto', marginLeft: '-8px', marginRight: '-8px', paddingLeft: '8px', paddingRight: '8px' },
+    className: showAllServices ? '' : 'no-scrollbar'
+  }, HOME_ICON_GRID.map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: it.onClick,
+    className: "flex flex-col items-center gap-2",
+    style: showAllServices ? {} : { flexShrink: 0, width: 64 }
+  }, React.createElement("div", {
+    style: {
+      width: 54,
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: it.bg,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0
+    }
+  }, React.createElement("i", {
+    className: `fa-solid ${it.faIcon}`,
+    style: { fontSize: 22, color: it.fg }
+  })), React.createElement("span", {
+    className: "text-[11px] font-medium text-gray-700 text-center leading-tight break-keep"
+  }, it.label)))))),
 hasUpcomingConcerts && React.createElement("div", {
     className: "bg-white rounded-3xl p-4 shadow-sm border border-gray-100 animate-fade-in"
   }, React.createElement("div", {
@@ -11013,7 +11057,7 @@ React.createElement("div", {
     className: "text-[13px] font-bold text-gray-700 truncate"
   }, it.label)))), React.createElement("div", { className: "mt-10" }, React.createElement("h3", {
     className: "font-extrabold text-gray-800 text-[15px] mb-3"
-  }, "어떤 서비스가 필요하신가요?"), React.createElement("div", {
+  }, "✨ 자주 찾는 서비스"), React.createElement("div", {
     style: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', rowGap: '18px', columnGap: '4px' }
   }, HOME_ICON_GRID.map((it, i) => React.createElement("button", {
     key: i,
