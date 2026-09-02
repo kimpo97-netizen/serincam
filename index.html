@@ -2461,6 +2461,27 @@ var PhoneRentalApp = () => {
       isWithin24Hours: isWithin24Hours
     };
   };
+  // [NEW] 신청 접수 알림톡 공용 발송 헬퍼 (베스트에포트 — 실패해도 신청 자체는 막지 않고, 실패 사유는 콘솔에 남김)
+  var sendAppAlimtalk = async (templateKey, phone, variables) => {
+    if (!phone) return;
+    try {
+      var {
+        data,
+        error
+      } = await sb.functions.invoke('send-alimtalk', {
+        body: {
+          templateKey: templateKey,
+          phone: phone,
+          variables: variables
+        }
+      });
+      if (error) { console.error(templateKey + ' 알림톡 발송 실패:', error); return; }
+      if (data && data.error) { console.error(templateKey + ' 알림톡 발송 실패:', data.error); return; }
+      if (data && data.success === false) { console.error(templateKey + ' 알림톡 발송 실패:', data.results || data); }
+    } catch (e) {
+      console.error(templateKey + ' 알림톡 발송 중 오류:', e);
+    }
+  };
   var handleCancelRequest = async () => {
     if (!cancelTargetItem) return;
     if (!sb) {
@@ -2491,6 +2512,15 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      // [NEW] 취소 신청 접수 즉시 취소/환불 안내 알림톡 발송 (베스트에포트 — 실패해도 취소 신청 자체는 이미 접수된 상태로 둠)
+      sendAppAlimtalk('cancel_refund', target.phone, {
+        '#{이름}': target.name || '',
+        '#{모델}': target.model || '',
+        '#{일정명}': target.scheduleName || '',
+        '#{대여기간}': `${target.startDate || ''} ~ ${target.endDate || ''}`,
+        '#{환불계좌}': target.account || '',
+        '#{환불금액}': refundInfo.refund.toLocaleString()
+      });
       handleRefresh(); // [NEW] 취소 신청 후 예약내역 자동 새로고침
       setIsSubmitting(false);
       setIsCancelModalOpen(false);
@@ -3547,6 +3577,23 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      // [NEW] 모델변경 신청 접수 즉시 변경 안내 알림톡 발송 (베스트에포트 — 실패해도 신청 자체는 이미 접수된 상태로 둠)
+      // 정산금액이 마이너스(차액 환불)면 환불 안내용 템플릿, 그 외(추가 결제 필요 또는 차액 없음)는 결제 안내용 템플릿을 사용
+      var isRefund = diff < 0;
+      sendAppAlimtalk(isRefund ? 'model_change_refund' : 'model_change', target.phone, isRefund ? {
+        '#{이름}': target.name || '',
+        '#{연락처}': target.phone || '',
+        '#{기존모델}': origModel,
+        '#{변경모델}': newShortModel,
+        '#{환불계좌}': target.account || '',
+        '#{환불금액}': Math.abs(diff).toLocaleString()
+      } : {
+        '#{이름}': target.name || '',
+        '#{연락처}': target.phone || '',
+        '#{기존모델}': origModel,
+        '#{변경모델}': newShortModel,
+        '#{정산금액}': diff.toLocaleString()
+      });
       handleRefresh(); // [NEW] 변경 신청 후 예약내역 자동 새로고침
       setIsSubmitting(false);
       setIsChangeConfirmOpen(false);
@@ -3597,6 +3644,11 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      // [NEW] 주소변경 신청 접수 즉시 배송지 변경 안내 알림톡 발송 (베스트에포트 — 실패해도 신청 자체는 이미 접수된 상태로 둠)
+      sendAppAlimtalk('address_change', target.phone, {
+        '#{이름}': target.name || '',
+        '#{새주소}': fullNewAddress
+      });
       handleRefresh(); // [NEW] 주소변경 신청 후 예약내역 자동 새로고침
       setIsSubmitting(false);
       setAddressTargetItem(null);
@@ -3706,6 +3758,22 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      // [NEW] 예약 접수 즉시 예약 접수 안내 알림톡 발송 (베스트에포트 — 실패해도 예약 접수 자체는 이미 완료된 상태로 둠)
+      // 결제수단이 계좌이체면 booking_confirm_deposit, 그 외(카드/네이버페이 등)는 booking_confirm_card
+      var formatKoreanMD = d => d ? `${d.getMonth() + 1}월 ${d.getDate()}일` : '';
+      sendAppAlimtalk(paymentMethod === 'transfer' ? 'booking_confirm_deposit' : 'booking_confirm_card', userInfo.phone, {
+        '#{이름}': userInfo.name || '',
+        '#{연락처}': userInfo.phone || '',
+        '#{일정명}': orderData.scheduleName || '',
+        '#{모델}': finalModelName,
+        '#{보조배터리}': batteryCount > 0 ? '보조배터리' : '',
+        '#{수령방법}': deliveryText,
+        '#{수령일}': formatKoreanMD(startDate),
+        '#{반납방법}': returnText,
+        '#{반납일}': formatKoreanMD(getReturnDate(endDate)),
+        '#{결제금액}': total.toLocaleString(),
+        '#{리뷰}': reviewText
+      });
       setSuccessData({
         type: '예약',
         name: userInfo.name,
@@ -3787,6 +3855,15 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      // [NEW] 연장 신청 접수 즉시 연장/입금 안내 알림톡 발송 (베스트에포트 — 실패해도 신청 자체는 이미 접수된 상태로 둠)
+      sendAppAlimtalk('rental_extension', extForm.phone, {
+        '#{이름}': extForm.name || '',
+        '#{연락처}': extForm.phone || '',
+        '#{모델}': (serviceTarget && serviceTarget.model) || orderData.model,
+        '#{기존반납일}': origEnd ? formatDisplayDate(origEnd) : '',
+        '#{변경반납일}': newEnd ? formatDisplayDate(newEnd) : '',
+        '#{연장요금}': extTotal.toLocaleString()
+      });
       handleRefresh(); // [NEW] 연장 신청 후 예약내역 자동 새로고침
       setSuccessData({
         type: '연장',
@@ -3837,6 +3914,13 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
+      // [NEW] 백업 신청 접수 즉시 백업/결제 안내 알림톡 발송 (베스트에포트 — 실패해도 신청 자체는 이미 접수된 상태로 둠)
+      sendAppAlimtalk('backup_request', backupForm.phone, {
+        '#{이름}': backupForm.name || '',
+        '#{연락처}': backupForm.phone || '',
+        '#{모델}': (serviceTarget && serviceTarget.model) || orderData.model,
+        '#{금액}': orderData.totalPrice.toLocaleString()
+      });
       handleRefresh(); // [NEW] 백업 신청 후 예약내역 자동 새로고침
       setSuccessData({
         type: '백업',
