@@ -4500,12 +4500,6 @@ var PhoneRentalApp = () => {
   }, Number(item.totalPrice).toLocaleString(), "원")), (item.status || '').includes('확정') && item.review && item.review !== '선택안함' && React.createElement("div", {
     className: "mt-3 bg-gray-50 p-3 rounded-xl border border-gray-100"
   }, React.createElement("div", {
-    className: "flex items-center gap-1.5 mb-1"
-  }, React.createElement("span", {
-    className: "text-lg"
-  }, "📢"), React.createElement("span", {
-    className: "text-xs font-bold text-gray-700"
-  }, "리뷰 작성 안내")), React.createElement("div", {
     className: "text-xs leading-relaxed text-gray-600"
   }, (item.review || '').includes('홈페이지') && React.createElement(React.Fragment, null, React.createElement("p", {
     className: "font-bold text-blue-600 mb-1"
@@ -4740,7 +4734,21 @@ React.createElement("div", {
     className: "text-[11px] font-bold text-gray-400 hover:text-gray-600 flex items-center gap-1 shrink-0"
   }, React.createElement(Icons.LogOut, {
     size: 12
-  }), "로그아웃"))), lookupResult && displayReservations.originals.length > 0 && React.createElement("div", {
+  }), "로그아웃"))), React.createElement("div", null, React.createElement("h3", {
+    className: "text-xs font-bold text-gray-400 px-1 mb-2"
+  }, "예약 관리"), React.createElement("div", {
+    className: "grid grid-cols-3 gap-3 bg-white rounded-3xl shadow-sm border border-gray-100 p-4"
+  }, RESERVATION_MANAGE_ROWS.map((it, i) => React.createElement("button", {
+    key: i,
+    onClick: it.onClick,
+    className: "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+  }, React.createElement("div", {
+    className: `w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${it.accent || 'bg-blue-50 text-blue-500'}`
+  }, React.createElement(it.icon, {
+    size: 18
+  })), React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, it.label))))), lookupResult && displayReservations.originals.length > 0 && React.createElement("div", {
     className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 animate-fade-in"
   }, React.createElement("div", {
     className: "flex items-center justify-between mb-3"
@@ -4766,20 +4774,6 @@ React.createElement("div", {
   })))), React.createElement("div", {
     className: "space-y-2"
   }, displayReservations.originals.slice(0, 1).map((item, idx) => renderReservationCard(item, idx)))), React.createElement("div", null, React.createElement("h3", {
-    className: "text-xs font-bold text-gray-400 px-1 mb-2"
-  }, "예약 관리"), React.createElement("div", {
-    className: "grid grid-cols-3 gap-3 bg-white rounded-3xl shadow-sm border border-gray-100 p-4"
-  }, RESERVATION_MANAGE_ROWS.map((it, i) => React.createElement("button", {
-    key: i,
-    onClick: it.onClick,
-    className: "flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-  }, React.createElement("div", {
-    className: `w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${it.accent || 'bg-blue-50 text-blue-500'}`
-  }, React.createElement(it.icon, {
-    size: 18
-  })), React.createElement("span", {
-    className: "text-xs font-bold text-gray-700"
-  }, it.label))))), React.createElement("div", null, React.createElement("h3", {
     className: "text-xs font-bold text-gray-400 px-1 mb-2"
   }, "자주 묻는 질문"), React.createElement("div", {
     className: "bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
