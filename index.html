@@ -2550,28 +2550,28 @@ var PhoneRentalApp = () => {
     galaxy: [{
       id: 'g23',
       name: '갤럭시 S23울트라',
-      basePrice: 30000,
+      basePrice: 33000,
       addPrice: 10000,
       tag: '23U',
       reviews: 882
     }, {
       id: 'g24',
       name: '갤럭시 S24울트라',
-      basePrice: 35000,
+      basePrice: 38000,
       addPrice: 10000,
       tag: '24U',
       reviews: 543
     }, {
       id: 'g25',
       name: '갤럭시 S25울트라',
-      basePrice: 40000,
+      basePrice: 43000,
       addPrice: 10000,
       tag: '25U',
       reviews: 358
     }, {
       id: 'g26',
       name: '갤럭시 S26울트라',
-      basePrice: 55000,
+      basePrice: 58000,
       addPrice: 15000,
       tag: '26U',
       reviews: 45
@@ -2579,14 +2579,14 @@ var PhoneRentalApp = () => {
     iphone: [{
       id: 'i17p',
       name: '아이폰 17프로',
-      basePrice: 55000,
+      basePrice: 58000,
       addPrice: 15000,
       tag: '17P',
       reviews: 102
     }, {
       id: 'i17pm',
       name: '아이폰 17프로맥스',
-      basePrice: 60000,
+      basePrice: 63000,
       addPrice: 15000,
       tag: '17PM',
       reviews: 41
@@ -3122,10 +3122,10 @@ var PhoneRentalApp = () => {
     if (returnMethod === 'pickup') total += 4000;
     if (returnMethod === 'sameday') total += 15000;
     if (dataBackup) total += 10000;
-    if (discounts.twitter) total -= 4000;
+    if (discounts.twitter) total -= 5000;
     if (discounts.blog) total -= 5000;
-    if (discounts.kakao) total -= 4000;
-    if (discounts.homepage) total -= 4000;
+    if (discounts.kakao) total -= 2000;
+    if (discounts.homepage) total -= 2000;
     if (paymentMethod === 'transfer') total -= 1000;
     return Math.max(0, total);
   };
@@ -3722,8 +3722,12 @@ var PhoneRentalApp = () => {
     var fullAddress = `${userInfo.address} ${userInfo.detailAddress}`.trim();
     var insuranceText = '미선택';
     if (insurance === 'none') insuranceText = '미가입';else if (insurance === 'basic') insuranceText = '베이직';else if (insurance === 'premium') insuranceText = '프리미엄';
-    var reviewText = '';
-    if (discounts.twitter) reviewText = '트위터';else if (discounts.blog) reviewText = '블로그';else if (discounts.kakao) reviewText = '카카오맵';else if (discounts.homepage) reviewText = '홈페이지';else reviewText = '선택안함';
+    var reviewParts = [];
+    if (discounts.homepage) reviewParts.push('홈페이지');
+    if (discounts.kakao) reviewParts.push('카카오맵');
+    if (discounts.twitter) reviewParts.push('트위터');
+    if (discounts.blog) reviewParts.push('블로그');
+    var reviewText = reviewParts.length ? reviewParts.join('+') : '선택안함';
     var deliveryText = '미선택';
     if (deliveryMethod === 'post') deliveryText = '택배수령';else if (deliveryMethod === 'quick') deliveryText = '퀵수령';else if (deliveryMethod === 'venue') deliveryText = '공연장수령';else if (deliveryMethod === 'office') deliveryText = '사무실수령';
     var returnText = '미선택';
@@ -4200,6 +4204,39 @@ var PhoneRentalApp = () => {
     fg: '#0EA5E9',
     onClick: () => setBlogModal({ open: true, type: 'post' })
   }, {
+    label: '취소/환불',
+    faIcon: 'fa-calendar-xmark',
+    bg: '#FEE2E2',
+    fg: '#EF4444',
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('cancelPicker');
+    }
+  }, {
+    label: '모델 변경',
+    faIcon: 'fa-mobile-screen-button',
+    bg: '#FAE8FF',
+    fg: '#C026D3',
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('changePicker');
+    }
+  }, {
+    label: '주소 변경',
+    faIcon: 'fa-house',
+    bg: '#FEF9C3',
+    fg: '#EA580C',
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('addressPicker');
+    }
+  }, {
+    label: '수령·반납 변경',
+    faIcon: 'fa-pen-to-square',
+    bg: '#F3F4F6',
+    fg: '#4B5563',
+    onClick: () => setShowMethodChangeNotice(true)
+  }, {
     label: '초기화',
     faIcon: 'fa-arrows-rotate',
     bg: '#F1F5F9',
@@ -4468,30 +4505,38 @@ var PhoneRentalApp = () => {
     className: "text-lg"
   }, "📢"), React.createElement("span", {
     className: "text-xs font-bold text-gray-700"
-  }, "리뷰 작성 안내")), React.createElement("p", {
-    className: "text-xs text-gray-600 leading-relaxed break-keep"
-  }, item.review === '트위터' && React.createElement("span", {
-    className: "font-medium text-gray-800"
-  }, "X(트위터)에 ", React.createElement("span", {
-    className: "text-blue-500"
-  }, "#세린울트라대여 #울트라대여"), " 두가지 해시태그를 포함하여 후기를 남겨주시면 됩니다⭐"), item.review === '블로그' && React.createElement("span", {
-    className: "font-medium text-gray-800"
-  }, "네이버 블로그 > 장소추가 > ", React.createElement("span", {
-    className: "text-blue-500"
-  }, "세린캠"), "을 추가하여 후기를 남겨주세요⭐"), item.review === '카카오맵' && React.createElement("span", {
-    className: "font-medium text-gray-800"
-  }, "카카오맵에서 ", React.createElement("span", {
-    className: "text-blue-500"
-  }, "세린캠"), " 검색 후 사진과 함께 후기를 남겨주세요⭐"), item.review === '홈페이지' && React.createElement("span", {
-    className: "font-medium text-gray-800"
-  }, "세린캠 홈페이지에서 ", React.createElement("span", {
-    className: "text-blue-500"
-  }, "리뷰 작성"), "을 통해 사진과 함께 생생한 후기를 남겨주세요⭐")), item.review === '카카오맵' && React.createElement("button", {
+  }, "리뷰 작성 안내")), React.createElement("div", {
+    className: "text-xs leading-relaxed text-gray-600"
+  }, (item.review || '').includes('홈페이지') && React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "font-bold text-blue-600 mb-1"
+  }, "💡 작성 방법 안내"), React.createElement("p", null, "홈화면에 있는 ", React.createElement("strong", {
+    className: "text-gray-800"
+  }, "생생한 대여 후기 작성하기"), " 버튼을 눌러 사진과 함께 작성해주시면 됩니다!"), React.createElement("p", {
+    className: "text-[11px] text-blue-500 bg-white px-2 py-1 rounded-lg border border-blue-100 inline-block mt-2 font-medium"
+  }, "SNS 안 하시는 분들에게 적극 추천드려요! 👍")), (item.review || '').includes('카카오맵') && React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "font-bold text-yellow-600 mb-1 mt-3"
+  }, "💡 작성 방법 안내"), React.createElement("p", null, "카카오맵에서 ", React.createElement("strong", {
+    className: "text-gray-800"
+  }, "'세린캠'"), " 검색 후 사진과 함께 별점 리뷰를 남겨주시면 됩니다!"), React.createElement("p", {
+    className: "text-[11px] text-yellow-600 bg-white px-2 py-1 rounded-lg border border-yellow-100 inline-block mt-2 font-medium"
+  }, "빠르고 간단한 작성을 원하시는 분들께 추천드려요! ⚡"), React.createElement("button", {
     onClick: () => window.open('https://kko.to/dWVAAUgIPZ', '_blank'),
-    className: "w-full mt-2.5 bg-[#FAE100] text-[#373737] py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-1"
+    className: "w-full mt-2 bg-[#FAE100] text-[#373737] py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-1"
   }, "카카오맵 바로가기 ", React.createElement(Icons.ExternalLink, {
     size: 12
-  }))), (!item.status || item.status === '예약신청') && !(item.status || '').includes('확정') && !(item.status || '').includes('취소') && !(item.status || '').includes('환불') && React.createElement("div", {
+  }))), (item.review || '').includes('트위터') && React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "font-bold text-gray-700 mb-1 mt-3"
+  }, "💡 작성 방법 안내"), React.createElement("p", null, "사진과 함께 ", React.createElement("strong", {
+    className: "text-blue-500"
+  }, "#세린울트라대여 #울트라대여"), " 해시태그를 포함하여 후기를 남겨주세요!"), React.createElement("p", {
+    className: "text-[11px] text-gray-500 bg-white px-2 py-1 rounded-lg border border-gray-200 inline-block mt-2 font-medium"
+  }, "콘서트/팬미팅 후기를 트친들과 공유해보세요! 💙")), (item.review || '').includes('블로그') && React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "font-bold text-green-600 mb-1 mt-3"
+  }, "💡 작성 방법 안내"), React.createElement("p", null, "게시글 장소 추가에 ", React.createElement("strong", {
+    className: "text-gray-800"
+  }, "'세린캠'"), "을 추가하고 사진과 함께 상세한 후기를 남겨주세요!"), React.createElement("p", {
+    className: "text-[11px] text-green-600 bg-white px-2 py-1 rounded-lg border border-green-100 inline-block mt-2 font-medium"
+  }, "나만의 덕질 일상을 꼼꼼하게 기록하시는 분들께 추천드려요! ✍️")))), (!item.status || item.status === '예약신청') && !(item.status || '').includes('확정') && !(item.status || '').includes('취소') && !(item.status || '').includes('환불') && React.createElement("div", {
     className: "mt-3 pt-3 border-t border-gray-100 border-dashed animate-fade-in"
   }, React.createElement("div", {
     className: "flex justify-between items-center bg-blue-50 p-3 rounded-xl border border-blue-100"
@@ -5840,7 +5885,7 @@ React.createElement("div", {
       className: "text-[10px] text-gray-400"
     }, "(", reviewCount.toLocaleString(), ")")), React.createElement("p", {
       className: "text-[10px] text-gray-400 leading-snug mb-2"
-    }, "💡 리뷰 작성 시 최대 5천원 할인"), React.createElement("p", {
+    }, "💡 리뷰 작성 시 최대 7천원 할인"), React.createElement("p", {
       className: "text-[11px] text-gray-300 line-through"
     }, original.toLocaleString(), "원"), React.createElement("div", {
       className: "flex items-center gap-1"
@@ -8669,7 +8714,13 @@ React.createElement("div", {
     className: "text-blue-400"
   }), t('reviewBenefit')), !selectedPhone && reviewError && React.createElement("span", {
     className: "text-[10px] font-bold px-2 py-0.5 rounded border transition-all text-red-600 bg-red-100 border-red-300 animate-shake shadow-sm"
-  }, "🚨 대여 모델을 먼저 골라주세요!")), React.createElement("div", {
+  }, "🚨 대여 모델을 먼저 골라주세요!")), React.createElement("p", {
+    className: "text-[11px] text-gray-400 mb-2.5 -mt-1.5"
+  }, "💡 그룹당 1개씩, 최대 2개까지 선택할 수 있어요!"), React.createElement("div", {
+    className: "space-y-3"
+  }, React.createElement("div", null, React.createElement("p", {
+    className: "text-[11px] font-bold text-gray-500 mb-1.5"
+  }, "간편 리뷰 할인"), React.createElement("div", {
     className: "grid grid-cols-2 gap-2"
   }, React.createElement("div", {
     onClick: () => {
@@ -8678,8 +8729,7 @@ React.createElement("div", {
         return;
       }
       setDiscounts({
-        twitter: false,
-        blog: false,
+        ...discounts,
         kakao: false,
         homepage: !discounts.homepage
       });
@@ -8689,17 +8739,16 @@ React.createElement("div", {
     className: "text-xs font-bold mb-1 break-keep"
   }, "홈페이지"), React.createElement("span", {
     className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-blue-600'}`
-  }, "4,000원 할인")), React.createElement("div", {
+  }, "2,000원 할인")), React.createElement("div", {
     onClick: () => {
       if (!selectedPhone) {
         triggerReviewError();
         return;
       }
       setDiscounts({
-        twitter: false,
-        blog: false,
-        kakao: !discounts.kakao,
-        homepage: false
+        ...discounts,
+        homepage: false,
+        kakao: !discounts.kakao
       });
     },
     className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`
@@ -8707,17 +8756,20 @@ React.createElement("div", {
     className: "text-xs font-bold mb-1 break-keep"
   }, "카카오맵"), React.createElement("span", {
     className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-yellow-600'}`
-  }, "4,000원 할인")), React.createElement("div", {
+  }, "2,000원 할인")))), React.createElement("div", null, React.createElement("p", {
+    className: "text-[11px] font-bold text-gray-500 mb-1.5"
+  }, "SNS 리뷰 할인"), React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, React.createElement("div", {
     onClick: () => {
       if (!selectedPhone) {
         triggerReviewError();
         return;
       }
       setDiscounts({
-        twitter: !discounts.twitter,
+        ...discounts,
         blog: false,
-        kakao: false,
-        homepage: false
+        twitter: !discounts.twitter
       });
     },
     className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : discounts.twitter ? 'border-gray-800 bg-gray-50' : 'border-gray-100 bg-white'}`
@@ -8725,17 +8777,16 @@ React.createElement("div", {
     className: "text-xs font-bold mb-1 break-keep"
   }, "X(트위터)"), React.createElement("span", {
     className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-gray-500'}`
-  }, "4,000원 할인")), React.createElement("div", {
+  }, "5,000원 할인")), React.createElement("div", {
     onClick: () => {
       if (!selectedPhone) {
         triggerReviewError();
         return;
       }
       setDiscounts({
+        ...discounts,
         twitter: false,
-        blog: !discounts.blog,
-        kakao: false,
-        homepage: false
+        blog: !discounts.blog
       });
     },
     className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`
@@ -8743,42 +8794,46 @@ React.createElement("div", {
     className: "text-xs font-bold mb-1 break-keep"
   }, "네이버블로그"), React.createElement("span", {
     className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-green-600'}`
-  }, "5,000원 할인"))), (discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && React.createElement("div", {
+  }, "5,000원 할인"))))), (discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && React.createElement("div", {
     className: `mt-3 p-4 rounded-xl border animate-fade-in transition-colors ${discounts.homepage ? 'bg-blue-50 border-blue-100' : discounts.kakao ? 'bg-yellow-50 border-yellow-200' : discounts.twitter ? 'bg-gray-50 border-gray-200' : 'bg-green-50 border-green-200'}`
   }, React.createElement("div", {
-    className: "flex items-center gap-1.5 mb-2.5 pb-2 border-b border-black/5"
+    className: "flex items-center gap-1.5 mb-2 pb-2 border-b border-black/5"
   }, React.createElement("span", {
     className: "text-base"
-  }, "🎁"), discounts.homepage && React.createElement("span", {
+  }, "🎁"), React.createElement("span", {
+    className: "text-gray-700 font-bold text-sm"
+  }, "선택한 리뷰 할인")), React.createElement("div", {
+    className: "flex flex-col gap-1 mb-1"
+  }, discounts.homepage && React.createElement("span", {
     className: "text-blue-700 font-bold text-sm"
-  }, "홈페이지 리뷰 (4,000원 할인)"), discounts.kakao && React.createElement("span", {
+  }, "홈페이지 리뷰 (2,000원 할인)"), discounts.kakao && React.createElement("span", {
     className: "text-yellow-700 font-bold text-sm"
-  }, "카카오맵 리뷰 (4,000원 할인)"), discounts.twitter && React.createElement("span", {
+  }, "카카오맵 리뷰 (2,000원 할인)"), discounts.twitter && React.createElement("span", {
     className: "text-gray-800 font-bold text-sm"
-  }, "X(트위터) 리뷰 (4,000원 할인)"), discounts.blog && React.createElement("span", {
+  }, "X(트위터) 리뷰 (5,000원 할인)"), discounts.blog && React.createElement("span", {
     className: "text-green-700 font-bold text-sm"
   }, "네이버 블로그 리뷰 (5,000원 할인)")), React.createElement("div", {
     className: "text-xs leading-relaxed text-gray-600"
   }, discounts.homepage && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-blue-600 mb-1"
+    className: "font-bold text-blue-600 mb-1 mt-3"
   }, "💡 작성 방법 안내"), React.createElement("p", null, "홈화면에 있는 ", React.createElement("strong", {
     className: "text-gray-800"
   }, "생생한 대여 후기 작성하기"), " 버튼을 눌러  사진과 함께 작성해주시면 됩니다!"), React.createElement("p", {
     className: "text-[11px] text-blue-500 bg-white px-2 py-1 rounded-lg border border-blue-100 inline-block mt-2 font-medium"
   }, "SNS 안 하시는 분들에게 적극 추천드려요! 👍")), discounts.kakao && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-yellow-600 mb-1"
+    className: "font-bold text-yellow-600 mb-1 mt-3"
   }, "💡 작성 방법 안내"), React.createElement("p", null, "카카오맵에서 ", React.createElement("strong", {
     className: "text-gray-800"
   }, "'세린캠'"), " 검색 후 사진과 함께 별점 리뷰를 남겨주시면 됩니다!"), React.createElement("p", {
     className: "text-[11px] text-yellow-600 bg-white px-2 py-1 rounded-lg border border-yellow-100 inline-block mt-2 font-medium"
   }, "빠르고 간단한 작성을 원하시는 분들께 추천드려요! ⚡")), discounts.twitter && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-gray-700 mb-1"
+    className: "font-bold text-gray-700 mb-1 mt-3"
   }, "💡 작성 방법 안내"), React.createElement("p", null, "사진과 함께 ", React.createElement("strong", {
     className: "text-blue-500"
   }, "#세린울트라대여 #울트라대여"), " 해시태그를 포함하여 후기를 남겨주세요!"), React.createElement("p", {
     className: "text-[11px] text-gray-500 bg-white px-2 py-1 rounded-lg border border-gray-200 inline-block mt-2 font-medium"
   }, "콘서트/팬미팅 후기를 트친들과 공유해보세요! 💙")), discounts.blog && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-green-600 mb-1"
+    className: "font-bold text-green-600 mb-1 mt-3"
   }, "💡 작성 방법 안내"), React.createElement("p", null, "게시글 장소 추가에 ", React.createElement("strong", {
     className: "text-gray-800"
   }, "'세린캠'"), "을 추가하고 사진과 함께 상세한 후기를 남겨주세요!"), React.createElement("p", {
