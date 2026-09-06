@@ -5840,7 +5840,8 @@ React.createElement("div", {
     opts = opts || {};
     var spec = PHONE_SPECS[phone.id] || {};
     var original = phone.basePrice + 15000;
-    var discount = phone.basePrice;
+    var maxDiscount = 2000 + 5000 + 1000; // 리뷰 2개(간편+SNS 2,000+5,000) + 계좌이체(1,000) 최대 할인 기준
+    var discount = Math.max(0, phone.basePrice - maxDiscount);
     var percent = Math.round((original - discount) / original * 100);
     var reviewCount = phone.reviews + myReviews.filter(r => r.model === phone.name).length;
     var imageEl = spec.image ? React.createElement("img", {
@@ -5878,8 +5879,6 @@ React.createElement("div", {
     }, "5.0"), React.createElement("span", {
       className: "text-[10px] text-gray-400"
     }, "(", reviewCount.toLocaleString(), ")")), React.createElement("p", {
-      className: "text-[10px] text-gray-400 leading-snug mb-2"
-    }, "💡 리뷰 작성 시 최대 7천원 할인"), React.createElement("p", {
       className: "text-[11px] text-gray-300 line-through"
     }, original.toLocaleString(), "원"), React.createElement("div", {
       className: "flex items-center gap-1"
@@ -5887,7 +5886,9 @@ React.createElement("div", {
       className: "text-[12px] font-extrabold text-rose-500"
     }, percent, "%"), React.createElement("span", {
       className: "text-[14px] font-extrabold text-gray-800"
-    }, discount.toLocaleString(), "원"))));
+    }, discount.toLocaleString(), "원")), React.createElement("p", {
+      className: "text-[10px] text-gray-400 leading-snug mt-1"
+    }, "💡 최대 할인 적용 가격")));
   };
   // [NEW] 대여모델 전체보기 페이지 (그리드로 전체 모델 나열)
   var renderAllModelsPage = () => {
@@ -8710,7 +8711,7 @@ React.createElement("div", {
     className: "text-[10px] font-bold px-2 py-0.5 rounded border transition-all text-red-600 bg-red-100 border-red-300 animate-shake shadow-sm"
   }, "🚨 대여 모델을 먼저 골라주세요!")), React.createElement("p", {
     className: "text-[11px] text-gray-400 mb-2.5 -mt-1.5"
-  }, "💡 그룹당 1개씩, 최대 2개까지 선택할 수 있어요!"), React.createElement("div", {
+  }, "💡 간편 리뷰, SNS리뷰 할인 각 1개씩 선택할 수 있어요 (최대 2개)"), React.createElement("div", {
     className: "space-y-3"
   }, React.createElement("div", null, React.createElement("p", {
     className: "text-[11px] font-bold text-gray-500 mb-1.5"
