@@ -1261,7 +1261,7 @@ var PhoneRentalApp = () => {
     // [NEW] 관리자 페이지에서 설정한 예약가능여부/공연장 위치를 불러와요.
     // 실패하거나 아직 설정한 값이 없으면 기존 하드코딩 값을 그대로 사용해요.
     if (!sb) return;
-    (async () => {
+    var fetchRemoteSettings = async () => {
       try {
         var { data, error } = await sb.from('admin_settings').select('*');
         if (error) throw error;
@@ -1271,7 +1271,18 @@ var PhoneRentalApp = () => {
       } catch (e) {
         console.warn('admin_settings 불러오기 실패 (기존 기본값 사용):', e && e.message);
       }
-    })();
+    };
+    fetchRemoteSettings();
+    // [NEW] 관리자가 재고 소진 등으로 마감 처리를 해도, 이미 열려있는 홈페이지 탭은 처음 접속했을 때
+    // 값만 계속 들고 있어서 반영이 안 되는 문제가 있었어요. 주기적으로(1분) 다시 불러오고,
+    // 탭을 다시 보게 될 때(다른 탭에 있다가 돌아오는 경우 등)도 즉시 다시 불러와서 최신 마감 상태를 반영해요.
+    var intervalId = setInterval(fetchRemoteSettings, 60000);
+    var handleVisibility = () => { if (document.visibilityState === 'visible') fetchRemoteSettings(); };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
   useEffect(() => {
     var handleScroll = () => {
@@ -2711,6 +2722,17 @@ var PhoneRentalApp = () => {
       };
     };
   };
+  // [NEW] 예약 저장값(23U, 24U+보조배터리, 기기번호 23U12 등)을 리뷰 작성 폼의 기종 선택지 이름으로 변환
+  var getReviewModelFullName = modelStr => {
+    var m = String(modelStr || '');
+    if (m.includes('23U')) return '갤럭시 S23 울트라';
+    if (m.includes('24U')) return '갤럭시 S24 울트라';
+    if (m.includes('25U')) return '갤럭시 S25 울트라';
+    if (m.includes('26U')) return '갤럭시 S26 울트라';
+    if (m.includes('17PM')) return '아이폰 17 프로맥스';
+    if (m.includes('17P')) return '아이폰 17 프로';
+    return '';
+  };
   var openReviewModal = (item = null) => {
     setCurrentReviewItem(item);
     setReviewForm({
@@ -2718,7 +2740,7 @@ var PhoneRentalApp = () => {
       text: '',
       image: null,
       name: '',
-      model: item ? item.model : '',
+      model: item ? getReviewModelFullName(item.model) : '',
       venue: '',
       seat: '',
       isManualVenue: false,
@@ -4312,7 +4334,17 @@ var PhoneRentalApp = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // [NEW] 관리자 설정값으로 대여모델 마감일정을 덮어써요. (없으면 기존 기본값)
-  var BLOCKED_SCHEDULE = (remoteSettings && remoteSettings.blocked_schedule) || DEFAULT_BLOCKED_SCHEDULE;
+  var MANUAL_BLOCKED_SCHEDULE = (remoteSettings && remoteSettings.blocked_schedule) || DEFAULT_BLOCKED_SCHEDULE;
+  // [NEW] 관리자 페이지가 재고(보유 대수)를 계산해서 자동으로 채워주는 마감 일정 — 관리자가 직접 설정하는 목록과는 별도로 관리돼요.
+  var STOCK_BLOCKED_SCHEDULE = (remoteSettings && remoteSettings.stock_blocked_schedule) || {};
+  // [NEW] 위 두 목록을 합쳐서 사용 — 아래 BLOCKED_SCHEDULE을 쓰는 기존 코드는 그대로 두면 자동 마감도 함께 반영돼요.
+  var BLOCKED_SCHEDULE = {};
+  (function() {
+    var names = new Set([...Object.keys(MANUAL_BLOCKED_SCHEDULE), ...Object.keys(STOCK_BLOCKED_SCHEDULE)]);
+    names.forEach(name => {
+      BLOCKED_SCHEDULE[name] = [...new Set([...(MANUAL_BLOCKED_SCHEDULE[name] || []), ...(STOCK_BLOCKED_SCHEDULE[name] || [])])];
+    });
+  })();
   var MODEL_DISABLED = (remoteSettings && remoteSettings.model_disabled) || {}; // [NEW] 특정 모델 전체 품절 처리
   var isModelBlocked = modelName => {
     if (MODEL_DISABLED[modelName]) return true; // [NEW] 전체 품절이면 날짜 상관없이 항상 마감
@@ -4498,18 +4530,21 @@ var PhoneRentalApp = () => {
   }, "총 결제금액"), React.createElement("span", {
     className: "text-lg font-bold text-blue-500"
   }, Number(item.totalPrice).toLocaleString(), "원")), (item.status || '').includes('확정') && item.review && item.review !== '선택안함' && React.createElement("div", {
-    className: "mt-3 bg-gray-50 p-3 rounded-xl border border-gray-100"
-  }, React.createElement("div", {
-    className: "text-xs leading-relaxed text-gray-600"
-  }, (item.review || '').includes('홈페이지') && React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "mt-3 flex flex-col gap-2"
+  }, (item.review || '').includes('홈페이지') && React.createElement("div", {
+    className: "bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs leading-relaxed text-gray-600"
+  }, React.createElement("p", {
     className: "font-bold text-blue-600 mb-1"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "홈화면에 있는 ", React.createElement("strong", {
-    className: "text-gray-800"
-  }, "생생한 대여 후기 작성하기"), " 버튼을 눌러 사진과 함께 작성해주시면 됩니다!"), React.createElement("p", {
+  }, "💡 홈페이지 후기 방법"), React.createElement("p", null, "아래 버튼을 눌러 사진과 함께 작성해주시면 됩니다!"), React.createElement("p", {
     className: "text-[11px] text-blue-500 bg-white px-2 py-1 rounded-lg border border-blue-100 inline-block mt-2 font-medium"
-  }, "SNS 안 하시는 분들에게 적극 추천드려요! 👍")), (item.review || '').includes('카카오맵') && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-yellow-600 mb-1 mt-3"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "카카오맵에서 ", React.createElement("strong", {
+  }, "SNS 안 하시는 분들에게 적극 추천드려요! 👍"), React.createElement("button", {
+    onClick: () => openReviewModal(item),
+    className: "w-full mt-2 bg-blue-50 text-blue-600 border border-blue-100 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-blue-100 transition-colors flex items-center justify-center gap-1"
+  }, "✍️ 후기 작성하기")), (item.review || '').includes('카카오맵') && React.createElement("div", {
+    className: "bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs leading-relaxed text-gray-600"
+  }, React.createElement("p", {
+    className: "font-bold text-yellow-600 mb-1"
+  }, "💡 카카오맵 후기 방법"), React.createElement("p", null, "카카오맵에서 ", React.createElement("strong", {
     className: "text-gray-800"
   }, "'세린캠'"), " 검색 후 사진과 함께 별점 리뷰를 남겨주시면 됩니다!"), React.createElement("p", {
     className: "text-[11px] text-yellow-600 bg-white px-2 py-1 rounded-lg border border-yellow-100 inline-block mt-2 font-medium"
@@ -4518,19 +4553,23 @@ var PhoneRentalApp = () => {
     className: "w-full mt-2 bg-[#FAE100] text-[#373737] py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-1"
   }, "카카오맵 바로가기 ", React.createElement(Icons.ExternalLink, {
     size: 12
-  }))), (item.review || '').includes('트위터') && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-gray-700 mb-1 mt-3"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "사진과 함께 ", React.createElement("strong", {
+  }))), (item.review || '').includes('트위터') && React.createElement("div", {
+    className: "bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs leading-relaxed text-gray-600"
+  }, React.createElement("p", {
+    className: "font-bold text-gray-700 mb-1"
+  }, "💡 트위터 후기 방법"), React.createElement("p", null, "세린캠 계정 메인 글 인용하여 사진과 함께 ", React.createElement("strong", {
     className: "text-blue-500"
   }, "#세린울트라대여 #울트라대여"), " 해시태그를 포함하여 후기를 남겨주세요!"), React.createElement("p", {
     className: "text-[11px] text-gray-500 bg-white px-2 py-1 rounded-lg border border-gray-200 inline-block mt-2 font-medium"
-  }, "콘서트/팬미팅 후기를 트친들과 공유해보세요! 💙")), (item.review || '').includes('블로그') && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-green-600 mb-1 mt-3"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "게시글 장소 추가에 ", React.createElement("strong", {
+  }, "콘서트/팬미팅 후기를 트친들과 공유해보세요! 💙")), (item.review || '').includes('블로그') && React.createElement("div", {
+    className: "bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs leading-relaxed text-gray-600"
+  }, React.createElement("p", {
+    className: "font-bold text-green-600 mb-1"
+  }, "💡 네이버 블로그 후기 방법"), React.createElement("p", null, "게시글 장소 추가에 ", React.createElement("strong", {
     className: "text-gray-800"
   }, "'세린캠'"), "을 추가하고 사진과 함께 상세한 후기를 남겨주세요!"), React.createElement("p", {
     className: "text-[11px] text-green-600 bg-white px-2 py-1 rounded-lg border border-green-100 inline-block mt-2 font-medium"
-  }, "나만의 덕질 일상을 꼼꼼하게 기록하시는 분들께 추천드려요! ✍️")))), (!item.status || item.status === '예약신청') && !(item.status || '').includes('확정') && !(item.status || '').includes('취소') && !(item.status || '').includes('환불') && React.createElement("div", {
+  }, "나만의 덕질 일상을 꼼꼼하게 기록하시는 분들께 추천드려요! ✍️"))), (!item.status || item.status === '예약신청') && !(item.status || '').includes('확정') && !(item.status || '').includes('취소') && !(item.status || '').includes('환불') && React.createElement("div", {
     className: "mt-3 pt-3 border-t border-gray-100 border-dashed animate-fade-in"
   }, React.createElement("div", {
     className: "flex justify-between items-center bg-blue-50 p-3 rounded-xl border border-blue-100"
@@ -5855,7 +5894,7 @@ React.createElement("div", {
     }));
     return React.createElement("div", {
       key: opts.key || phone.id,
-      onClick: () => setPhoneDetailModal({
+      onClick: opts.linkToAllModels ? () => { setViewMode('allModels'); updateURLForNav('models'); } : () => setPhoneDetailModal({
         phone,
         currentDays: 1,
         displayOriginalPrice: original,
@@ -5918,6 +5957,7 @@ React.createElement("div", {
     var buildShowcaseCard = (phone, dup) => renderPhoneCard(phone, { width: '47%', minWidth: '47%' }, {
       key: dup ? phone.id + '-dup' : phone.id,
       hoverLift: true,
+      linkToAllModels: true,
       onMouseEnter: () => pauseShowcase(phoneShowcasePausedRef),
       onMouseLeave: () => resumeShowcase(phoneShowcasePausedRef)
     });
