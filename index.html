@@ -3784,22 +3784,29 @@ var PhoneRentalApp = () => {
         error
       } = await sb.from('reservations').insert(orderData);
       if (error) throw error;
-      // [NEW] 예약 접수 즉시 예약 접수 안내 알림톡 발송 (베스트에포트 — 실패해도 예약 접수 자체는 이미 완료된 상태로 둠)
-      // 결제수단이 계좌이체면 booking_confirm_deposit, 그 외(카드/네이버페이 등)는 booking_confirm_card
+      // [NEW] 예약 접수 즉시 결제 안내 알림톡 발송 (베스트에포트 — 실패해도 예약 접수 자체는 이미 완료된 상태로 둠)
+      // 결제수단이 계좌이체면 booking_confirm_deposit(변수: #{결제금액} 하나뿐, 2026-09-13 신규 템플릿),
+      // 그 외(카드/네이버페이 등)는 booking_confirm_card(기존 템플릿, 전체 변수)
       var formatKoreanMD = d => d ? `${d.getMonth() + 1}월 ${d.getDate()}일` : '';
-      sendAppAlimtalk(paymentMethod === 'transfer' ? 'booking_confirm_deposit' : 'booking_confirm_card', userInfo.phone, {
-        '#{이름}': userInfo.name || '',
-        '#{연락처}': userInfo.phone || '',
-        '#{일정명}': orderData.scheduleName || '',
-        '#{모델}': finalModelName,
-        '#{보조배터리}': batteryCount > 0 ? '보조배터리' : '',
-        '#{수령방법}': deliveryText,
-        '#{수령일}': formatKoreanMD(startDate),
-        '#{반납방법}': returnText,
-        '#{반납일}': formatKoreanMD(getReturnDate(endDate)),
-        '#{결제금액}': total.toLocaleString(),
-        '#{리뷰}': reviewText
-      });
+      if (paymentMethod === 'transfer') {
+        sendAppAlimtalk('booking_confirm_deposit', userInfo.phone, {
+          '#{결제금액}': total.toLocaleString()
+        });
+      } else {
+        sendAppAlimtalk('booking_confirm_card', userInfo.phone, {
+          '#{이름}': userInfo.name || '',
+          '#{연락처}': userInfo.phone || '',
+          '#{일정명}': orderData.scheduleName || '',
+          '#{모델}': finalModelName,
+          '#{보조배터리}': batteryCount > 0 ? '보조배터리' : '',
+          '#{수령방법}': deliveryText,
+          '#{수령일}': formatKoreanMD(startDate),
+          '#{반납방법}': returnText,
+          '#{반납일}': formatKoreanMD(getReturnDate(endDate)),
+          '#{결제금액}': total.toLocaleString(),
+          '#{리뷰}': reviewText
+        });
+      }
       setSuccessData({
         type: '예약',
         name: userInfo.name,
