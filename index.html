@@ -1595,7 +1595,6 @@ var PhoneRentalApp = () => {
     packagingConfirmed: false
   });
   // [NEW] 방문택배 주소: 우편번호 검색이 안 될 때 직접 입력 모드
-  var [courierManualAddress, setCourierManualAddress] = useState(false);
   // [NEW] 방문택배 신청 전 최종 확인 팝업 + 분단별 확인 체크
   var [showCourierConfirmModal, setShowCourierConfirmModal] = useState(false);
   var [courierConfirmChecks, setCourierConfirmChecks] = useState({
@@ -1914,6 +1913,7 @@ var PhoneRentalApp = () => {
     onClick: () => {
       setServiceTarget(null);
       setViewMode('courierPicker');
+      updateURLForNav('courier');
     }
   }]);
 
@@ -6289,7 +6289,6 @@ React.createElement("div", {
         useDeliveryAddress: false,
         packagingConfirmed: false
       });
-      setCourierManualAddress(false);
       setViewMode('courierApply');
       return;
     }
@@ -8195,15 +8194,14 @@ React.createElement("div", {
     }, React.createElement("input", {
       type: "text",
       placeholder: "우편번호",
-      readOnly: !courierManualAddress,
+      readOnly: true,
       value: courierForm.zipcode,
-      onChange: e => setCourierForm(prev => ({ ...prev, zipcode: e.target.value })),
-      className: `w-1/3 p-3 rounded-xl outline-none text-base text-center transition-colors ${courierManualAddress ? 'bg-white border border-gray-300 text-gray-800' : 'bg-gray-100 text-gray-500'}`
+      className: "w-1/3 p-3 rounded-xl outline-none text-base text-center transition-colors bg-gray-100 text-gray-500"
     }), React.createElement("button", {
       onClick: handleCourierAddressSearch,
       className: "w-2/3 bg-gray-800 text-white rounded-xl text-base font-bold shadow-sm hover:bg-gray-700"
     }, "주소 검색")), React.createElement("div", {
-      className: `flex items-center rounded-xl px-3 transition-colors ${courierManualAddress ? 'bg-white border border-gray-300' : 'bg-gray-50'}`
+      className: "flex items-center rounded-xl px-3 transition-colors bg-gray-50"
     }, React.createElement(Icons.MapPin, {
       size: 18,
       className: "text-gray-400 shrink-0"
@@ -8211,22 +8209,16 @@ React.createElement("div", {
       type: "text",
       className: "w-full p-3 bg-transparent outline-none text-base text-gray-800",
       placeholder: "기본 주소",
-      readOnly: !courierManualAddress,
+      readOnly: true,
       value: courierForm.address,
-      onClick: !courierManualAddress ? handleCourierAddressSearch : undefined,
-      onChange: e => setCourierForm(prev => ({ ...prev, address: e.target.value }))
+      onClick: handleCourierAddressSearch
     })), React.createElement("input", {
       type: "text",
       className: "w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-base text-gray-800 focus:border-blue-300",
       placeholder: "상세 주소를 입력해주세요",
       value: courierForm.addressDetail,
       onChange: e => setCourierForm(prev => ({ ...prev, addressDetail: e.target.value }))
-    }), React.createElement("div", {
-      className: "text-right"
-    }, React.createElement("button", {
-      onClick: () => setCourierManualAddress(!courierManualAddress),
-      className: "text-sm text-gray-400 underline hover:text-gray-600"
-    }, courierManualAddress ? "다시 주소 검색 사용하기" : "주소 검색이 안 되시나요? (직접 입력)"))),
+    })),
     courierForm.useDeliveryAddress && React.createElement("div", {
       className: "bg-gray-50 rounded-xl p-3.5 border border-gray-100"
     }, React.createElement("p", {
@@ -8381,7 +8373,7 @@ React.createElement("div", {
       className: "text-red-600"
     }, "대여연장 비용 1일(15,000~20,000원)"), "이 발생해요."), React.createElement("ul", {
       className: "text-xs text-gray-500 leading-relaxed space-y-1 mt-2"
-    }, React.createElement("li", null, "- 픽업 시간 전에 문 앞에 두지 못한 경우"), React.createElement("li", null, "- 포장 상태가 불량한 경우"), React.createElement("li", null, "- '우체국'이라고 표기 않아 구분하기 어려운 경우")), renderConfirmCheck('caution'))), React.createElement("div", {
+    }, React.createElement("li", null, "- 픽업 시간 전에 문 앞에 두지 못한 경우"), React.createElement("li", null, "- 포장 상태가 불량한 경우"), React.createElement("li", null, "- 포장된 박스에 '우체국'이라고 표기 않아 구분하기 어려운 경우")), renderConfirmCheck('caution'))), React.createElement("div", {
       className: "p-5 border-t border-gray-100"
     }, React.createElement("button", {
       disabled: !allConfirmChecked || isSubmitting,
@@ -9688,7 +9680,7 @@ React.createElement("div", {
     disabled: userInfo.phone.replace(/[^0-9]/g, '').length !== 11 || otpSending || otpCooldown > 0,
     onClick: handleSendOtp,
     className: `shrink-0 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${userInfo.phone.replace(/[^0-9]/g, '').length !== 11 || otpSending || otpCooldown > 0 ? 'bg-gray-100 text-gray-400' : 'bg-blue-400 text-white hover:bg-blue-500 active:scale-95'}`
-  }, otpSending ? '발송중...' : otpCooldown > 0 ? `재전송 ${otpCooldown}초` : otpSent ? '재전송' : '인증번호 받기'))), !isPhoneVerified && otpSent && React.createElement("div", {
+  }, otpSending ? '발송중...' : otpCooldown > 0 ? `재전송 ${otpCooldown}초` : otpSent ? '재전송' : '카카오톡 인증'))), !isPhoneVerified && otpSent && React.createElement("div", {
     className: "flex items-center gap-2 mt-2 animate-fade-in"
   }, React.createElement("input", {
     type: "text",
