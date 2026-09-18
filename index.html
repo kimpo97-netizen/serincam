@@ -11,7 +11,7 @@
     <!-- 1. 홈페이지 설명 (검색 결과 제목 밑에 뜨는 글씨) -->
     <meta name="description" content="수도권 15곳 이상 공연장 픽업! 콘서트·팬미팅 울트라 대여 전문 세린캠">
     <!-- 2. 검색 키워드 (검색 엔진이 참고하는 단어들) -->
-    <meta name="keywords" content="세린캠, 울트라대여, 갤럭시대여, 콘서트대여, 아이폰대여, S23울트라대여, S24울트라대여, S25울트라대여, S26울트라대여, 콘서트카메라, 팬미팅대여, 인천카메라대여,잠실울트라대여, 홍대울트라대여, 올림픽공원, 인스파이어">
+    <meta name="keywords" content="세린캠, 울트라대여, 갤럭시대여, 콘서트대여, 아이폰대여, S23울트라대여, S24울트라대여, S25울트라대여, S26울트라대여, 콘서트카메라, 팬미팅대여, 울트라대여, ">
     
     <!-- [NEW] 파비콘 및 모바일 아이콘 설정 -->
     <!-- 1. 파비콘 (브라우저 탭 아이콘) -->
@@ -1234,7 +1234,8 @@ var PhoneRentalApp = () => {
     recommend: { activeNav: 'home', viewMode: 'modelRecommend' },
     models: { activeNav: 'home', viewMode: 'allModels' },
     logout: { activeNav: 'home', viewMode: 'logoutGuide' },
-    'venue-pickup': { activeNav: 'home', viewMode: 'venuePickup' }
+    'venue-pickup': { activeNav: 'home', viewMode: 'venuePickup' },
+    courier: { activeNav: 'mypage', viewMode: 'courierPicker' }
   };
   var initialPageParam = (function () {
     try {
@@ -1584,6 +1585,25 @@ var PhoneRentalApp = () => {
     address: '',
     addressDetail: ''
   });
+  // [NEW] 방문택배 신청: 대상 예약 + 신청 폼
+  var [courierTargetItem, setCourierTargetItem] = useState(null);
+  var [courierForm, setCourierForm] = useState({
+    zipcode: '',
+    address: '',
+    addressDetail: '',
+    useDeliveryAddress: false,
+    packagingConfirmed: false
+  });
+  // [NEW] 방문택배 주소: 우편번호 검색이 안 될 때 직접 입력 모드
+  var [courierManualAddress, setCourierManualAddress] = useState(false);
+  // [NEW] 방문택배 신청 전 최종 확인 팝업 + 분단별 확인 체크
+  var [showCourierConfirmModal, setShowCourierConfirmModal] = useState(false);
+  var [courierConfirmChecks, setCourierConfirmChecks] = useState({
+    address: false,
+    packaging: false,
+    visitDate: false,
+    caution: false
+  });
   // [NEW] 상단 네비 메뉴바: 열려있는 드롭다운 key (null이면 닫힘)
   var [openNavMenu, setOpenNavMenu] = useState(null);
   var [navSearchQuery, setNavSearchQuery] = useState(''); // [NEW] 홈 상단 통합 검색
@@ -1882,16 +1902,19 @@ var PhoneRentalApp = () => {
       setViewMode('addressPicker');
     }
   }];
-  // [NEW] MY페이지 "예약 관리" 리스트용 — 기존 4개 신청 항목 + 수령/반납방법 변경 안내
+  // [NEW] MY페이지 "예약 관리" 리스트용 — 기존 4개 신청 항목 + 방문택배 신청
   var RESERVATION_MANAGE_ROWS = LOOKUP_QUICK_ACTIONS.filter(it => it.label !== '내 예약 보기').concat([{
-    label: '수령·반납 변경',
-    fullLabel: '수령 및 반납방법 변경',
+    label: '방문택배 신청',
+    fullLabel: '방문택배 신청하기',
     icon: () => React.createElement("i", {
-      className: "fa-solid fa-pen-to-square",
+      className: "fa-solid fa-truck-fast",
       style: { fontSize: 16 }
     }),
-    accent: 'bg-gray-100 text-gray-600',
-    onClick: () => setShowMethodChangeNotice(true)
+    accent: 'bg-blue-100 text-blue-500',
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('courierPicker');
+    }
   }]);
 
   var [isChangeConfirmOpen, setIsChangeConfirmOpen] = useState(false);
@@ -2982,6 +3005,23 @@ var PhoneRentalApp = () => {
       }));
     });
   };
+  // [NEW] 방문택배 신청 - 방문 주소 검색
+  var handleCourierAddressSearch = () => {
+    openDaumPostcode(data => {
+      var fullAddress = data.address;
+      var extraAddress = '';
+      if (data.addressType === 'R') {
+        if (data.bname !== '') extraAddress += data.bname;
+        if (data.buildingName !== '') extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+        fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
+      }
+      setCourierForm(prev => ({
+        ...prev,
+        zipcode: data.zonecode,
+        address: fullAddress
+      }));
+    });
+  };
   // [NEW] 퀵서비스 예상 요금 - 목적지 주소 검색
   var handleQuickFeeAddressSearch = () => {
     openDaumPostcode(data => {
@@ -3182,6 +3222,13 @@ var PhoneRentalApp = () => {
     var d = new Date(s);
     return isNaN(d.getTime()) ? null : d;
   };
+  // [NEW] 보고 있는 브라우저의 시간대와 무관하게 "오늘"을 한국(KST, UTC+9) 날짜 기준으로 반환.
+  // Date.now()는 항상 UTC epoch이므로 9시간을 더한 뒤 UTC getter로 읽으면 KST 달력 날짜가 나온다.
+  // parseResDate와 그대로 비교할 수 있도록 그 날짜의 로컬 자정 Date로 다시 만들어 반환한다.
+  var getKSTTodayStart = () => {
+    var kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    return new Date(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate());
+  };
   // [NEW] 기준 날짜에서 N일 더한 값을 예약 저장 형식("YYYY. M. D")으로 반환
   var addDaysDot = (val, days) => {
     var base = parseResDate(val);
@@ -3217,7 +3264,7 @@ var PhoneRentalApp = () => {
   var eligibleReservationsBase = (lookupResult || []).filter(function (r) {
     var cat = r.category || '';
     var st = r.status || '';
-    if (cat === '연장신청' || cat === '백업신청' || cat === '취소신청' || cat === '변경신청' || cat === '주소변경신청') return false;
+    if (cat === '연장신청' || cat === '백업신청' || cat === '취소신청' || cat === '변경신청' || cat === '주소변경신청' || cat === '방문택배신청') return false;
     if (st.includes('취소') || st.includes('환불')) return false;
     return true;
   });
@@ -3232,7 +3279,7 @@ var PhoneRentalApp = () => {
     return true;
   });
   // [NEW] 원예약에 연결된 진행중 신청(연장/백업/취소/변경)을 origin_ref로 매칭해 하위 표시
-  var REQUEST_CATEGORIES = ['연장신청', '백업신청', '취소신청', '변경신청', '주소변경신청'];
+  var REQUEST_CATEGORIES = ['연장신청', '백업신청', '취소신청', '변경신청', '주소변경신청', '방문택배신청'];
   var REQUEST_LABEL = {
     연장신청: {
       text: '대여연장 신청',
@@ -3253,6 +3300,10 @@ var PhoneRentalApp = () => {
     주소변경신청: {
       text: '주소변경 신청',
       color: 'text-yellow-600 bg-yellow-50 border-yellow-100'
+    },
+    방문택배신청: {
+      text: '방문택배 신청',
+      color: 'text-blue-600 bg-blue-50 border-blue-100'
     }
   };
   // [NEW] 부가옵션 클릭 시 뜨는 안내 팝업 콘텐츠 (아이콘/색상/제목/설명)
@@ -3296,6 +3347,14 @@ var PhoneRentalApp = () => {
       desc: '배송지 주소 변경 신청이 접수되어 확인 중이에요. 처리가 완료되면 배송지가 새 주소로 업데이트돼요.',
       titleDone: '주소 변경 확정',
       descDone: '배송지 주소가 변경됐어요. 변경된 주소로 배송이 진행돼요.'
+    },
+    방문택배신청: {
+      icon: Icons.Truck,
+      accent: 'text-blue-500 bg-blue-50',
+      title: '방문택배 신청 접수',
+      desc: '방문택배 신청이 접수되어 확인 중이에요. 입금 확인 후 반납일에 맞춰 기사님이 방문할 예정이에요.',
+      titleDone: '방문택배 확정',
+      descDone: '방문택배가 확정됐어요. 반납일 오전 8시~오후 6시 사이에 방문할 예정이에요.'
     }
   };
   // [NEW] 부가옵션 팝업 열기 — 신청건(req)을 그대로 저장
@@ -3316,6 +3375,7 @@ var PhoneRentalApp = () => {
     if (req.category === '백업신청') return '촬영본 백업';
     if (req.category === '취소신청') return '취소 · 환불';
     if (req.category === '주소변경신청') return '배송지 변경';
+    if (req.category === '방문택배신청') return '방문택배';
     return '';
   };
   // origin_ref(JSON: {orderTime, name, phone, startDate, endDate, model})로 원예약을 찾아 연결
@@ -3684,6 +3744,66 @@ var PhoneRentalApp = () => {
     } catch (e) {
       setIsSubmitting(false);
       alert("주소 변경 신청 전송에 실패했어요. 잠시 후 다시 시도해주세요.");
+    }
+  };
+  // [NEW] 방문택배 신청 제출
+  var handleCourierApplySubmit = async () => {
+    if (!courierTargetItem) return;
+    if (!sb) {
+      alert("시스템 오류: 연동 URL 미설정");
+      return;
+    }
+    if (!courierForm.address) {
+      alert("방문 받으실 주소를 입력해주세요.");
+      return;
+    }
+    if (!courierForm.packagingConfirmed) {
+      alert("포장 안내사항을 확인해주세요.");
+      return;
+    }
+    setIsSubmitting(true);
+    var target = courierTargetItem;
+    // [NEW] 방문 예정일은 예약 반납일로 고정
+    var visitDateDisplay = formatDisplayDate(target.endDate);
+    var fullVisitAddress = courierForm.address + (courierForm.addressDetail ? ' ' + courierForm.addressDetail : '');
+    var orderData = {
+      category: '방문택배신청',
+      status: '예약신청',
+      orderTime: new Date().toLocaleString('ko-KR'),
+      model: (target.model || '') + ' 방문택배',
+      name: target.name || '',
+      phone: target.phone || '',
+      startDate: target.startDate || '',
+      endDate: target.endDate || '',
+      zipcode: courierForm.zipcode || '',
+      address: fullVisitAddress,
+      totalPrice: 5000,
+      scheduleName: `${target.name || ''}님 방문택배 신청\n방문 주소: ${fullVisitAddress}\n방문 예정일: ${visitDateDisplay} (반납일)\n방문 시간: 오전 8시~오후 6시`,
+      origin_ref: buildOriginRef(target)
+    };
+    try {
+      var {
+        error
+      } = await sb.from('reservations').insert(orderData);
+      if (error) throw error;
+      // [NEW] 방문택배 신청 접수 즉시 안내 알림톡 발송 (베스트에포트 — 실패해도 신청 자체는 이미 접수된 상태로 둠)
+      sendAppAlimtalk('courier_pickup', target.phone, {
+        '#{반납일}': visitDateDisplay,
+        '#{금액}': orderData.totalPrice.toLocaleString()
+      });
+      handleRefresh(); // [NEW] 방문택배 신청 후 예약내역 자동 새로고침
+      setIsSubmitting(false);
+      setCourierTargetItem(null);
+      setSuccessData({
+        type: '방문택배',
+        name: target.name || '',
+        amount: 5000,
+        changeNote: `${visitDateDisplay} 방문 (오전 8시~오후 6시)`
+      });
+      setViewMode('success');
+    } catch (e) {
+      setIsSubmitting(false);
+      alert("방문택배 신청 전송에 실패했어요. 잠시 후 다시 시도해주세요.");
     }
   };
   var resetDates = () => {
@@ -6160,6 +6280,19 @@ React.createElement("div", {
       setViewMode('addressApply');
       return;
     }
+    if (serviceType === 'courier') {
+      setCourierTargetItem(res);
+      setCourierForm({
+        zipcode: '',
+        address: '',
+        addressDetail: '',
+        useDeliveryAddress: false,
+        packagingConfirmed: false
+      });
+      setCourierManualAddress(false);
+      setViewMode('courierApply');
+      return;
+    }
     setServiceTarget(res);
     if (serviceType === 'ext') {
       setExtModel(detectExtModel(res.model));
@@ -6197,6 +6330,10 @@ React.createElement("div", {
     address: {
       verb: '주소를 변경할',
       full: '주소 변경 신청'
+    },
+    courier: {
+      verb: '방문택배 신청할',
+      full: '방문택배 신청'
     }
   };
   var renderServiceGate = (serviceType, title, iconAccentClass) => {
@@ -6259,8 +6396,15 @@ React.createElement("div", {
       var todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       return start > todayStart;
+    }) : serviceType === 'courier' ? eligibleReservations.filter(function (r) {
+      // [NEW] 방문택배는 반납일 기준(한국/KST) 정확히 1일 전인 날에만 신청 가능
+      var end = parseResDate(r.endDate);
+      if (!end) return true;
+      var todayKST = getKSTTodayStart();
+      var diffDays = (Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) - Date.UTC(todayKST.getFullYear(), todayKST.getMonth(), todayKST.getDate())) / 86400000;
+      return diffDays === 1;
     }) : eligibleReservations;
-    var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : serviceType === 'address' ? '주소변경신청' : '취소신청';
+    var pendingCategory = serviceType === 'ext' ? '연장신청' : serviceType === 'backup' ? '백업신청' : serviceType === 'change' ? '변경신청' : serviceType === 'address' ? '주소변경신청' : serviceType === 'courier' ? '방문택배신청' : '취소신청';
     var availableReservations = eligibleForThis.filter(r => serviceType === 'cancel' ?
     // [NEW] 취소/환불은 예약 하나당 평생 1건만 — 상태 무관하게 이미 신청 이력이 있으면 제외
     !getLinkedRequests(r).some(x => x.category === '취소신청') :
@@ -6278,9 +6422,9 @@ React.createElement("div", {
         className: "text-gray-300"
       })), React.createElement("p", {
         className: "font-bold text-gray-600 mb-1 text-sm"
-      }, eligibleForThis.length === 0 ? "신청 가능한 예약이 없어요" : "이미 처리중인 신청이 있어요"), React.createElement("p", {
+      }, serviceType === 'courier' && eligibleReservations.length > 0 && eligibleForThis.length === 0 ? "방문택배는 반납일 하루 전에 신청할 수 있어요" : eligibleForThis.length === 0 ? "신청 가능한 예약이 없어요" : "이미 처리중인 신청이 있어요"), React.createElement("p", {
         className: "text-[11px] text-gray-400 mb-4 leading-relaxed"
-      }, eligibleForThis.length === 0 ? React.createElement(React.Fragment, null, "확정 또는 접수된 대여 예약이 있어야", React.createElement("br", null), GATE_TEXT[serviceType].full + "이 가능해요.") : React.createElement(React.Fragment, null, serviceType === 'cancel' ? "같은 예약에 대한 취소·환불 신청은 예약당" : "같은 예약에 대한 신청은 처리가 끝난 뒤", React.createElement("br", null), serviceType === 'cancel' ? "한 번만 가능해요." : "다시 신청할 수 있어요.")), React.createElement("button", {
+      }, serviceType === 'courier' && eligibleReservations.length > 0 && eligibleForThis.length === 0 ? React.createElement(React.Fragment, null, "방문택배 신청은 반납일 하루 전에만 가능해요.", React.createElement("br", null), "반납일 하루 전에 다시 신청해주세요.") : eligibleForThis.length === 0 ? React.createElement(React.Fragment, null, "확정 또는 접수된 대여 예약이 있어야", React.createElement("br", null), GATE_TEXT[serviceType].full + "이 가능해요.") : React.createElement(React.Fragment, null, serviceType === 'cancel' ? "같은 예약에 대한 취소·환불 신청은 예약당" : "같은 예약에 대한 신청은 처리가 끝난 뒤", React.createElement("br", null), serviceType === 'cancel' ? "한 번만 가능해요." : "다시 신청할 수 있어요.")), React.createElement("button", {
         onClick: () => {
           setLookupResult(null);
           setLookupName('');
@@ -7956,6 +8100,295 @@ React.createElement("div", {
       className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-yellow-400 text-white hover:bg-yellow-500' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
     }, isSubmitting ? '처리 중...' : '주소 변경 신청하기'));
   };
+  // [NEW] 방문택배 신청서 작성 페이지
+  var renderCourierApplyPage = () => {
+    var backToList = () => {
+      setCourierTargetItem(null);
+      setViewMode(activeNav === 'my' ? 'myPage' : 'lookup');
+    };
+    if (!courierTargetItem) {
+      return React.createElement("div", {
+        className: "animate-slide-in space-y-6"
+      }, React.createElement("div", {
+        className: "flex items-center gap-3 mb-6"
+      }, React.createElement("button", {
+        onClick: backToList,
+        className: "p-2 bg-white rounded-full shadow-sm"
+      }, React.createElement(Icons.ChevronLeft, {
+        className: "w-5 h-5 text-gray-600"
+      })), React.createElement("h2", {
+        className: "text-2xl font-bold text-gray-800"
+      }, "방문택배 신청")), React.createElement("div", {
+        className: "bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center py-10"
+      }, React.createElement("p", {
+        className: "text-base text-gray-500"
+      }, "신청할 예약을 먼저 선택해주세요.")));
+    }
+    var target = courierTargetItem;
+    var canSubmit = !!courierForm.address && courierForm.packagingConfirmed && !isSubmitting;
+    var fullVisitAddress = courierForm.address + (courierForm.addressDetail ? ' ' + courierForm.addressDetail : '');
+    var allConfirmChecked = courierConfirmChecks.address && courierConfirmChecks.packaging && courierConfirmChecks.visitDate && courierConfirmChecks.caution;
+    var renderConfirmCheck = key => React.createElement("div", {
+      className: "flex items-center gap-2 cursor-pointer mt-2.5",
+      onClick: () => setCourierConfirmChecks(prev => ({ ...prev, [key]: !prev[key] }))
+    }, React.createElement("div", {
+      className: `w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${courierConfirmChecks[key] ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`
+    }, courierConfirmChecks[key] && React.createElement(Icons.Check, {
+      size: 14,
+      className: "text-white"
+    })), React.createElement("span", {
+      className: "text-sm font-bold text-gray-700"
+    }, "확인했어요"));
+    return React.createElement(React.Fragment, null, React.createElement("div", {
+      className: "animate-slide-in space-y-6"
+    }, React.createElement("div", {
+      className: "flex items-center gap-3 mb-6"
+    }, React.createElement("button", {
+      onClick: backToList,
+      className: "p-2 bg-white rounded-full shadow-sm"
+    }, React.createElement(Icons.ChevronLeft, {
+      className: "w-5 h-5 text-gray-600"
+    })), React.createElement("h2", {
+      className: "text-2xl font-bold text-gray-800"
+    }, "방문택배 신청")),
+    // 신청자 정보
+    React.createElement("div", {
+      className: "bg-blue-50 border border-blue-100 rounded-2xl p-3.5"
+    }, React.createElement("p", {
+      className: "text-[11px] font-bold text-blue-400 mb-0.5"
+    }, "신청자 정보"), React.createElement("p", {
+      className: "text-base font-bold text-gray-800"
+    }, target.name, " (", target.phone, ")"), React.createElement("p", {
+      className: "text-xs text-gray-500 mt-1 pt-1 border-t border-blue-100"
+    }, target.model, " · ", formatDisplayDate(target.startDate), " ~ ", formatDisplayDate(target.endDate)),
+    target.delivery === '택배수령' && target.address && React.createElement("p", {
+      className: "text-xs text-gray-500 mt-1"
+    }, "택배 수령 주소: ", target.address)),
+    // 방문 주소 (예약 시 택배 수령 주소 입력과 동일한 방식: 우편번호 검색 + 상세주소)
+    React.createElement("div", {
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-3"
+    }, React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800 flex items-center gap-2 mb-1"
+    }, React.createElement(Icons.MapPin, {
+      size: 20,
+      className: "text-blue-500"
+    }), " 방문 주소"),
+    target.delivery === '택배수령' && React.createElement("div", {
+      className: "flex items-center gap-2 cursor-pointer",
+      onClick: () => setCourierForm(prev => ({
+        ...prev,
+        useDeliveryAddress: !prev.useDeliveryAddress,
+        zipcode: !prev.useDeliveryAddress ? target.zipcode || '' : '',
+        address: !prev.useDeliveryAddress ? target.address || '' : '',
+        addressDetail: ''
+      }))
+    }, React.createElement("div", {
+      className: `w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${courierForm.useDeliveryAddress ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`
+    }, courierForm.useDeliveryAddress && React.createElement(Icons.Check, {
+      size: 14,
+      className: "text-white"
+    })), React.createElement("span", {
+      className: "text-base text-gray-600"
+    }, "택배 받았던 주소와 같아요")),
+    !courierForm.useDeliveryAddress && React.createElement(React.Fragment, null, React.createElement("div", {
+      className: "flex gap-2"
+    }, React.createElement("input", {
+      type: "text",
+      placeholder: "우편번호",
+      readOnly: !courierManualAddress,
+      value: courierForm.zipcode,
+      onChange: e => setCourierForm(prev => ({ ...prev, zipcode: e.target.value })),
+      className: `w-1/3 p-3 rounded-xl outline-none text-base text-center transition-colors ${courierManualAddress ? 'bg-white border border-gray-300 text-gray-800' : 'bg-gray-100 text-gray-500'}`
+    }), React.createElement("button", {
+      onClick: handleCourierAddressSearch,
+      className: "w-2/3 bg-gray-800 text-white rounded-xl text-base font-bold shadow-sm hover:bg-gray-700"
+    }, "주소 검색")), React.createElement("div", {
+      className: `flex items-center rounded-xl px-3 transition-colors ${courierManualAddress ? 'bg-white border border-gray-300' : 'bg-gray-50'}`
+    }, React.createElement(Icons.MapPin, {
+      size: 18,
+      className: "text-gray-400 shrink-0"
+    }), React.createElement("input", {
+      type: "text",
+      className: "w-full p-3 bg-transparent outline-none text-base text-gray-800",
+      placeholder: "기본 주소",
+      readOnly: !courierManualAddress,
+      value: courierForm.address,
+      onClick: !courierManualAddress ? handleCourierAddressSearch : undefined,
+      onChange: e => setCourierForm(prev => ({ ...prev, address: e.target.value }))
+    })), React.createElement("input", {
+      type: "text",
+      className: "w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-base text-gray-800 focus:border-blue-300",
+      placeholder: "상세 주소를 입력해주세요",
+      value: courierForm.addressDetail,
+      onChange: e => setCourierForm(prev => ({ ...prev, addressDetail: e.target.value }))
+    }), React.createElement("div", {
+      className: "text-right"
+    }, React.createElement("button", {
+      onClick: () => setCourierManualAddress(!courierManualAddress),
+      className: "text-sm text-gray-400 underline hover:text-gray-600"
+    }, courierManualAddress ? "다시 주소 검색 사용하기" : "주소 검색이 안 되시나요? (직접 입력)"))),
+    courierForm.useDeliveryAddress && React.createElement("div", {
+      className: "bg-gray-50 rounded-xl p-3.5 border border-gray-100"
+    }, React.createElement("p", {
+      className: "text-base text-gray-800 break-keep"
+    }, courierForm.zipcode ? `[${courierForm.zipcode}] ` : '', courierForm.address || '등록된 배송지가 없어요'))),
+    // 포장 안내사항
+    React.createElement("div", {
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-3"
+    }, React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800 flex items-center gap-2"
+    }, React.createElement(Icons.Truck, {
+      size: 20,
+      className: "text-blue-500"
+    }), " 포장 안내사항"),
+    // 박스 크기 안내 (운동화 1개 크기)
+    React.createElement("div", {
+      className: "text-center pt-2"
+    }, React.createElement("p", {
+      className: "text-xl font-extrabold text-gray-800 tracking-tight"
+    }, "운동화 박스 1개 정도 크기예요"), React.createElement("p", {
+      className: "text-sm text-gray-400 mt-1"
+    }, "가로+세로+높이 합 80cm 이하, 무게 2kg 이하"), React.createElement("div", {
+      className: "flex justify-center py-5"
+    }, React.createElement("svg", {
+      viewBox: "0 0 176 104",
+      style: { width: 156, height: 92 },
+      xmlns: "http://www.w3.org/2000/svg"
+    }, React.createElement("path", {
+      d: "M20 78 C13 60 17 37 34 29 C41 26 47 28 50 35 C53 42 57 46 63 48 C76 53 86 60 98 65 C112 71 128 73 144 73 C157 73 163 75 161 78 Z",
+      fill: "#2E9BF5"
+    }), React.createElement("path", {
+      d: "M16 77 L163 77 C166 89 156 96 141 96 L35 96 C20 96 13 88 16 77 Z",
+      fill: "#1257B8"
+    }), React.createElement("path", {
+      d: "M35 43 L50 52",
+      stroke: "#fff",
+      strokeWidth: "6",
+      strokeLinecap: "round"
+    }), React.createElement("path", {
+      d: "M29 55 L47 64",
+      stroke: "#fff",
+      strokeWidth: "6",
+      strokeLinecap: "round"
+    })))),
+    // 포장 형태 안내 배너
+    React.createElement("div", {
+      className: "bg-gray-50 rounded-xl px-3.5 py-3 border border-gray-100 flex items-start gap-2"
+    }, React.createElement(Icons.HelpCircle, {
+      size: 17,
+      className: "text-gray-400 shrink-0 mt-0.5"
+    }), React.createElement("span", {
+      className: "text-sm text-gray-600 leading-relaxed break-keep"
+    }, "포장은 택배박스나 폴리백 형태로만 가능해요")),
+    // 접수 시 주의사항
+    React.createElement("ul", {
+      className: "text-sm text-gray-600 leading-relaxed space-y-1.5"
+    }, React.createElement("li", null, "- 배송박스나 폴리백 포장 필수"), React.createElement("li", null, "- 쇼핑백, 비닐 포장 시 접수 금지"), React.createElement("li", null, "- 여러 개의 박스, 폴리백 합포장 접수 금지")),
+    // 우체국 표기 안내
+    React.createElement("div", {
+      className: "bg-blue-50 rounded-xl px-3.5 py-3 border border-blue-100"
+    }, React.createElement("p", {
+      className: "text-sm text-blue-700 leading-relaxed break-keep"
+    }, "박스 또는 폴리백으로 포장 후 잘 보이는 곳에 ", React.createElement("strong", {
+      className: "font-extrabold"
+    }, "'우체국'"), "이라고 적어주세요")),
+    React.createElement("div", {
+      className: "flex items-center gap-2 cursor-pointer",
+      onClick: () => setCourierForm(prev => ({ ...prev, packagingConfirmed: !prev.packagingConfirmed }))
+    }, React.createElement("div", {
+      className: `w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${courierForm.packagingConfirmed ? 'bg-blue-400 border-blue-400' : 'border-gray-300 bg-white'}`
+    }, courierForm.packagingConfirmed && React.createElement(Icons.Check, {
+      size: 14,
+      className: "text-white"
+    })), React.createElement("span", {
+      className: "text-base font-bold text-gray-700"
+    }, "확인했어요"))),
+    // 방문 예정일 (예약 반납일로 고정)
+    React.createElement("div", {
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 space-y-3"
+    }, React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800 flex items-center gap-2 mb-1"
+    }, React.createElement(Icons.Clock, {
+      size: 20,
+      className: "text-blue-500"
+    }), " 방문 예정일"), React.createElement("div", {
+      className: "w-full p-3.5 bg-gray-50 rounded-xl border border-gray-100 text-base font-bold text-gray-800"
+    }, formatDisplayDate(target.endDate)), React.createElement("p", {
+      className: "text-xs text-gray-500"
+    }, "반납일에 방문해요. 방문 시간은 ", React.createElement("strong", {
+      className: "text-gray-700"
+    }, "오전 8시 ~ 오후 6시"), " 사이예요.")),
+    React.createElement("button", {
+      disabled: !canSubmit,
+      onClick: () => {
+        setCourierConfirmChecks({ address: false, packaging: false, visitDate: false, caution: false });
+        setShowCourierConfirmModal(true);
+      },
+      className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2 ${canSubmit ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
+    }, isSubmitting ? '처리 중...' : '신청하기')),
+    showCourierConfirmModal && React.createElement("div", {
+      className: "fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in",
+      onClick: () => !isSubmitting && setShowCourierConfirmModal(false)
+    }, React.createElement("div", {
+      className: "bg-white rounded-3xl w-full max-w-sm shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden",
+      onClick: e => e.stopPropagation()
+    }, React.createElement("div", {
+      className: "p-5 border-b border-gray-100 flex justify-between items-center"
+    }, React.createElement("div", null, React.createElement("h3", {
+      className: "text-lg font-bold text-gray-800"
+    }, "신청하기전에 한번 더 확인 해 주세요!"), React.createElement("p", {
+      className: "text-xs text-red-500 font-bold mt-1"
+    }, "신청하면 변경할 수 없어요")), React.createElement("button", {
+      onClick: () => setShowCourierConfirmModal(false),
+      disabled: isSubmitting,
+      className: "text-gray-400 hover:text-gray-600 shrink-0"
+    }, React.createElement(Icons.X, { size: 22 }))), React.createElement("div", {
+      className: "p-5 overflow-y-auto space-y-6"
+    },
+    // 방문 주소 분단
+    React.createElement("div", null, React.createElement("h4", {
+      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-1.5"
+    }, React.createElement(Icons.MapPin, {
+      size: 15,
+      className: "text-blue-500"
+    }), " 방문 주소"), React.createElement("p", {
+      className: "text-sm text-gray-600 bg-gray-50 rounded-xl p-3 break-keep"
+    }, courierForm.zipcode ? `[${courierForm.zipcode}] ` : '', fullVisitAddress || '입력된 주소가 없어요'), renderConfirmCheck('address')),
+    // 포장 안내사항 분단
+    React.createElement("div", null, React.createElement("h4", {
+      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-1.5"
+    }, React.createElement(Icons.Truck, {
+      size: 15,
+      className: "text-blue-500"
+    }), " 포장 안내사항"), React.createElement("ul", {
+      className: "text-sm text-gray-600 leading-relaxed space-y-1 bg-gray-50 rounded-xl p-3"
+    }, React.createElement("li", null, "- 택배박스 또는 폴리백 형태로만 포장"), React.createElement("li", null, "- 가로+세로+높이 합 80cm 이하, 무게 2kg 이하"), React.createElement("li", null, "- 포장 겉면 잘 보이는 곳에 '우체국'이라고 표기")), renderConfirmCheck('packaging')),
+    // 방문예정일 및 시간 분단
+    React.createElement("div", null, React.createElement("h4", {
+      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-1.5"
+    }, React.createElement(Icons.Clock, {
+      size: 15,
+      className: "text-blue-500"
+    }), " 방문예정일 및 시간"), React.createElement("p", {
+      className: "text-sm text-gray-600 bg-gray-50 rounded-xl p-3"
+    }, formatDisplayDate(target.endDate), " · 오전 8시 ~ 오후 6시"), renderConfirmCheck('visitDate')),
+    // 주의사항 분단
+    React.createElement("div", null, React.createElement("h4", {
+      className: "text-sm font-bold text-red-600 flex items-center gap-1.5 mb-1.5"
+    }, "⚠️ 주의사항"), React.createElement("p", {
+      className: "text-sm text-gray-700 bg-red-50 rounded-xl p-3 leading-relaxed break-keep"
+    }, "고객님의 과실로 픽업을 하지 못한 경우 ", React.createElement("strong", {
+      className: "text-red-600"
+    }, "대여연장 비용 1일(15,000~20,000원)"), "이 발생해요."), React.createElement("ul", {
+      className: "text-xs text-gray-500 leading-relaxed space-y-1 mt-2"
+    }, React.createElement("li", null, "- 픽업 시간 전에 문 앞에 두지 못한 경우"), React.createElement("li", null, "- 포장 상태가 불량한 경우"), React.createElement("li", null, "- '우체국'이라고 표기 않아 구분하기 어려운 경우")), renderConfirmCheck('caution'))), React.createElement("div", {
+      className: "p-5 border-t border-gray-100"
+    }, React.createElement("button", {
+      disabled: !allConfirmChecked || isSubmitting,
+      onClick: handleCourierApplySubmit,
+      className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors ${allConfirmChecked && !isSubmitting ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
+    }, isSubmitting ? '처리 중...' : '5,000원 결제하기')))));
+  };
   var renderSuccessPage = () => {
     var type = successData ? successData.type : '완료';
     var name = successData ? successData.name : '고객';
@@ -7978,6 +8411,9 @@ React.createElement("div", {
     } else if (type === '변경') {
       titleMsg = "변경 신청 완료!";
       statusMsg = "담당자 확인 후 변경이 확정됩니다.";
+    } else if (type === '방문택배') {
+      titleMsg = "방문택배 신청 완료!";
+      statusMsg = "입금 확인 후 방문 일정이 확정됩니다.";
     }
     return React.createElement("div", {
       className: "animate-slide-in h-full flex flex-col justify-center items-center p-6 text-center"
@@ -8016,7 +8452,7 @@ React.createElement("div", {
       className: "flex justify-between items-center mb-3 pb-3 border-b border-gray-200"
     }, React.createElement("span", {
       className: "text-sm font-bold text-gray-600"
-    }, "변경 내용"), React.createElement("span", {
+    }, type === '방문택배' ? "방문 예정일" : "변경 내용"), React.createElement("span", {
       className: "text-xs font-bold text-blue-500 text-right break-keep",
       style: {
         maxWidth: '60%'
@@ -8517,7 +8953,7 @@ React.createElement("div", {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'backupChoice' && renderBackupChoicePage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'tipsGuide' && renderTipsGuidePage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'courierPicker' && renderServiceGate('courier', "방문택배 신청", "bg-blue-50 text-blue-500"), viewMode === 'backupChoice' && renderBackupChoicePage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'courierApply' && renderCourierApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'tipsGuide' && renderTipsGuidePage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
