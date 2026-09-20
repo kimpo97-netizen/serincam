@@ -932,7 +932,7 @@ var TRANSLATIONS = {
     viewAll: "전체보기",
     writeReview: "생생한 대여 후기 작성하기",
     tipsTitle: "🍯 세린캠 200% 활용 꿀팁",
-    tip1: "우체국 방문택배 신청",
+    tip1: "방문택배 신청",
     tip1Sub: "집 앞으로 기사님이 오시는 마법 📦",
     tip2: "콘서트 카메라 필수 세팅",
     tip2Sub: "화질은 높이고! 덕질은 완벽하게! ✨",
@@ -4351,7 +4351,11 @@ var PhoneRentalApp = () => {
     faIcon: 'fa-truck-fast',
     bg: '#E0F2FE',
     fg: '#0EA5E9',
-    onClick: () => setBlogModal({ open: true, type: 'post' })
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('courierPicker');
+      updateURLForNav('courier');
+    }
   }, {
     label: '취소/환불',
     faIcon: 'fa-calendar-xmark',
@@ -8779,10 +8783,11 @@ React.createElement("div", {
   }, t('tipsTitle')), React.createElement("div", {
     className: "space-y-2"
   }, React.createElement("div", {
-    onClick: () => setBlogModal({
-      open: true,
-      type: 'post'
-    }),
+    onClick: () => {
+      setServiceTarget(null);
+      setViewMode('courierPicker');
+      updateURLForNav('courier');
+    },
     className: "flex items-center justify-between p-4 bg-red-50 hover:bg-red-100 rounded-[1.25rem] cursor-pointer transition-colors group"
   }, React.createElement("div", {
     className: "flex items-center gap-3"
@@ -8933,7 +8938,7 @@ React.createElement("div", {
     className: "font-extrabold text-gray-500 text-sm mb-3"
   }, "세린캠"), React.createElement("div", {
     className: "space-y-1"
-  }, React.createElement("p", null, "대표: 한승윤 | 사업자등록번호: 396-12-02483"), React.createElement("p", null, "주소: 인천광역시 서구 이음4로6, KR법조타워 710호"), React.createElement("p", null, "고객센터: 0507-1484-2386 (평일 10:00 - 17:00)"), React.createElement("p", null, "개인정보보호책임자: 한승윤 (seungvery@naver.com)")), React.createElement("div", {
+  }, React.createElement("p", null, "대표: 한승윤 | 사업자등록번호: 396-12-02483"), React.createElement("p", null, "주소: 인천광역시 검단구 이음4로6, KR법조타워 710호"), React.createElement("p", null, "고객센터: 0507-1484-2386 (평일 10:00 - 17:00)"), React.createElement("p", null, "개인정보보호책임자: 한승윤 (seungvery@naver.com)")), React.createElement("div", {
     className: "flex justify-center gap-4 mt-5 mb-3"
   }, React.createElement("button", {
     onClick: () => setShowTerms(true),
