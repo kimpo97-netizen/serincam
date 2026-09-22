@@ -11,7 +11,7 @@
     <!-- 1. 홈페이지 설명 (검색 결과 제목 밑에 뜨는 글씨) -->
     <meta name="description" content="수도권 15곳 이상 공연장 픽업! 콘서트·팬미팅 울트라 대여 전문 세린캠">
     <!-- 2. 검색 키워드 (검색 엔진이 참고하는 단어들) -->
-    <meta name="keywords" content="세린캠, 울트라대여, 갤럭시대여, 콘서트대여, 아이폰대여, S23울트라대여, S24울트라대여, S25울트라대여, S26울트라대여, 콘서트카메라, 팬미팅대여, 울트라대여, ">
+    <meta name="keywords" content="세린캠, 울트라대여, 갤럭시대여, 콘서트대여, 아이폰대여, 아이폰18프로대여, 아이폰18프로맥스대여, S23울트라대여, S24울트라대여, S25울트라대여, S26울트라대여, 콘서트카메라, 팬미팅대여, 울트라대여, ">
     
     <!-- [NEW] 파비콘 및 모바일 아이콘 설정 -->
     <!-- 1. 파비콘 (브라우저 탭 아이콘) -->
@@ -223,6 +223,8 @@ var DEFAULT_BLOCKED_SCHEDULE = {
   '갤럭시 S25울트라': ['2026-6-7', '2026-6-9', '2026-6-10', '2026-6-8', '2026-2-23'],
   '아이폰 17프로': ['2026-7-3', '2026-7-4', '2026-7-5', '2026-6-15', '2026-5-2', '2026-5-3'],
   '아이폰 17프로맥스': ['2026-7-3', '2026-7-4', '2026-7-5', '2026-6-15', '2026-4-25', '2026-4-26'],
+  '아이폰 18프로': [],
+  '아이폰 18프로맥스': [],
   '갤럭시 S26울트라': ['2026-6-12', '2026-6-13', '2026-6-14', '2026-6-15', '2026-4-21']
 };
 var PREFIXES = ["시야대박", "1열기원", "금손", "얼빡샷", "홈마급", "화질감동", "우주최강", "성덕", "과몰입", "스탠딩", "돌출", "안방탈출", "내최애", "줌당기는", "손떨방", "갓벽한", "숨멎", "눈호강", "행복한", "달표면", "광클", "용병성공", "피켓팅성공", "밤샘대기", "포카교환", "덕계못탈출", "입덕요정", "덕질은장비빨", "본업천재", "은혜로운"];
@@ -2295,7 +2297,7 @@ var PhoneRentalApp = () => {
       var {
         data,
         error
-      } = await sb.from('reviews').select('*').order('id', {
+      } = await sb.from('reviews').select('id, category, model, rating, text, name, date, image, venue, seat, created_at').order('id', {
         ascending: false
       });
       if (error) throw error;
@@ -2578,6 +2580,8 @@ var PhoneRentalApp = () => {
     if (modelName.includes('S26')) return '26U';
     if (modelName.includes('17 프로맥스')) return '17PM';
     if (modelName.includes('17 프로')) return '17P';
+    if (modelName.includes('18 프로맥스')) return '18PM';
+    if (modelName.includes('18 프로')) return '18P';
     return modelName;
   };
   var phones = {
@@ -2605,7 +2609,7 @@ var PhoneRentalApp = () => {
     }, {
       id: 'g26',
       name: '갤럭시 S26울트라',
-      basePrice: 58000,
+      basePrice: 53000,
       addPrice: 15000,
       tag: '26U',
       reviews: 45
@@ -2613,17 +2617,31 @@ var PhoneRentalApp = () => {
     iphone: [{
       id: 'i17p',
       name: '아이폰 17프로',
-      basePrice: 58000,
+      basePrice: 53000,
       addPrice: 15000,
       tag: '17P',
       reviews: 102
     }, {
       id: 'i17pm',
       name: '아이폰 17프로맥스',
-      basePrice: 63000,
+      basePrice: 58000,
       addPrice: 15000,
       tag: '17PM',
       reviews: 41
+    }, {
+      id: 'i18p',
+      name: '아이폰 18프로',
+      basePrice: 63000,
+      addPrice: 15000,
+      tag: '18P',
+      reviews: 0
+    }, {
+      id: 'i18pm',
+      name: '아이폰 18프로맥스',
+      basePrice: 73000,
+      addPrice: 15000,
+      tag: '18PM',
+      reviews: 0
     }]
   };
   // [NEW] 예약의 model 값이 순수 모델코드(예: 23U)가 아니라 관리자가 특정 기기번호를 지정한 상태(예: 23U12)인지 판별
@@ -2662,6 +2680,16 @@ var PhoneRentalApp = () => {
     i17pm: {
       image: 'https://ecimg.cafe24img.com/pg1308b55930092073/serinday/web/product/medium/20250930/c1c9b5ac9793aa98149272eb2e9d71b5.png',
       desc: '더 큰 화면과 향상된 배터리로 장시간 야외 촬영에도 여유로운 프로맥스 모델이에요.',
+      specs: ['프로급 트리플 카메라', '고화질 4K 촬영 지원', '저장공간 256GB', '대용량 배터리']
+    },
+    i18p: {
+      image: 'data:image/webp;base64,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',
+      desc: '가장 최신 아이폰 프로 모델로, 더 선명해진 카메라와 자연스러운 색감으로 공연 촬영에 딱 맞아요.',
+      specs: ['프로급 트리플 카메라', '고화질 4K 촬영 지원', '저장공간 256GB', 'iOS 최신 버전']
+    },
+    i18pm: {
+      image: 'data:image/webp;base64,UklGRjATAABXRUJQVlA4ICQTAADwvgCdASpYAlgCPlEokEajpKekolL5EPAKCWlu1PAo8H7EMU59LeszgHOFJ7o0JLfvl3lek9f5cK+xLxURSE1HzOfWYKkKX77gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcFceArhowNjS6H1yq3MQD0MwhmEMwHAkjwxl36XCVC4CpDbRhHCxRjP864JwHG6wb5JDcIUA2/Irm1J/6rTiXkptYhOrrwo+9oaFpnWn+0ODTirVFkPGIB6GYPbnyFuAYGiltDiOGhuCApCEWPmWIqbgvX3Jdfp41LVmN9U40/LCiDFgc43iul50iRlPVFSy90xo/p4XJB3SwL/PliIFjPFjmbdvay/fcF7gvb9rcxyi2QHJSi3eVcNEQWqeccg9nGGIyQd+7sIDkvRwrGHT8KbuablXBckPgzx+6diw+WUXNVs1DdoPRh7lgjjd3/zsQD0MpU72NAcaOG0BeDRJ3pL0ufJsIPHIH4+NYIsDNLNZYxvJMMNQNToLwgqriWYxV8uFYlzqOC4acH8wLa/+UbcqOMZfvuC9wXt/MH7qPKR97Dor643xfyRDH+aeY02eSl9Gwg1+e7K6kToyja0RWgX5KjtpC8g0ESK9hM9FqZEi200WDhe2hBUfcf564H/xrhcyuJXnYgHoZhDKKfNPoTFz4ZK079oPZYxfr6S6Ekx/DPaONOagxyK1R7WXNBOzKtfMGNS2pd9WrrRBlH+5AHyKFJeUWr99wXuC9pc9aBFc9CbUjXQKiD3sHcsM6VHEio6Eg3I26BKNn+Rf0WPTzR/6HbF6L9zOGUOe1faQVtJlhp3J+A6KGYQzCGYQsadGyPgkuVLFERpovQTocYEZBmmJPp/PafzoG5dde5vEK9DZI/9CO5ieC3D7pmvzsQDv7HB6kq+WFjd+P0fLt7L9Pp3mBsFwh7SP0DqKg/+diAehmD2q0CpR9WxnbeFOWcFGWpZ6sWdrvKlFq/fcF7gvahSbuSMeuTvXDaSdXrq2kIhSMMK9RPQzCGYQy/9s4zD3dR9iCJ1rZqZz/GqcTlHQurVKB7ymf56iehmEMwhlK0eixk3vJ8l0SEfWdxYgC+UU1NirhFrb2NuRlipSwGQYeMQD0Mwhl/W7aVAIdIrDDb1f/tDWTmNNl1E/na6KU5DkyEvqYZFkPGIB6GUrb6xp7av6f7CjJmnAbQEXdsedhKX1MMiyHjEA9DKVo+B2IUQwC1F025Z/mYYPzG8yGFdVduIYbYMe1auvKCVwGLd8kieMQD0Mwhl/7PlT4kZJxv54VFCpvCXILkG5cS77IH8c/Z24wC9EUXc5DZSZFkPGIB6FnuAcu7Cp0SP1IsMkFL8EoIs5zFzN8jaePTX52IB6GYPiPTilP+ErwMgObCKHkjlmiGU1LGiedNT7SGYQzCGYQyhkYHW5QW0vQ2FfTUAVf6OMw8nVjeV6gHKQ4k0jqgHnnotR8W75JE8YgHoZhDL/20OnbMRy2eAM+m6YzZviGfYt35HZGJeUt35G08emvzsQD0MweYO33mgb/9cjwNhaTOIyoDzOpeF3uXbMGx5HO8A9+5p2C9wXuC9wXgsxR9dim4xmIW9Prq2knhQdJqn5kauWepUs69D6OqOYcrIBi090tO7SP5QQsJj/CfRs3uC9wXuC9v2ZyXJPnwjEQzM9tiRSIangoIrS1/s2im67IfjTRFkX3ipxfWS+slppXgObVG3/ql7iqCDraerjIcSGir99wXuC9wVmnIZZGBX3ngxny4hEO7IBMHsDS8dEg3WVyHuGifsfzlYCiyHjEA9DMIanxWKClPXKn3Y0uh8FfnYgHoZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhDMIZhCsAA/v/axyLpIIAMaxFAAAAAAAAAAAACU3Y4AANfGIdN7R9WbAFQ0TyGoX1WuFRtU0AU/ZdOiohRvmg6bFGXjvP+FTFBoh8tlpln/ASLOee5ZOdAfret/dXNu6xdxBx6GbC+/oGz+bZI9i0GcvSt9z+Ml/P4ROeNy1q7wYazXtt2RzhNA2ojUhG5PWzy9k4ULkKfcXTlLpdsECHHLY3Hdg3U+NGgq1anpXqB2QXsI4+yxNiGIjqDLqMK9h+FZwto09sVeCbmrONGrFyDnQ/zFYXP7slMQz2jremwfXSV9RbjTeWxaYo0sRdJc1wDRPDLp7dhoFn9B1FVuQRzz593qNcNtlsky+nKIoxWjLfAtWTHd90Up6DuY+kVfillSqlcZnyWmwDUI/i/GWrfgQ23i/aUOF70OBxjy+gPSPyk/S7jA11LRjfRXxRRASEmm6WvyDdToxkNM08UVqFPpKhjJXc6Y3wh6maeRACQ9nykI3dCl7AqLQbKwoSPctTT8lhKr/WztcPAIvTjpOfbeMpxvFPueR62kuWmaC73EpT7v+gbxvvNEtpLZPjKVQCIf3ehUWOr9sPANVJY4F0OEJ4dDg40iC7IHuFVfOqQ2IqG2SI0QGt/JKzPzM3p/Kl9wbxw+wkNi59lJO8CtDJHXUZZDt+HN8r043BMgnt24OE5JpPjeE5rBxNOlf+MBuT9uKtOwQmiX1w0T1UxjYbzkI5us7XWXYJNS4Cxv4oC15TkUDKgPLrnf+4rU9rpcQH3rcQQzxgWgSBVRBg0Gzv4IGNfFG/BCHdt+xlu0MjdqfKeSFqkweLZxSQt5FGIekU4aeocJMBE2BRu0ciemKeer4RHdy35teWoNyoahete0/n/JLBNem7u3KRSjWMBC/gNPj86lLZLqeAx0P7t0chZzDt0K0hfpdVpJIaVi83Sr/V6y6QPVk3zfCD7l7ds8hDDAxugJITVymf0s6YWK7lnAIU3nDh5uhSBoTfsWvPvcuqcctWlyvy6TnjuqPwBu2RsIpjCF+egugYDVVo1A3Ze+5SQHPbW9/UXaUX61WK1qwYmYEZp+3ocu8NcpyMssgbgZKfAaymGG0rsV9DAnF6JzhJVCxcvc4uRaIpI5DSon4p1fJIH/S3NDLyyGsHcBhE+ey4yW9WgRlCT6EuMJ65dqn43u5lnRRbMJ550+4ImottrVV79yx4zxoHtoIS23hAqyfOsrYVWc7+wyCZNWDXCEB3l87q/FokwM8IJpF7n/yBGBN0o3azV/KiiimY37/M+Ri3POq2C79CSzirfokfVga7RPMnPyIhWC2/uK2eJ56MowuL2qh6dwfJ49l2xMBuAukCbuGYbuUMTbx/5da0Kch9SoUzArKP/Z5tGrq/tsspZzgwZpd+nI0Xtb8LGn574Cty23vqoObtX/9bGerPgbCApeWv7zq18ImcxNO5YL2uBjx3k7R8/oeOQa4zY4kkMlvpUM4v02V8ASD5OUDV41ANwqK6ppT8ccw8J2XNvWAwWq5Wh/BsaQ4G2BtfhCaB10h4vhCgOSVnzE+YC9y1yTDU1N7hdVHzzci1he8u1tQ3/NROu7XrVektsxVhX7FoKSIcm63AzyNNM6F2aR2zqCJCe80sTq9RAgWRf0UOidyUgW2ODvzDgU+ew8Okxr79CCWUxT5ZH4L6NDYWkJSit8939gOh0PQ9dJXCCDf0tcipO3rjxUyUXLnXx0WysFbnrIKuWQuc6tjqPaH5JIe+JHgTe98yBlT3H2ydmROv87pZoAtxuK8/uTmWpS9NxJnzFF5rR1syDADEUZp/aN8WTuhj3PUIc2v5lQhc9ZDjI34RShx2T75aXNvo5SeNnCsqb4dl8NvS6+XqoVzf9RDx0N4qHQkGXc89JmRyymj6wNbhk1Y2Ho5naf34ZWZ+Evda0V1zs6qUjb57HBrokDX/b6soGzd8iSPCGvwTn7pyF4zg6IlCXwjOJAYBLWRlGGA/zycMHqkg00db0I0lYuBM3L1JWgnK9r442oL6n34rsTuFANhcPbYBvJwpAo7T6ObxpjrHMHyCNvixqbp/+/SvAJ0aMLc+Kbi0TPneY0N788ZOR/Fb5JQJd2ZnVw0X+Mep+CP3Hg30k0qE35m5eYvtwyld5+65vztgD5RXY6wInN3ntmmd3gSGd9p4wgd1xzWlaN71z79tVlwHMV8uIPqUbGwzwMgK4Uik7TqQ5TL84hUei+5//senwQ89RWsCbv2Swj21aldeS+Id2DjIU7m/M2UOSAEIWOwLYhwIQ/1zl1ID34N42mQcw3hOypjA2btOtH9A01H4GISdPWwCZXYritdtw3lygpxoWZGjuI8g5c2zMmYzIYOmSjYkvzFwgOjl+JZ9pv+4aD8geMW00BZ39AAznKZXAvVY78UCej2KU3LNu68jqWd8u5bnZ5f+z+jpHO329UjlQQpwG5sQzWdJCwXFYmXPNb9v9V9jyFK9i9IlaGvZHfPQEDRyzCLiEQPGr1oXGdU/mM8+gAzIKGzYzBAMhZcql4zA5vDiy3YCGVvRTTPr/88a64k662HcsI7NQNAEC+kC2xTBPNUv03PiGFFublW+gkKQiGwUCEga31R28ls+6WpE3r92bPW7Y6RWamt1EBsy6m5f8iSfToOadk/123Oe04dRDM3z+0xC7u+/pEndAjBE7Vn3lR0VBEb8JLTEz1W0B15C/7xp9/YDQShLml9QNNOJsmMAuxX8K/Qm1uENT8u9AuJtWKeiTXrYNpUF1UovXKTAxq1KrS73pbCzc2AnQ8QVAD1l/p5fsCnSeEX2WeFwQYpwgoTAWm+P+GvUh1PS9fEUCNiBfgEwtAzYeDiiQw0HdwxQ9d9mc33EnDFyizFvdjqDKVhs1A7CS/penpW7YdT3QCEFIgJuRNORrngC05eDjBHaugzwoK8hgEk20ym3wLgCUoLYs4LSsvcGomcFeBpXMcS8CIfHPG/P809aGjKK5ilDNMnUfoNbvTn41iogSQC73xyzxuK105FFgLYEo0DBv4mi1aerA0NtQ+ujvhGEewnQfv9nhNYpMiXAuBlFF0lNm2zy7VBhr75hXIfrvg9+RmaUYGadERI5tR2QWY93JavNLuIQahULZFJuTbUCIgkVWZh27G1MCVdgzjx7vZMjU8fUnEBQBVdfjBl56EZkBfnlKFfKAexxPmCkC5+bh83ePdeeI+lppEJJpCjFpT3xHCODuy3xfRTMzT7J5ryzELK/EaG9kCgSO5+ZHMksrt45x5Vr7JFEtSfJ/HXnNOBdkHOZkfRei1iqZusJUB4ra6mwaUbaCgMALBopdIfbsJcDHOZe7NGiLxQdu1xISqejEk0cvNHn8jwDqry/VR7dblLC3NHG/qpcLvEephJNsvohQGL2IVZIv3wtEvwlN42Q16MxbMUpdtwxSeQZXumPpMkGyVpS7rrl7fNGkb26PaMVh/U3SI3ONipSREGlIzntIUCCWEwkpsqnRPH+VkvzcDQYGIOxaEGmcMue50T9iGF1CkuQf0WujPqzEbbvSUKA2AuF33M9Kdc2HhC7CtNVjTNRp8IhQKPXWzlVF3BSwx8LX0+h8RB2v1BXl6VRZuteQZHCgBV+BSCoT/qyQbdkHwQU0B60gaTlfyqKqJUzvYJuAj16l2tfgGAmqffH4jE6jWNpmWwOXdSAMK3Ryo0uAHjCrZFDuhrFFCqi3I7+oZ6IHCZDmo2vgBIZKA8uVRuxnB2fhBXoDZD9qKilah/tISx73WuZl/5Ilj/YEr+mmd9loPFdGjAkR2C5TJUpOPPiUZx+FeXoCCgOrsTbqiaXthWtZAzSKsbDDbvXcHfkkSU9iA019qU3wk/km+qGKYcIGkdvtGsrq9A4YnOr8OsrL1JMkkyVZuV2+/OUzqz6S0/1szAvgS3U13HxOEs8ccqUtnfgjtB5LA7DmUMPWe6+me5C2iH6ULvg//9oI9tp0NKEyP5w5a49Wx5HsjXECtXJOaIMQzHtcvPpmk5H5/fhc2j/4jHNNTK51coqK6TjtffGDxYwl9qtwJjLZ0iA1f4ZYf8J+aw5M+bTu04O+mbwnQnD9T9CqpSXqFW2r5W8dfB/9ySFG7PKDl/+6R9y02aoyPEK5muSPytTHCiFJjhWVh8Qw8C3MYHBfhQRVQoWUSw3ZWzjf7W/vLKeDPezL5V7Yedy7fxwLYJ4JGPECxMp5nLEXKr4wec8fOYG/A1yyQOahmBM07otpI8qaQUfem1KhXIg6YjGtkM8jXsTNpupYga66MHcX3VZo6dqDzRSeJobhs4D6O2UBBwhjGnpASYkumEwSYIvQ7/u6O7Y+Z0747j6AH1sdlrl3dMpkzjGlVkGNxti9T7Qe9URvVfNmY+b3qmI8Oz8R6xStpjD3rQ+uf2K/tVfHas76OxvLrLSfN5hgcsnNWMYLlRGntW/m8a7AAIaQljOpApbtdN/TemQ8Mj+Tp+vAu5VIBA8FMA8h5D1RYQAAAAAAAAAAAAAAAAAA',
+      desc: '가장 최신 아이폰 프로맥스 모델로, 큰 화면과 대용량 배터리로 장시간 촬영에도 여유로워요.',
       specs: ['프로급 트리플 카메라', '고화질 4K 촬영 지원', '저장공간 256GB', '대용량 배터리']
     }
   };
@@ -2754,6 +2782,8 @@ var PhoneRentalApp = () => {
     if (m.includes('26U')) return '갤럭시 S26 울트라';
     if (m.includes('17PM')) return '아이폰 17 프로맥스';
     if (m.includes('17P')) return '아이폰 17 프로';
+    if (m.includes('18PM')) return '아이폰 18 프로맥스';
+    if (m.includes('18P')) return '아이폰 18 프로';
     return '';
   };
   var openReviewModal = (item = null) => {
@@ -3239,7 +3269,7 @@ var PhoneRentalApp = () => {
   // [NEW] 예약 model 문자열로 갤럭시/아이폰 판별 (연장 요금 자동 적용용)
   var detectExtModel = modelStr => {
     var s = String(modelStr || '').toLowerCase();
-    if (s.includes('17p') || s.includes('아이폰') || s.includes('iphone') || s.includes('16p')) return 'iphone';
+    if (s.includes('17p') || s.includes('18p') || s.includes('아이폰') || s.includes('iphone') || s.includes('16p')) return 'iphone';
     return 'galaxy';
   };
   // [NEW] 원예약 지문 생성: lookup이 id를 안 주므로, 예약 생성시각(orderTime)을
@@ -3630,6 +3660,8 @@ var PhoneRentalApp = () => {
       if (n.includes('S26')) return '26U';
       if (n.includes('17프로맥스') || n.includes('17 프로맥스')) return '17PM';
       if (n.includes('17프로') || n.includes('17 프로')) return '17P';
+      if (n.includes('18프로맥스') || n.includes('18 프로맥스')) return '18PM';
+      if (n.includes('18프로') || n.includes('18 프로')) return '18P';
       return n;
     };
     // 원예약에 붙어있던 부가옵션(+보조배터리 등)은 그대로 유지
@@ -3855,6 +3887,8 @@ var PhoneRentalApp = () => {
       if (fullName.includes('S26')) return '26U';
       if (fullName.includes('17프로맥스') || fullName.includes('17 프로맥스')) return '17PM';
       if (fullName.includes('17프로') || fullName.includes('17 프로')) return '17P';
+      if (fullName.includes('18프로맥스') || fullName.includes('18 프로맥스')) return '18PM';
+      if (fullName.includes('18프로') || fullName.includes('18 프로')) return '18P';
       return fullName;
     };
     var finalModelName = getShortModelName(selectedPhone.name);
@@ -7768,6 +7802,12 @@ React.createElement("div", {
     }, {
       id: '아이폰 17 프로맥스',
       label: '17PM'
+    }, {
+      id: '아이폰 18 프로',
+      label: '18P'
+    }, {
+      id: '아이폰 18 프로맥스',
+      label: '18PM'
     }];
     var filteredReviews = activeReviewTab === 'all' ? reviews : reviews.filter(r => r.model === activeReviewTab);
     return React.createElement("div", {
@@ -10985,7 +11025,11 @@ React.createElement("div", {
     value: "아이폰 17 프로"
   }, "아이폰 17 프로"), React.createElement("option", {
     value: "아이폰 17 프로맥스"
-  }, "아이폰 17 프로맥스")), React.createElement("div", {
+  }, "아이폰 17 프로맥스"), React.createElement("option", {
+    value: "아이폰 18 프로"
+  }, "아이폰 18 프로"), React.createElement("option", {
+    value: "아이폰 18 프로맥스"
+  }, "아이폰 18 프로맥스")), React.createElement("div", {
     className: "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
   }, React.createElement(Icons.ChevronLeft, {
     size: 16,
