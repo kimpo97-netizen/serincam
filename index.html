@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>세린캠 | 특별한 하루를 더 예쁘게! 울트라 대여</title>
     <!-- [NEW] 홈화면 아이콘 그리드용 FontAwesome (홈화면 아이콘.txt 참고자료와 동일 아이콘 사용) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,6 +13,36 @@
     <!-- 2. 검색 키워드 (검색 엔진이 참고하는 단어들) -->
     <meta name="keywords" content="세린캠, 울트라대여, 갤럭시대여, 콘서트대여, 아이폰대여, 아이폰18프로대여, 아이폰18프로맥스대여, S23울트라대여, S24울트라대여, S25울트라대여, S26울트라대여, 콘서트카메라, 팬미팅대여, 울트라대여, ">
     
+    <!-- 3. 링크 공유 미리보기 (카카오톡·트위터·페이스북에 링크를 붙였을 때 보이는 카드) -->
+    <link rel="canonical" href="https://serincam.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="세린캠">
+    <meta property="og:url" content="https://serincam.com/">
+    <meta property="og:title" content="세린캠 | 콘서트·팬미팅 울트라 대여">
+    <meta property="og:description" content="갤럭시 울트라·아이폰 프로 하루 대여. 수도권 15곳 이상 공연장 픽업, 사용하는 날만 결제!">
+    <meta property="og:image" content="https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/15/0e07ec626f3e576b1da28e3ca1ef3258.png">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="세린캠 | 콘서트·팬미팅 울트라 대여">
+    <meta name="twitter:description" content="갤럭시 울트라·아이폰 프로 하루 대여. 수도권 15곳 이상 공연장 픽업, 사용하는 날만 결제!">
+    <meta name="twitter:image" content="https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/15/0e07ec626f3e576b1da28e3ca1ef3258.png">
+    <meta name="theme-color" content="#ffffff">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "세린캠",
+      "url": "https://serincam.com/",
+      "telephone": "0507-1484-2386",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "이음4로6, KR법조타워 710호",
+        "addressLocality": "인천광역시 검단구",
+        "addressCountry": "KR"
+      }
+    }
+    </script>
+
     <!-- [NEW] 파비콘 및 모바일 아이콘 설정 -->
     <!-- 1. 파비콘 (브라우저 탭 아이콘) -->
     <link rel="icon" type="image/png" href="https://kimpo97.cafe24.com/file_data/kimpo97/2026/02/14/e0a0ee0bde33d92a77f1178142cbf7ec.png" />
@@ -27,8 +57,8 @@
     <!-- tailwind.config 제거됨 -->
     
     <!-- 2. 리액트 (React) 엔진 -->
-    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
     
     <!-- 3. Babel (코드 변환기) -->
     <!-- Babel 제거됨 -->
@@ -175,7 +205,7 @@ var uploadReviewImage = async dataUrl => {
   if (error) throw error;
   return sb.storage.from('review-images').getPublicUrl(path).data.publicUrl;
 };
-var KAKAO_CHAT_URL = "http://pf.kakao.com/_kiQkG/chat";
+var KAKAO_CHAT_URL = "https://pf.kakao.com/_kiQkG/chat";
 var HOLIDAYS = {
   '2025-1-1': '신정',
   '2025-1-28': '설날',
@@ -205,6 +235,7 @@ var HOLIDAYS = {
   '2026-5-5': '어린이날',
   '2026-5-24': '부처님오신날',
   '2026-5-25': '대체공휴일',
+  '2026-6-3': '지방선거',
   '2026-6-6': '현충일',
   '2026-8-15': '광복절',
   '2026-8-17': '대체공휴일',
@@ -214,9 +245,30 @@ var HOLIDAYS = {
   '2026-10-3': '개천절',
   '2026-10-5': '대체공휴일',
   '2026-10-9': '한글날',
-  '2026-12-25': '성탄절'
+  '2026-12-25': '성탄절',
+  '2027-1-1': '신정',
+  '2027-2-6': '설날',
+  '2027-2-7': '설날',
+  '2027-2-8': '설날',
+  '2027-2-9': '대체공휴일',
+  '2027-3-1': '삼일절',
+  '2027-5-1': '근로자의날',
+  '2027-5-5': '어린이날',
+  '2027-5-13': '부처님오신날',
+  '2027-6-6': '현충일',
+  '2027-8-15': '광복절',
+  '2027-8-16': '대체공휴일',
+  '2027-9-14': '추석',
+  '2027-9-15': '추석',
+  '2027-9-16': '추석',
+  '2027-10-3': '개천절',
+  '2027-10-4': '대체공휴일',
+  '2027-10-9': '한글날',
+  '2027-10-11': '대체공휴일',
+  '2027-12-25': '성탄절',
+  '2027-12-27': '대체공휴일'
 };
-       <!-- 대여모델 마감 (기본값 - 관리자 설정이 없을 때 사용) -->
+// 대여모델 마감 (기본값 - 관리자 설정이 없을 때 사용)
 var DEFAULT_BLOCKED_SCHEDULE = {
   '갤럭시 S23울트라': ['2026-4-18', '2026-4-19', '2026-2-23'],
   '갤럭시 S24울트라': ['2026-2-19', '2026-2-20', '2026-2-21', '2026-2-22', '2026-2-23'],
@@ -2292,6 +2344,18 @@ var PhoneRentalApp = () => {
       className: "text-[10px] font-bold text-gray-500 mt-0.5 break-keep leading-snug"
     }, "📍 " + c.venue) : null);
   };
+  // 이 공연으로 예약 시작: 수령방법 미선택, 주소 공란, 일정명=공연명 자동 세팅 (공연 상세 모달·첫 화면 공용)
+  var startConcertReservation = c => {
+    setShowConcertModal(false);
+    setUserInfo(u => ({
+      ...u,
+      address: '',
+      detailAddress: '',
+      scheduleName: c.artist || ''
+    }));
+    handleRentalStart(null, { start: c._start, end: c._end || c._start });
+    if (c._start) setCurrentMonth(new Date(c._start.getFullYear(), c._start.getMonth(), 1)); // 공연 달로 캘린더 자동 이동
+  };
   var fetchReviews = async () => {
     try {
       var {
@@ -3266,6 +3330,69 @@ var PhoneRentalApp = () => {
     base.setDate(base.getDate() + days);
     return `${base.getFullYear()}. ${base.getMonth() + 1}. ${base.getDate()}`;
   };
+  // [NEW] 방문택배(우체국 방문수거) 불가일 — 우체국이 쉬는 날에는 수거가 불가능하다.
+  // 주말은 아래 isCourierUnavailableDay에서 항상 별도 처리. 이 목록은 평일인 공휴일 + 대체공휴일 +
+  // 우체국 택배가 쉬는 근로자의 날(5/1, 법정공휴일은 아니지만 우체국 택배는 접수·배송을 안 함).
+  // 제헌절(7/17)은 2008년부터 관공서 공휴일에서 빠져 우체국이 정상 운영하므로 목록에 없음(의도적 제외).
+  // (2026~2028년, 공식 공휴일 자료 기준. 2029년 이후는 그 해가 되기 전에 다시 채워 넣어야 한다.)
+  var COURIER_UNAVAILABLE_DATES = new Set([
+    // ── 2026년 ──
+    '2026-01-01', // 신정
+    '2026-02-16', '2026-02-17', '2026-02-18', // 설날 연휴(월~수)
+    '2026-03-01', '2026-03-02', // 삼일절(일) + 대체공휴일(월)
+    '2026-05-01', // 근로자의 날
+    '2026-05-05', // 어린이날
+    '2026-05-24', '2026-05-25', // 부처님오신날(일) + 대체공휴일(월)
+    '2026-06-06', // 현충일(토)
+    '2026-08-15', '2026-08-17', // 광복절(토) + 대체공휴일(월)
+    '2026-09-24', '2026-09-25', '2026-09-26', // 추석 연휴(목~토)
+    '2026-10-03', '2026-10-05', // 개천절(토) + 대체공휴일(월)
+    '2026-10-09', // 한글날(금)
+    '2026-12-25', // 성탄절(금)
+    // ── 2027년 ──
+    '2027-01-01', // 신정(금)
+    '2027-02-08', '2027-02-09', // 설날 연휴(월,화) — 2/6(토)·2/7(일)은 주말 처리로 이미 제외됨
+    '2027-03-01', // 삼일절(월)
+    '2027-05-01', // 근로자의 날(토, 주말과 겹침)
+    '2027-05-05', // 어린이날(수)
+    '2027-05-13', // 부처님오신날(목)
+    '2027-06-07', // 현충일 대체공휴일(월) — 6/6(일) 본일은 주말 처리로 이미 제외됨
+    '2027-08-16', // 광복절 대체공휴일(월) — 8/15(일) 본일은 주말 처리로 이미 제외됨
+    '2027-09-14', '2027-09-15', '2027-09-16', // 추석 연휴(화~목)
+    '2027-10-04', // 개천절 대체공휴일(월) — 10/3(일) 본일은 주말 처리로 이미 제외됨
+    '2027-10-11', // 한글날 대체공휴일(월) — 10/9(토) 본일은 주말 처리로 이미 제외됨
+    '2027-12-27', // 성탄절 대체공휴일(월) — 12/25(토) 본일은 주말 처리로 이미 제외됨
+    // ── 2028년 ──
+    '2028-01-01', // 신정(토, 주말과 겹침)
+    '2028-01-26', '2028-01-27', '2028-01-28', // 설날 연휴(수~금)
+    '2028-03-01', // 삼일절(수)
+    '2028-04-12', // 제20대 국회의원선거일(수) — 4년마다 있는 총선일만 해당, 다음은 2032년
+    '2028-05-01', // 근로자의 날(월)
+    '2028-05-02', // 부처님오신날(화)
+    '2028-05-05', // 어린이날(금)
+    '2028-06-06', // 현충일(화)
+    '2028-08-15', // 광복절(화)
+    '2028-10-02', '2028-10-03', '2028-10-04', // 추석 연휴(월~수, 10/3은 개천절과 겹침)
+    '2028-10-05', // 추석·개천절 겹침에 따른 대체공휴일(목)
+    '2028-10-09', // 한글날(월)
+    '2028-12-25', // 성탄절(월)
+  ]);
+  var isCourierUnavailableDay = d => {
+    var day = d.getDay();
+    if (day === 0 || day === 6) return true; // 토/일
+    var iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return COURIER_UNAVAILABLE_DATES.has(iso);
+  };
+  // [NEW] 반납일이 주말/공휴일이면 기사님이 그날 수거를 못 하므로, 방문 예정일을 다음 평일로 밀어준다.
+  // 예) 반납일이 토요일 → 다음 평일(월요일, 월요일도 공휴일이면 그다음 평일)로 지정.
+  var nextCourierAvailableDate = endDateVal => {
+    var d = parseResDate(endDateVal);
+    if (!d) return null;
+    while (isCourierUnavailableDay(d)) {
+      d.setDate(d.getDate() + 1);
+    }
+    return d;
+  };
   // [NEW] 예약 model 문자열로 갤럭시/아이폰 판별 (연장 요금 자동 적용용)
   var detectExtModel = modelStr => {
     var s = String(modelStr || '').toLowerCase();
@@ -3795,8 +3922,12 @@ var PhoneRentalApp = () => {
     }
     setIsSubmitting(true);
     var target = courierTargetItem;
-    // [NEW] 방문 예정일은 예약 반납일로 고정
-    var visitDateDisplay = formatDisplayDate(target.endDate);
+    // [NEW] 방문 예정일은 기본적으로 예약 반납일이지만, 그날이 주말/공휴일이면 우체국이 수거를 못 하므로
+    // 다음 평일로 자동으로 밀어준다(예: 반납일이 토요일 → 월요일로 지정).
+    var visitDateObj = nextCourierAvailableDate(target.endDate);
+    var visitDateDisplay = visitDateObj
+      ? `${visitDateObj.getFullYear().toString().slice(2)}년 ${visitDateObj.getMonth() + 1}월 ${visitDateObj.getDate()}일`
+      : formatDisplayDate(target.endDate);
     var fullVisitAddress = courierForm.address + (courierForm.addressDetail ? ' ' + courierForm.addressDetail : '');
     var orderData = {
       category: '방문택배신청',
@@ -3810,7 +3941,7 @@ var PhoneRentalApp = () => {
       zipcode: courierForm.zipcode || '',
       address: fullVisitAddress,
       totalPrice: 5000,
-      scheduleName: `${target.name || ''}님 방문택배 신청\n방문 주소: ${fullVisitAddress}\n방문 예정일: ${visitDateDisplay} (반납일)\n방문 시간: 오전 8시~오후 6시`,
+      scheduleName: `${target.name || ''}님 방문택배 신청\n방문 주소: ${fullVisitAddress}\n방문 예정일: ${visitDateDisplay}` + (visitDateDisplay !== formatDisplayDate(target.endDate) ? ` (반납일 ${formatDisplayDate(target.endDate)}이 주말/공휴일이라 다음 평일로 조정)` : ' (반납일)') + `\n방문 시간: 오전 8시~오후 6시`,
       origin_ref: buildOriginRef(target)
     };
     try {
@@ -5014,7 +5145,7 @@ React.createElement("div", {
   }, "고객센터"), React.createElement("p", {
     className: "text-[11px] text-gray-400"
   }, "궁금한 점을 편하게 물어보세요"))), React.createElement("a", {
-    href: "http://pf.kakao.com/_kiQkG/chat",
+    href: "https://pf.kakao.com/_kiQkG/chat",
     target: "_blank",
     rel: "noopener",
     className: "w-full bg-yellow-50 text-yellow-600 border border-yellow-100 py-3.5 rounded-xl font-bold hover:bg-yellow-100 transition-colors flex items-center justify-center gap-2"
@@ -5940,6 +6071,26 @@ React.createElement("div", {
     className: "w-full bg-gray-800 text-white py-3 rounded-xl font-bold shadow-md hover:bg-gray-700 transition-colors text-sm"
   }, "닫기"))));
   // [NEW] 대여모델 상세페이지 팝업
+  // 모델별 실제 평균 별점 (리뷰 모델명 '갤럭시 S23 울트라' ↔ 상품명 '갤럭시 S23울트라' 공백 무시 비교)
+  var modelRatings = useMemo(() => {
+    var sums = {};
+    reviews.forEach(r => {
+      var rating = Number(r.rating);
+      if (!r.model || !rating) return;
+      var k = String(r.model).replace(/\s/g, '');
+      sums[k] = sums[k] || { total: 0, count: 0 };
+      sums[k].total += rating;
+      sums[k].count += 1;
+    });
+    var out = {};
+    Object.keys(sums).forEach(k => { out[k] = sums[k].total / sums[k].count; });
+    return out;
+  }, [reviews]);
+  // 후기가 없는 모델은 null → 화면에 '신규'로 표시
+  var getModelRating = name => {
+    var avg = modelRatings[String(name).replace(/\s/g, '')];
+    return avg ? (Math.round(avg * 10) / 10).toFixed(1) : null;
+  };
   var renderPhoneDetailModal = () => {
     var phone = phoneDetailModal.phone;
     var spec = PHONE_SPECS[phone.id] || {
@@ -5968,7 +6119,11 @@ React.createElement("div", {
     }, React.createElement(Icons.Star, {
       size: 12,
       className: "text-yellow-400 fill-current mr-1"
-    }), "5.0 (", (phone.reviews + myReviews.filter(r => r.model === phone.name).length).toLocaleString(), ")"));
+    }), (() => {
+      var cnt = phone.reviews + myReviews.filter(r => r.model === phone.name).length;
+      var avg = getModelRating(phone.name);
+      return cnt > 0 && avg ? `${avg} (${cnt.toLocaleString()})` : '신규 모델';
+    })()));
     var specListEl = spec.specs.length > 0 && React.createElement("div", {
       className: "bg-gray-50 p-3 rounded-xl border border-gray-100 space-y-2"
     }, spec.specs.map((s, i) => React.createElement("div", {
@@ -6080,7 +6235,7 @@ React.createElement("div", {
       className: "text-yellow-400 fill-current shrink-0"
     }), React.createElement("span", {
       className: "text-[11px] font-bold text-gray-700"
-    }, "5.0"), React.createElement("span", {
+    }, reviewCount > 0 && getModelRating(phone.name) || "신규"), reviewCount > 0 && getModelRating(phone.name) && React.createElement("span", {
       className: "text-[10px] text-gray-400"
     }, "(", reviewCount.toLocaleString(), ")")), React.createElement("p", {
       className: "text-[11px] text-gray-300 line-through"
@@ -6127,7 +6282,7 @@ React.createElement("div", {
       onMouseLeave: () => resumeShowcase(phoneShowcasePausedRef)
     });
     return allModels.map(phone => buildShowcaseCard(phone, false)).concat(allModels.map(phone => buildShowcaseCard(phone, true)));
-  }, [phones, myReviews]);
+  }, [phones, myReviews, modelRatings]);
   // [NEW] 홈화면 - 대여모델 한눈에 보기 (옆으로 넘겨보는 카드 슬라이더)
   var renderPhoneShowcase = () => {
     return React.createElement("div", {
@@ -8171,6 +8326,12 @@ React.createElement("div", {
     var canSubmit = !!courierForm.address && courierForm.packagingConfirmed && !isSubmitting;
     var fullVisitAddress = courierForm.address + (courierForm.addressDetail ? ' ' + courierForm.addressDetail : '');
     var allConfirmChecked = courierConfirmChecks.address && courierConfirmChecks.packaging && courierConfirmChecks.visitDate && courierConfirmChecks.caution;
+    // [NEW] 화면에 보여줄 방문 예정일도 제출 시점과 동일하게 반납일이 주말/공휴일이면 다음 평일로 계산
+    var courierVisitDateObj = nextCourierAvailableDate(target.endDate);
+    var courierVisitDateDisplay = courierVisitDateObj
+      ? `${courierVisitDateObj.getFullYear().toString().slice(2)}년 ${courierVisitDateObj.getMonth() + 1}월 ${courierVisitDateObj.getDate()}일`
+      : formatDisplayDate(target.endDate);
+    var courierVisitDateShifted = courierVisitDateDisplay !== formatDisplayDate(target.endDate);
     var renderConfirmCheck = key => React.createElement("div", {
       className: "flex items-center gap-2 cursor-pointer mt-2.5",
       onClick: () => setCourierConfirmChecks(prev => ({ ...prev, [key]: !prev[key] }))
@@ -8349,11 +8510,11 @@ React.createElement("div", {
       className: "text-blue-500"
     }), " 방문 예정일"), React.createElement("div", {
       className: "w-full p-3.5 bg-gray-50 rounded-xl border border-gray-100 text-base font-bold text-gray-800"
-    }, formatDisplayDate(target.endDate)), React.createElement("p", {
+    }, courierVisitDateDisplay), React.createElement("p", {
       className: "text-xs text-gray-500"
-    }, "반납일에 방문해요. 방문 시간은 ", React.createElement("strong", {
-      className: "text-gray-700"
-    }, "오전 8시 ~ 오후 6시"), " 사이예요.")),
+    }, courierVisitDateShifted
+      ? React.createElement(React.Fragment, null, "반납일(", formatDisplayDate(target.endDate), ")이 주말/공휴일이라 다음 평일로 옮겨졌어요. 방문 시간은 ", React.createElement("strong", { className: "text-gray-700" }, "오전 8시 ~ 오후 6시"), " 사이예요.")
+      : React.createElement(React.Fragment, null, "반납일에 방문해요. 방문 시간은 ", React.createElement("strong", { className: "text-gray-700" }, "오전 8시 ~ 오후 6시"), " 사이예요."))),
     React.createElement("button", {
       disabled: !canSubmit,
       onClick: () => {
@@ -8379,40 +8540,50 @@ React.createElement("div", {
       disabled: isSubmitting,
       className: "text-gray-400 hover:text-gray-600 shrink-0"
     }, React.createElement(Icons.X, { size: 22 }))), React.createElement("div", {
-      className: "p-5 overflow-y-auto space-y-6"
+      className: "p-5 overflow-y-auto space-y-3"
     },
     // 방문 주소 분단
-    React.createElement("div", null, React.createElement("h4", {
-      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-1.5"
+    React.createElement("div", {
+      className: "border border-gray-100 rounded-2xl p-3.5"
+    }, React.createElement("h4", {
+      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-2"
     }, React.createElement(Icons.MapPin, {
       size: 15,
       className: "text-blue-500"
     }), " 방문 주소"), React.createElement("p", {
-      className: "text-sm text-gray-600 bg-gray-50 rounded-xl p-3 break-keep"
+      className: "text-sm font-bold text-gray-800 bg-gray-50 rounded-xl p-3 break-keep"
     }, courierForm.zipcode ? `[${courierForm.zipcode}] ` : '', fullVisitAddress || '입력된 주소가 없어요'), renderConfirmCheck('address')),
     // 포장 안내사항 분단
-    React.createElement("div", null, React.createElement("h4", {
-      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-1.5"
+    React.createElement("div", {
+      className: "border border-gray-100 rounded-2xl p-3.5"
+    }, React.createElement("h4", {
+      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-2"
     }, React.createElement(Icons.Truck, {
       size: 15,
       className: "text-blue-500"
     }), " 포장 안내사항"), React.createElement("ul", {
       className: "text-sm text-gray-600 leading-relaxed space-y-1 bg-gray-50 rounded-xl p-3"
-    }, React.createElement("li", null, "- 택배박스 또는 폴리백 형태로만 포장"), React.createElement("li", null, "- 가로+세로+높이 합 80cm 이하, 무게 2kg 이하"), React.createElement("li", null, "- 포장 겉면 잘 보이는 곳에 '우체국'이라고 표기")), renderConfirmCheck('packaging')),
+    }, React.createElement("li", null, "- ", React.createElement("strong", { className: "text-gray-800" }, "택배박스 또는 폴리백"), " 형태로만 포장"), React.createElement("li", null, "- 가로+세로+높이 합 ", React.createElement("strong", { className: "text-gray-800" }, "80cm 이하"), ", 무게 ", React.createElement("strong", { className: "text-gray-800" }, "2kg 이하")), React.createElement("li", null, "- 포장 겉면 잘 보이는 곳에 ", React.createElement("strong", { className: "text-gray-800" }, "'우체국'"), "이라고 표기")), renderConfirmCheck('packaging')),
     // 방문예정일 및 시간 분단
-    React.createElement("div", null, React.createElement("h4", {
-      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-1.5"
+    React.createElement("div", {
+      className: "border border-gray-100 rounded-2xl p-3.5"
+    }, React.createElement("h4", {
+      className: "text-sm font-bold text-gray-800 flex items-center gap-1.5 mb-2"
     }, React.createElement(Icons.Clock, {
       size: 15,
       className: "text-blue-500"
     }), " 방문예정일 및 시간"), React.createElement("p", {
       className: "text-sm text-gray-600 bg-gray-50 rounded-xl p-3"
-    }, formatDisplayDate(target.endDate), " · 오전 8시 ~ 오후 6시"), renderConfirmCheck('visitDate')),
+    }, React.createElement("strong", { className: "text-gray-800" }, courierVisitDateDisplay), " · ", React.createElement("strong", { className: "text-gray-800" }, "오전 8시 ~ 오후 6시"), courierVisitDateShifted && React.createElement("span", {
+      className: "block text-xs text-gray-500 font-bold mt-1"
+    }, "* 반납일(", formatDisplayDate(target.endDate), ")이 주말/공휴일이라 다음 평일로 옮겨졌어요")), renderConfirmCheck('visitDate')),
     // 주의사항 분단
-    React.createElement("div", null, React.createElement("h4", {
-      className: "text-sm font-bold text-red-600 flex items-center gap-1.5 mb-1.5"
+    React.createElement("div", {
+      className: "border-2 border-red-200 bg-red-50/40 rounded-2xl p-3.5"
+    }, React.createElement("h4", {
+      className: "text-sm font-bold text-red-600 flex items-center gap-1.5 mb-2"
     }, "⚠️ 주의사항"), React.createElement("p", {
-      className: "text-sm text-gray-700 bg-red-50 rounded-xl p-3 leading-relaxed break-keep"
+      className: "text-sm text-gray-700 bg-white rounded-xl p-3 leading-relaxed break-keep border border-red-100"
     }, "고객님의 과실로 픽업을 하지 못한 경우 ", React.createElement("strong", {
       className: "text-red-600"
     }, "대여연장 비용 1일(15,000~20,000원)"), "이 발생해요."), React.createElement("ul", {
@@ -9137,7 +9308,7 @@ React.createElement("div", {
       className: blocked ? 'text-gray-300 fill-current' : 'text-yellow-400 fill-current'
     }), React.createElement("span", {
       className: `font-bold text-[12px] ml-1 ${blocked ? 'text-gray-400' : 'text-gray-700'}`
-    }, "5.0"), React.createElement("span", {
+    }, (phone.reviews + myReviews.filter(r => r.model === phone.name).length) > 0 && getModelRating(phone.name) || "신규"), (phone.reviews + myReviews.filter(r => r.model === phone.name).length) > 0 && getModelRating(phone.name) && React.createElement("span", {
       className: `text-[11px] font-medium ml-1 ${blocked ? 'text-gray-400' : 'text-gray-400'}`
     }, "(", (phone.reviews + myReviews.filter(r => r.model === phone.name).length).toLocaleString(), ")"))), React.createElement("div", {
       className: "mt-auto pt-3"
@@ -10486,18 +10657,7 @@ React.createElement("div", {
     }), "네이버 지도로 위치 보기", React.createElement(Icons.ExternalLink, {
       size: 12
     })) : null, React.createElement("button", {
-      onClick: () => {
-        // [NEW] 이 공연으로 예약 시작: 수령방법 미선택, 주소 공란, 일정명=공연명 자동 세팅
-        setShowConcertModal(false);
-        setUserInfo(u => ({
-          ...u,
-          address: '',
-          detailAddress: '',
-          scheduleName: c.artist || ''
-        }));
-        handleRentalStart(null, { start: c._start, end: c._end || c._start });
-        if (c._start) setCurrentMonth(new Date(c._start.getFullYear(), c._start.getMonth(), 1)); // [NEW] 공연 달로 캘린더 자동 이동
-      },
+      onClick: () => startConcertReservation(c),
       className: "w-full py-3 rounded-xl font-bold bg-blue-500 text-white hover:bg-blue-600 shadow-md transition-colors flex items-center justify-center gap-2 text-sm"
     }, React.createElement(Icons.Ticket, {
       size: 16
@@ -11925,7 +12085,7 @@ React.createElement("div", {
   }, "수령·반납 방법 변경 안내"), React.createElement("p", {
     className: "text-xs text-gray-500 text-center leading-relaxed mb-5"
   }, "수령 및 반납 방법 변경은 홈페이지에서 직접 처리할 수 없어요.\n카카오톡 채널로 문의해주시면 확인 후 변경해드릴게요!"), React.createElement("a", {
-    href: "http://pf.kakao.com/_kiQkG/chat",
+    href: "https://pf.kakao.com/_kiQkG/chat",
     target: "_blank",
     rel: "noopener",
     onClick: () => setShowMethodChangeNotice(false),
