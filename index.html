@@ -3960,6 +3960,15 @@ var PhoneRentalApp = () => {
   var hasPendingRequest = (item, category) => getLinkedRequests(item).some(r => r.category === category && r.status === '예약신청');
   // [NEW] 처리중(예약신청 상태)인 신청건 자체를 반환 — 주소변경 등 신청 내용을 고객에게 보여줄 때 사용
   var getPendingRequest = (item, category) => getLinkedRequests(item).find(r => r.category === category && r.status === '예약신청') || null;
+  // [NEW] 방문택배 중복 신청 방지 — 취소/환불된 건을 뺀 방문택배 신청건(상태 무관: 신청·반품 모두)을 반환
+  var getCourierRequest = item => getLinkedRequests(item).find(r => r.category === '방문택배신청' && !/취소|환불/.test(r.status || '')) || null;
+  // [NEW] 방문택배 신청건 상태: 관리자가 '반품'(또는 확정/완료)으로 바꾸면 신청완료, 그 전(예약신청)은 결제 대기
+  var isCourierRequestDone = req => /반품|확정|완료/.test(req.status || '');
+  // [NEW] 방문택배 방문 예정일 — 신청 시 scheduleName에 적어둔 "방문 예정일: 26년 10월 12일"을 우선 사용
+  var getCourierVisitDate = (req, res) => {
+    var m = String(req.scheduleName || '').match(/방문 예정일:\s*([^\n(]+)/);
+    return (m && parseResDate(m[1])) || nextCourierAvailableDate(res ? res.endDate : req.endDate);
+  };
   // 표시용 리스트: 원예약(+연결된 신청 내포) 먼저, 그다음 원예약과 매칭 안 된 신청건(구버전 등 예외 케이스만)
   var displayReservations = (() => {
     var all = lookupResult || [];
@@ -4317,6 +4326,11 @@ var PhoneRentalApp = () => {
       alert("포장 안내사항을 확인해주세요.");
       return;
     }
+    // [NEW] 같은 예약으로 이미 방문택배를 신청했다면 다시 접수하지 않음
+    if (getCourierRequest(courierTargetItem)) {
+      alert("이미 방문택배를 신청한 예약이에요. 신청 내역을 확인해주세요.");
+      return;
+    }
     setIsSubmitting(true);
     var target = courierTargetItem;
     // [NEW] 방문 예정일은 기본적으로 예약 반납일이지만, 그날이 주말/공휴일이면 우체국이 수거를 못 하므로
@@ -4348,7 +4362,9 @@ var PhoneRentalApp = () => {
       if (error) throw error;
       // [NEW] 방문택배 신청 접수 즉시 안내 알림톡 발송 (베스트에포트 — 실패해도 신청 자체는 이미 접수된 상태로 둠)
       sendAppAlimtalk('courier_pickup', target.phone, {
-        '#{반납일}': visitDateDisplay,
+        '#{이름}': target.name || lookupName || '',
+        '#{연락처}': target.phone || lookupPhone || '',
+        '#{주소}': fullVisitAddress,
         '#{금액}': orderData.totalPrice.toLocaleString()
       });
       handleRefresh(); // [NEW] 방문택배 신청 후 예약내역 자동 새로고침
@@ -5324,7 +5340,7 @@ var PhoneRentalApp = () => {
   }, "예금주: 한승윤"), React.createElement("p", {
     className: "text-sm font-bold text-blue-600 tracking-tight"
   }, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
-    onClick: () => copyToClipboard("1002000000000"),
+    onClick: () => copyToClipboard("3333209712773"),
     className: "text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
   }, "복사")), React.createElement("p", {
     className: "text-[10px] text-gray-400 mt-2 text-center"
@@ -6948,6 +6964,62 @@ React.createElement("div", {
       });
     }
   };
+  // [NEW] 방문택배 신청 내역 카드 — 신청(결제 대기) / 반품(신청완료·방문 예정 안내)
+  var renderCourierRequestCard = (res, req, key) => {
+    var done = isCourierRequestDone(req);
+    var visit = getCourierVisitDate(req, res);
+    var visitText = visit ? `${String(visit.getFullYear()).slice(2)}년 ${visit.getMonth() + 1}월 ${visit.getDate()}일(${'일월화수목금토'[visit.getDay()]})` : formatDisplayDate(res.endDate);
+    var amount = Number(req.totalPrice) || 5000;
+    var row = (label, value, valueClass) => React.createElement("div", {
+      className: "flex justify-between gap-3"
+    }, React.createElement("span", {
+      className: "text-gray-400 shrink-0"
+    }, label), React.createElement("span", {
+      className: `text-right font-bold break-keep ${valueClass || 'text-gray-700'}`
+    }, value));
+    return React.createElement("div", {
+      key: key,
+      className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
+    }, React.createElement("div", {
+      className: "flex justify-between items-center mb-3"
+    }, React.createElement("h3", {
+      className: "font-bold text-gray-800 text-sm flex items-center gap-1.5"
+    }, React.createElement(Icons.Truck, {
+      size: 16,
+      className: "text-blue-500"
+    }), "방문택배 신청 내역"), React.createElement("span", {
+      className: `text-[11px] font-bold px-2 py-0.5 rounded-md ${done ? 'bg-green-100 text-green-700' : ''}`,
+      style: done ? undefined : { background: '#FFF4DB', color: '#8A5300' }
+    }, done ? '신청완료' : '신청 · 결제 대기')), React.createElement("div", {
+      className: "space-y-1.5 text-xs"
+    }, row('대여모델', res.model || '-'), row('방문 주소', req.address || '-'), !done && row('방문 예정일', `${visitText} · 오전 8시~오후 6시`), row('결제 금액', done ? `${amount.toLocaleString()}원 (입금 확인)` : `${amount.toLocaleString()}원`, done ? null : 'text-blue-500')), done ? React.createElement("div", {
+      className: "bg-green-50 border border-green-100 rounded-2xl p-3.5 mt-3 text-xs text-green-700 leading-relaxed break-keep"
+    }, React.createElement("p", {
+      className: "font-bold"
+    }, "기사님 방문 예정"), React.createElement("p", {
+      className: "text-[15px] font-bold text-green-800 mt-0.5"
+    }, visitText), React.createElement("p", {
+      className: "mt-0.5"
+    }, "오전 8시 ~ 오후 6시 사이에 방문해요. 기기를 포장해서 문 앞에 두시면 기사님이 수거해가요.")) : React.createElement(React.Fragment, null, React.createElement("div", {
+      className: "rounded-2xl p-3.5 mt-3 text-xs leading-relaxed break-keep",
+      style: { background: '#FFF4DB', color: '#8A5300', border: '1px solid #FBE3B0' }
+    }, React.createElement("p", {
+      className: "font-bold"
+    }, "결제가 필요해요"), React.createElement("p", {
+      className: "mt-0.5"
+    }, "방문택배 비용 ", React.createElement("strong", null, amount.toLocaleString(), "원"), "을 입금해주세요. 입금이 확인되면 방문 일정이 확정돼요.")), React.createElement("div", {
+      className: "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200 mt-2"
+    }, React.createElement("div", {
+      className: "text-left"
+    }, React.createElement("p", {
+      className: "text-[10px] text-gray-400 mb-0.5"
+    }, "예금주: 한승윤"), React.createElement("p", {
+      className: "text-sm font-bold text-gray-800"
+    }, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
+      onClick: () => copyToClipboard("3333209712773"),
+      className: "text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
+    }, "복사"))));
+  };
   // [NEW] 예약조회 게이트: 미조회 → 조회폼 / 조회완료 → 예약선택 / 선택완료 → null(호출부가 본문 렌더)
   // [NEW] 부가옵션 4종 공용 안내문구
   var GATE_TEXT = {
@@ -7049,7 +7121,40 @@ React.createElement("div", {
     // [NEW] 취소/환불은 예약 하나당 평생 1건만 — 상태 무관하게 이미 신청 이력이 있으면 제외
     !getLinkedRequests(r).some(x => x.category === '취소신청') :
     // [NEW] 주소변경은 이미 처리중인 신청이 있어도 다시 신청할 수 있게 허용 (목록에서 배지로만 안내)
-    serviceType === 'address' ? true : !hasPendingRequest(r, pendingCategory));
+    serviceType === 'address' ? true :
+    // [NEW] 방문택배는 예약당 1번만 — 신청·반품 상태 모두 다시 신청 불가 (취소/환불된 건만 제외)
+    serviceType === 'courier' ? !getCourierRequest(r) : !hasPendingRequest(r, pendingCategory));
+    // [NEW] 방문택배 신청 내역 — 방문 예정일이 아직 지나지 않은 신청건을 카드로 보여줌 (반납 당일에도 계속 표시)
+    var courierExisting = serviceType === 'courier' ? eligibleReservationsBase.map(res => ({
+      res: res,
+      req: getCourierRequest(res)
+    })).filter(x => {
+      if (!x.req) return false;
+      var visit = getCourierVisitDate(x.req, x.res);
+      return !visit || visit >= getKSTTodayStart();
+    }) : [];
+    var courierExistingSection = courierExisting.length > 0 ? React.createElement("div", {
+      className: "space-y-3"
+    }, courierExisting.map((x, i) => renderCourierRequestCard(x.res, x.req, 'courier-req-' + i)), React.createElement("p", {
+      className: "text-[11px] text-gray-400 text-center leading-relaxed break-keep"
+    }, "이미 방문택배를 신청했어요. 같은 예약은 한 번만 신청할 수 있어요.")) : null;
+    if (availableReservations.length === 0 && courierExistingSection) {
+      return React.createElement("div", {
+        className: "animate-slide-in space-y-6"
+      }, header, courierExistingSection, React.createElement("div", {
+        className: "text-center"
+      }, React.createElement("button", {
+        onClick: () => {
+          setLookupResult(null);
+          setLookupName('');
+          setLookupPhone('');
+        },
+        className: "text-[11px] font-bold text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors shadow-sm"
+      }, React.createElement(Icons.RefreshCw, {
+        size: 10,
+        className: "inline mr-1"
+      }), " 다른 정보로 조회하기")));
+    }
     if (availableReservations.length === 0) {
       return React.createElement("div", {
         className: "animate-slide-in space-y-6"
@@ -7080,7 +7185,7 @@ React.createElement("div", {
     if (!serviceTarget) {
       return React.createElement("div", {
         className: "animate-slide-in space-y-6"
-      }, header, React.createElement("div", {
+      }, header, courierExistingSection, React.createElement("div", {
         className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100"
       }, React.createElement("div", {
         className: "flex justify-between items-center mb-4 pb-2 border-b border-gray-100"
@@ -9129,7 +9234,7 @@ React.createElement("div", {
     }, "예금주: 한승윤"), React.createElement("p", {
       className: "text-sm font-bold text-gray-800"
     }, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
-      onClick: () => copyToClipboard("1002000000000"),
+      onClick: () => copyToClipboard("3333209712773"),
       className: "text-xs bg-white text-blue-500 border border-blue-200 px-3 py-1.5 rounded-lg font-bold shadow-sm active:scale-95 transition-all hover:bg-blue-50"
     }, "복사")) : React.createElement("div", {
       className: "text-left space-y-3"
