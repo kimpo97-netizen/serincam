@@ -1345,6 +1345,7 @@ var PhoneRentalApp = () => {
   // page=venue, page=recommend → 홈 화면의 해당 섹션으로 스크롤
   var PAGE_PARAM_MAP = {
     mypage: { activeNav: 'my', viewMode: 'myPage' },
+    privacy: { activeNav: 'home', viewMode: 'privacyPage' }, // [NEW] 개인정보처리방침 전용 페이지
     lookup: { activeNav: 'mypage', viewMode: 'lookup' },
     qna: { activeNav: 'qna', viewMode: 'qna' },
     faq: { activeNav: 'qna', viewMode: 'qna' },
@@ -1540,6 +1541,8 @@ var PhoneRentalApp = () => {
   var [follows, setFollows] = useState({ x: false, insta: false });
   var [followIds, setFollowIds] = useState({ x: '', insta: '' });
   var FOLLOW_DISCOUNT = 4000;
+  // [NEW] 팔로우 할인 공개 여부 (2026-10-14 사장님 요청으로 잠시 숨김). true 로 바꾸면 예약 1단계 팔로우 할인·모델 카드 최대 할인가·패키지 가격에 다시 반영
+  var FOLLOW_DISCOUNT_ENABLED = false;
   var FOLLOW_ACCOUNTS = {
     x: { label: 'X', handle: '@serin_cam', url: 'https://x.com/serin_cam' },
     insta: { label: '인스타', handle: '@serincam.official', url: 'https://www.instagram.com/serincam.official/' }
@@ -1584,7 +1587,7 @@ var PhoneRentalApp = () => {
     }
     setSt('pending');
   };
-  var getFollowDiscount = () => (follows.x ? FOLLOW_DISCOUNT : 0) + (follows.insta ? FOLLOW_DISCOUNT : 0);
+  var getFollowDiscount = () => !FOLLOW_DISCOUNT_ENABLED ? 0 : (follows.x ? FOLLOW_DISCOUNT : 0) + (follows.insta ? FOLLOW_DISCOUNT : 0);
   // 예약 저장용 문구 — 관리자 리뷰 알림톡 판별(카카오맵/블로그/트위터/홈페이지 포함 여부)과 겹치지 않게 '트위터' 단어는 쓰지 않음
   var getFollowText = () => {
     var parts = [];
@@ -1733,7 +1736,7 @@ var PhoneRentalApp = () => {
     var el = document.getElementById(id);
     if (box && el) box.scrollTo({ top: el.offsetTop - box.offsetTop - 8, behavior: 'smooth' });
   };
-  var [showPrivacy, setShowPrivacy] = useState(initialPageParam === 'privacy'); // [NEW] ?page=privacy 로 바로 열기 (카카오 심사용 처리방침 URL)
+  var [showPrivacy, setShowPrivacy] = useState(false);
   var [showDeliveryInfo, setShowDeliveryInfo] = useState(false);
   var [showReturnInfo, setShowReturnInfo] = useState(false);
   var [showInsuranceInfo, setShowInsuranceInfo] = useState(false);
@@ -2687,7 +2690,7 @@ var PhoneRentalApp = () => {
   // 화면에 보이는 '최대 할인가'(getPackagePrice)는 리뷰·팔로우 할인을 모두 받았을 때 = 1일 요금 − 14,000원
   // 반납일 = 공연일 다음 날부터 가장 빠른 평일(공휴일 제외) → getReturnDate(공연일, 'post')와 동일
   // [NEW] 팔로우 할인 포함 — 리뷰 7,000 + 계좌이체 1,000 + 팔로우(X·인스타) 8,000
-  var PACKAGE_DISCOUNT = 16000;
+  var PACKAGE_DISCOUNT = 8000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0); // 팔로우 할인 숨김 중이면 8,000원
   var PACKAGE_VENUE_FEE = 2000;
   var PACKAGE_REVIEW_DAYS = 5;
   var getPackagePrice = phone => phone.basePrice - PACKAGE_DISCOUNT + PACKAGE_VENUE_FEE;
@@ -7245,7 +7248,7 @@ React.createElement("div", {
     opts = opts || {};
     var spec = PHONE_SPECS[phone.id] || {};
     var original = phone.basePrice + 15000;
-    var maxDiscount = 2000 + 5000 + 1000 + FOLLOW_DISCOUNT * 2; // 리뷰 2개(간편+SNS 2,000+5,000) + 계좌이체(1,000) + 팔로우 2개(X·인스타) 최대 할인 기준
+    var maxDiscount = 2000 + 5000 + 1000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0); // 리뷰 2개(간편+SNS 2,000+5,000) + 계좌이체(1,000) + 팔로우 2개(X·인스타) 최대 할인 기준
     var discount = Math.max(0, phone.basePrice - maxDiscount);
     var percent = Math.round((original - discount) / original * 100);
     var reviewCount = phone.reviews + myReviews.filter(r => r.model === phone.name).length;
@@ -8600,6 +8603,81 @@ React.createElement("div", {
     }), " 더 궁금한 점은 카카오톡 문의"));
   };
   // [NEW] 로그아웃 방법 전용 페이지 (기존 로그아웃 안내 팝업과 동일한 내용, 페이지로 분리)
+  // [NEW] 개인정보처리방침 본문 (푸터 팝업·전용 페이지 공용)
+  var renderPrivacyContent = () => React.createElement(React.Fragment, null, React.createElement("div", {
+    className: "bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4"
+  }, React.createElement("p", {
+    className: "font-bold text-gray-700 mb-1"
+  }, "📢 요약 안내"), React.createElement("p", null, "세린캠은 고객님의 개인정보를 소중히 다루며, 렌탈 서비스 제공 및 반납 확인 목적 외에는 절대 사용하지 않습니다.")), React.createElement("div", null, React.createElement("h4", {
+    className: "font-bold text-gray-800 mb-1.5 text-sm"
+  }, "1. 수집하는 개인정보 항목"), React.createElement("p", {
+    className: "mb-1"
+  }, "원활한 렌탈 서비스 신청 및 상담을 위해 아래 정보를 수집합니다."), React.createElement("ul", {
+    className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
+  }, React.createElement("li", null, React.createElement("strong", null, "필수항목:"), " 성명, 휴대전화번호, 배송지 주소, 신분증 사본(주민번호 뒷자리 마스킹 필수), 계좌번호"), React.createElement("li", null, React.createElement("strong", null, "결제정보:"), " 카드사명, 결제승인 내역 등"), React.createElement("li", null, React.createElement("strong", null, "카카오 로그인 이용 시:"), " 카카오로부터 이름, 휴대전화번호, 배송지 정보(수령인명, 배송지 주소, 전화번호), 회원 식별값을 제공받습니다. (예약자 성함·연락처·배송지 주소 자동 입력 및 예약 내역 조회에 사용)"))), React.createElement("div", null, React.createElement("h4", {
+    className: "font-bold text-gray-800 mb-1.5 text-sm"
+  }, "2. 개인정보의 수집 및 이용 목적"), React.createElement("ul", {
+    className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
+  }, React.createElement("li", null, "렌탈 계약 체결, 기기 배송/회수, 요금 정산"), React.createElement("li", null, "고객 상담, 본인 확인, 분쟁 해결"), React.createElement("li", null, "신상품 안내 및 이벤트 정보 제공 (마케팅 동의 시)"))), React.createElement("div", null, React.createElement("h4", {
+    className: "font-bold text-gray-800 mb-1.5 text-sm"
+  }, "3. 개인정보의 보유 및 이용 기간"), React.createElement("p", null, "원칙적으로 ", React.createElement("strong", null, "서비스 목적 달성(반납 완료 및 정산 완료) 시 지체 없이 파기"), "합니다."), React.createElement("p", {
+    className: "mt-1 text-[11px] text-gray-500"
+  }, "단, 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다."), React.createElement("p", {
+    className: "mt-1 text-[11px] text-gray-500"
+  }, "카카오 로그인으로 제공받은 정보는 회원 탈퇴(카카오 연결 해제) 요청 시 지체 없이 파기합니다.")), React.createElement("div", null, React.createElement("h4", {
+    className: "font-bold text-gray-800 mb-1.5 text-sm"
+  }, "4. 개인정보의 제3자 제공"), React.createElement("p", null, "회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 이용자가 사전에 동의하거나 법령/수사기관의 적법한 요청이 있는 경우는 예외로 합니다.")), React.createElement("div", null, React.createElement("h4", {
+    className: "font-bold text-gray-800 mb-1.5 text-sm"
+  }, "5. 개인정보 처리 위탁 (배송)"), React.createElement("p", {
+    className: "mb-2"
+  }, "서비스 이행을 위해 아래와 같이 배송 업무를 위탁하고 있습니다."), React.createElement("div", {
+    className: "border border-gray-200 rounded-lg overflow-hidden text-[10px]"
+  }, React.createElement("div", {
+    className: "bg-gray-100 p-1.5 flex font-bold text-gray-700 text-center"
+  }, React.createElement("div", {
+    className: "w-1/2 border-r border-gray-200"
+  }, "수탁 업체"), React.createElement("div", {
+    className: "w-1/2"
+  }, "위탁 업무")), React.createElement("div", {
+    className: "p-1.5 flex text-center text-gray-600 border-b border-gray-100"
+  }, React.createElement("div", {
+    className: "w-1/2 border-r border-gray-100"
+  }, "우체국 택배"), React.createElement("div", {
+    className: "w-1/2"
+  }, "택배 배송")), React.createElement("div", {
+    className: "p-1.5 flex text-center text-gray-600"
+  }, React.createElement("div", {
+    className: "w-1/2 border-r border-gray-100"
+  }, "카카오 T 퀵"), React.createElement("div", {
+    className: "w-1/2"
+  }, "퀵 서비스 배송")))), React.createElement("div", null, React.createElement("h4", {
+    className: "font-bold text-gray-800 mb-1.5 text-sm"
+  }, "6. 이용자의 권리"), React.createElement("p", null, "이용자는 언제든지 본인의 개인정보 열람, 정정, 삭제, 처리정지를 요청할 수 있으며, 카카오톡 채널을 통해 접수 가능합니다.")), React.createElement("div", null, React.createElement("h4", {
+    className: "font-bold text-gray-800 mb-1.5 text-sm"
+  }, "7. 개인정보 보호책임자"), React.createElement("ul", {
+    className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
+  }, React.createElement("li", null, React.createElement("strong", null, "담당자:"), " 한승윤 (대표)"), React.createElement("li", null, React.createElement("strong", null, "문의처:"), " 카카오톡 채널 [세린] 또는 홈페이지 하단 참조"))), React.createElement("div", {
+    className: "text-[10px] text-gray-400 pt-2 border-t border-gray-100"
+  }, "※ 귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부 시 렌탈 서비스 이용이 제한될 수 있습니다."));
+  // [NEW] 개인정보처리방침 전용 페이지 (serincam.com/?page=privacy) — 카카오 심사 등에 처리방침 주소로 안내
+  var renderPrivacyPage = () => React.createElement("div", {
+    className: "animate-slide-in space-y-6"
+  }, React.createElement("div", {
+    className: "flex items-center gap-3 mb-6"
+  }, React.createElement("button", {
+    onClick: () => { setViewMode('dashboard'); updateURLForNav('home'); },
+    className: "p-2 bg-white rounded-full shadow-sm"
+  }, React.createElement(Icons.ChevronLeft, {
+    className: "w-5 h-5 text-gray-600"
+  })), React.createElement("div", null, React.createElement("h2", {
+    className: "text-xl font-bold text-gray-800"
+  }, "개인정보처리방침"), React.createElement("p", {
+    className: "text-[11px] text-gray-400 mt-0.5"
+  }, "세린캠 · 시행일 2026년 10월 14일"))), React.createElement("div", {
+    className: "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 text-xs text-gray-600 leading-relaxed space-y-5"
+  }, renderPrivacyContent()), React.createElement("p", {
+    className: "text-[11px] text-gray-400 text-center leading-relaxed"
+  }, "세린캠 · 대표 한승윤 · 사업자등록번호 396-12-02483", React.createElement("br", null), "인천광역시 검단구 이음4로6, KR법조타워 710호"));
   var renderLogoutGuidePage = () => React.createElement("div", {
     className: "animate-slide-in space-y-6"
   }, React.createElement("div", {
@@ -10321,11 +10399,12 @@ React.createElement("div", {
   }, "이용약관"), React.createElement("span", {
     className: "w-px h-3 bg-gray-300 self-center"
   }), React.createElement("button", {
-    onClick: () => setShowPrivacy(true),
+    // [NEW] 푸터는 팝업 대신 처리방침 전용 페이지(?page=privacy)로 이동 (예약 중 '내용 보기'는 팝업 유지)
+    onClick: () => { setViewMode('privacyPage'); updateURLForNav('privacy'); window.scrollTo(0, 0); },
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'courierPicker' && renderServiceGate('courier', "방문택배 신청", "bg-blue-50 text-blue-500"), viewMode === 'backupChoice' && renderBackupChoicePage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'courierApply' && renderCourierApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'tipsGuide' && renderTipsGuidePage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && renderExtensionPage(), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'courierPicker' && renderServiceGate('courier', "방문택배 신청", "bg-blue-50 text-blue-500"), viewMode === 'backupChoice' && renderBackupChoicePage(), viewMode === 'backup' && renderBackupPage(), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'courierApply' && renderCourierApplyPage(), viewMode === 'manual' && renderManualPage(), viewMode === 'tipsGuide' && renderTipsGuidePage(), viewMode === 'pickupGuide' && renderPickupGuidePage(), viewMode === 'returnGuide' && renderReturnGuidePage(), viewMode === 'logoutGuide' && renderLogoutGuidePage(), viewMode === 'privacyPage' && renderPrivacyPage(), viewMode === 'venuePickup' && renderVenuePickupPage(), viewMode === 'checklist' && renderChecklistPage(), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && renderQnaPage(), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && renderCameraSettingsPage(), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && renderAllModelsPage(), viewMode === 'rental' && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "flex gap-2 mb-6"
   }, [1, 2, 3, 4].map(i => React.createElement("div", {
     key: i,
@@ -10635,7 +10714,7 @@ React.createElement("div", {
     className: "text-gray-800"
   }, "'세린캠'"), "을 추가하고 사진과 함께 상세한 후기를 남겨주세요!"), React.createElement("p", {
     className: "text-[11px] text-green-600 bg-white px-2 py-1 rounded-lg border border-green-100 inline-block mt-2 font-medium"
-  }, "나만의 덕질 일상을 꼼꼼하게 기록하시는 분들께 추천드려요! ✍️")))), renderFollowSection()))), step === 2 && React.createElement("div", {
+  }, "나만의 덕질 일상을 꼼꼼하게 기록하시는 분들께 추천드려요! ✍️")))), FOLLOW_DISCOUNT_ENABLED && renderFollowSection()))), step === 2 && React.createElement("div", {
     className: "space-y-8 animate-slide-in"
   }, React.createElement("div", null, React.createElement("h2", {
     className: "text-2xl font-bold text-gray-800 whitespace-nowrap tracking-tight"
@@ -12704,61 +12783,7 @@ React.createElement("div", {
     size: 24
   }))), React.createElement("div", {
     className: "overflow-y-auto flex-1 text-xs text-gray-600 leading-relaxed space-y-5 pr-2 terms-scroll"
-  }, React.createElement("div", {
-    className: "bg-gray-50 p-3 rounded-xl border border-gray-100 mb-4"
-  }, React.createElement("p", {
-    className: "font-bold text-gray-700 mb-1"
-  }, "📢 요약 안내"), React.createElement("p", null, "세린캠은 고객님의 개인정보를 소중히 다루며, 렌탈 서비스 제공 및 반납 확인 목적 외에는 절대 사용하지 않습니다.")), React.createElement("div", null, React.createElement("h4", {
-    className: "font-bold text-gray-800 mb-1.5 text-sm"
-  }, "1. 수집하는 개인정보 항목"), React.createElement("p", {
-    className: "mb-1"
-  }, "원활한 렌탈 서비스 신청 및 상담을 위해 아래 정보를 수집합니다."), React.createElement("ul", {
-    className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
-  }, React.createElement("li", null, React.createElement("strong", null, "필수항목:"), " 성명, 휴대전화번호, 배송지 주소, 신분증 사본(주민번호 뒷자리 마스킹 필수), 계좌번호"), React.createElement("li", null, React.createElement("strong", null, "결제정보:"), " 카드사명, 결제승인 내역 등"), React.createElement("li", null, React.createElement("strong", null, "카카오 로그인 이용 시:"), " 카카오로부터 이름, 휴대전화번호, 회원 식별값을 제공받습니다. (예약자 성함·연락처 자동 입력 및 예약 내역 조회에 사용)"))), React.createElement("div", null, React.createElement("h4", {
-    className: "font-bold text-gray-800 mb-1.5 text-sm"
-  }, "2. 개인정보의 수집 및 이용 목적"), React.createElement("ul", {
-    className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
-  }, React.createElement("li", null, "렌탈 계약 체결, 기기 배송/회수, 요금 정산"), React.createElement("li", null, "고객 상담, 본인 확인, 분쟁 해결"), React.createElement("li", null, "신상품 안내 및 이벤트 정보 제공 (마케팅 동의 시)"))), React.createElement("div", null, React.createElement("h4", {
-    className: "font-bold text-gray-800 mb-1.5 text-sm"
-  }, "3. 개인정보의 보유 및 이용 기간"), React.createElement("p", null, "원칙적으로 ", React.createElement("strong", null, "서비스 목적 달성(반납 완료 및 정산 완료) 시 지체 없이 파기"), "합니다."), React.createElement("p", {
-    className: "mt-1 text-[11px] text-gray-500"
-  }, "단, 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다."), React.createElement("p", {
-    className: "mt-1 text-[11px] text-gray-500"
-  }, "카카오 로그인으로 제공받은 정보는 회원 탈퇴(카카오 연결 해제) 요청 시 지체 없이 파기합니다.")), React.createElement("div", null, React.createElement("h4", {
-    className: "font-bold text-gray-800 mb-1.5 text-sm"
-  }, "4. 개인정보의 제3자 제공"), React.createElement("p", null, "회사는 원칙적으로 고객의 개인정보를 외부에 제공하지 않습니다. 단, 이용자가 사전에 동의하거나 법령/수사기관의 적법한 요청이 있는 경우는 예외로 합니다.")), React.createElement("div", null, React.createElement("h4", {
-    className: "font-bold text-gray-800 mb-1.5 text-sm"
-  }, "5. 개인정보 처리 위탁 (배송)"), React.createElement("p", {
-    className: "mb-2"
-  }, "서비스 이행을 위해 아래와 같이 배송 업무를 위탁하고 있습니다."), React.createElement("div", {
-    className: "border border-gray-200 rounded-lg overflow-hidden text-[10px]"
-  }, React.createElement("div", {
-    className: "bg-gray-100 p-1.5 flex font-bold text-gray-700 text-center"
-  }, React.createElement("div", {
-    className: "w-1/2 border-r border-gray-200"
-  }, "수탁 업체"), React.createElement("div", {
-    className: "w-1/2"
-  }, "위탁 업무")), React.createElement("div", {
-    className: "p-1.5 flex text-center text-gray-600 border-b border-gray-100"
-  }, React.createElement("div", {
-    className: "w-1/2 border-r border-gray-100"
-  }, "우체국 택배"), React.createElement("div", {
-    className: "w-1/2"
-  }, "택배 배송")), React.createElement("div", {
-    className: "p-1.5 flex text-center text-gray-600"
-  }, React.createElement("div", {
-    className: "w-1/2 border-r border-gray-100"
-  }, "카카오 T 퀵"), React.createElement("div", {
-    className: "w-1/2"
-  }, "퀵 서비스 배송")))), React.createElement("div", null, React.createElement("h4", {
-    className: "font-bold text-gray-800 mb-1.5 text-sm"
-  }, "6. 이용자의 권리"), React.createElement("p", null, "이용자는 언제든지 본인의 개인정보 열람, 정정, 삭제, 처리정지를 요청할 수 있으며, 카카오톡 채널을 통해 접수 가능합니다.")), React.createElement("div", null, React.createElement("h4", {
-    className: "font-bold text-gray-800 mb-1.5 text-sm"
-  }, "7. 개인정보 보호책임자"), React.createElement("ul", {
-    className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
-  }, React.createElement("li", null, React.createElement("strong", null, "담당자:"), " 한승윤 (대표)"), React.createElement("li", null, React.createElement("strong", null, "문의처:"), " 카카오톡 채널 [세린] 또는 홈페이지 하단 참조"))), React.createElement("div", {
-    className: "text-[10px] text-gray-400 pt-2 border-t border-gray-100"
-  }, "※ 귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나, 거부 시 렌탈 서비스 이용이 제한될 수 있습니다.")), React.createElement("div", {
+  }, renderPrivacyContent()), React.createElement("div", {
     className: "mt-4 pt-3 border-t border-gray-100"
   }, React.createElement("button", {
     onClick: () => setShowPrivacy(false),
