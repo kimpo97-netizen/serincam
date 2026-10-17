@@ -7692,7 +7692,10 @@ React.createElement("div", {
       if (!start) return true;
       var todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
-      return start > todayStart;
+      if (start > todayStart) return true;
+      // [NEW] 모델 변경: 확정된 예약은 대여 시작일(오늘 포함)이 지나도 기기번호 배정 전이면 변경 가능
+      // (공연장 당일 수령처럼 아직 기기를 내주지 않은 예약. 발송된 예약은 선택 시 송장번호로 따로 막음)
+      return serviceType === 'change' && (r.status || '').includes('확정') && !isDeviceAssignedModel(r.model);
     }) : serviceType === 'courier' ? eligibleReservations.filter(function (r) {
       // [NEW] 방문택배는 반납일 기준(한국/KST) 정확히 1일 전인 날에만 신청 가능
       var end = parseResDate(r.endDate);
