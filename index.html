@@ -2734,8 +2734,8 @@ var PhoneRentalApp = () => {
       ...u,
       address: c.venue || '', // 수령 장소 = 공연장 (일반 공연장 수령 예약과 같은 저장 방식)
       detailAddress: '공연장 수령',
-      scheduleName: c.artist || '', // 일정명 = 공연명 (변경 불가)
-      account: '' // 환불 불가 상품이라 환불 계좌는 받지 않음
+      scheduleName: c.artist || '' // 일정명 = 공연명 (변경 불가)
+      // [NEW] 환불 계좌는 일반 예약처럼 3단계에서 입력받으므로 이미 입력한 값은 그대로 둠
     }));
   };
   var selectPackageDate = d => {
@@ -3291,7 +3291,7 @@ var PhoneRentalApp = () => {
     }, {
       id: 'g24',
       name: '갤럭시 S24울트라',
-      basePrice: 38000,
+      basePrice: 35000,
       addPrice: 10000,
       tag: '24U',
       reviews: 543
@@ -11141,9 +11141,10 @@ React.createElement("div", {
     }
   }))), isPackage && React.createElement("p", {
     className: "text-[11px] text-gray-400 mt-1 ml-1"
-  }, "콘서트 패키지는 공연명으로 고정돼요."), !isPackage && React.createElement("div", null, React.createElement("label", {
+  }, "콘서트 패키지는 공연명으로 고정돼요."), React.createElement("div", null, React.createElement("label", {
+    // [NEW] 콘서트 패키지도 일반 예약처럼 환불 계좌를 받음
     className: "text-xs font-bold text-gray-500 ml-1"
-  }, "계좌번호 (환불/취소 시 환급)"), React.createElement("div", {
+  }, "계좌번호 (환불/취소 시 환급)"),React.createElement("div", {
     className: "flex items-center bg-gray-50 rounded-xl px-3 mt-1"
   }, React.createElement(Icons.CreditCard, {
     size: 18,
@@ -11561,8 +11562,8 @@ React.createElement("div", {
         }
       }
       if (step === 3) {
-        // [NEW] 콘서트 패키지는 환불 불가 상품이라 환불 계좌를 받지 않음
-        if (!userInfo.name || !userInfo.phone || !userInfo.scheduleName || !isPackage && !userInfo.account || !userInfo.address || !userInfo.detailAddress) {
+        // [NEW] 콘서트 패키지도 환불 계좌 필수 (일반 예약과 동일)
+        if (!userInfo.name || !userInfo.phone || !userInfo.scheduleName || !userInfo.account || !userInfo.address || !userInfo.detailAddress) {
           showAppToast(t('errInfo'));
           return;
         }
