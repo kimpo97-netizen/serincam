@@ -5794,8 +5794,10 @@ var PhoneRentalApp = () => {
     var meta = user && user.app_metadata || {};
     return (meta.providers || [meta.provider]).includes('kakao');
   };
-  // [NEW] 2026-10-23 카카오 동의항목(이름·전화번호·배송지) 승인 → 로그인할 때 함께 요청
-  var KAKAO_SCOPES = 'name phone_number shipping_address';
+  // [NEW] 2026-10-23 카카오 동의항목 승인. 로그인할 때는 이름·전화번호만 요청하고,
+  // 배송지는 '이용 중 동의' 항목이라 택배 수령 고객이 [카카오 배송지 불러오기]를 누를 때만 추가로 요청한다.
+  var KAKAO_SCOPES = 'name phone_number';
+  var KAKAO_SHIPPING_SCOPE = 'shipping_address';
   // [NEW] 예약 도중 카카오 인증: 카카오에 다녀와도 고른 날짜·기종·옵션·입력값이 그대로 남도록 잠깐 저장했다가 되살림
   var BOOKING_RESUME_KEY = 'serincam-booking-resume';
   var saveBookingResume = () => {
@@ -5825,7 +5827,7 @@ var PhoneRentalApp = () => {
         provider: 'kakao',
         options: {
           redirectTo: window.location.origin + window.location.pathname + (resume ? '?resume=booking' : '?page=mypage'),
-          scopes: KAKAO_SCOPES
+          scopes: KAKAO_SCOPES + (opts && opts.shipping ? ' ' + KAKAO_SHIPPING_SCOPE : '')
         }
       });
       if (error) throw error;
@@ -6026,7 +6028,7 @@ var PhoneRentalApp = () => {
       style: {
         marginTop: 2
       }
-    }, "이름·연락처·배송지 자동 입력, 인증번호 필요 없어요"), React.createElement("button", {
+    }, "이름·연락처 자동 입력, 인증번호 필요 없어요"), React.createElement("button", {
       type: "button",
       onClick: () => handleKakaoLogin({
         resumeBooking: true
@@ -9500,7 +9502,7 @@ React.createElement("div", {
     className: "mb-1"
   }, "원활한 렌탈 서비스 신청 및 상담을 위해 아래 정보를 수집합니다."), React.createElement("ul", {
     className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
-  }, React.createElement("li", null, React.createElement("strong", null, "필수항목:"), " 성명, 휴대전화번호, 배송지 주소, 신분증 사본(주민번호 뒷자리 마스킹 필수), 계좌번호"), React.createElement("li", null, React.createElement("strong", null, "결제정보:"), " 카드사명, 결제승인 내역 등")), React.createElement("div", { className: "mt-3 p-3 rounded-xl border border-blue-100 bg-blue-50/50" }, React.createElement("p", { className: "font-bold text-gray-800 text-xs mb-1" }, "[회원가입 시 수집 항목] 회원가입은 카카오 로그인으로만 진행됩니다"), React.createElement("p", { className: "text-[11px] text-gray-500 mb-2" }, "회원가입(카카오 로그인) 시 이용자의 동의를 받아 카카오로부터 아래 정보를 제공받습니다."), React.createElement("table", { className: "w-full text-[10px] text-gray-600 bg-white rounded-lg overflow-hidden" }, React.createElement("tbody", null, React.createElement("tr", { className: "bg-gray-100 text-gray-700" }, React.createElement("th", { className: "p-1.5 text-left" }, "수집 항목"), React.createElement("th", { className: "p-1.5 whitespace-nowrap" }, "구분"), React.createElement("th", { className: "p-1.5 text-left" }, "수집·이용 목적")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "이름"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "필수"), React.createElement("td", { className: "p-1.5" }, "회원 식별, 예약자 확인, 예약 내역 조회")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "카카오계정(전화번호)"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "필수"), React.createElement("td", { className: "p-1.5" }, "본인 확인, 예약·반납 안내(알림톡) 발송")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "배송지정보(수령인명, 배송지 주소, 전화번호)"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "필수"), React.createElement("td", { className: "p-1.5" }, "대여 기기 택배 발송, 예약 시 배송지 자동 입력")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "회원 식별값(카카오)"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "필수"), React.createElement("td", { className: "p-1.5" }, "회원 로그인 유지 및 계정 연결")))), React.createElement("p", { className: "text-[10px] text-gray-400 mt-2" }, "보유·이용 기간: 회원 탈퇴(카카오 연결 해제) 시까지. 단, 관계 법령에 따라 보존이 필요한 정보는 해당 기간 동안 보관합니다. 동의를 거부할 수 있으나, 필수 항목에 동의하지 않으면 회원가입이 제한되며 비회원 예약은 계속 이용할 수 있습니다."))), React.createElement("div", null, React.createElement("h4", {
+  }, React.createElement("li", null, React.createElement("strong", null, "필수항목:"), " 성명, 휴대전화번호, 배송지 주소, 신분증 사본(주민번호 뒷자리 마스킹 필수), 계좌번호"), React.createElement("li", null, React.createElement("strong", null, "결제정보:"), " 카드사명, 결제승인 내역 등")), React.createElement("div", { className: "mt-3 p-3 rounded-xl border border-blue-100 bg-blue-50/50" }, React.createElement("p", { className: "font-bold text-gray-800 text-xs mb-1" }, "[회원가입 시 수집 항목] 회원가입은 카카오 로그인으로만 진행됩니다"), React.createElement("p", { className: "text-[11px] text-gray-500 mb-2" }, "회원가입(카카오 로그인) 시 이용자의 동의를 받아 카카오로부터 아래 정보를 제공받습니다. 배송지정보는 가입 시가 아니라 필요할 때(이용 중) 별도 동의를 받습니다."), React.createElement("table", { className: "w-full text-[10px] text-gray-600 bg-white rounded-lg overflow-hidden" }, React.createElement("tbody", null, React.createElement("tr", { className: "bg-gray-100 text-gray-700" }, React.createElement("th", { className: "p-1.5 text-left" }, "수집 항목"), React.createElement("th", { className: "p-1.5 whitespace-nowrap" }, "구분"), React.createElement("th", { className: "p-1.5 text-left" }, "수집·이용 목적")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "이름"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "필수"), React.createElement("td", { className: "p-1.5" }, "회원 식별, 예약자 확인, 예약 내역 조회")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "카카오계정(전화번호)"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "필수"), React.createElement("td", { className: "p-1.5" }, "본인 확인, 예약·반납 안내(알림톡) 발송")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "배송지정보(수령인명, 배송지 주소, 전화번호)"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "이용 중 동의"), React.createElement("td", { className: "p-1.5" }, "택배 수령 선택 후 [카카오 배송지 불러오기] 시에만 동의를 받아 대여 기기 택배 발송 및 배송지 자동 입력에 사용")), React.createElement("tr", { className: "border-t border-gray-100" }, React.createElement("td", { className: "p-1.5 font-bold text-gray-700" }, "회원 식별값(카카오)"), React.createElement("td", { className: "p-1.5 text-blue-500 font-bold text-center whitespace-nowrap" }, "필수"), React.createElement("td", { className: "p-1.5" }, "회원 로그인 유지 및 계정 연결")))), React.createElement("p", { className: "text-[10px] text-gray-400 mt-2" }, "보유·이용 기간: 회원 탈퇴(카카오 연결 해제) 시까지. 단, 관계 법령에 따라 보존이 필요한 정보는 해당 기간 동안 보관합니다. 동의를 거부할 수 있으나, 필수 항목에 동의하지 않으면 회원가입이 제한되며 비회원 예약은 계속 이용할 수 있습니다. 배송지정보에 동의하지 않아도 주소를 직접 입력해 예약할 수 있습니다."))), React.createElement("div", null, React.createElement("h4", {
     className: "font-bold text-gray-800 mb-1.5 text-sm"
   }, "2. 개인정보의 수집 및 이용 목적"), React.createElement("ul", {
     className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
@@ -12109,7 +12111,18 @@ React.createElement("div", {
     className: "animate-fade-in"
   }, React.createElement("label", {
     className: "text-xs font-bold text-gray-500 ml-1"
-  }, "예약자 주소 (배송지)"), React.createElement("div", {
+  }, "예약자 주소 (배송지)"), deliveryMethod === 'post' && !isPackage && kakaoProfile && !kakaoProfile.address && !IS_FILE_PREVIEW && React.createElement("button", {
+    // [NEW] 배송지 '이용 중 동의': 필요할 때만 카카오 배송지 동의를 받아 자동 입력 (예약 진행 상태는 유지)
+    type: "button",
+    onClick: () => handleKakaoLogin({
+      resumeBooking: true,
+      shipping: true
+    }),
+    style: KAKAO_YELLOW_STYLE,
+    className: "w-full mt-1 mb-2 py-3 rounded-xl text-sm font-bold active:scale-95 transition-all flex items-center justify-center gap-2"
+  }, React.createElement(KakaoSymbol, {
+    size: 16
+  }), "카카오 배송지 불러오기"), React.createElement("div", {
     className: "flex gap-2 mt-1"
   }, React.createElement("input", {
     type: "text",
