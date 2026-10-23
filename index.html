@@ -316,7 +316,10 @@ var KAKAO_LOGIN_PREVIEW = (function () {
     return false;
   }
 })();
-var KAKAO_LOGIN_ENABLED = KAKAO_LOGIN_PREVIEW || window.location.hostname === 'kimpo97-netizen.github.io' && window.location.pathname.indexOf('/supabase_test') === 0 || /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
+// [NEW] 2026-10-23 사장님 요청으로 모든 주소에서 공개 (PC에서 파일을 바로 연 미리보기 포함).
+// 단, 파일 미리보기(file://)는 카카오 로그인 후 돌아올 주소가 없어 버튼을 누르면 안내만 띄운다(handleKakaoLogin).
+var KAKAO_LOGIN_ENABLED = true;
+var IS_FILE_PREVIEW = window.location.protocol === 'file:';
 var sbAuth = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     storageKey: 'serincam-kakao-auth',
@@ -2319,12 +2322,16 @@ var PhoneRentalApp = () => {
         onKeyDown: e => {
           if (e.key === 'Enter') checkFollow(k);
         },
-        placeholder: acc.label + " 아이디 (예: @serin_fan)",
+        placeholder: acc.label + " 아이디 (예: serin_fan)",
         className: `flex-1 min-w-0 px-3 py-2 rounded-lg border bg-white text-sm focus:outline-none ${st === 'ok' ? 'border-emerald-300' : st === 'invalid' ? 'border-red-300' : ''}`,
         // 입력칸 테두리도 브랜드 컬러 (X 검정 / 인스타 핑크)
-        style: st === 'ok' || st === 'invalid' ? undefined : {
+        size: 1, // 모바일에서 입력칸 기본 폭(약 20자) 때문에 확인 버튼이 밀려나지 않게
+        style: Object.assign({
+          minWidth: 0,
+          width: '100%'
+        }, st === 'ok' || st === 'invalid' ? {} : {
           borderColor: k === 'x' ? '#111' : '#E1306C'
-        }
+        })
       }), React.createElement("button", {
         type: "button",
         disabled: st === 'checking',
@@ -2372,7 +2379,8 @@ var PhoneRentalApp = () => {
   var [otpError, setOtpError] = useState('');
   // [NEW] 카카오 로그인 회원
   var [kakaoUser, setKakaoUser] = useState(null); // 로그인한 카카오 계정 (없으면 null)
-  var [kakaoProfile, setKakaoProfile] = useState(null); // 연결된 예약자 정보 { name, phone(숫자만) }
+  var [kakaoProfile, setKakaoProfile] = useState(null);
+  var [showWhyVerify, setShowWhyVerify] = useState(false); // [NEW] '왜 인증해야 하나요?' 안내 팝업 // 연결된 예약자 정보 { name, phone(숫자만) }
   var [kakaoLinkOpen, setKakaoLinkOpen] = useState(false); // 첫 로그인 시 예약자 정보 연결 팝업
   var [kakaoLinkName, setKakaoLinkName] = useState('');
   var [kakaoLinkPhone, setKakaoLinkPhone] = useState('');
@@ -4130,7 +4138,7 @@ var PhoneRentalApp = () => {
       setKakaoUser(user);
       if (handledUserId === user.id) return; // 토큰 갱신 때마다 다시 불러오지 않음
       handledUserId = user.id;
-      loadKakaoProfile(user);
+      loadKakaoProfile(user, session.provider_token || null);
     };
     var {
       data
@@ -4146,7 +4154,60 @@ var PhoneRentalApp = () => {
     var t = setTimeout(() => setKakaoLinkCooldown(prev => Math.max(0, prev - 1)), 1000);
     return () => clearTimeout(t);
   }, [kakaoLinkCooldown]);
-  // [NEW] 예약 3단계: 카카오 회원이면 성함·연락처 자동 입력 + 같은 번호면 인증완료 처리
+  // [NEW] 카카오 인증 후 예약 화면으로 돌아왔을 때 저장해 둔 예약 진행 상태 되살리기 (30분 이내)
+  useEffect(() => {
+    var params;
+    try {
+      params = new URLSearchParams(window.location.search);
+    } catch (e) {
+      return;
+    }
+    if (params.get('resume') !== 'booking') return;
+    try {
+      var url = new URL(window.location.href);
+      url.searchParams.delete('resume');
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+    } catch (e) {}
+    var raw = null;
+    try {
+      raw = sessionStorage.getItem(BOOKING_RESUME_KEY);
+      sessionStorage.removeItem(BOOKING_RESUME_KEY);
+    } catch (e) {}
+    if (!raw) return;
+    var saved;
+    try {
+      saved = JSON.parse(raw, (k, v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(v) ? new Date(v) : v);
+    } catch (e) {
+      return;
+    }
+    if (!saved || !saved.s || Date.now() - saved.at > 30 * 60 * 1000) return;
+    var s = saved.s;
+    var setters = {
+      activeNav: setActiveNav, viewMode: setViewMode, step: setStep, activeTab: setActiveTab, selectedPhone: setSelectedPhone,
+      startDate: setStartDate, endDate: setEndDate, usageDays: setUsageDays, concertDateHint: setConcertDateHint,
+      insurance: setInsurance, batteryCount: setBatteryCount, deliveryMethod: setDeliveryMethod, returnMethod: setReturnMethod,
+      dataBackup: setDataBackup, discounts: setDiscounts, follows: setFollows, followIds: setFollowIds, paymentMethod: setPaymentMethod,
+      userInfo: setUserInfo, quickFeeAddress: setQuickFeeAddress, quickFeeResult: setQuickFeeResult, agreements: setAgreements,
+      selectedVenue: setSelectedVenue, selectedConcert: setSelectedConcert, isPackage: setIsPackage, packageConcert: setPackageConcert,
+      currentMonth: setCurrentMonth, isManualAddress: setIsManualAddress
+    };
+    Object.keys(setters).forEach(k => {
+      if (s[k] !== undefined) setters[k](s[k]);
+    });
+    // 확인 중이던 팔로우 확인은 다시 눌러야 하므로 '확인 중'만 처음 상태로
+    if (s.followStatus) setFollowStatus(Object.fromEntries(Object.entries(s.followStatus).map(([k, v]) => [k, v === 'checking' ? 'idle' : v])));
+    window.scrollTo(0, 0);
+  }, []);
+  // [NEW] 예약 3단계: 카카오 회원이면 성함·연락처(+택배 수령이면 배송지) 자동 입력 + 같은 번호면 인증완료 처리
+  useEffect(() => {
+    if (step !== 3 || !kakaoProfile || !kakaoProfile.address || isPackage || deliveryMethod !== 'post' || userInfo.address) return;
+    setUserInfo(prev => prev.address ? prev : {
+      ...prev,
+      zipcode: kakaoProfile.address.zipcode,
+      address: kakaoProfile.address.address,
+      detailAddress: prev.detailAddress || kakaoProfile.address.detail
+    });
+  }, [step, kakaoProfile, deliveryMethod, isPackage]);
   useEffect(() => {
     if (step !== 3 || !kakaoProfile) return;
     var digits = userInfo.phone.replace(/[^0-9]/g, '');
@@ -5733,14 +5794,38 @@ var PhoneRentalApp = () => {
     var meta = user && user.app_metadata || {};
     return (meta.providers || [meta.provider]).includes('kakao');
   };
-  var handleKakaoLogin = async () => {
+  // [NEW] 2026-10-23 카카오 동의항목(이름·전화번호·배송지) 승인 → 로그인할 때 함께 요청
+  var KAKAO_SCOPES = 'name phone_number shipping_address';
+  // [NEW] 예약 도중 카카오 인증: 카카오에 다녀와도 고른 날짜·기종·옵션·입력값이 그대로 남도록 잠깐 저장했다가 되살림
+  var BOOKING_RESUME_KEY = 'serincam-booking-resume';
+  var saveBookingResume = () => {
+    try {
+      sessionStorage.setItem(BOOKING_RESUME_KEY, JSON.stringify({
+        at: Date.now(),
+        s: {
+          activeNav, viewMode, step, activeTab, selectedPhone, startDate, endDate, usageDays, concertDateHint,
+          insurance, batteryCount, deliveryMethod, returnMethod, dataBackup, discounts, follows, followIds,
+          followStatus, paymentMethod, userInfo, quickFeeAddress, quickFeeResult, agreements, selectedVenue,
+          selectedConcert, isPackage, packageConcert, currentMonth, isManualAddress
+        }
+      }));
+    } catch (e) {}
+  };
+  var handleKakaoLogin = async opts => {
+    if (IS_FILE_PREVIEW) {
+      showAppToast('PC 파일 미리보기에서는 카카오 로그인을 할 수 없어요.\nserincam.com에서 이용해주세요.');
+      return;
+    }
+    var resume = !!(opts && opts.resumeBooking);
+    if (resume) saveBookingResume();
     try {
       var {
         error
       } = await sbAuth.auth.signInWithOAuth({
         provider: 'kakao',
         options: {
-          redirectTo: window.location.origin + window.location.pathname + '?page=mypage'
+          redirectTo: window.location.origin + window.location.pathname + (resume ? '?resume=booking' : '?page=mypage'),
+          scopes: KAKAO_SCOPES
         }
       });
       if (error) throw error;
@@ -5749,23 +5834,63 @@ var PhoneRentalApp = () => {
       showAppToast('카카오 로그인을 시작하지 못했어요.\n잠시 후 다시 시도해주세요. 🚨');
     }
   };
-  // 카카오 계정에 연결된 예약자 정보를 불러와 내 예약을 조회한다. 없으면 연결 팝업을 띄운다.
-  var loadKakaoProfile = async user => {
+  // [NEW] 카카오 서버의 이름·전화번호(카카오 인증 번호)·기본 배송지로 회원 정보 등록 (super-worker kakao 모드)
+  var syncKakaoProfile = async providerToken => {
     try {
       var {
         data,
         error
-      } = await sbAuth.from('customer_profiles').select('name, phone').eq('user_id', user.id).maybeSingle();
+      } = await sbAuth.functions.invoke(LINK_KAKAO_FN, {
+        body: {
+          mode: 'kakao',
+          providerToken: providerToken
+        }
+      });
+      if (error || !data || !data.ok) {
+        console.warn('카카오 정보 연결 실패 → 기존 인증 방식으로 진행:', error || data);
+        return null;
+      }
+      return data.profile;
+    } catch (e) {
+      console.warn('카카오 정보 연결 오류:', e);
+      return null;
+    }
+  };
+  // 회원 정보(표 행 또는 함수 응답)를 화면용 { name, phone, address{...} } 로 맞춤
+  var applyKakaoProfile = p => {
+    var addr = p.address ? {
+      zipcode: p.zipcode || '',
+      address: p.address || '',
+      detail: p.addressDetail || p.address_detail || ''
+    } : null;
+    var phone = formatPhone(p.phone);
+    setKakaoProfile({
+      name: p.name,
+      phone: p.phone,
+      address: addr
+    });
+    setLookupName(p.name);
+    setLookupPhone(phone);
+    handleLookup(p.name, phone, true);
+  };
+  // 카카오 계정에 연결된 예약자 정보를 불러와 내 예약을 조회한다.
+  // 막 로그인해서 카카오 토큰이 있으면 카카오 정보로 바로 등록하고, 그래도 정보가 없으면 기존 연결 팝업(성함·연락처 인증)을 띄운다.
+  var loadKakaoProfile = async (user, providerToken) => {
+    try {
+      if (providerToken) {
+        var synced = await syncKakaoProfile(providerToken);
+        if (synced) {
+          applyKakaoProfile(synced);
+          return;
+        }
+      }
+      var {
+        data,
+        error
+      } = await sbAuth.from('customer_profiles').select('*').eq('user_id', user.id).maybeSingle();
       if (error) throw error;
       if (data) {
-        var phone = formatPhone(data.phone);
-        setKakaoProfile({
-          name: data.name,
-          phone: data.phone
-        });
-        setLookupName(data.name);
-        setLookupPhone(phone);
-        handleLookup(data.name, phone, true);
+        applyKakaoProfile(data);
       } else {
         setKakaoProfile(null);
         openKakaoLink();
@@ -5873,6 +5998,92 @@ var PhoneRentalApp = () => {
     }
   };
   // 카카오 버튼 블록 (예약 조회·마이페이지 공용). 연결 전이면 '정보 연결하기' 버튼으로 바뀐다.
+  // [NEW] 예약 3단계 상단: 카카오로 인증하고 예약하기 (인증 전) / 카카오 인증 완료 배너 (인증 후)
+  var isKakaoVerifiedBooking = () => !!(kakaoProfile && isPhoneVerified && userInfo.phone.replace(/[^0-9]/g, '') === kakaoProfile.phone);
+  var renderKakaoVerifyCard = () => {
+    if (!KAKAO_LOGIN_ENABLED) return null;
+    if (isKakaoVerifiedBooking()) {
+      return React.createElement("div", {
+        className: "flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl p-3"
+      }, React.createElement(Icons.CheckCircle, {
+        size: 16,
+        className: "text-green-600 shrink-0"
+      }), React.createElement("p", {
+        className: "text-xs font-bold text-green-700 leading-snug break-keep"
+      }, "카카오 인증 완료 · 정보가 자동 입력됐어요"));
+    }
+    if (kakaoUser) return null; // 로그인은 했지만 카카오 정보가 아직 없음 → 아래 연락처 인증으로 진행
+    return React.createElement("div", null, React.createElement("div", {
+      className: "rounded-2xl p-4",
+      style: {
+        background: '#FFFBE6',
+        border: '1px solid #FDE68A'
+      }
+    }, React.createElement("p", {
+      className: "text-sm font-bold text-gray-800"
+    }, "카카오로 인증하면 바로 입력돼요"), React.createElement("p", {
+      className: "text-[11px] text-gray-500 mb-3 break-keep",
+      style: {
+        marginTop: 2
+      }
+    }, "이름·연락처·배송지 자동 입력, 인증번호 필요 없어요"), React.createElement("button", {
+      type: "button",
+      onClick: () => handleKakaoLogin({
+        resumeBooking: true
+      }),
+      style: KAKAO_YELLOW_STYLE,
+      className: "w-full py-3.5 rounded-xl font-bold active:scale-95 transition-all flex items-center justify-center gap-2"
+    }, React.createElement(KakaoSymbol, {
+      size: 18
+    }), "카카오로 인증하고 예약하기"), React.createElement("button", {
+      type: "button",
+      onClick: () => setShowWhyVerify(true),
+      className: "w-full text-xs font-bold text-blue-500 underline underline-offset-2",
+      style: {
+        marginTop: 10
+      }
+    }, "왜 인증해야 하나요?")), React.createElement("div", {
+      className: "flex items-center gap-2 mt-4"
+    }, React.createElement("div", {
+      className: "flex-1 bg-gray-200",
+      style: {
+        height: 1
+      }
+    }), React.createElement("span", {
+      className: "text-[11px] text-gray-400"
+    }, "또는 직접 입력하고 카카오톡 인증"), React.createElement("div", {
+      className: "flex-1 bg-gray-200",
+      style: {
+        height: 1
+      }
+    })));
+  };
+  // [NEW] '왜 인증해야 하나요?' 안내 팝업
+  var WHY_VERIFY_ITEMS = [['내 예약을 안전하게 지켜요', '다른 사람이 내 번호로 예약하거나 내 예약 내역을 보는 걸 막아요.'], ['중요한 안내를 정확히 받아요', '예약 확정·발송·반납 안내가 카카오 알림톡으로 가요. 번호가 틀리면 안내를 받을 수 없어요.'], ['비대면 대여라 꼭 필요해요', '얼굴을 보지 않고 기기를 보내드리는 만큼, 본인 확인으로 분실·도용을 막아요.'], ['정보는 예약에만 써요', '광고에 쓰지 않고, 회원 탈퇴 시 바로 지워요.']];
+  var renderWhyVerifyModal = () => React.createElement("div", {
+    className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
+    onClick: () => setShowWhyVerify(false)
+  }, React.createElement("div", {
+    className: "bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl",
+    onClick: e => e.stopPropagation()
+  }, React.createElement("h3", {
+    className: "text-lg font-bold text-gray-800 mb-4"
+  }, "🔒 왜 인증해야 하나요?"), React.createElement("div", {
+    className: "space-y-3"
+  }, WHY_VERIFY_ITEMS.map((it, i) => React.createElement("div", {
+    key: i
+  }, React.createElement("p", {
+    className: "text-sm font-bold text-gray-800"
+  }, i + 1 + ". " + it[0]), React.createElement("p", {
+    className: "text-xs text-gray-500 leading-relaxed break-keep",
+    style: {
+      marginTop: 2
+    }
+  }, it[1])))), React.createElement("button", {
+    type: "button",
+    onClick: () => setShowWhyVerify(false),
+    className: "w-full mt-5 py-3 rounded-xl font-bold bg-gray-100 text-gray-700 active:scale-95 transition-all"
+  }, "확인했어요")));
   var renderKakaoLoginBlock = (withDivider = true) => {
     if (!KAKAO_LOGIN_ENABLED || kakaoProfile) return null;
     var needsLink = !!kakaoUser;
@@ -11717,7 +11928,7 @@ React.createElement("div", {
     className: "text-2xl font-bold text-gray-800"
   }, t('step3Title'))), React.createElement("div", {
     className: "bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
-  }, React.createElement("div", null, React.createElement("label", {
+  }, renderKakaoVerifyCard(), React.createElement("div", null, React.createElement("label", {
     className: "text-xs font-bold text-gray-500 ml-1"
   }, "예약자 성함"), React.createElement("div", {
     className: "flex items-center bg-gray-50 rounded-xl px-3 mt-1"
@@ -11788,17 +11999,7 @@ React.createElement("div", {
     className: `flex-1 min-w-0 text-sm font-bold px-3 py-3 rounded-xl transition-all ${otpCode.length !== 6 || otpVerifying ? 'bg-gray-100 text-gray-400' : 'bg-gray-800 text-white hover:bg-gray-900 active:scale-95'}`
   }, otpVerifying ? '확인중...' : '확인')), otpError && React.createElement("p", {
     className: "text-[11px] text-red-500 font-bold mt-1.5 ml-1"
-  }, otpError), kakaoProfile && isPhoneVerified && userInfo.phone.replace(/[^0-9]/g, '') === kakaoProfile.phone ? React.createElement("p", {
-    className: "text-[11px] text-gray-400 ml-1",
-    style: {
-      marginTop: 6
-    }
-  }, "카카오 계정 정보로 자동 입력됐어요") : KAKAO_LOGIN_ENABLED && !kakaoUser ? React.createElement("p", {
-    className: "text-[11px] text-gray-400 ml-1",
-    style: {
-      marginTop: 6
-    }
-  }, "💡 카카오로 로그인해두면 다음 예약부터 인증 없이 자동 입력돼요") : null, React.createElement("div", null, React.createElement("label", {
+  }, otpError), null, React.createElement("div", null, React.createElement("label", {
     className: "text-xs font-bold text-gray-500 ml-1"
   }, "일정명"), React.createElement("div", {
     className: "flex items-center bg-gray-50 rounded-xl px-3 mt-1"
@@ -13724,7 +13925,7 @@ React.createElement("div", {
   }, "취소"), React.createElement("button", {
     onClick: handleLogoutConfirm,
     className: "flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm"
-  }, "로그아웃")))), kakaoLinkOpen && renderKakaoLinkModal(), isBlogConfirmOpen && (() => {
+  }, "로그아웃")))), kakaoLinkOpen && renderKakaoLinkModal(), showWhyVerify && renderWhyVerifyModal(), isBlogConfirmOpen && (() => {
     // [NEW] 이동 대상에 따라 문구/아이콘 자동 전환 (네이버 블로그 / 카카오맵 / X)
     var url = blogTargetUrl || '';
     var dest = {
