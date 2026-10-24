@@ -564,6 +564,256 @@
 .oh-kvd .row b i{color:#A5ADB3;font-size:11px}
 .oh-kvd .note{font-size:11px;color:#828C94;margin-top:6px}
 </style>
+
+<style id="serincam-ohouse-motion">
+/* [NEW] 2026-10-24 배너 모션그래픽 (펭귄 대신) */
+.ohm{position:absolute;right:2.4em;top:50%;transform:translateY(-50%);width:6.4em;height:5.4em;z-index:1}
+.ohm-pin .ring{position:absolute;left:50%;bottom:.55em;width:3.6em;height:1.1em;margin-left:-1.8em;border-radius:50%;border:2px solid rgba(46,170,120,.45);animation:ohmRing 2.2s ease-out infinite}
+.ohm-pin .ring.r2{animation-delay:1.1s}
+.ohm-pin i{position:absolute;left:50%;bottom:.95em;margin-left:-.7em;font-size:2.4em;color:#2EAA78;animation:ohmBounce 2.2s ease-in-out infinite}
+.ohm-pin .dot{position:absolute;width:.45em;height:.45em;border-radius:50%;background:#fff;opacity:.9}
+@keyframes ohmRing{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.5);opacity:0}}
+@keyframes ohmBounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-.35em)}60%{transform:translateY(-.1em)}}
+.ohm-steps{display:flex;align-items:center;justify-content:center;gap:.35em}
+.ohm-steps span{width:1.85em;height:1.85em;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:.85em;color:#C9A14A;box-shadow:0 .2em .5em -.2em rgba(0,0,0,.15);animation:ohmPop 3.6s ease-in-out infinite both}
+.ohm-steps span:nth-child(2){animation-delay:.45s}.ohm-steps span:nth-child(3){animation-delay:.9s;background:#2EAA78;color:#fff}
+.ohm-steps b{width:.6em;height:2px;background:rgba(201,161,74,.5);border-radius:2px}
+@keyframes ohmPop{0%,8%{transform:scale(.6);opacity:.35}18%{transform:scale(1.12);opacity:1}26%,82%{transform:scale(1);opacity:1}100%{transform:scale(.6);opacity:.35}}
+.ohb-coupon::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);animation:ohmShine 3.2s ease-in-out infinite}
+.ohb-coupon{overflow:hidden}
+@keyframes ohmShine{0%,55%{left:-60%}85%,100%{left:120%}}
+@media (prefers-reduced-motion:reduce){.ohm *,.ohb-coupon::after{animation:none!important}}
+/* 대여일수 추가 금액 팻말 */
+.oh-daysign{position:absolute;top:-11px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:800;color:#fff;background:#2F3438;border-radius:8px;padding:1px 6px;line-height:15px;z-index:2}
+.oh-daysign::after{content:'';position:absolute;left:50%;bottom:-4px;margin-left:-4px;border:4px solid transparent;border-top-color:#2F3438;border-bottom:0}
+/* 결제금액 상세 (할인 내역 들여쓰기) */
+.oh-price-rows .sub{display:block;margin:2px 0 6px 2px;padding-left:12px;border-left:2px solid #EAEDEF}
+.oh-price-rows .sub div{padding:3px 0;font-size:13px}
+.oh-price-rows .sub div b{font-weight:500;color:#828C94}
+/* 4단계 정보 줄 */
+.oh-info div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14px}
+.oh-info span{color:#828C94;flex-shrink:0}
+.oh-info b{font-weight:600;color:#2F3438;text-align:right;word-break:keep-all}
+.oh-warn{background:#F7F8FA;border-radius:6px;padding:14px 14px 14px 30px;font-size:13px;line-height:1.6;color:#5E666C}
+.oh-warn li{list-style:disc;margin-bottom:4px}
+.oh-warn strong{color:#2F3438}
+</style>
+
+<style id="serincam-ohouse-guides">
+/* [NEW] 2026-10-24 안내 페이지 (수령·반납·백업·꿀팁·카메라·로그아웃·픽업존·FAQ) */
+.ohg{margin:0 -20px}
+.ohg-sec{padding:20px;border-bottom:8px solid #F7F8FA}
+.ohg-sec.last{border-bottom:0}
+.ohg-h{font-size:17px;font-weight:700;color:#2F3438;margin-bottom:12px}
+.ohg-note{font-size:13px;color:#5E666C;background:#F7F8FA;border-radius:6px;padding:11px 12px;line-height:1.55;word-break:keep-all}
+.ohg-note.r{color:#F04452;background:#FFF1F1}
+.ohg-note b,.ohg-note strong{color:inherit;font-weight:800}
+.ohg-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.ohg-tbl th{font-weight:600;color:#828C94;text-align:left;padding:6px 0;border-bottom:1px solid #EAEDEF}
+.ohg-tbl td{padding:10px 4px 10px 0;border-bottom:1px solid #F1F3F5;vertical-align:top;word-break:keep-all}
+.ohg-tbl td:first-child{font-weight:700;white-space:nowrap}
+.ohg-tbl .p{color:#0A8CBC;font-weight:700;white-space:nowrap}
+.ohg-tbl tr{cursor:pointer}
+.ohg-tabs{display:flex;gap:16px;border-bottom:1px solid #EAEDEF;margin:0 -20px 16px;padding:0 20px;overflow-x:auto;scrollbar-width:none}
+.ohg-tabs::-webkit-scrollbar{display:none}
+.ohg-tabs button{padding:9px 0 10px;font-size:15px;font-weight:600;color:#2F3438;border-bottom:2px solid transparent;flex-shrink:0;transition:color .2s,border-color .2s}
+.ohg-tabs button.on{color:#13A8DE;border-bottom-color:#13A8DE}
+.ohg-dt{display:flex;align-items:center;gap:10px;margin-bottom:10px;animation:ohUp .25s ease both}
+.ohg-dt .ic{width:42px;height:42px;border-radius:13px;background:#E7F6FC;color:#13A8DE;display:grid;place-items:center;flex-shrink:0}
+.ohg-dt b{font-size:16px;color:#2F3438}
+.ohg-dt em{font-style:normal;font-size:11px;font-weight:700;color:#0A8CBC;background:#E7F6FC;border-radius:4px;padding:2px 6px;margin-left:6px}
+.ohg-dt small{display:block;font-size:12px;color:#828C94;margin-top:1px}
+.ohg-ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:#5E666C;word-break:keep-all}
+.ohg-ul li{list-style:disc;margin-bottom:2px}
+.ohg-ul strong{color:#2F3438}
+.ohg-ul .warn{color:#F04452}
+.ohg-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;border-radius:4px;padding:13px;font-size:14px;font-weight:700;margin-top:14px}
+.ohg-btn.g{background:#F5F7F8;color:#2F3438}.ohg-btn.s{background:#13A8DE;color:#fff}.ohg-btn.o{border:1px solid #13A8DE;color:#0A8CBC;background:#fff}.ohg-btn.k{background:#FEE500;color:#191919}
+.ohg-radio{display:flex;gap:12px;width:100%;text-align:left;padding:16px 4px;border-bottom:1px solid #EAEDEF;transition:background .2s}
+.ohg-radio .rd{width:22px;height:22px;border-radius:50%;border:1.5px solid #C2C8CC;flex-shrink:0;margin-top:1px;box-sizing:border-box;transition:border .18s}
+.ohg-radio.on{background:#E7F6FC;margin:0 -20px;padding:16px 24px;width:calc(100% + 40px)}
+.ohg-radio.on .rd{border:6.5px solid #13A8DE;animation:ohCheck .3s}
+.ohg-radio b{font-size:15px;color:#2F3438}
+.ohg-radio p{margin:4px 0 0;font-size:13px;color:#5E666C;line-height:1.5;word-break:keep-all}
+.ohg-radio em{font-style:normal;font-size:11px;font-weight:700;color:#fff;background:#FF7777;border-radius:4px;padding:1px 6px;margin-left:6px}
+.ohg-radio .pr{margin-left:auto;font-weight:800;white-space:nowrap;color:#2F3438}
+.ohg-ban{background:#8E6CEF;color:#fff;border-radius:8px;padding:18px 16px}
+.ohg-ban small{font-size:12px;opacity:.88}.ohg-ban b{display:block;font-size:18px;margin-top:3px}
+.ohg-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 0;border-bottom:1px solid #F1F3F5}
+.ohg-row .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.ohg-row b{display:block;font-size:15px;color:#2F3438}.ohg-row span{font-size:12px;color:#828C94}
+.ohg-row .ch{margin-left:auto;color:#C2C8CC}
+.ohg-set{display:flex;align-items:flex-start;gap:10px;padding:13px 0;border-bottom:1px solid #F1F3F5}
+.ohg-set .n{width:22px;height:22px;border-radius:50%;background:#13A8DE;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex-shrink:0}
+.ohg-set .tx{flex:1;min-width:0}
+.ohg-set b{font-size:14px;color:#2F3438}
+.ohg-set p{margin:2px 0 0;font-size:12px;color:#828C94;line-height:1.5;word-break:keep-all}
+.ohg-set p strong{color:#2F3438}
+.ohg-set .v{font-size:12px;font-weight:700;color:#0A8CBC;background:#E7F6FC;border-radius:4px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
+.ohg-set .v.r{color:#F04452;background:#FFF1F1}
+.ohg-path{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:6px}
+.ohg-path span{font-size:12px;background:#F5F7F8;border-radius:4px;padding:3px 7px;color:#2F3438}
+.ohg-path span.r{color:#F04452;font-weight:700}
+.ohg-path i{font-size:9px;color:#C2C8CC}
+.ohg-quick{margin-top:14px;padding-top:14px;border-top:1px dashed #EAEDEF}
+.ohg-quick .q{display:flex;align-items:center;justify-content:space-between;width:100%;background:#F5F7F8;border-radius:4px;padding:11px 12px;font-size:13px;text-align:left}
+/* 자주 묻는 질문: 칩 → 밑줄 탭, 검색창 회색 */
+.ohfaq-tabs{display:flex;gap:16px;overflow-x:auto;border-bottom:1px solid #EAEDEF;margin:0 -16px 4px;padding:0 20px;scrollbar-width:none}
+.ohfaq-tabs::-webkit-scrollbar{display:none}
+.ohfaq-tabs button{flex-shrink:0;padding:9px 0 10px;font-size:14px;font-weight:600;color:#2F3438;border-bottom:2px solid transparent}
+.ohfaq-tabs button.on{color:#13A8DE;border-bottom-color:#13A8DE}
+</style>
+
+<style id="serincam-ohouse-final">
+/* [NEW] 2026-10-24 배너 3장 티켓 모션 */
+.ohm-tk .tk{position:absolute;right:.4em;top:.9em;width:5.2em;height:3.2em;border-radius:.45em;-webkit-mask:radial-gradient(circle at 0 50%,transparent .4em,#000 .42em) left/51% 100% no-repeat,radial-gradient(circle at 100% 50%,transparent .4em,#000 .42em) right/51% 100% no-repeat;mask:radial-gradient(circle at 0 50%,transparent .4em,#000 .42em) left/51% 100% no-repeat,radial-gradient(circle at 100% 50%,transparent .4em,#000 .42em) right/51% 100% no-repeat}
+.ohm-tk .t2{background:#D9D1F7;transform:rotate(10deg) translate(.5em,.2em)}
+.ohm-tk .t1{background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8E7BD6;box-shadow:0 .3em .8em -.4em rgba(142,123,214,.5);animation:ohmTk 3s ease-in-out infinite}
+.ohm-tk .t1 i{font-size:1.15em}.ohm-tk .t1 em{font-style:normal;font-size:.5em;font-weight:800;letter-spacing:.12em;margin-top:.2em}
+.ohm-tk .sp{position:absolute;color:#B9A9F0;font-size:.8em;animation:ohmSp 2.4s ease-in-out infinite}
+.ohm-tk .s1{left:.2em;top:.4em}.ohm-tk .s2{right:0;bottom:.2em;animation-delay:1.2s}
+@keyframes ohmTk{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(-2deg) translateY(-.25em)}}
+@keyframes ohmSp{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
+/* 대여일수 팻말: 하늘색 */
+.oh-daysign{background:#13A8DE!important}.oh-daysign::after{border-top-color:#13A8DE!important}
+/* ===== 남은 옛 스타일 페이지 정리 (연장·변경·주소·방문택배·백업 신청, 예약조회, 완료, 추천 등) ===== */
+/* 마지막 카드 아래 회색 띠(잘린 것처럼 보임) 제거 */
+#root .oh-page .animate-slide-in>.bg-white:last-child,#root .oh-page .animate-slide-in>div:last-child>.bg-white:last-child{border-bottom:0!important}
+/* 가운데 큰 동그라미 아이콘 → 숨기고 제목은 왼쪽 정렬 */
+#root .oh-page .w-16.h-16.rounded-full.mx-auto,#root .oh-page .w-20.h-20.rounded-full.mx-auto,#root .oh-page .w-14.h-14.rounded-full.mx-auto{display:none!important}
+#root .oh-page .animate-slide-in>.bg-white>h3.text-center,#root .oh-page .animate-slide-in>.bg-white>.text-center>h3{text-align:left!important;font-size:17px!important}
+/* 라벨 */
+#root .oh-page label.text-xs,#root .oh-page p.text-xs.font-bold.text-gray-500{font-size:13px!important;color:#2F3438!important;margin-left:0!important}
+/* 갤럭시/아이폰 같은 2칸 선택 → 밑줄 탭 */
+#root .oh-page .flex.bg-gray-100.p-1,#root .oh-page .flex.bg-gray-100.p-1\.5{border:0!important;border-bottom:1px solid #EAEDEF!important}
+#root .oh-page .flex.bg-gray-100.p-1>button,#root .oh-page .flex.bg-gray-100.p-1\.5>button{border:0!important;border-bottom:2px solid transparent!important;color:#828C94!important}
+#root .oh-page .flex.bg-gray-100.p-1>button.bg-white,#root .oh-page .flex.bg-gray-100.p-1\.5>button.bg-white{color:#13A8DE!important;border-bottom-color:#13A8DE!important}
+/* 수량(- 1일 +) → 오늘의집 수량 상자 */
+#root .oh-page .flex.items-center.justify-between.bg-gray-50.p-2{background:#fff!important;border:1px solid #DADDE0!important;border-radius:4px!important;padding:0!important;max-width:180px}
+#root .oh-page .flex.items-center.justify-between.bg-gray-50.p-2 button{width:44px;height:40px;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important;font-size:18px}
+/* 하늘색 미리보기 상자 → 연회색 */
+#root .oh-page .bg-blue-50.border,#root .oh-page .bg-sky-50.border{background:#F7F8FA!important;border-color:transparent!important}
+/* 합계 줄: 오늘의집 최종 금액 */
+#root .oh-page .bg-gray-50.rounded-2xl.flex.justify-between,#root .oh-page .bg-gray-50.rounded-xl.flex.justify-between{background:#fff!important;border-top:1px solid #EAEDEF;border-radius:0!important;padding-left:0!important;padding-right:0!important}
+/* 큰 파란 버튼 → 하늘색 4px */
+#root .oh-page button.w-full.py-4,#root .oh-page button.w-full.py-3\.5{border-radius:4px!important;box-shadow:none!important}
+/* 예약 카드(예약 조회·신청 대상) → 얇은 테두리 목록 */
+#root .oh-page .border.border-gray-100.rounded-2xl.p-4.bg-gray-50,#root .oh-page .bg-gray-50.rounded-2xl.border{background:#fff!important;border:1px solid #EAEDEF!important;border-radius:8px!important}
+#root .oh-my .border.border-gray-100.rounded-2xl.p-4.bg-gray-50{background:#fff!important;border:1px solid #EAEDEF!important;border-radius:8px!important}
+/* 초록·보라·노랑 안내 상자 → 연회색, 보라 금액 → 하늘색, 가운데 정렬 설명 → 왼쪽 */
+#root .oh-page .bg-green-50.border,#root .oh-page .bg-purple-50.border,#root .oh-page .bg-yellow-50.border,#root .oh-page .bg-indigo-50.border{background:#F7F8FA!important;border-color:transparent!important}
+#root .oh-page .text-purple-600,#root .oh-page .text-purple-500,#root .oh-page .text-indigo-600{color:#0A8CBC!important}
+#root .oh-page .animate-slide-in>.bg-white>p.text-center,#root .oh-page .animate-slide-in>.bg-white>div>p.text-center{text-align:left!important}
+/* 색칠 배지 → 연한 톤 */
+#root .oh-page .rounded-3xl,#root .oh-page .rounded-\[2rem\]{border-radius:0!important}
+</style>
+
+<style id="serincam-ohouse-final2">
+/* [NEW] 2026-10-24 신청 화면 공통 */
+.ohs-item{display:flex;gap:12px;align-items:center}
+.ohs-item .th{width:56px;height:56px;border-radius:6px;background:#F7F8FA;display:grid;place-items:center;overflow:hidden;flex-shrink:0}
+.ohs-item .th img{width:50px;height:50px;object-fit:contain;transform:scale(1.5)}
+.ohs-item b{display:block;font-size:15px;color:#2F3438}.ohs-item span{font-size:12px;color:#828C94}
+.ohs-info div{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:6px 0}
+.ohs-info span{color:#828C94;flex-shrink:0}.ohs-info b{font-weight:600;color:#2F3438;text-align:right;word-break:keep-all}
+.ohs-fin{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #EAEDEF;margin-top:8px;padding-top:12px;font-size:16px;font-weight:800}
+.ohs-fin b{font-size:21px;color:#13A8DE}
+.ohs-step{display:flex;gap:10px;padding:9px 0}
+.ohs-step .n{width:22px;height:22px;border-radius:50%;background:#13A8DE;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex-shrink:0}
+.ohs-step b{display:block;font-size:14px;color:#2F3438}.ohs-step p{margin:2px 0 0;font-size:12px;color:#828C94;line-height:1.5;word-break:keep-all}
+.ohs-step p strong{color:#2F3438}
+.ohs-inp{width:100%;height:46px;border:1px solid #DADDE0;border-radius:4px;padding:0 12px;font-size:14px;outline:none;background:#fff;margin-top:6px}
+.ohs-inp:focus{border-color:#13A8DE;box-shadow:0 0 0 3px rgba(19,168,222,.15)}
+.ohs-lbl{font-size:13px;font-weight:600;color:#2F3438;margin-top:12px}
+/* 방문택배 신청(기존 구성 유지): 검은 주소 버튼 → 하늘 테두리, 큰 글씨 정리 */
+#root .oh-page .bg-gray-800.text-white{background:#fff!important;color:#0A8CBC!important;border:1px solid #13A8DE!important;box-shadow:none!important;border-radius:4px!important}
+#root .oh-page h2.text-2xl{font-size:20px!important}
+#root .oh-page h3.text-lg{font-size:17px!important}
+#root .oh-page .text-xl.font-extrabold{font-size:17px!important}
+/* 마이페이지 예약 관리: 연한 둥근 사각형 + 같은 색 아이콘 */
+.oh-mgrid .ic2{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:19px}
+</style>
+
+<style id="serincam-ohouse-rescard">
+/* [NEW] 2026-10-24 마이페이지 최근 예약: 오늘의집 주문 카드 */
+.oh-rc2{border:1px solid #EAEDEF;border-radius:8px;padding:14px;animation:ohUp .3s ease both}
+.oh-rc2 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.oh-rc2 .bd{font-size:11px;font-weight:700;border-radius:4px;padding:2px 7px}
+.oh-rc2 .bd.ok{color:#2EAA78;background:#EAF7F0}.oh-rc2 .bd.wait{color:#E8820C;background:#FFF4E5}.oh-rc2 .bd.no{color:#F04452;background:#FFF1F1}
+.oh-rc2 .dt{font-size:12px;color:#A5ADB3}
+.oh-rc2 .rows{margin-top:10px;border-top:1px solid #F1F3F5;padding-top:6px}
+.oh-rc2 .rows div{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:4px 0}
+.oh-rc2 .rows span{color:#828C94;flex-shrink:0}.oh-rc2 .rows b{font-weight:600;text-align:right;word-break:keep-all}
+.oh-rc2 .fin{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #EAEDEF;margin-top:8px;padding-top:10px;font-size:14px;font-weight:800}
+.oh-rc2 .fin b{font-size:18px;color:#13A8DE}
+.oh-rc2 .acc{display:flex;justify-content:space-between;align-items:center;border:1px solid #EAEDEF;border-radius:6px;padding:11px 12px;margin-top:10px}
+.oh-rc2 .acc small{display:block;font-size:11px;color:#828C94}.oh-rc2 .acc b{font-size:14px;color:#2F3438}
+.oh-rc2 .cp{font-size:12px;font-weight:700;color:#0A8CBC;border:1px solid #CDEBF6;border-radius:4px;padding:5px 10px;background:#fff}
+.oh-rc2 .note{font-size:11px;color:#A5ADB3;margin-top:6px}
+.oh-now .fin{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #EAEDEF;margin-top:12px;padding-top:10px;font-size:14px;font-weight:800}
+.oh-now .fin b{font-size:18px;color:#13A8DE}
+.oh-now .acc{display:flex;justify-content:space-between;align-items:center;border:1px solid #EAEDEF;border-radius:6px;padding:11px 12px;margin-top:12px}
+.oh-now .acc small{display:block;font-size:11px;color:#828C94}.oh-now .acc b{font-size:14px;color:#2F3438}
+.oh-now .cp{font-size:12px;font-weight:700;color:#0A8CBC;border:1px solid #CDEBF6;border-radius:4px;padding:5px 10px;background:#fff}
+.oh-now .note{font-size:11px;color:#A5ADB3;margin-top:6px}
+</style>
+
+<style id="serincam-ohouse-myf">
+/* [NEW] 2026-10-24 마이페이지 F안 */
+#root .oh-my .oh-prof{gap:12px;padding:18px 20px}
+#root .oh-my .oh-prof .oh-av{width:46px;height:46px}
+#root .oh-my .oh-prof .nm{font-size:18px}
+#root .oh-my .oh-prof .sb{font-size:12px;margin-top:2px}
+.oh-prof .lo{font-size:12px;color:#828C94;flex-shrink:0;align-self:center}
+.oh-now{margin:0 16px 16px;border:1px solid #EAEDEF;border-radius:8px;padding:14px;animation:ohUp .3s ease both}
+.oh-now .t{display:flex;justify-content:space-between;gap:10px;font-size:14px;font-weight:700}
+.oh-now .t .nm2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oh-now .t .st{color:#13A8DE;flex-shrink:0}.oh-now .t .st.no{color:#F04452}
+.oh-now .m{font-size:12px;color:#828C94;margin-top:3px}
+.oh-trk{display:flex;align-items:center;margin:16px 6px 0}
+.oh-trk .dot{width:10px;height:10px;border-radius:50%;background:#DADDE0;flex-shrink:0;transition:all .3s}
+.oh-trk .dot.on{background:#13A8DE}.oh-trk .dot.cur{box-shadow:0 0 0 4px #E2F5FC}
+.oh-trk .ln{flex:1;height:2px;background:#DADDE0}.oh-trk .ln.on{background:#13A8DE}
+.oh-trk-lb{display:flex;justify-content:space-between;font-size:11px;color:#A5ADB3;margin-top:7px}
+.oh-trk-lb span{width:60px;text-align:center}.oh-trk-lb span:first-child{text-align:left}.oh-trk-lb span:last-child{text-align:right}
+.oh-trk-lb .on{color:#13A8DE;font-weight:700}
+.oh-now .act{display:flex;gap:6px;margin-top:14px}
+.oh-now .act button{flex:1;border:1px solid #EAEDEF;border-radius:4px;padding:9px 0;font-size:12px;font-weight:700;background:#fff;color:#2F3438;transition:background .15s}
+.oh-now .act button:active{background:#F7F9FA}
+.oh-tabs3{display:flex;border-top:1px solid #F1F3F5}
+.oh-tabs3 button{flex:1;padding:13px 0;font-size:13px;font-weight:600;color:#2F3438}
+.oh-tabs3 button+button{border-left:1px solid #F1F3F5}
+.oh-tabs3 b{color:#13A8DE;margin-left:3px}
+.oh-mlist button{display:flex;align-items:center;gap:12px;width:100%;padding:13px 20px;font-size:14px;color:#2F3438;text-align:left}
+.oh-mlist button:active{background:#F7F9FA}
+.oh-mlist i.l{width:20px;text-align:center;font-size:16px;color:#2F3438}
+.oh-mlist .chv{margin-left:auto;color:#C2C8CC}
+</style>
+
+<style id="serincam-ohouse-myd">
+/* [NEW] 2026-10-24 마이페이지 진행 중 예약 (세로 타임라인) */
+.oh-nowhd{display:flex;justify-content:space-between;align-items:center;padding:4px 20px 10px;font-size:16px;font-weight:800;color:#2F3438}
+.oh-now .bdx{font-size:11px;font-weight:700;border-radius:4px;padding:2px 7px;color:#F04452;background:#FFF1F1;flex-shrink:0}
+.oh-vt{margin-top:14px;padding-left:4px}
+.oh-vt>div{position:relative;padding:0 0 14px 22px;font-size:13px;color:#A5ADB3}
+.oh-vt>div:before{content:'';position:absolute;left:0;top:4px;width:10px;height:10px;border-radius:50%;background:#DADDE0;transition:background .3s}
+.oh-vt>div:after{content:'';position:absolute;left:4px;top:16px;bottom:-2px;width:2px;background:#DADDE0}
+.oh-vt>div:last-child:after{display:none}.oh-vt>div:last-child{padding-bottom:0}
+.oh-vt>div.done{color:#2F3438}.oh-vt>div.done:before,.oh-vt>div.done:after{background:#13A8DE}
+.oh-vt>div.on{color:#2F3438;font-weight:700}.oh-vt>div.on:before{background:#13A8DE;box-shadow:0 0 0 4px #E2F5FC}
+.oh-vt small{display:block;font-weight:400;color:#828C94;font-size:12px;margin-top:2px}
+.oh-vt small u{color:#0A8CBC;text-decoration:none;font-weight:700;margin-left:4px;cursor:pointer}
+.oh-mlist small{margin-left:auto;font-size:12px;color:#A5ADB3}
+.oh-mlist small+.chv{margin-left:6px}
+.oh-mlist .tx{flex:1;min-width:0;font-weight:600}
+.oh-mlist .tx small{display:block;margin:2px 0 0;font-weight:400;font-size:12px;color:#828C94}
+.oh-mlist button{padding-top:10px;padding-bottom:10px}
+.oh-ill{display:inline-flex;flex-shrink:0}.oh-ill svg{display:block}
+.oh-icon .oh-ill{transition:transform .15s}.oh-icon:active .oh-ill{transform:scale(.92)}
+.oh-cats button{width:62px}
+.oh-mlist button{position:relative}
+.oh-mlist button+button:before{content:'';position:absolute;top:0;left:20px;right:20px;height:1px;background:#F1F3F5}
+</style>
 <style id="serincam-ohouse-global">
 /* [NEW] 2026-10-24 전체 페이지·팝업 오늘의집 스타일: 흰 바탕, 얇은 테두리, 작은 모서리, 하늘색 #13A8DE */
 :root{--oh:#13A8DE;--oh-soft:#E7F6FC;--oh-ink:#0A8CBC;--oh-tx:#2F3438;--oh-tx3:#828C94;--oh-line:#EAEDEF;--oh-band:#F7F8FA}
@@ -2453,31 +2703,44 @@ var renderOhBanner = (key, maxDiscount) => {
     className: "ohb-circle"
   }), React.createElement("div", {
     className: "ohb-tx"
-  }, React.createElement("small", null, "공연장에서 바로 받는"), React.createElement("b", null, "수도권 15곳 픽업존")), React.createElement("img", {
-    className: "ohb-img",
-    src: BANNER_PENGUIN.stick,
-    alt: "",
-    draggable: false
-  }));
+  }, React.createElement("small", null, "공연장에서 바로 받는"), React.createElement("b", null, "수도권 15곳 픽업존")), React.createElement("div", {
+    className: "ohm ohm-pin",
+    "aria-hidden": true
+  }, React.createElement("span", {
+    className: "ring"
+  }), React.createElement("span", {
+    className: "ring r2"
+  }), React.createElement("i", {
+    className: "fa-solid fa-location-dot"
+  })));
   return React.createElement("div", {
     className: "ohb",
-    style: { background: '#FFEFD2' }
+    style: { background: '#EEEAFB' }
   }, React.createElement("span", {
     className: "ohb-circle"
   }), React.createElement("div", {
     className: "ohb-tx"
-  }, React.createElement("small", null, "회원가입 없이"), React.createElement("b", null, "날짜·기종만 고르면 끝!")), React.createElement("img", {
-    className: "ohb-img",
-    src: BANNER_PENGUIN.hug,
-    alt: "",
-    draggable: false
-  }));
+  }, React.createElement("small", null, "세린캠 인기 패키지"), React.createElement("b", null, "1일 가격으로 반납일까지!")), React.createElement("div", {
+    className: "ohm ohm-tk",
+    "aria-hidden": true
+  }, React.createElement("span", {
+    className: "tk t2"
+  }), React.createElement("span", {
+    className: "tk t1"
+  }, React.createElement("i", {
+    className: "fa-solid fa-ticket"
+  }), React.createElement("em", null, "PACKAGE")), React.createElement("span", {
+    className: "sp s1"
+  }, "✦"), React.createElement("span", {
+    className: "sp s2"
+  }, "✦")));
 };
 var HomeBannerSlider = ({
   followOn,
   maxDiscount,
   onBook,
-  onVenue
+  onVenue,
+  onPackage
 }) => {
   var slides = [{
     key: 'follow',
@@ -2491,8 +2754,8 @@ var HomeBannerSlider = ({
     render: () => renderOhBanner('venue')
   }, {
     key: 'easy',
-    label: '회원가입 없이 간편 예약 — 예약하기',
-    onClick: onBook,
+    label: '세린캠 인기 패키지 — 1일 가격으로 반납일까지',
+    onClick: onPackage || onBook,
     render: () => renderOhBanner('easy')
   }].filter(Boolean);
   var n = slides.length;
@@ -7645,6 +7908,8 @@ React.createElement("div", {
     var goLookup = () => canGuest ? goGuestLookup() : showAppToast('카카오로 인증하면 예약 내역을 바로 볼 수 있어요');
     var goReviews = () => { setViewMode('reviews'); updateURLForNav('reviews'); };
     var openKakaoChat = () => window.open('https://pf.kakao.com/_kiQkG/chat', '_blank', 'noopener');
+    // [NEW] 2026-10-24 F안: 취소되지 않은 가장 최근 예약을 '진행 중 예약'으로 표시
+    var ohNowItem = lookupResult && originals.length > 0 ? originals.find(r => !/취소|환불/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청')) || originals[0] : null;
     return React.createElement("div", {
       className: "oh-my pb-24"
     }, React.createElement("div", {
@@ -7670,17 +7935,14 @@ React.createElement("div", {
       className: "nm truncate"
     }, formatNameMasking(kakaoProfile ? kakaoProfile.name : lookupName), "님"), React.createElement("p", {
       className: "sb"
-    }, kakaoProfile ? "카카오 로그인 · " : "", "예약내역 ", originals.length, "건"), React.createElement("button", {
-      onClick: handleLogoutClick,
-      className: "oh-pill",
-      style: { background: '#F5F7F8', color: '#828C94' }
-    }, React.createElement(Icons.LogOut, {
-      size: 12
-    }), "로그아웃")) : React.createElement(React.Fragment, null, React.createElement("p", {
+    }, kakaoProfile ? "카카오 인증 회원" : "비회원 조회")) : React.createElement(React.Fragment, null, React.createElement("p", {
       className: "nm"
     }, "반가워요!"), React.createElement("p", {
       className: "sb"
-    }, "카카오로 인증하면 예약 내역을 바로 볼 수 있어요")))), !loggedIn && React.createElement("div", {
+    }, "카카오로 인증하면 예약 내역을 바로 볼 수 있어요"))), loggedIn && React.createElement("button", {
+      onClick: handleLogoutClick,
+      className: "lo"
+    }, "로그아웃")), !loggedIn && React.createElement("div", {
       style: { padding: '0 20px 18px' }
     }, KAKAO_LOGIN_ENABLED && renderKakaoLoginBlock(false, "카카오로 인증하기"), KAKAO_LOGIN_ENABLED && !ohShowGuest && React.createElement("button", {
       onClick: () => setOhShowGuest(true),
@@ -7698,50 +7960,8 @@ React.createElement("div", {
       style: { padding: 13, borderRadius: 4, border: '1px solid #13A8DE', color: '#0A8CBC', background: '#fff' }
     }, React.createElement(Icons.Search, {
       size: 16
-    }), "비회원 예약 조회"))), React.createElement("div", {
-      className: "oh-tri"
-    }, React.createElement("button", {
-      onClick: goLookup
-    }, React.createElement("i", {
-      className: "fa-regular fa-calendar-check"
-    }), React.createElement("span", null, "예약 내역", React.createElement("b", null, originals.length))), React.createElement("button", {
-      onClick: goReviews
-    }, React.createElement("i", {
-      className: "fa-regular fa-star"
-    }), React.createElement("span", null, "대여 후기")), React.createElement("button", {
-      onClick: openKakaoChat
-    }, React.createElement("i", {
-      className: "fa-regular fa-comment-dots"
-    }), React.createElement("span", null, "1:1 문의"))), React.createElement("div", {
-      className: "oh-msec"
-    }, React.createElement("button", {
-      onClick: goLookup,
-      className: "hd"
-    }, "나의 대여", React.createElement("span", null, "›")), React.createElement("div", {
-      className: "oh-stat"
-    }, React.createElement("button", {
-      onClick: goLookup
-    }, React.createElement("b", null, originals.length), React.createElement("span", null, "예약 내역")), React.createElement("button", {
-      onClick: goLookup
-    }, React.createElement("b", null, confirmedCount), React.createElement("span", null, "예약 확정")), React.createElement("button", {
-      onClick: () => handleRentalStart()
-    }, React.createElement("b", null, "+"), React.createElement("span", null, "새 예약")))), React.createElement("div", {
-      className: "oh-msec"
-    }, React.createElement("p", {
-      className: "hd"
-    }, "예약 관리"), React.createElement("div", {
-      className: "oh-mgrid"
-    }, RESERVATION_MANAGE_ROWS.map((it, i) => React.createElement("button", {
-      key: i,
-      onClick: it.onClick
-    }, React.createElement("div", {
-      className: `ic ${it.accent || 'bg-blue-50 text-blue-500'}`
-    }, React.createElement(it.icon, {
-      size: 20
-    })), React.createElement("span", null, it.label))))), lookupResult && originals.length > 0 && React.createElement("div", {
-      className: "oh-msec"
-    }, React.createElement("div", {
-      className: "hd"
+    }), "비회원 예약 조회"))), ohNowItem && React.createElement("div", null, React.createElement("div", {
+      className: "oh-nowhd"
     }, "최근 예약", React.createElement("div", {
       className: "flex items-center gap-3"
     }, React.createElement("button", {
@@ -7756,9 +7976,23 @@ React.createElement("div", {
       onClick: goLookup,
       className: "text-xs font-bold",
       style: { color: '#13A8DE' }
-    }, "전체보기"))), React.createElement("div", {
-      className: "space-y-2"
-    }, originals.slice(0, 1).map((item, idx) => renderReservationCard(item, idx)))), React.createElement("div", {
+    }, "전체보기"))), renderOhNowCard(ohNowItem)), React.createElement("div", {
+      className: "oh-msec",
+      style: { padding: '8px 0' }
+    }, React.createElement("p", {
+      className: "hd",
+      style: { padding: '10px 20px 2px' }
+    }, "예약 관리"), React.createElement("div", {
+      className: "oh-mlist"
+    }, OH_MANAGE_ORDER.map(l => RESERVATION_MANAGE_ROWS.find(r => r.label === l)).filter(Boolean).map(it => React.createElement("button", {
+      key: it.label,
+      onClick: it.onClick
+    }, ohIll(OH_ILL_BY_LABEL[it.label], 44), React.createElement("span", {
+      className: "tx"
+    }, it.label, OH_MANAGE_SUB[it.label] && React.createElement("small", null, OH_MANAGE_SUB[it.label])), React.createElement(Icons.ChevronRight, {
+      size: 16,
+      className: "chv"
+    }))))), React.createElement("div", {
       className: "oh-msec"
     }, React.createElement("p", {
       className: "hd"
@@ -8285,21 +8519,22 @@ React.createElement("div", {
         setFaqSearchQuery(e.target.value);
         setOpenFaqIndex(null);
       },
-      className: "w-full py-3.5 pl-11 pr-10 bg-white border border-gray-100 rounded-2xl outline-none text-sm text-gray-700 focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all shadow-sm font-medium"
+      className: "w-full py-3 pl-11 pr-10 outline-none text-sm text-gray-700 font-medium",
+      style: { background: '#F5F7F8', borderRadius: 4, border: '1px solid transparent' }
     }), faqSearchQuery && React.createElement("button", {
       onClick: () => setFaqSearchQuery(''),
       className: "absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
     }, React.createElement(Icons.X, {
       size: 18
     }))), React.createElement("div", {
-      className: "flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar"
+      className: "ohfaq-tabs"
     }, FAQ_CATEGORIES.map(cat => React.createElement("button", {
       key: cat,
       onClick: () => {
         setActiveFaqCategory(cat);
         setOpenFaqIndex(null);
       },
-      className: `px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeFaqCategory === cat ? 'bg-blue-500 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}`
+      className: activeFaqCategory === cat ? 'on' : ''
     }, cat))), React.createElement("div", {
       className: "space-y-3 mt-2 px-1"
     }, filteredFaqs.length > 0 ? filteredFaqs.map((faq, idx) => React.createElement("div", {
@@ -8980,20 +9215,14 @@ React.createElement("div", {
       key: i,
       onClick: it.onClick,
       className: "oh-icon"
-    }, React.createElement("i", {
-      className: `fa-solid ${it.faIcon}`,
-      style: { color: it.fg }
-    }), i === 0 && React.createElement("span", {
+    }, ohIll(OH_ILL_BY_LABEL[it.label], 48), i === 0 && React.createElement("span", {
       className: "nw"
     }, "HOT"), React.createElement("span", {
       className: "text-center leading-tight break-keep"
     }, it.label))), React.createElement("button", {
       onClick: () => setShowAllServices(!showAllServices),
       className: "oh-icon"
-    }, React.createElement("i", {
-      className: `fa-solid ${showAllServices ? 'fa-chevron-up' : 'fa-table-cells-large'}`,
-      style: { color: '#828C94' }
-    }), React.createElement("span", null, showAllServices ? '접기' : '전체 서비스'))));
+    }, ohIll(showAllServices ? 'fold' : 'all', 48), React.createElement("span", null, showAllServices ? '접기' : '전체 서비스'))));
   };
   var renderOhDeal = () => {
     // [NEW] 2026-10-24 인기공연 패키지: 패키지 공연을 한 장씩 (공연 종류 아이콘 · 얌전한 파스텔) → 누르면 그 공연 패키지 예약
@@ -9008,7 +9237,7 @@ React.createElement("div", {
     var micN = 0;
     return React.createElement("div", {
       className: "oh-sec"
-    }, renderOhHead("인기공연 패키지", null, () => setShowPackageList(true)), React.createElement("p", {
+    }, renderOhHead("세린캠 인기 패키지", null, () => setShowPackageList(true)), React.createElement("p", {
       className: "text-[13px]",
       style: { color: '#828C94', margin: '-8px 0 14px' }
     }, "1일 가격으로 반납일까지 · 공연장 수령"), React.createElement("div", {
@@ -9146,7 +9375,7 @@ React.createElement("div", {
     var goReviews = () => { setViewMode('reviews'); updateURLForNav('reviews'); };
     return React.createElement("div", {
       className: "oh-sec"
-    }, renderOhHead("오늘의 인기 후기", React.createElement("button", {
+    }, renderOhHead("최근 이용 후기", React.createElement("button", {
       onClick: () => openReviewModal(),
       className: "oh-write"
     }, "후기 쓰기"), goReviews), React.createElement("div", {
@@ -9203,10 +9432,16 @@ React.createElement("div", {
     if (batteryCount) rows.push(['보조배터리', batteryCount * 3000]);
     if (!isPackage && dataBackup) rows.push(['데이터 백업', 10000]);
     if (!isPackage) {
-      var rv = (discounts.twitter ? 5000 : 0) + (discounts.blog ? 5000 : 0) + (discounts.kakao ? 2000 : 0) + (discounts.homepage ? 2000 : 0);
-      if (rv) rows.push(['리뷰 할인', -rv]);
-      var fd = getFollowDiscount();
-      if (fd) rows.push(['팔로우 할인', -fd]);
+      // [NEW] 2026-10-24 어떤 리뷰·팔로우로 얼마 할인되는지 한 줄씩
+      var subs = [];
+      if (discounts.homepage) subs.push(['세린캠 홈페이지 리뷰', -2000]);
+      if (discounts.kakao) subs.push(['카카오맵 리뷰', -2000]);
+      if (discounts.twitter) subs.push(['X(트위터) 리뷰', -5000]);
+      if (discounts.blog) subs.push(['네이버 블로그 리뷰', -5000]);
+      if (FOLLOW_DISCOUNT_ENABLED && follows.x) subs.push(['X(트위터) 팔로우', -FOLLOW_DISCOUNT]);
+      if (FOLLOW_DISCOUNT_ENABLED && follows.insta) subs.push(['인스타그램 팔로우', -FOLLOW_DISCOUNT]);
+      var sum = subs.reduce((t, x) => t + x[1], 0);
+      if (subs.length) rows.push(['리뷰·팔로우 할인', sum, subs]);
       if (paymentMethod === 'transfer') rows.push(['계좌이체 할인', -1000]);
     }
     return rows;
@@ -9249,10 +9484,15 @@ React.createElement("div", {
     style: { marginBottom: 10 }
   }, "결제금액"), React.createElement("div", {
     className: "oh-price-rows"
-  }, getOhPriceRows().map(([k, v], i) => React.createElement("div", {
-    key: i,
+  }, getOhPriceRows().map(([k, v, subs], i) => React.createElement(React.Fragment, {
+    key: i
+  }, React.createElement("div", {
     className: v < 0 ? 'mi' : ''
-  }, React.createElement("span", null, k), React.createElement("b", null, v < 0 ? '- ' : '', Math.abs(v).toLocaleString(), "원")))), React.createElement("div", {
+  }, React.createElement("span", null, k), React.createElement("b", null, v < 0 ? '- ' : '', Math.abs(v).toLocaleString(), "원")), subs && React.createElement("span", {
+    className: "sub"
+  }, subs.map(([sk, sv], j) => React.createElement("div", {
+    key: j
+  }, React.createElement("span", null, sk), React.createElement("b", null, "- ", Math.abs(sv).toLocaleString(), "원"))))))), React.createElement("div", {
     className: "oh-final"
   }, React.createElement("span", null, "최종 결제 금액"), React.createElement("b", null, calculateTotal().toLocaleString(), "원")));
   // [NEW] 2026-10-24 검색 화면 (오늘의집 통합검색 구성): 검색창+취소 → 분류 탭 → 최근 검색어 → 서비스 찾기 → 예약 관리 → 추천 가이드 → 추천 검색어
@@ -9363,26 +9603,16 @@ React.createElement("div", {
       }, HOME_ICON_GRID.map((it, i) => React.createElement("button", {
         key: i,
         onClick: () => go(it.onClick)
-      }, React.createElement("div", {
-        className: "ci",
-        style: { background: it.bg }
-      }, React.createElement("i", {
-        className: `fa-solid ${it.faIcon}`,
-        style: { color: it.fg }
-      })), React.createElement("span", {
+      }, ohIll(OH_ILL_BY_LABEL[it.label], 56), React.createElement("span", {
         className: "text-center leading-tight break-keep"
       }, it.label))))), React.createElement("div", {
         className: "oh-ssec"
       }, React.createElement("h3", null, "예약 관리"), React.createElement("div", {
         className: "oh-sgrid"
-      }, LOOKUP_QUICK_ACTIONS.slice(0, 8).map((it, i) => React.createElement("button", {
+      }, LOOKUP_QUICK_ACTIONS.slice(0, 1).concat(RESERVATION_MANAGE_ROWS).map((it, i) => React.createElement("button", {
         key: i,
         onClick: () => go(it.onClick)
-      }, React.createElement("div", {
-        className: "ci"
-      }, React.createElement(it.icon, {
-        size: 22
-      })), it.label)))), React.createElement("div", {
+      }, ohIll(OH_ILL_BY_LABEL[it.label], 48), it.label === '방문택배 신청' ? '방문택배' : it.label)))), React.createElement("div", {
         className: "oh-ssec"
       }, React.createElement("h3", null, "추천 가이드"), React.createElement("div", {
         className: "oh-guides"
@@ -9408,12 +9638,7 @@ React.createElement("div", {
         key: i,
         className: "oh-guide-c",
         onClick: () => go(it.onClick)
-      }, React.createElement("div", {
-        className: "gi",
-        style: { background: it.bg }
-      }, React.createElement(it.icon, {
-        size: 20
-      })), React.createElement("div", null, React.createElement("b", null, it.label), React.createElement("span", null, it.sub)))))), React.createElement("div", {
+      }, ohIll(OH_ILL_BY_LABEL[it.label], 40), React.createElement("div", null, React.createElement("b", null, it.label), React.createElement("span", null, it.sub)))))), React.createElement("div", {
         className: "oh-ssec"
       }, React.createElement("h3", null, "추천 검색어"), keywordChips));
     }
@@ -11107,27 +11332,23 @@ React.createElement("div", {
     };
     var renderCamStep = step => React.createElement("div", {
       key: step.n,
-      className: "bg-gray-50 border border-gray-100 rounded-xl p-3"
-    }, React.createElement("div", {
-      className: "flex justify-between items-center mb-1.5"
+      className: "ohg-set"
     }, React.createElement("span", {
-      className: "text-xs font-bold text-gray-700"
-    }, step.n), React.createElement("span", {
-      className: CAM_VALUE_CLASS[step.c]
-    }, step.v)), React.createElement("p", {
-      className: "text-[11px] text-gray-500 leading-snug"
-    }, step.d.split('**').map((seg, si) => si % 2 === 1 ? React.createElement("strong", {
+      className: "n"
+    }, String(step.n).split('.')[0]), React.createElement("div", {
+      className: "tx"
+    }, React.createElement("b", null, String(step.n).replace(/^\d+\.\s*/, '')), React.createElement("p", null, step.d.split('**').map((seg, si) => si % 2 === 1 ? React.createElement("strong", {
       key: si
-    }, seg) : seg)));
+    }, seg) : seg))), React.createElement("span", {
+      className: `v${step.c === 'red' ? ' r' : ''}`
+    }, step.v));
     var renderBlogLinkBtn = url => React.createElement("button", {
       onClick: () => {
         setBlogTargetUrl(url);
         setIsBlogConfirmOpen(true);
       },
-      className: "w-full bg-green-50 text-green-600 border border-green-200 py-3 rounded-xl font-bold shadow-sm hover:bg-green-100 transition-colors flex items-center justify-center gap-2 text-sm mt-2"
-    }, React.createElement("span", {
-      className: "text-lg"
-    }, "📗"), " 세린캠 블로그에서 자세히 보기");
+      className: "ohg-btn g"
+    }, "블로그에서 사진으로 보기");
     return React.createElement("div", {
       className: "animate-slide-in space-y-6"
     }, React.createElement("div", {
@@ -11195,6 +11416,315 @@ React.createElement("div", {
       className: "text-red-500"
     }, "망원 렌즈가 적용되지 않아요!"))))), renderBlogLinkBtn('https://blog.naver.com/serin_day/223285000894'))));
   };
+  // [NEW] 2026-10-24 바로가기 안내 페이지 오늘의집 구성 (기존 함수 대체, 버튼 동작은 그대로)
+  var [ohGuideTab, setOhGuideTab] = useState({});
+  var ohMd = str => String(str).split('**').map((seg, si) => si % 2 === 1 ? React.createElement("strong", {
+    key: si,
+    className: seg.indexOf('⚠️') === 0 ? 'warn' : ''
+  }, seg) : seg);
+  var ohPageHead = (title, onBack) => React.createElement("div", {
+    className: "flex items-center gap-3 mb-2"
+  }, React.createElement("button", {
+    onClick: onBack || (() => { setViewMode('dashboard'); updateURLForNav('home'); }),
+    className: "p-2 bg-white rounded-full shadow-sm"
+  }, React.createElement(Icons.ChevronLeft, {
+    className: "w-5 h-5 text-gray-600"
+  })), React.createElement("h2", {
+    className: "text-xl font-bold text-gray-800"
+  }, title));
+  var renderOhQuickFee = () => React.createElement("div", {
+    className: "ohg-quick"
+  }, React.createElement("p", {
+    className: "text-[13px] font-bold mb-2",
+    style: { color: '#2F3438' }
+  }, "카카오T 퀵 예상 비용 조회"), React.createElement("button", {
+    type: "button",
+    onClick: handleQuickFeeAddressSearch,
+    className: "q"
+  }, React.createElement("span", {
+    style: { color: quickFeeAddress ? '#2F3438' : '#A5ADB3' }
+  }, quickFeeAddress || "받으실 주소 검색하기"), React.createElement(Icons.Search, {
+    size: 14,
+    className: "text-gray-400 shrink-0"
+  })), quickFeeLoading && React.createElement("p", {
+    className: "text-[12px] mt-2",
+    style: { color: '#828C94' }
+  }, "예상 요금을 계산하고 있어요..."), quickFeeError && React.createElement("p", {
+    className: "text-[12px] font-bold mt-2",
+    style: { color: '#F04452' }
+  }, quickFeeError), quickFeeResult && React.createElement("div", {
+    className: "ohg-note",
+    style: { marginTop: 8 }
+  }, "사무실 기준 약 ", quickFeeResult.distanceKm, "km · ", React.createElement("b", {
+    style: { color: '#0A8CBC' }
+  }, "약 ", quickFeeResult.estimatedFee.toLocaleString(), "원"), React.createElement("br", null), "거리 기반 추정 금액으로 실제 요금과 다를 수 있어요."));
+  // 비교표 + 탭 상세 (수령·반납 공용)
+  var renderOhGuide = (key, title, notice, compareHead, methods) => {
+    var cur = Math.min(ohGuideTab[key] || 0, methods.length - 1);
+    var m = methods[cur];
+    var pick = i => setOhGuideTab(Object.assign({}, ohGuideTab, { [key]: i }));
+    return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead(title), React.createElement("div", {
+      className: "ohg"
+    }, notice && React.createElement("div", {
+      className: "ohg-sec"
+    }, notice), React.createElement("div", {
+      className: "ohg-sec"
+    }, React.createElement("p", {
+      className: "ohg-h"
+    }, "한눈에 비교"), React.createElement("table", {
+      className: "ohg-tbl"
+    }, React.createElement("thead", null, React.createElement("tr", null, compareHead.map(h => React.createElement("th", {
+      key: h
+    }, h)))), React.createElement("tbody", null, methods.map((x, i) => React.createElement("tr", {
+      key: i,
+      onClick: () => pick(i)
+    }, React.createElement("td", null, x.title), React.createElement("td", {
+      className: "p"
+    }, x.fee), React.createElement("td", null, x.when)))))), React.createElement("div", {
+      className: "ohg-sec last"
+    }, React.createElement("div", {
+      className: "ohg-tabs"
+    }, methods.map((x, i) => React.createElement("button", {
+      key: i,
+      className: i === cur ? 'on' : '',
+      onClick: () => pick(i)
+    }, x.tab))), React.createElement("div", {
+      className: "ohg-dt",
+      key: key + cur
+    }, React.createElement("div", {
+      className: "ic"
+    }, React.createElement(m.icon, {
+      size: 20
+    })), React.createElement("div", null, React.createElement("b", null, m.title, m.badge && React.createElement("em", null, m.badge)), React.createElement("small", null, "이용 요금 ", m.fee))), React.createElement("ul", {
+      className: "ohg-ul"
+    }, m.points.map((p, pi) => React.createElement("li", {
+      key: pi
+    }, ohMd(p)))), m.hasQuickFee && renderOhQuickFee(), m.cta, React.createElement("button", {
+      onClick: () => setShowKakaoModal(true),
+      className: "ohg-btn o"
+    }, "카카오톡으로 문의하기"))));
+  };
+  renderPickupGuidePage = () => renderOhGuide('pickup', "수령 방법", React.createElement("p", {
+    className: "ohg-note"
+  }, "예약할 때 편하신 수령 방법을 고를 수 있어요. 날짜·지역에 따라 일부 방법은 마감될 수 있어요."), ['방법', '요금', '받는 때'], [{
+    tab: '택배', icon: Icons.Truck, title: '택배 수령', fee: '+4,000원', when: '대여 하루 전 도착', badge: '가장 많이 이용',
+    points: ['대여 시작일 **1일 전 도착**을 원칙으로 우체국 택배로 보내요.', '예) 1월 10일 대여 → **1월 9일 도착 예정**', '송장번호는 발송 당일 저녁 **알림톡**으로 안내드려요.', '정확한 도착 시간은 담당 우체국 기사님께 문의하시면 가장 정확해요.']
+  }, {
+    tab: '퀵', icon: Icons.Rocket, title: '퀵 수령', fee: '거리 비례', when: '주문 후 6시간 이내', badge: '당일 가능', hasQuickFee: true,
+    points: ['카카오T 퀵으로 원하시는 장소까지 **바로 배송**해드려요.', '주문 후 **6시간 이내 도착** 예정이에요.', '요금은 거리에 따라 달라져요. 아래에서 미리 확인해보세요!']
+  }, {
+    tab: '공연장', icon: Icons.MapPin, title: '공연장 수령', fee: '+4,000원', when: '공연 2시간 전쯤', badge: '수도권 15곳',
+    points: ['보통 **사운드체크 1시간 전** 또는 **본 공연 2시간 전**에 공연장 근처에서 전달해드려요.', '정확한 장소·시간은 대여 시작일 **1일 전 알림톡**으로 상세히 안내드려요.', '공연장별 스케줄에 따라 가능 여부가 달라져요.'],
+    cta: React.createElement("button", {
+      onClick: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); },
+      className: "ohg-btn g"
+    }, "공연장 픽업존 보기")
+  }, {
+    tab: '사무실', icon: Icons.Building2, title: '사무실 수령', fee: '무료', when: '방문 즉시', badge: '당일 가능',
+    points: ['**인천 검단구 이음4로6, KR법조타워 7층 710호**', '아라역 도보 2분 거리예요.', '직접 방문하시면 **바로 픽업** 가능해요.']
+  }]);
+  renderReturnGuidePage = () => renderOhGuide('return', "반납 방법", React.createElement("p", {
+    className: "ohg-note r"
+  }, React.createElement("b", null, "반납이 늦어지면"), " 1일당 50,000원 연체료가 생겨요. 반납일을 미뤄야 한다면 미리 대여연장을 신청해주세요."), ['방법', '요금', '언제까지'], [{
+    tab: '우체국', icon: Icons.Box, title: '우체국 택배 반납', fee: '택배비 고객부담', when: '반납일 오후 4시 전', badge: '추천',
+    points: ['**받는 분(세린캠):** 인천 검단구 이음4로6, KR법조타워 7층 710호 / 010-4868-2315', '반납일 당일 **오후 4시 전**까지 근처 우체국 창구에서 "우체국 택배"로 접수해주세요.', '**편의점 택배·타 택배사는 이용할 수 없어요.** 파손·분실 위험이 커서, 무단 이용 시 피해는 고객님 부담이에요.']
+  }, {
+    tab: '방문택배', icon: Icons.Truck, title: '방문택배 (집 앞 수거)', fee: '택배비 고객부담', when: '하루 전 마이페이지 신청', badge: '편하게 집에서',
+    points: ['**반납일 하루 전**에 세린캠 마이페이지에서 방문택배를 신청해주세요.', '방문택배 비용을 입금하면 방문 일정이 확정돼요.', '반납일 **오전 8시 ~ 오후 6시** 사이에 기사님이 문 앞에서 가져가요.', '택배박스나 폴리백으로 포장하고 겉면에 **\'우체국\'**이라고 적어주세요.'],
+    cta: React.createElement("button", {
+      onClick: () => { setServiceTarget(null); setViewMode('courierPicker'); updateURLForNav('courier'); },
+      className: "ohg-btn s"
+    }, "마이페이지에서 방문택배 신청")
+  }, {
+    tab: '당일', icon: Icons.Zap, title: '당일 반납', fee: '+15,000원', when: '공연 후 30분 이내', badge: '공연 당일',
+    points: ['공연이 끝나고 무겁게 들고 가실 필요 없어요!', '공연 종료 후 **약 30분 이내**에 지정된 장소에서 직원에게 바로 반납하시면 돼요.', '반납하시면서 **데이터 백업도 현장에서** 도와드려요.', '**⚠️ 현장 스케줄이 있는 날짜만 신청 가능해요!**']
+  }, {
+    tab: '공연장', icon: Icons.MapPin, title: '공연장 반납', fee: '무료', when: '현장 스케줄 있는 날', badge: '현장 스케줄 필요',
+    points: ['공연장 근처에서 직원에게 직접 반납하실 수 있어요.', '정확한 장소·시간은 알림톡으로 안내드려요.', '**⚠️ 현장 스케줄이 있는 날짜만 신청 가능해요!**']
+  }, {
+    tab: '사무실', icon: Icons.Building2, title: '사무실 반납', fee: '무료', when: '반납일 오전 10시', badge: '직접 방문',
+    points: ['**인천 검단구 이음4로6, KR법조타워 7층 710호** (아라역 도보 2분)', '반납일 **오전 10시까지** 방문해주세요.', '대여 기간 내라면 **더 일찍 미리 반납**하셔도 괜찮아요.']
+  }]);
+  // 데이터 백업: 두 가지 방법을 동그라미 선택 목록으로
+  var [ohBackupPick, setOhBackupPick] = useState('serincam');
+  renderBackupChoicePage = () => React.createElement("div", {
+    className: "animate-slide-in pb-10"
+  }, ohPageHead("데이터 백업", goBackFromService), React.createElement("div", {
+    className: "ohg"
+  }, React.createElement("div", {
+    className: "ohg-sec"
+  }, React.createElement("p", {
+    className: "ohg-h"
+  }, "백업 방법을 골라주세요"), React.createElement("button", {
+    className: `ohg-radio${ohBackupPick === 'serincam' ? ' on' : ''}`,
+    onClick: () => setOhBackupPick('serincam')
+  }, React.createElement("span", {
+    className: "rd"
+  }), React.createElement("div", {
+    style: { flex: 1 }
+  }, React.createElement("b", null, "세린캠에게 맡길래요", React.createElement("em", null, "추천")), React.createElement("p", null, "복잡한 과정 없이 세린캠이 빠르고 안전하게 알아서 백업해 드려요")), React.createElement("span", {
+    className: "pr"
+  }, "10,000원")), React.createElement("button", {
+    className: `ohg-radio${ohBackupPick === 'self' ? ' on' : ''}`,
+    onClick: () => setOhBackupPick('self')
+  }, React.createElement("span", {
+    className: "rd"
+  }), React.createElement("div", {
+    style: { flex: 1 }
+  }, React.createElement("b", null, "직접 할래요"), React.createElement("p", null, "네이버 MYBOX·샌드애니웨어로 촬영본을 내 기기로 옮기는 방법을 안내해 드려요")), React.createElement("span", {
+    className: "pr",
+    style: { color: '#828C94' }
+  }, "무료"))), React.createElement("div", {
+    className: "ohg-sec last"
+  }, ohBackupPick === 'serincam' ? React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "ohg-note"
+  }, "신청서를 남겨주시면 담당자가 확인 후 연락드려요."), React.createElement("button", {
+    onClick: () => { setServiceTarget(null); setViewMode('backupApply'); },
+    className: "ohg-btn s"
+  }, "데이터 백업 신청하기")) : React.createElement(React.Fragment, null, React.createElement("p", {
+    className: "ohg-note"
+  }, "사진·영상은 반납 전에 꼭 내 기기로 옮겨주세요. 쉬운 순서대로 안내해 드려요."), React.createElement("button", {
+    onClick: () => { setViewMode('backup'); updateURLForNav('backup'); },
+    className: "ohg-btn s"
+  }, "직접 백업 가이드 보기")))));
+  // 활용 꿀팁: 보라 배너 + 아이콘 목록
+  renderTipsGuidePage = () => {
+    var rows = [{
+      icon: 'fa-truck-fast', bg: '#E7F6FC', fg: '#13A8DE', t: t('tip1'), d: t('tip1Sub'),
+      onClick: () => setBlogModal({ open: true, type: 'post' })
+    }, {
+      icon: 'fa-camera', bg: '#EAF1EC', fg: '#7DB59A', t: t('tip2'), d: t('tip2Sub'),
+      onClick: () => setBlogModal({ open: true, type: 'camera' })
+    }, {
+      icon: 'fa-right-from-bracket', bg: '#FFF4D6', fg: '#D2AE52', t: t('tip3'), d: t('tip3Sub'),
+      onClick: () => setBlogModal({ open: true, type: 'logout' })
+    }, {
+      icon: 'fa-square-check', bg: '#EEEAF6', fg: '#9C8CC8', t: t('tip4'), d: t('tip4Sub'),
+      onClick: () => setViewMode('checklist')
+    }];
+    var clean = v => String(v || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').trim();
+    return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead("활용 꿀팁"), React.createElement("div", {
+      className: "ohg"
+    }, React.createElement("div", {
+      className: "ohg-sec"
+    }, React.createElement("div", {
+      className: "ohg-ban"
+    }, React.createElement("small", null, "처음 대여한다면 꼭 읽어보세요"), React.createElement("b", null, clean(t('tipsTitle'))))), React.createElement("div", {
+      className: "ohg-sec last",
+      style: { paddingTop: 6 }
+    }, rows.map((r, i) => React.createElement("button", {
+      key: i,
+      className: "ohg-row",
+      onClick: r.onClick
+    }, React.createElement("div", {
+      className: "ic",
+      style: { background: r.bg, color: r.fg }
+    }, React.createElement("i", {
+      className: `fa-solid ${r.icon}`
+    })), React.createElement("div", {
+      className: "min-w-0"
+    }, React.createElement("b", null, clean(r.t)), React.createElement("span", null, clean(r.d))), React.createElement(Icons.ChevronRight, {
+      size: 16,
+      className: "ch"
+    }))))));
+  };
+  // 반납 전 로그아웃(초기화): 탭 + 번호 단계 + 경로 칩
+  var [ohLogoutTab, setOhLogoutTab] = useState('galaxy');
+  var ohPath = parts => React.createElement("div", {
+    className: "ohg-path"
+  }, parts.map((p, i) => React.createElement(React.Fragment, {
+    key: i
+  }, i > 0 && React.createElement("i", {
+    className: "fa-solid fa-chevron-right"
+  }), React.createElement("span", {
+    className: p[0] === '!' ? 'r' : ''
+  }, p.replace(/^!/, '')))));
+  renderLogoutGuidePage = () => {
+    var steps = ohLogoutTab === 'galaxy' ? [
+      ['설정에서 계정 로그아웃', ohPath(['설정', '계정 및 백업', '계정 관리', '!본인 계정 선택', '계정 삭제'])],
+      ['[추천] 사용한 앱에서 직접 로그아웃', React.createElement("p", null, "트위터·인스타·마이박스 등 사용했던 앱에 들어가서 로그아웃해주세요")],
+      ['갤러리 사진·영상 삭제', React.createElement(React.Fragment, null, ohPath(['갤러리', '전체 선택', '!삭제']), ohPath(['갤러리 설정', '!휴지통', '전체 선택', '!완전삭제']))]
+    ] : [
+      ['사용한 앱에서 직접 로그아웃', React.createElement("p", null, "트위터·인스타·마이박스 등 사용했던 앱에 들어가서 로그아웃해주세요")],
+      ['사진·영상 삭제', React.createElement(React.Fragment, null, ohPath(['사진 앱', '모든 사진 선택', '!삭제']), ohPath(['앨범', '!최근 삭제된 항목', '모두 선택', '!완전삭제']))]
+    ];
+    return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead("반납 전 로그아웃"), React.createElement("div", {
+      className: "ohg"
+    }, React.createElement("div", {
+      className: "ohg-sec"
+    }, React.createElement("p", {
+      className: "ohg-note r"
+    }, "개인정보 보호를 위해 반납 전 로그아웃은 ", React.createElement("b", null, "필수"), "예요. 세린캠 계정과 연동돼 있어 초기화는 할 수 없으니, 아래 순서대로 로그아웃과 사진 삭제만 해주세요.")), React.createElement("div", {
+      className: "ohg-sec last"
+    }, React.createElement("div", {
+      className: "ohg-tabs"
+    }, [['galaxy', '갤럭시'], ['iphone', '아이폰']].map(([k, l]) => React.createElement("button", {
+      key: k,
+      className: ohLogoutTab === k ? 'on' : '',
+      onClick: () => setOhLogoutTab(k)
+    }, l))), steps.map((st, i) => React.createElement("div", {
+      key: ohLogoutTab + i,
+      className: "ohg-set"
+    }, React.createElement("span", {
+      className: "n"
+    }, i + 1), React.createElement("div", {
+      className: "tx"
+    }, React.createElement("b", null, st[0]), st[1]))), React.createElement("button", {
+      onClick: () => {
+        setBlogTargetUrl('https://blog.naver.com/serin_day/223285030594');
+        setIsBlogConfirmOpen(true);
+      },
+      className: "ohg-btn g"
+    }, "블로그에서 자세히 보기"))));
+  };
+  // 공연장 픽업존: 안내 → 지역 탭(개수) → 핀 목록 → 예약
+  renderVenuePickupPage = () => React.createElement("div", {
+    className: "animate-slide-in pb-10"
+  }, ohPageHead("공연장 픽업존"), React.createElement("div", {
+    className: "ohg"
+  }, React.createElement("div", {
+    className: "ohg-sec"
+  }, React.createElement("p", {
+    className: "ohg-note"
+  }, "보통 공연 2시간 전쯤 공연장 근처에서 전해드려요. 정확한 장소·시간은 ", React.createElement("b", null, "대여 하루 전 알림톡"), "으로 안내해요.")), React.createElement("div", {
+    className: "ohg-sec last"
+  }, React.createElement("div", {
+    className: "ohg-tabs"
+  }, ['Seoul', 'Incheon', 'Gyeonggi'].map(region => React.createElement("button", {
+    key: region,
+    className: venueTab === region ? 'on' : '',
+    onClick: () => setVenueTab(region)
+  }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기', React.createElement("span", {
+    style: { fontSize: 12, color: venueTab === region ? '#13A8DE' : '#A5ADB3', marginLeft: 3, fontWeight: 500 }
+  }, (venueList[region] || []).length)))), React.createElement("div", {
+    className: "oh-vlist",
+    key: venueTab
+  }, venueList[venueTab].map((v, i) => React.createElement("button", {
+    key: i,
+    onClick: () => {
+      if (v.info) {
+        setSelectedVenue(v);
+        setShowVenueInfoModal(true);
+      } else {
+        window.open(`https://map.naver.com/p/search/${v.name}`, '_blank');
+      }
+    }
+  }, React.createElement("div", {
+    className: "ic"
+  }, React.createElement("i", {
+    className: "fa-solid fa-location-dot"
+  })), React.createElement("div", {
+    className: "min-w-0"
+  }, React.createElement("b", null, v.name), React.createElement("span", null, v.info ? '정보보기 ›' : '위치보기 ›'))))), React.createElement("button", {
+    onClick: () => handleRentalStart('venue'),
+    className: "ohg-btn s"
+  }, "공연장 수령으로 예약하기"))));
   // [NEW] 대여모델 추천 전용 페이지 (기존 홈화면 인라인 섹션을 다른 안내 페이지와 동일한 UI/UX로 분리)
   var renderModelRecommendPage = () => React.createElement("div", {
     className: "animate-slide-in space-y-6"
@@ -11640,12 +12170,13 @@ React.createElement("div", {
       onClick: () => setChgTab('iphone'),
       className: `flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${chgTab === 'iphone' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-400'}`
     }, "iPhone")), React.createElement("div", {
-      className: "grid grid-cols-2 gap-2"
+      className: "oh-optlist"
     }, (phones[chgTab] || []).map(p => {
       var mBlocked = isChangeModelBlocked(p.name, changeTargetItem.startDate, changeTargetItem.endDate);
       var isSel = changeForm.modelId === p.id;
       var isOrig = origPhone && origPhone.id === p.id;
-      var changed = isSel && !isOrig;
+      var spec = PHONE_SPECS[p.id] || {};
+      // [NEW] 2026-10-24 예약 화면과 같은 한 줄 목록 (사진 · 이름 · 상태/가격 · 선택 동그라미)
       return React.createElement("div", {
         key: p.id,
         onClick: () => {
@@ -11657,21 +12188,26 @@ React.createElement("div", {
             modelId: p.id
           });
         },
-        className: `relative p-3 rounded-2xl border-2 transition-all cursor-pointer ${mBlocked ? 'opacity-60 bg-gray-50 border-gray-200 cursor-not-allowed' : isSel ? changed ? 'border-rose-500 bg-rose-50 shadow-md' : 'border-blue-500 bg-blue-50 shadow-md' : 'border-gray-100 bg-white hover:border-blue-200'}`
+        className: `oh-opt${isSel ? ' sel' : ''}${mBlocked ? ' blk' : ''}`
       }, React.createElement("div", {
-        className: "flex justify-between items-center mb-2"
+        className: "ph"
+      }, spec.image ? React.createElement("img", {
+        src: spec.image,
+        alt: p.name
+      }) : React.createElement(Icons.Smartphone, {
+        size: 26
+      })), React.createElement("div", {
+        className: "min-w-0"
       }, React.createElement("span", {
-        className: `text-[10px] font-extrabold px-2 py-0.5 rounded-md ${mBlocked ? 'bg-gray-200 text-gray-500' : changed ? 'bg-red-100 text-red-600' : 'bg-blue-50 text-blue-600'}`
-      }, p.tag), React.createElement("div", {
-        className: `w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSel ? changed ? 'border-rose-500 bg-red-500' : 'border-blue-500 bg-blue-500' : 'border-gray-300 bg-white'}`
-      }, isSel && React.createElement(Icons.Check, {
-        size: 12,
-        className: "text-white"
-      }))), React.createElement("h4", {
-        className: `font-bold text-[13px] leading-tight mb-1 ${mBlocked ? 'text-gray-400' : 'text-gray-800'}`
+        className: "tg"
+      }, p.tag), React.createElement("p", {
+        className: "nm"
       }, p.name), React.createElement("p", {
-        className: `text-[11px] font-bold ${mBlocked ? 'text-gray-400' : isOrig ? 'text-blue-500' : 'text-gray-500'}`
-      }, mBlocked ? MODEL_DISABLED[p.name] ? '품절' : '기간 내 마감' : isOrig ? '현재 기종' : `${p.basePrice.toLocaleString()}원~`));
+        className: "rt",
+        style: isOrig ? { color: '#0A8CBC', fontWeight: 700 } : undefined
+      }, mBlocked ? MODEL_DISABLED[p.name] ? '품절' : '기간 내 마감' : isOrig ? '현재 기종' : `${p.basePrice.toLocaleString()}원~`)), React.createElement("span", {
+        className: `oh-radio${isSel ? ' on' : ''}`
+      }));
     }))),
     // 예상 금액
     calc ? React.createElement("div", {
@@ -12104,6 +12640,397 @@ React.createElement("div", {
       className: `w-full py-4 rounded-xl font-bold shadow-md transition-colors ${allConfirmChecked && !isSubmitting ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`
     }, isSubmitting ? '처리 중...' : '5,000원 결제하기')))));
   };
+  // [NEW] 2026-10-24 신청 화면 다시 짜기 (오늘의집 주문서 구성, 기존 동작 그대로)
+  var ohSvcItem = (res, sub) => {
+    var ph = res ? findPhoneByModel(res.model) || findPhoneByTag(getReviewTag(String(res.model || ''))) : null;
+    var img = ph && (PHONE_SPECS[ph.id] || {}).image;
+    return React.createElement("div", {
+      className: "ohs-item"
+    }, React.createElement("div", {
+      className: "th"
+    }, img ? React.createElement("img", {
+      src: img,
+      alt: ""
+    }) : React.createElement(Icons.Smartphone, {
+      size: 24,
+      className: "text-gray-300"
+    })), React.createElement("div", {
+      className: "min-w-0"
+    }, React.createElement("b", null, ph ? ph.name : res && res.model), React.createElement("span", null, sub)));
+  };
+  renderBackupApplyPage = () => {
+    var gate = renderServiceGate('backup', "데이터 백업 대행", "bg-purple-50 text-purple-500");
+    if (gate) return gate;
+    var hasInfo = backupForm.name && backupForm.phone;
+    return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead("데이터 백업 대행", () => {
+      setServiceTarget(null);
+      setViewMode('backup');
+    }), React.createElement("div", {
+      className: "ohg"
+    }, React.createElement("div", {
+      className: "ohg-sec",
+      style: { paddingTop: 4 }
+    }, renderTargetBanner('backup')), React.createElement("div", {
+      className: "ohg-sec"
+    }, React.createElement("p", {
+      className: "ohg-h"
+    }, "신청 상품"), React.createElement("div", {
+      className: "ohs-info"
+    }, React.createElement("div", null, React.createElement("span", null, "데이터 백업 대행"), React.createElement("b", null, "10,000원"))), React.createElement("div", {
+      className: "ohs-fin"
+    }, React.createElement("span", null, "결제 금액"), React.createElement("b", null, "10,000원"))), React.createElement("div", {
+      className: "ohg-sec"
+    }, React.createElement("p", {
+      className: "ohg-h"
+    }, "이렇게 진행돼요"), [['반납 전 준비', React.createElement(React.Fragment, null, "대여폰에 ", React.createElement("strong", null, "네이버 마이박스 로그인"), " + ", React.createElement("strong", null, "충분한 용량 확보"))], ['반납 후 백업 시작', React.createElement(React.Fragment, null, "시작·완료 모두 알림톡으로 알려드려요 (평균 ", React.createElement("strong", null, "1일"), ")")], ['완료 4시간 뒤 자동 초기화', React.createElement(React.Fragment, null, "초기화되는 건 대여폰뿐이에요. 마이박스 데이터는 ", React.createElement("strong", null, "그대로"), "예요")]].map((st, i) => React.createElement("div", {
+      key: i,
+      className: "ohs-step"
+    }, React.createElement("span", {
+      className: "n"
+    }, i + 1), React.createElement("div", null, React.createElement("b", null, st[0]), React.createElement("p", null, st[1])))), React.createElement("p", {
+      className: "ohg-note",
+      style: { marginTop: 8 }
+    }, React.createElement("b", {
+      style: { color: '#F04452' }
+    }, "용량이 부족해 5시간 이상 백업을 시작하지 못하면"), " 대여 연장 비용이 함께 청구돼요.")), React.createElement("div", {
+      className: "ohg-sec last"
+    }, React.createElement("p", {
+      className: "ohg-h"
+    }, "신청자"), hasInfo ? React.createElement("div", {
+      className: "ohs-info"
+    }, React.createElement("div", null, React.createElement("span", null, "예약자"), React.createElement("b", null, backupForm.name, " · ", backupForm.phone))) : React.createElement(React.Fragment, null, React.createElement("input", {
+      type: "text",
+      placeholder: "성함",
+      className: "ohs-inp",
+      value: backupForm.name,
+      onChange: e => setBackupForm({
+        ...backupForm,
+        name: stripSpaces(e.target.value)
+      })
+    }), React.createElement("input", {
+      type: "text",
+      placeholder: "연락처 (010-0000-0000)",
+      className: "ohs-inp",
+      value: backupForm.phone,
+      onChange: e => setBackupForm({
+        ...backupForm,
+        phone: formatPhone(e.target.value)
+      })
+    })), React.createElement("button", {
+      disabled: isSubmitting,
+      onClick: () => setServiceConfirm({
+        type: 'backup',
+        amount: 10000,
+        resModel: serviceTarget ? serviceTarget.model : ''
+      }),
+      className: "ohg-btn s",
+      style: { fontSize: 15, padding: 15 }
+    }, isSubmitting ? '처리 중...' : '10,000원 신청하기'))));
+  };
+  renderAddressApplyPage = () => {
+    var backToList = () => {
+      setAddressTargetItem(null);
+      setViewMode(activeNav === 'my' ? 'myPage' : 'lookup');
+    };
+    if (!addressTargetItem) return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead("배송지 주소 변경", backToList), React.createElement("p", {
+      className: "ohg-note"
+    }, "변경할 예약을 먼저 선택해주세요."));
+    var target = addressTargetItem;
+    var canSubmit = !!addressForm.address && !isSubmitting;
+    return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead("배송지 주소 변경", backToList), React.createElement("div", {
+      className: "ohg"
+    }, React.createElement("div", {
+      className: "ohg-sec"
+    }, React.createElement("p", {
+      className: "ohg-h"
+    }, "선택한 예약"), ohSvcItem(target, `${formatDisplayDate(target.startDate)} ~ ${formatDisplayDate(target.endDate)}`), React.createElement("div", {
+      className: "ohs-info",
+      style: { marginTop: 10, paddingTop: 4, borderTop: '1px solid #F1F3F5' }
+    }, React.createElement("div", null, React.createElement("span", null, "현재 배송지"), React.createElement("b", null, [target.address, target.detailAddress].filter(Boolean).join(' ') || '-')))), React.createElement("div", {
+      className: "ohg-sec last"
+    }, React.createElement("p", {
+      className: "ohg-h"
+    }, "새 배송지"), React.createElement("button", {
+      onClick: handleAddressChangeSearch,
+      className: "ohg-btn o",
+      style: { marginTop: 0 }
+    }, React.createElement(Icons.Search, {
+      size: 16
+    }), addressForm.address ? "다시 검색" : "주소 검색"), React.createElement("p", {
+      className: "ohs-lbl"
+    }, "기본 주소"), React.createElement("div", {
+      className: "ohs-inp",
+      style: { display: 'flex', alignItems: 'center', color: addressForm.address ? '#2F3438' : '#A5ADB3' },
+      onClick: handleAddressChangeSearch
+    }, addressForm.address ? `[${addressForm.zipcode}] ${addressForm.address}` : '주소 검색으로 입력돼요'), React.createElement("p", {
+      className: "ohs-lbl"
+    }, "상세 주소"), React.createElement("input", {
+      type: "text",
+      placeholder: "동·호수를 입력해주세요",
+      disabled: !addressForm.address,
+      value: addressForm.addressDetail,
+      onChange: e => setAddressForm(prev => ({ ...prev, addressDetail: e.target.value })),
+      className: "ohs-inp"
+    }), React.createElement("p", {
+      className: "ohg-note",
+      style: { marginTop: 14 }
+    }, "이미 발송된 예약은 바꿀 수 없어요. 담당자 확인 후 확정되면 새 주소로 보내드려요."), React.createElement("button", {
+      disabled: !canSubmit,
+      onClick: handleAddressChangeSubmit,
+      className: "ohg-btn",
+      style: canSubmit ? { background: '#13A8DE', color: '#fff', fontSize: 15, padding: 15 } : { background: '#EAEDEF', color: '#A5ADB3', fontSize: 15, padding: 15 }
+    }, isSubmitting ? '처리 중...' : '주소 변경 신청하기'))));
+  };
+  renderBackupPage = () => {
+    var steps = backupTab === 'mybox' ? [['앱 설치 및 로그인', "대여폰에 '네이버 MYBOX' 앱을 설치하고 본인 아이디로 로그인해주세요."], ['사진·영상 업로드', '우측 하단 [+] 버튼을 눌러 갤러리 사진과 영상을 모두 올려주세요.'], ['로그아웃', '업로드가 끝나면 설정에서 꼭 로그아웃해주세요.']] : [['앱 설치 (두 기기 모두)', "대여폰과 내 폰 모두 '샌드애니웨어' 앱을 설치해주세요."], ['보내기 (대여폰)', "사진·영상을 고르고 '보내기'를 누르면 6자리 숫자가 나와요."], ['받기 (내 폰)', "'받기' 탭에 6자리 숫자를 입력하면 전송이 시작돼요."]];
+    return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead("직접 백업하기", goBackFromService), React.createElement("div", {
+      className: "ohg"
+    }, React.createElement("div", {
+      className: "ohg-sec"
+    }, React.createElement("div", {
+      className: "ohg-tabs"
+    }, [['mybox', '네이버 마이박스'], ['sendanywhere', '샌드애니웨어']].map(([k, l]) => React.createElement("button", {
+      key: k,
+      className: backupTab === k ? 'on' : '',
+      onClick: () => setBackupTab(k)
+    }, l))), React.createElement("p", {
+      className: "ohg-note"
+    }, backupTab === 'mybox' ? '로그인만 하면 간편하게 올릴 수 있어요 (30GB 무료)' : '인터넷 저장 공간 없이 내 폰으로 바로 보내요'), steps.map((st, i) => React.createElement("div", {
+      key: backupTab + i,
+      className: "ohs-step"
+    }, React.createElement("span", {
+      className: "n"
+    }, i + 1), React.createElement("div", null, React.createElement("b", null, st[0]), React.createElement("p", null, st[1])))), backupTab === 'mybox' && React.createElement(React.Fragment, null, React.createElement("p", {
+      className: "ohg-h",
+      style: { marginTop: 16 }
+    }, "용량이 부족하다면"), React.createElement("p", {
+      className: "ohg-note"
+    }, "갤럭시 촬영 용량은 ", React.createElement("b", null, "설정 › 디바이스 케어 › 저장공간"), "에서 확인해요. 무료 용량을 넘으면 이용권이 필요해요. ", React.createElement("b", null, "구매 전 전체 용량을 먼저 확인"), "하고 넉넉한 이용권을 골라주세요. (MYBOX 앱 › 프로필 › 이용권 구매)")), React.createElement("button", {
+      onClick: () => {
+        setBlogTargetUrl('https://blog.naver.com/serin_day/223285022877');
+        setIsBlogConfirmOpen(true);
+      },
+      className: "ohg-btn g"
+    }, "블로그에서 사진으로 보기")), React.createElement("div", {
+      className: "ohg-sec last"
+    }, React.createElement("p", {
+      className: "ohg-h"
+    }, "직접 하기 어렵다면"), React.createElement("div", {
+      className: "ohs-info"
+    }, React.createElement("div", null, React.createElement("span", null, "데이터 백업 대행"), React.createElement("b", null, "10,000원"))), React.createElement("p", {
+      className: "ohg-note",
+      style: { marginTop: 8 }
+    }, "예약을 조회한 뒤 어떤 예약의 백업인지 골라서 신청해요."), React.createElement("button", {
+      disabled: isSubmitting,
+      onClick: () => {
+        setServiceTarget(null);
+        setViewMode('backupApply');
+      },
+      className: "ohg-btn o"
+    }, "백업 대행 신청하기"))));
+  };
+  renderManualPage = () => React.createElement("div", {
+    className: "animate-slide-in pb-10"
+  }, ohPageHead("이용 방법"), React.createElement("div", {
+    className: "ohg"
+  }, React.createElement("div", {
+    className: "ohg-sec last"
+  }, React.createElement("p", {
+    className: "ohg-h"
+  }, "4단계로 끝나요"), [['기종·일정 선택', '실제 사용할 날짜만 고르면 반납일은 자동으로 정해져요'], ['수령·반납 방법 선택', '택배·퀵·공연장 수령 등을 고르고 파손 보장·보조배터리를 선택해요'], ['카카오 본인인증', '성함·연락처가 자동으로 입력돼요'], ['결제 후 예약 확정', '안내된 방법으로 결제하면 확정 알림톡을 보내드려요']].map((st, i) => React.createElement("div", {
+    key: i,
+    className: "ohs-step"
+  }, React.createElement("span", {
+    className: "n"
+  }, i + 1), React.createElement("div", null, React.createElement("b", null, st[0]), React.createElement("p", null, st[1])))), React.createElement("button", {
+    onClick: () => handleRentalStart(),
+    className: "ohg-btn s",
+    style: { fontSize: 15, padding: 15 }
+  }, "지금 예약하기"), React.createElement("button", {
+    onClick: () => setShowKakaoModal(true),
+    className: "ohg-btn o"
+  }, "1:1 카카오톡 문의"))));
+  // 옛 '대여모델 추천' 페이지는 홈 '좌석별 추천 모델'로
+  renderModelRecommendPage = () => {
+    setTimeout(() => {
+      handleNavChange('home');
+      setTimeout(() => {
+        var el = document.getElementById('seat-rec-section');
+        if (el) el.scrollIntoView({
+          block: 'start'
+        });
+      }, 300);
+    }, 0);
+    return null;
+  };
+  // [NEW] 2026-10-24 마이페이지 최근 예약 카드 (오늘의집 주문 카드). 상세는 '전체보기'(예약 조회)에서
+  var renderOhResCard = item => {
+    var linked = getLinkedRequests(item);
+    var cancelReq = linked.find(r => r.category === '취소신청');
+    var cancelDone = cancelReq && /확정|완료/.test(cancelReq.status || '');
+    var st = item.status || '접수대기';
+    var label = cancelReq ? cancelDone ? '취소' : '취소 처리중' : st;
+    var tone = cancelReq || /취소|환불/.test(st) ? 'no' : st.includes('확정') ? 'ok' : 'wait';
+    var waitingPay = (!item.status || item.status === '예약신청') && !cancelReq;
+    return React.createElement("div", {
+      className: "oh-rc2",
+      key: item.id || item.orderTime
+    }, React.createElement("div", {
+      className: "top"
+    }, React.createElement("span", {
+      className: `bd ${tone}`,
+      onClick: cancelReq ? () => openRequestPopup(cancelReq) : undefined
+    }, label), React.createElement("span", {
+      className: "dt"
+    }, item.orderTime ? String(item.orderTime).includes('T') ? formatDisplayDate(item.orderTime) : item.orderTime : '')), ohSvcItem(item, [item.scheduleName, item.startDate ? `${formatDisplayDate(item.startDate)} ~ ${formatDisplayDate(item.endDate)}` : ''].filter(Boolean).join(' · ')), React.createElement("div", {
+      className: "rows"
+    }, React.createElement("div", null, React.createElement("span", null, "수령 / 반납"), React.createElement("b", null, item.delivery || '-', " / ", item.returnMethod || '-')), item.trackingNumber && React.createElement("div", null, React.createElement("span", null, "송장번호"), React.createElement("b", {
+      onClick: () => copyToClipboard(item.trackingNumber),
+      style: { color: '#0A8CBC', cursor: 'pointer' }
+    }, item.trackingNumber, " 복사")), React.createElement("div", null, React.createElement("span", null, "파손 보장"), React.createElement("b", null, item.insurance || '미가입')), item.review && item.review !== '선택안함' && React.createElement("div", null, React.createElement("span", null, "리뷰 할인"), React.createElement("b", null, item.review.replace(/^선택안함 \/ /, '')))), React.createElement("div", {
+      className: "fin"
+    }, React.createElement("span", null, "결제 금액"), React.createElement("b", null, Number(item.totalPrice || 0).toLocaleString(), "원")), waitingPay && React.createElement(React.Fragment, null, React.createElement("div", {
+      className: "acc"
+    }, React.createElement("div", null, React.createElement("small", null, "입금 계좌 · 예금주 한승윤"), React.createElement("b", null, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
+      className: "cp",
+      onClick: () => copyToClipboard("3333209712773")
+    }, "복사")), React.createElement("p", {
+      className: "note"
+    }, "* 기한이 지나면 별도 안내 없이 신청 내역이 삭제돼요.")), st.includes('확정') && (item.review || '').includes('홈페이지') && React.createElement("button", {
+      onClick: () => openReviewModal(item),
+      className: "ohg-btn o",
+      style: { marginTop: 10, padding: 11 }
+    }, "후기 작성하기"), React.createElement("button", {
+      onClick: () => handleNavChange('mypage'),
+      className: "ohg-btn g",
+      style: { marginTop: 10, padding: 11 }
+    }, "예약 상세 보기"));
+  };
+  // [NEW] 2026-10-24 마이페이지 F안 — 진행 중 예약 단계 카드 (예약신청 > 예약확정 > 반납완료)
+  var OH_MANAGE_ICON = {
+    '취소/환불': 'fa-calendar-xmark',
+    '모델 변경': 'fa-mobile-screen',
+    '대여 연장': 'fa-calendar-plus',
+    '백업 신청': 'fa-cloud-arrow-up',
+    '주소 변경': 'fa-house',
+    '방문택배 신청': 'fa-truck-fast'
+  };
+  // [NEW] 2026-10-24 미니 일러스트 아이콘 (하늘 #13A8DE + 연하늘 원 + 노랑 포인트). 같은 기능 = 같은 그림
+  var OH_ILL = (() => {
+    var S = '#13A8DE', L = '#CDEFFB', B = '#E7F6FC', W = '#fff', Y = '#FFD66B', R = '#F04452', RB = '#FFF1F1', RL = '#F8C3C8', T = '#F3D9A6', TD = '#C99A4E';
+    var bg = (c = B) => `<circle cx="22" cy="22" r="20" fill="${c}"/>`;
+    var cal = mark => `${bg()}<rect x="11" y="13" width="22" height="19" rx="3" fill="${W}" stroke="${S}" stroke-width="2"/><rect x="11" y="13" width="22" height="6" rx="3" fill="${S}"/><path d="M17 10v5M27 10v5" stroke="${S}" stroke-width="2.4" stroke-linecap="round"/>${mark}`;
+    var box = `<path d="M11 19l11-5.5 11 5.5v10.5L22 35l-11-5.5z" fill="${T}" stroke="${TD}" stroke-width="1.6" stroke-linejoin="round"/><path d="M11 19l11 5.5 11-5.5M22 24.5V35" stroke="${TD}" stroke-width="1.6" fill="none"/>`;
+    var phone = `<rect x="14" y="9" width="16" height="26" rx="3.5" fill="${W}" stroke="${S}" stroke-width="2"/><rect x="16.5" y="12" width="11" height="17" rx="1.5" fill="${L}"/>`;
+    return {
+      reserve: cal(`<path d="M17 25.5l3.5 3.5 6.5-6.5" stroke="${S}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`),
+      tip: `${bg()}<path d="M22 9a8 8 0 00-5 14.3V27h10v-3.7A8 8 0 0022 9z" fill="${Y}"/><path d="M18.5 30h7M19.5 33h5" stroke="${S}" stroke-width="2.2" stroke-linecap="round"/><path d="M20 18.5a2.5 2.5 0 012.5-2.5" stroke="${W}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+      extend: cal(`<circle cx="30" cy="30" r="7" fill="${Y}"/><path d="M30 26.5v7M26.5 30h7" stroke="${W}" stroke-width="2.2" stroke-linecap="round"/>`),
+      backup: `${bg()}<rect x="10" y="12" width="20" height="17" rx="3" fill="${W}" stroke="${S}" stroke-width="2"/><path d="M12 27l5-6 4 4 3-3 5 5" fill="${L}" stroke="${S}" stroke-width="1.6" stroke-linejoin="round"/><circle cx="24.5" cy="17" r="2" fill="${Y}"/><circle cx="31" cy="30" r="7" fill="${S}"/><path d="M31 33.5v-6.5M28.3 29.6l2.7-2.7 2.7 2.7" stroke="${W}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      recommend: `${bg()}${phone}<path d="M31 8l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="${Y}" stroke="${W}" stroke-width="1"/>`,
+      pickup: `${bg()}${box}<circle cx="22" cy="10" r="5.5" fill="${S}"/><path d="M22 7.3v5.4M19.8 10.6l2.2 2.2 2.2-2.2" stroke="${W}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      ret: `${bg()}${box}<circle cx="31" cy="12" r="6" fill="${S}"/><path d="M33.3 13.5a2.8 2.8 0 11-.4-3.7M33.2 8.2v1.9h-1.9" stroke="${W}" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      all: `${bg()}<rect x="12" y="12" width="9" height="9" rx="2.5" fill="${S}"/><rect x="23" y="12" width="9" height="9" rx="2.5" fill="${L}"/><rect x="12" y="23" width="9" height="9" rx="2.5" fill="${L}"/><rect x="23" y="23" width="9" height="9" rx="4.5" fill="${Y}"/>`,
+      lookup: `${bg()}<rect x="11" y="9" width="18" height="24" rx="3" fill="${W}" stroke="${S}" stroke-width="2"/><path d="M15 15h10M15 20h7" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/><circle cx="27" cy="27" r="5.5" fill="${W}" stroke="${S}" stroke-width="2.2"/><path d="M31 31l3.5 3.5" stroke="${S}" stroke-width="2.6" stroke-linecap="round"/>`,
+      cancel: `${bg(RB)}<path d="M13 9h18v26l-3-2-3 2-3-2-3 2-3-2-3 2z" fill="${W}" stroke="#F28B95" stroke-width="2" stroke-linejoin="round"/><path d="M17 16h10M17 21h7" stroke="${RL}" stroke-width="2" stroke-linecap="round"/><circle cx="29" cy="28" r="6" fill="${R}"/><path d="M26.8 25.8l4.4 4.4M31.2 25.8l-4.4 4.4" stroke="${W}" stroke-width="1.8" stroke-linecap="round"/>`,
+      model: `${bg()}${phone}<path d="M19 18h6l-2-2M25 23h-6l2 2" stroke="${S}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      address: `${bg()}<ellipse cx="22" cy="33" rx="9" ry="2.5" fill="${L}"/><path d="M22 33s-9-7.5-9-15a9 9 0 0118 0c0 7.5-9 15-9 15z" fill="${S}"/><circle cx="22" cy="18" r="3.5" fill="${W}"/>`,
+      courier: `${bg()}<path d="M10 17l12-6 12 6v12l-12 6-12-6z" fill="${T}" stroke="${TD}" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 17l12 6 12-6M22 23v12" stroke="${TD}" stroke-width="1.6" fill="none"/><path d="M16 14l12 6" stroke="${S}" stroke-width="3"/>`,
+      chatbot: `${bg()}<path d="M10 13a4 4 0 014-4h16a4 4 0 014 4v10a4 4 0 01-4 4h-9l-6 5v-5h-1a4 4 0 01-4-4z" fill="${S}"/><circle cx="17" cy="18" r="2" fill="${W}"/><circle cx="27" cy="18" r="2" fill="${W}"/><path d="M22 9V6" stroke="${S}" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="5.5" r="1.8" fill="${Y}"/>`,
+      camera: `${bg()}<rect x="9" y="15" width="26" height="18" rx="4" fill="${S}"/><path d="M16 15l2-4h8l2 4" fill="${S}"/><circle cx="22" cy="24" r="6" fill="${W}"/><circle cx="22" cy="24" r="3.5" fill="${L}"/><circle cx="30.5" cy="19" r="1.5" fill="${Y}"/>`,
+      venue: `${bg()}<path d="M9 32V20l13-8 13 8v12z" fill="${W}" stroke="${S}" stroke-width="2" stroke-linejoin="round"/><path d="M14 32v-7h16v7" fill="${L}"/><path d="M9 32h26" stroke="${S}" stroke-width="2" stroke-linecap="round"/><path d="M22 16l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="${Y}"/>`,
+      review: `${bg()}<path d="M10 13a4 4 0 014-4h16a4 4 0 014 4v10a4 4 0 01-4 4h-9l-6 5v-5h-1a4 4 0 01-4-4z" fill="${W}" stroke="${S}" stroke-width="2"/><path d="M22 12l2 4.1 4.5.6-3.3 3.1.8 4.4-4-2.1-4 2.1.8-4.4-3.3-3.1 4.5-.6z" fill="${Y}"/>`,
+      method: `${bg()}${box}<circle cx="13" cy="12" r="5.5" fill="${S}"/><path d="M10.5 11h5l-1.6-1.6M15.5 13h-5l1.6 1.6" stroke="${W}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      reset: `${bg()}${phone}<path d="M25.5 20.5a3.5 3.5 0 11-1-2.6M25 15.5v2.6h-2.6" stroke="${S}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      fold: `${bg('#F2F4F6')}<path d="M16 25l6-6 6 6" stroke="#828C94" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      faq: `${bg()}<path d="M10 13a4 4 0 014-4h16a4 4 0 014 4v10a4 4 0 01-4 4h-1v5l-6-5h-9a4 4 0 01-4-4z" fill="${W}" stroke="${S}" stroke-width="2"/><path d="M19 15.5a3 3 0 115 2.2c-1 .7-2 1.3-2 2.8" stroke="${S}" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="22" cy="23.5" r="1.3" fill="${S}"/>`
+    };
+  })();
+  var OH_ILL_BY_LABEL = { '대여 연장': 'extend', '대여연장': 'extend', '백업 신청': 'backup', '데이터백업': 'backup', '방문택배 신청': 'courier', '방문택배': 'courier', '모델 변경': 'model', '주소 변경': 'address', '취소/환불': 'cancel', '내 예약 보기': 'lookup', '예약하기': 'reserve', '꿀팁': 'tip', '모델 추천': 'recommend', '수령방법': 'pickup', '반납방법': 'ret', '카메라설정': 'camera', '공연장 픽업존': 'venue', '리뷰': 'review', '수령·반납 변경': 'method', '초기화': 'reset', '자주 묻는 질문': 'faq', 'AI 챗봇 상담': 'chatbot' };
+  var ohIll = (key, size = 44) => React.createElement("span", {
+    className: "oh-ill",
+    style: { width: size, height: size },
+    dangerouslySetInnerHTML: { __html: `<svg viewBox="0 0 44 44" width="${size}" height="${size}" aria-hidden="true">${OH_ILL[key] || OH_ILL.all}</svg>` }
+  });
+  var OH_STEPS = ['예약신청', '예약확정', '반납완료'];
+  var OH_MANAGE_ORDER = ['대여 연장', '백업 신청', '방문택배 신청', '모델 변경', '주소 변경', '취소/환불'];
+  var OH_MANAGE_SUB = {
+    '대여 연장': '반납일을 며칠 더 늘리고 싶을 때',
+    '백업 신청': '사진·영상 백업, 세린캠이 대신 해드려요',
+    '방문택배 신청': '우체국에 가기 어려우면 기사님이 찾아가요',
+    '모델 변경': '다른 기기로 바꾸고 싶을 때',
+    '주소 변경': '받으실 주소가 바뀌었을 때',
+    '취소/환불': '예약을 취소하고 환불받고 싶을 때'
+  };
+  // -1 = 취소
+  var ohResStep = item => {
+    var st = item.status || '예약신청';
+    if (/취소|환불/.test(st) || getLinkedRequests(item).some(q => q.category === '취소신청')) return -1;
+    if (/반납/.test(st)) return 2;
+    if (st.includes('확정')) return 1;
+    return 0;
+  };
+  // 10.25(토) 형식 (실패 시 기존 표시)
+  var ohMD = v => {
+    if (!v) return '';
+    var str = String(v);
+    var m = str.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+    var d = str.includes('T') ? new Date(str) : m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(str);
+    if (isNaN(d.getTime())) return formatDisplayDate(v);
+    return `${d.getMonth() + 1}.${d.getDate()}(${'일월화수목금토'[d.getDay()]})`;
+  };
+  var renderOhNowCard = item => {
+    var step = ohResStep(item);
+    var cancelReq = getLinkedRequests(item).find(r => r.category === '취소신청');
+    var ordered = item.orderTime ? ohMD(item.orderTime).replace(/\(.\)$/, '') : '';
+    var sd = ohMD(item.startDate), ed = ohMD(item.endDate);
+    var subs = [ordered ? `${ordered} 주문 · ${step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인'}` : step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인', step === 0 ? '입금 확인 후 확정돼요' : [sd && `${sd} 수령`, item.delivery].filter(Boolean).join(' · '), [ed && `${ed} 반납`, item.returnMethod].filter(Boolean).join(' · ')];
+    return React.createElement("div", {
+      className: "oh-now"
+    }, React.createElement("div", {
+      className: "flex items-start gap-2"
+    }, React.createElement("div", {
+      className: "flex-1 min-w-0"
+    }, ohSvcItem(item, [item.scheduleName, sd ? `${sd} ~ ${ed}` : ''].filter(Boolean).join(' · '))), step < 0 && React.createElement("span", {
+      className: "bdx",
+      onClick: cancelReq ? () => openRequestPopup(cancelReq) : undefined
+    }, cancelReq && !/확정|완료/.test(cancelReq.status || '') ? '취소 처리중' : '취소')), step >= 0 && React.createElement("div", {
+      className: "oh-vt"
+    }, OH_STEPS.map((x, i) => React.createElement("div", {
+      key: x,
+      className: i < step ? 'done' : i === step ? 'on' : ''
+    }, x, React.createElement("small", null, subs[i], i === 1 && step >= 1 && item.trackingNumber && React.createElement("u", {
+      onClick: () => copyToClipboard(item.trackingNumber)
+    }, "송장 ", item.trackingNumber, " 복사"))))), step === 0 && React.createElement(React.Fragment, null, React.createElement("div", {
+      className: "acc"
+    }, React.createElement("div", null, React.createElement("small", null, "입금 계좌 · 예금주 한승윤"), React.createElement("b", null, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
+      className: "cp",
+      onClick: () => copyToClipboard("3333209712773")
+    }, "복사")), React.createElement("p", {
+      className: "note"
+    }, "* 기한이 지나면 별도 안내 없이 신청 내역이 삭제돼요.")), React.createElement("div", {
+      className: "fin"
+    }, React.createElement("span", null, "결제 금액"), React.createElement("b", null, Number(item.totalPrice || 0).toLocaleString(), "원")), React.createElement("div", {
+      className: "flex gap-1.5",
+      style: { marginTop: 12 }
+    }, React.createElement("button", {
+      onClick: () => handleNavChange('mypage'),
+      className: "ohg-btn g flex-1",
+      style: { padding: 11 }
+    }, "예약 상세 보기"), step >= 1 && (item.review || '').includes('홈페이지') && React.createElement("button", {
+      onClick: () => openReviewModal(item),
+      className: "ohg-btn o flex-1",
+      style: { padding: 11 }
+    }, "후기 작성하기")));
+  };
   var renderSuccessPage = () => {
     var type = successData ? successData.type : '완료';
     var name = successData ? successData.name : '고객';
@@ -12315,7 +13242,8 @@ React.createElement("div", {
     followOn: FOLLOW_DISCOUNT_ENABLED,
     maxDiscount: 2000 + 5000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0), // 리뷰 2개(간편+SNS) + 팔로우 2개(X·인스타)
     onBook: () => handleRentalStart(),
-    onVenue: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); }
+    onVenue: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); },
+    onPackage: () => setShowPackageList(true)
   })), renderOhIcons(), renderOhDeal(), hasUpcomingConcerts && renderOhConcerts(), renderOhSeatRec(), renderOhReviews(), React.createElement("button", {
     onClick: () => handleRentalStart(),
     className: "oh-fab",
@@ -12461,13 +13389,31 @@ React.createElement("div", {
     className: "font-bold hover:text-gray-600 transition-colors"
   }, "개인정보처리방침")), React.createElement("p", {
     className: "text-gray-300 mt-2 font-medium"
-  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && renderLookupPage(), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && React.createElement("div", {
+  }, "Copyright © SERINCAM. All rights reserved."))), viewMode === 'lookup' && React.createElement("div", {
     className: "oh-page"
-  }, renderExtensionPage()), viewMode === 'cancelPicker' && renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500"), viewMode === 'changePicker' && renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500"), viewMode === 'addressPicker' && renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600"), viewMode === 'courierPicker' && renderServiceGate('courier', "방문택배 신청", "bg-blue-50 text-blue-500"), viewMode === 'backupChoice' && React.createElement("div", {
+  }, renderLookupPage()), viewMode === 'myPage' && renderMyPage(), viewMode === 'extension' && React.createElement("div", {
+    className: "oh-page"
+  }, renderExtensionPage()), viewMode === 'cancelPicker' && React.createElement("div", {
+    className: "oh-page"
+  }, renderServiceGate('cancel', "예약 취소·환불", "bg-red-50 text-red-500")), viewMode === 'changePicker' && React.createElement("div", {
+    className: "oh-page"
+  }, renderServiceGate('change', "대여모델 변경", "bg-rose-50 text-rose-500")), viewMode === 'addressPicker' && React.createElement("div", {
+    className: "oh-page"
+  }, renderServiceGate('address', "배송지 주소 변경", "bg-yellow-50 text-yellow-600")), viewMode === 'courierPicker' && React.createElement("div", {
+    className: "oh-page"
+  }, renderServiceGate('courier', "방문택배 신청", "bg-blue-50 text-blue-500")), viewMode === 'backupChoice' && React.createElement("div", {
     className: "oh-page"
   }, renderBackupChoicePage()), viewMode === 'backup' && React.createElement("div", {
     className: "oh-page"
-  }, renderBackupPage()), viewMode === 'backupApply' && renderBackupApplyPage(), viewMode === 'changeApply' && renderChangeApplyPage(), viewMode === 'addressApply' && renderAddressApplyPage(), viewMode === 'courierApply' && renderCourierApplyPage(), viewMode === 'manual' && React.createElement("div", {
+  }, renderBackupPage()), viewMode === 'backupApply' && React.createElement("div", {
+    className: "oh-page"
+  }, renderBackupApplyPage()), viewMode === 'changeApply' && React.createElement("div", {
+    className: "oh-page"
+  }, renderChangeApplyPage()), viewMode === 'addressApply' && React.createElement("div", {
+    className: "oh-page"
+  }, renderAddressApplyPage()), viewMode === 'courierApply' && React.createElement("div", {
+    className: "oh-page"
+  }, renderCourierApplyPage()), viewMode === 'manual' && React.createElement("div", {
     className: "oh-page"
   }, renderManualPage()), viewMode === 'tipsGuide' && React.createElement("div", {
     className: "oh-page"
@@ -12477,15 +13423,21 @@ React.createElement("div", {
     className: "oh-page"
   }, renderReturnGuidePage()), viewMode === 'logoutGuide' && React.createElement("div", {
     className: "oh-page"
-  }, renderLogoutGuidePage()), viewMode === 'privacyPage' && renderPrivacyPage(), viewMode === 'venuePickup' && React.createElement("div", {
+  }, renderLogoutGuidePage()), viewMode === 'privacyPage' && React.createElement("div", {
+    className: "oh-page"
+  }, renderPrivacyPage()), viewMode === 'venuePickup' && React.createElement("div", {
     className: "oh-page"
   }, renderVenuePickupPage()), viewMode === 'checklist' && React.createElement("div", {
     className: "oh-page"
-  }, renderChecklistPage()), viewMode === 'success' && renderSuccessPage(), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && React.createElement("div", {
+  }, renderChecklistPage()), viewMode === 'success' && React.createElement("div", {
+    className: "oh-page"
+  }, renderSuccessPage()), viewMode === 'reviews' && renderReviewsPage(), viewMode === 'qna' && React.createElement("div", {
     className: "oh-page"
   }, renderQnaPage()), viewMode === 'blog' && renderBlogPage(), viewMode === 'cameraSettings' && React.createElement("div", {
     className: "oh-page"
-  }, renderCameraSettingsPage()), viewMode === 'modelRecommend' && renderModelRecommendPage(), viewMode === 'allModels' && React.createElement("div", {
+  }, renderCameraSettingsPage()), viewMode === 'modelRecommend' && React.createElement("div", {
+    className: "oh-page"
+  }, renderModelRecommendPage()), viewMode === 'allModels' && React.createElement("div", {
     className: "oh-page"
   }, renderAllModelsPage()), viewMode === 'rental' && React.createElement("div", {
     className: "oh-flow"
@@ -12530,8 +13482,12 @@ React.createElement("div", {
   }, ['1', '2', '3', 'direct'].map(opt => React.createElement("button", {
     key: opt,
     onClick: () => handleUsageDaysChange(opt),
+    style: { position: 'relative' },
     className: `flex-1 py-3.5 rounded-xl border-2 transition-all flex flex-col items-center justify-center ${usageDays === opt ? 'border-blue-400 bg-blue-50 shadow-sm' : 'border-white bg-white hover:border-blue-200 hover:bg-blue-50 shadow-sm'}`
-  }, React.createElement("span", {
+  }, (opt === '2' || opt === '3') && React.createElement("span", {
+    // [NEW] 2026-10-24 하루 추가 금액 팻말 (갤럭시 S23~S25 울트라 기준, 기종을 고르면 그 기종 금액)
+    className: "oh-daysign"
+  }, "+", ((selectedPhone ? selectedPhone.addPrice : 10000) * (Number(opt) - 1)).toLocaleString(), "원", selectedPhone ? '' : '~'), React.createElement("span", {
     className: `font-bold text-sm whitespace-nowrap ${usageDays === opt ? 'text-blue-600' : 'text-gray-700'}`
   }, opt === 'direct' ? t('directSelect') : `${opt}일`))))), React.createElement("div", {
     className: `transition-all duration-500 ${!usageDays ? 'opacity-40 grayscale-[30%]' : 'opacity-100'}`
@@ -13365,7 +14321,23 @@ React.createElement("div", {
     className: "text-[12px] text-red-500 mt-2.5 bg-red-50 p-2.5 rounded-xl leading-snug break-keep border border-red-100"
   }, React.createElement("span", {
     className: "font-bold"
-  }, "📢 안내사항"), " 일정에 따라 수령 방법이 변경될 수 있으니, 배송지는 입력해 주세요!")), React.createElement("div", {
+  }, "📢 안내사항"), " 일정에 따라 수령 방법이 변경될 수 있으니, 배송지는 입력해 주세요!")))), step === 4 && React.createElement("div", {
+    className: "space-y-6 animate-slide-in pb-10"
+  }, React.createElement("div", null, React.createElement("h2", {
+    className: "text-2xl font-bold text-gray-800"
+  }, t('step4Title'))), renderOhOrderItem(false), React.createElement("div", {
+    className: "bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
+  }, React.createElement("p", {
+    className: "oh-h"
+  }, "예약자 정보"), React.createElement("div", {
+    className: "oh-info"
+  }, React.createElement("div", null, React.createElement("span", null, "예약자"), React.createElement("b", null, userInfo.name, " · ", userInfo.phone)), React.createElement("div", null, React.createElement("span", null, "일정명"), React.createElement("b", null, userInfo.scheduleName || '-')), userInfo.account && React.createElement("div", null, React.createElement("span", null, "환불 계좌"), React.createElement("b", null, userInfo.account))), React.createElement("div", {
+    className: "oh-sep"
+  }), React.createElement("p", {
+    className: "oh-h"
+  }, isPackage || deliveryMethod === 'venue' ? "공연장 수령" : "배송지"), React.createElement("div", {
+    className: "oh-info"
+  }, React.createElement("div", null, React.createElement("span", null, isPackage || deliveryMethod === 'venue' ? '수령 장소' : '주소'), React.createElement("b", null, userInfo.address, " ", userInfo.detailAddress)), isPackage && endDate && (discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && React.createElement("div", null, React.createElement("span", null, "리뷰 작성 기한"), React.createElement("b", null, "~", pkgFmt(pkgAddDays(getReturnDate(endDate), PACKAGE_REVIEW_DAYS)), " (반납일로부터 ", PACKAGE_REVIEW_DAYS, "일)"))), React.createElement("div", {
     id: "payment-method-section",
     className: "oh-secb"
   }, React.createElement("div", {
@@ -13470,94 +14442,12 @@ React.createElement("div", {
   }, "개인정보 수집 및 이용 동의 (필수)")), React.createElement("button", {
     onClick: () => setShowPrivacy(true),
     className: "text-xs text-gray-400 underline"
-  }, "내용 보기")))))), step === 4 && React.createElement("div", {
-    className: "space-y-6 animate-slide-in pb-10"
-  }, React.createElement("div", null, React.createElement("h2", {
-    className: "text-2xl font-bold text-gray-800"
-  }, t('step4Title'))), React.createElement("div", {
-    className: "bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4"
-  }, React.createElement("div", {
-    className: "flex items-center justify-between pb-4 border-b border-gray-100"
-  }, React.createElement("span", {
-    className: "font-bold text-gray-800 text-lg"
-  }, selectedPhone?.name), React.createElement("span", {
-    className: "text-xs text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded-lg"
-  }, selectedPhone?.tag)), React.createElement("div", {
-    className: "space-y-3 text-sm"
-  }, React.createElement("div", {
-    className: "flex justify-between"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "대여 기간"), React.createElement("span", {
-    className: "font-bold text-gray-800"
-  }, startDate && `${startDate.getMonth() + 1}월 ${startDate.getDate()}일`, " ~ ", endDate && `${getReturnDate(endDate).getMonth() + 1}월 ${getReturnDate(endDate).getDate()}일`, " ", React.createElement("span", {
-    className: "text-blue-500 ml-1"
-  }, "(", calculateDays(), "일)"))), React.createElement("div", {
-    className: "flex justify-between"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "수령 방법"), React.createElement("span", {
-    className: "font-bold text-gray-800"
-  }, deliveryMethod === 'post' ? '택배수령' : deliveryMethod === 'quick' ? '퀵수령' : deliveryMethod === 'venue' ? '공연장수령' : '사무실수령')), React.createElement("div", {
-    className: "flex justify-between"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "반납 방법"), React.createElement("span", {
-    className: "font-bold text-gray-800"
-  }, returnMethod === 'pickup' ? '방문수거' : returnMethod === 'post' ? '택배반납' : returnMethod === 'office' ? '사무실반납' : returnMethod === 'sameday' ? '당일반납' : returnMethod === 'venue' ? '공연장반납' : '미선택')), React.createElement("div", {
-    className: "flex justify-between"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "신청자"), React.createElement("span", {
-    className: "font-bold text-gray-800"
-  }, userInfo.name, " (", userInfo.phone, ")")), React.createElement("div", {
-    className: "flex justify-between items-start"
-  }, React.createElement("span", {
-    className: "text-gray-500 shrink-0"
-  }, "주소"), React.createElement("span", {
-    className: "font-bold text-gray-800 text-right"
-  }, userInfo.address, " ", userInfo.detailAddress)), userInfo.account && React.createElement("div", {
-    className: "flex justify-between"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "환불 계좌"), React.createElement("span", {
-    className: "font-bold text-gray-800 text-right break-keep",
-    style: {
-      maxWidth: '70%'
-    }
-  }, userInfo.account)), isPackage && React.createElement("div", {
-    className: "flex justify-between"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "상품"), React.createElement("span", {
-    className: "font-bold text-rose-500"
-  }, "🎁 콘서트 패키지")), isPackage && endDate && (discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && React.createElement("div", {
-    className: "flex justify-between"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "리뷰 작성 기한"), React.createElement("span", {
-    className: "font-bold text-gray-800"
-  }, "~", pkgFmt(pkgAddDays(getReturnDate(endDate), PACKAGE_REVIEW_DAYS)), " (반납일로부터 ", PACKAGE_REVIEW_DAYS, "일)")), React.createElement("div", {
-    className: "flex justify-between pt-2 mt-2 border-t border-gray-100 border-dashed"
-  }, React.createElement("span", {
-    className: "text-gray-500"
-  }, "결제 수단"), React.createElement("span", {
-    className: `font-bold ${paymentMethod === 'store' ? 'text-green-600' : 'text-blue-600'}`
-  }, paymentMethod === 'transfer' ? '계좌이체' : paymentMethod === 'store' ? '카드결제' : '미선택'))), React.createElement("div", {
-    className: "pt-4 border-t border-gray-100 flex justify-between items-center"
-  }, React.createElement("span", {
-    className: "font-bold text-gray-600"
-  }, t('totalAmount')), React.createElement("span", {
-    className: "text-xl font-bold text-blue-500"
-  }, calculateTotal().toLocaleString(), "원"))), renderKakaoFriendNotice(), React.createElement("div", {
-    className: "bg-red-50 p-4 rounded-xl border border-red-100"
+  }, "내용 보기"))))), React.createElement("div", {
+    className: "oh-warn"
   }, React.createElement("p", {
-    className: "text-sm text-red-500 font-bold mb-2 flex items-center gap-1"
-  }, React.createElement(Icons.ShieldCheck, {
-    size: 16
-  }), " 유의사항"), React.createElement("ul", {
-    className: "text-sm text-red-700 space-y-2 leading-relaxed list-disc pl-4"
-  }, React.createElement("li", null, "예약신청 후 ", React.createElement("strong", null, "1시간 이내 결제가 확인되지 않는다면"), " 개인정보 보호를 위해 별도 안내 없이", React.createElement("strong", null, "자동 삭제"), "될 수 있어요."), isPackage && React.createElement("li", null, "콘서트 패키지는 ", React.createElement("strong", null, "한정 수량"), "이며, ", React.createElement("strong", null, "예약확정 안내를 받으신 후에는 환불이 어려워요."), " 리뷰 할인을 선택하셨다면 반납일로부터 5일 이내 작성해주세요. (미작성 시 할인 금액 반환)"), React.createElement("li", null, "누군가의 권유로 인해 대리예약, 고수익 알바, 네이버 페이 환전 등으로 예약을 하시는거라면 그것은 ", React.createElement("strong", null, "'사기'"), " 입니다.")))), React.createElement("div", {
+    className: "font-bold mb-2",
+    style: { marginLeft: -16, color: '#2F3438' }
+  }, "유의사항"), React.createElement("ul", null, React.createElement("li", null, "예약신청 후 ", React.createElement("strong", null, "1시간 이내 결제가 확인되지 않으면"), " 개인정보 보호를 위해 별도 안내 없이 ", React.createElement("strong", null, "자동 삭제"), "될 수 있어요."), isPackage && React.createElement("li", null, "콘서트 패키지는 ", React.createElement("strong", null, "한정 수량"), "이며, ", React.createElement("strong", null, "예약확정 안내를 받으신 후에는 환불이 어려워요."), " 리뷰 할인을 선택하셨다면 반납일로부터 5일 이내 작성해주세요. (미작성 시 할인 금액 반환)"), React.createElement("li", null, "누군가의 권유로 인한 대리예약, 고수익 알바, 네이버페이 환전 등으로 예약하시는 거라면 그것은 ", React.createElement("strong", null, "'사기'"), "예요.")))), React.createElement("div", {
     className: "oh-bottom w-full"
   }, React.createElement("div", {
     className: "oh-cta"
@@ -13621,6 +14511,11 @@ React.createElement("div", {
           showAppToast('연락처 인증을 완료해주세요! 📱');
           return;
         }
+        setIsPhoneCheckModalOpen(true);
+        return;
+      }
+      if (step === 4) {
+        // [NEW] 2026-10-24 결제 수단·약관 동의는 4단계(결제)에서
         if (!paymentMethod) {
           showAppToast(t('errPayment'));
           triggerPaymentError();
@@ -13632,10 +14527,6 @@ React.createElement("div", {
           showAppToast(t('errTerms'));
           return;
         }
-        setIsPhoneCheckModalOpen(true);
-        return;
-      }
-      if (step === 4) {
         setIsConfirmModalOpen(true);
         return;
       }
@@ -13643,7 +14534,7 @@ React.createElement("div", {
     },
     className: "oh-next",
     style: { flex: '1 1 0' }
-  }, isSubmitting ? '처리 중...' : step === 4 ? `${calculateTotal().toLocaleString()}원 ${t('btnPay')}` : t('btnNext')))))), isPhoneCheckModalOpen && React.createElement("div", {
+  }, isSubmitting ? '처리 중...' : step === 4 ? t('btnPay') : t('btnNext')))))), isPhoneCheckModalOpen && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
   }, React.createElement("div", {
     className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all"
