@@ -814,6 +814,35 @@
 .oh-mlist button{position:relative}
 .oh-mlist button+button:before{content:'';position:absolute;top:0;left:20px;right:20px;height:1px;background:#F1F3F5}
 </style>
+
+<style id="serincam-ohouse-event">
+/* [NEW] 2026-10-24 이벤트 페이지 */
+.oh-evlead{padding:6px 2px 4px;font-size:13px;color:#828C94}.oh-evlead b{display:block;font-size:19px;color:#2F3438;margin-bottom:4px}
+.oh-evb{position:relative;display:block;width:100%;height:156px;border-radius:12px;overflow:hidden;padding:18px;margin-top:12px;text-align:left;transition:transform .15s}
+.oh-evb:active{transform:scale(.98)}
+.oh-evb small{font-size:12px;font-weight:700;opacity:.85}
+.oh-evb h4{position:relative;z-index:2;font-size:19px;font-weight:800;line-height:1.3;margin-top:4px;letter-spacing:-.02em}
+.oh-evb .go{position:absolute;left:18px;bottom:14px;z-index:2;font-size:12px;font-weight:700;background:rgba(255,255,255,.8);border-radius:999px;padding:4px 10px}
+.oh-evb svg{position:absolute}
+.oh-evb.sky{background:linear-gradient(135deg,#E6F6FD,#D2EEFB);color:#0B6E93}
+.oh-evb.lav{background:linear-gradient(135deg,#F3EEFC,#E5DCF8);color:#5E4A9B}
+.oh-evb.hero{border-radius:0;margin:0 -16px;width:calc(100% + 32px);height:150px}
+.oh-evb .wob{animation:ohEvWob 3.2s ease-in-out infinite;transform-origin:50% 50%}
+.oh-evb .bob{animation:ohEvBob 2.6s ease-in-out infinite}
+.oh-evb .tw{animation:ohEvTw 1.8s ease-in-out infinite}
+@keyframes ohEvWob{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(-4deg) translateY(-5px)}}
+@keyframes ohEvBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ohEvTw{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.oh-evb .wob,.oh-evb .bob,.oh-evb .tw{animation:none}}
+.oh-evsec{padding-top:18px}.oh-evsec h5{font-size:15px;font-weight:800;color:#2F3438;margin-bottom:4px}
+.oh-evsec p.s{font-size:12px;color:#828C94}
+.oh-evsum{display:flex;justify-content:space-between;align-items:center;background:#F7F9FA;border-radius:8px;padding:12px 14px;margin-top:14px;font-size:13px;font-weight:700;color:#2F3438}
+.oh-evsum b{font-size:17px;color:#13A8DE}
+.oh-evbtn{display:block;width:100%;margin-top:14px;text-align:center;border-radius:6px;padding:14px;font-size:15px;font-weight:800;background:#13A8DE;color:#fff;transition:transform .12s}
+.oh-evbtn:active{transform:scale(.98)}
+.oh-evnt{font-size:12px;color:#828C94;line-height:1.7;margin-top:10px}
+.oh-tabs .ev{position:relative}.oh-tabs .ev:after{content:'';position:absolute;top:2px;right:-6px;width:5px;height:5px;border-radius:50%;background:#FF7A8A}
+</style>
 <style id="serincam-ohouse-global">
 /* [NEW] 2026-10-24 전체 페이지·팝업 오늘의집 스타일: 흰 바탕, 얇은 테두리, 작은 모서리, 하늘색 #13A8DE */
 :root{--oh:#13A8DE;--oh-soft:#E7F6FC;--oh-ink:#0A8CBC;--oh-tx:#2F3438;--oh-tx3:#828C94;--oh-line:#EAEDEF;--oh-band:#F7F8FA}
@@ -1158,6 +1187,7 @@
 .oh-home #home-tips-section .space-y-2>div{background:#fff!important;border-bottom:1px solid var(--oh-line);border-radius:0!important;padding-left:0!important;padding-right:0!important}
 .oh-home #venue-section h3,.oh-home .oh-sec>h3{font-size:19px!important;font-weight:700!important}
 .oh-home #venue-section .rounded-2xl{border-radius:6px!important}
+.oh-topfab{display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}.oh-topfab.on{opacity:1;transform:none;pointer-events:auto}
 .oh-fab{position:fixed;right:max(16px,calc(50% - 208px));bottom:84px;z-index:45;width:52px;height:52px;border-radius:50%;background:#13A8DE;color:#fff;font-size:30px;line-height:50px;text-align:center;box-shadow:0 4px 12px rgba(19,168,222,.45)}
 </style>
 
@@ -2735,6 +2765,56 @@ var renderOhBanner = (key, maxDiscount) => {
     className: "sp s2"
   }, "✦")));
 };
+// [NEW] 2026-10-24 홈 맨 위로 버튼 (스크롤을 내리면 나타남)
+// [NEW] 2026-10-24 팔로우 확인 진행바(A안): 확인 중엔 시간에 맞춰 차오르며 문구가 바뀌고, 결과가 나오면 색으로 끝까지 참
+var OH_FOLLOW_BAR = { checking: ['#13A8DE', '#CDEFFB'], ok: ['#2EAA78', '#D5F0E5'], notfound: ['#F04452', '#FDE2E4'], pending: ['#E8820C', '#FFEBD2'] };
+var OhFollowProgress = ({ st, handle, cls, msg }) => {
+  var [k, setK] = React.useState(0);
+  React.useEffect(() => {
+    if (st !== 'checking') return;
+    setK(0);
+    var ts = [setTimeout(() => setK(1), 60), setTimeout(() => setK(2), 1500), setTimeout(() => setK(3), 3200)];
+    return () => ts.forEach(clearTimeout);
+  }, [st]);
+  var bar = OH_FOLLOW_BAR[st];
+  var width = st === 'checking' ? [8, 35, 70, 90][k] : 100;
+  var text = st === 'checking' ? [`@${handle} 님 반갑습니다!`, `@${handle} 님 반갑습니다!`, '할인 적용 여부를 확인 중이에요', '잠시만 기다려주세요'][k] : msg;
+  return React.createElement("div", {
+    className: "flex-1 min-w-0"
+  }, bar && React.createElement("div", {
+    style: { height: 4, borderRadius: 2, background: bar[1], overflow: 'hidden', margin: '4px 0 6px' }
+  }, React.createElement("div", {
+    style: { height: '100%', width: width + '%', background: bar[0], transition: 'width .9s ease, background .3s' }
+  })), React.createElement("p", {
+    className: `text-[11px] font-bold leading-snug break-keep ${cls}`,
+    style: st === 'checking' ? { color: '#0A8CBC' } : st === 'pending' ? { color: '#E8820C' } : undefined
+  }, text));
+};
+var OhTopFab = () => {
+  var [show, setShow] = React.useState(false);
+  React.useEffect(() => {
+    var onScroll = () => setShow(window.scrollY > 600);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return React.createElement("button", {
+    onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+    className: `oh-fab oh-topfab${show ? ' on' : ''}`,
+    "aria-label": "맨 위로"
+  }, React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    width: 24,
+    height: 24,
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2.6,
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, React.createElement("path", {
+    d: "M12 19V5M5.5 11.5L12 5l6.5 6.5"
+  })));
+};
 var HomeBannerSlider = ({
   followOn,
   maxDiscount,
@@ -2900,7 +2980,10 @@ var PhoneRentalApp = () => {
     models: { activeNav: 'home', viewMode: 'allModels' },
     logout: { activeNav: 'home', viewMode: 'logoutGuide' },
     'venue-pickup': { activeNav: 'home', viewMode: 'venuePickup' },
-    courier: { activeNav: 'mypage', viewMode: 'courierPicker' }
+    courier: { activeNav: 'mypage', viewMode: 'courierPicker' },
+    events: { activeNav: 'home', viewMode: 'events' }, // [NEW] 2026-10-24 이벤트
+    'event-follow': { activeNav: 'home', viewMode: 'eventFollow' },
+    'event-partners': { activeNav: 'home', viewMode: 'eventPartners' }
   };
   var initialPageParam = (function () {
     try {
@@ -3081,6 +3164,8 @@ var PhoneRentalApp = () => {
   var FOLLOW_DISCOUNT = 2000; // 2026-10-18 4,000원 → 2,000원으로 조정
   // [NEW] 팔로우 할인 공개 여부 (2026-10-14 숨김 → 2026-10-18 다시 공개). false 로 바꾸면 예약 1단계 팔로우 할인·모델 카드 최대 할인가·패키지 가격에서 빠짐
   var FOLLOW_DISCOUNT_ENABLED = true;
+  // [NEW] 2026-10-24 홈 상단 '이벤트' 탭 노출 여부 (이벤트 페이지·팔로우 인증·파트너스는 만들어 둔 상태, true 로 바꾸면 바로 보임)
+  var OH_EVENTS_ENABLED = false;
   var FOLLOW_ACCOUNTS = {
     // cta: 선택 카드 제목·계정 열기 링크 공용 문구
     x: { label: 'X', cta: 'X(트위터) 팔로우 하기', handle: '@serin_cam', url: 'https://x.com/serin_cam' },
@@ -3183,13 +3268,13 @@ var PhoneRentalApp = () => {
     background: 'linear-gradient(#fff, #fff) padding-box, ' + IG_GRADIENT + ' border-box',
     borderColor: 'transparent'
   };
-  var renderFollowSection = () => {
+  var renderFollowSection = (opts = {}) => {
     var keys = ['x', 'insta'];
     var anySel = follows.x || follows.insta;
     return React.createElement("div", {
-      id: "follow-discount-section",
-      className: "mt-4 pt-4 border-t border-dashed border-gray-200"
-    }, React.createElement("div", {
+      id: opts.free ? undefined : "follow-discount-section",
+      className: opts.free ? "mt-3" : "mt-4 pt-4 border-t border-dashed border-gray-200"
+    }, !opts.free && React.createElement("div", {
       className: "flex items-center gap-1.5 mb-1"
     }, React.createElement("p", {
       className: "text-[11px] font-bold text-gray-500"
@@ -3197,7 +3282,7 @@ var PhoneRentalApp = () => {
       className: "text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-500 border border-rose-100"
     }, "NEW")), React.createElement("p", {
       className: "text-[11px] text-gray-400 mb-1.5"
-    }, "💡 리뷰 할인과 함께 받을 수 있어요 (둘 다 선택 가능)"), React.createElement("div", {
+    }, opts.free ? "💡 X·인스타 중 팔로우한 계정을 눌러주세요 (둘 다 선택 가능)" : "💡 리뷰 할인과 함께 받을 수 있어요 (둘 다 선택 가능)"), React.createElement("div", {
       className: "grid grid-cols-2 gap-2"
     }, keys.map(k => {
       var acc = FOLLOW_ACCOUNTS[k];
@@ -3205,7 +3290,7 @@ var PhoneRentalApp = () => {
       return React.createElement("div", {
         key: k,
         onClick: () => {
-          if (!selectedPhone && !isPackage) {
+          if (!opts.free && !selectedPhone && !isPackage) {
             triggerReviewError();
             return;
           }
@@ -3242,10 +3327,10 @@ var PhoneRentalApp = () => {
       var st = followStatus[k];
       var stMsg = {
         idle: ['text-gray-400', '팔로우한 뒤 아이디를 적고 확인을 눌러주세요'],
-        checking: ['text-gray-500', React.createElement(React.Fragment, null, "세린캠 팔로워 목록에서 찾고 있어요", React.createElement("br", null), "예상 소요시간: 10초")],
+        checking: ['text-gray-500', '팔로우 정보를 확인하고 있어요'],
         ok: ['text-emerald-600', '✅ 팔로우가 확인됐어요 · ' + FOLLOW_DISCOUNT.toLocaleString() + '원 할인 적용'],
-        notfound: ['text-red-500', '❌ 팔로우를 찾지 못했어요. 팔로우 상태와 아이디를 확인하고 다시 눌러주세요'],
-        pending: ['text-amber-600', '⏳ 확인이 늦어지고 있어요. 예약 확정 전에 확인해 드릴게요'],
+        notfound: ['text-red-500', '❌ 팔로우 상태 또는 아이디를 확인해주세요.'],
+        pending: ['text-amber-600', '⏳ 시스템 점검으로 현재 확인이 어려워요.'],
         invalid: ['text-red-500', k === 'x' ? '아이디 형식을 확인해주세요 (영문·숫자·_ 15자 이내)' : '아이디 형식을 확인해주세요 (영문·숫자·_·. 30자 이내)']
       }[st];
       return React.createElement("div", {
@@ -3284,9 +3369,12 @@ var PhoneRentalApp = () => {
         }
       }, st === 'checking' ? "확인 중" : st === 'notfound' ? "다시 확인" : "확인")), React.createElement("div", {
         className: "flex items-start justify-between gap-2 mt-1"
-      }, React.createElement("p", {
-        className: `text-[11px] font-bold leading-snug break-keep ${stMsg[0]}`
-      }, stMsg[1]), React.createElement("a", {
+      }, React.createElement(OhFollowProgress, {
+        st: st,
+        handle: normalizeFollowId(followIds[k]),
+        cls: stMsg[0],
+        msg: stMsg[1]
+      }), React.createElement("a", {
         href: acc.url,
         target: "_blank",
         rel: "noopener noreferrer",
@@ -3294,7 +3382,16 @@ var PhoneRentalApp = () => {
         style: {
           color: k === 'x' ? '#000' : '#D62976'
         }
-      }, acc.cta)));
+      }, acc.cta)), st === 'pending' && React.createElement("a", {
+        // [NEW] 2026-10-24 확인 응답이 없을 때 고객센터(카카오톡 채널) 연결
+        href: "https://pf.kakao.com/_kiQkG/chat",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "mt-2 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-[12px] font-bold active:scale-95 transition-all",
+        style: { background: '#FEE500', color: '#191919' }
+      }, React.createElement(KakaoSymbol, {
+        size: 14
+      }), "카카오톡 채널로 문의하기"));
     })), React.createElement("ul", {
       className: "mt-3 text-[11px] text-gray-600 leading-relaxed space-y-0.5"
     }, React.createElement("li", null, "· 예약 확정 전에 팔로우 여부를 확인해요"), React.createElement("li", null, "· 반납일까지 팔로우를 유지해주세요. 그 전에 언팔로우하면 할인 금액이 청구될 수 있어요"))));
@@ -7989,7 +8086,7 @@ React.createElement("div", {
       onClick: it.onClick
     }, ohIll(OH_ILL_BY_LABEL[it.label], 44), React.createElement("span", {
       className: "tx"
-    }, it.label, OH_MANAGE_SUB[it.label] && React.createElement("small", null, OH_MANAGE_SUB[it.label])), React.createElement(Icons.ChevronRight, {
+    }, it.label === '취소/환불' ? '예약 취소' : it.label, OH_MANAGE_SUB[it.label] && React.createElement("small", null, OH_MANAGE_SUB[it.label])), React.createElement(Icons.ChevronRight, {
       size: 16,
       className: "chv"
     }))))), React.createElement("div", {
@@ -9203,7 +9300,10 @@ React.createElement("div", {
     onClick: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); }
   }, "공연장 픽업"), React.createElement("button", {
     onClick: () => { setViewMode('reviews'); updateURLForNav('reviews'); }
-  }, "대여 후기")));
+  }, "대여 후기"), OH_EVENTS_ENABLED && React.createElement("button", {
+    className: "ev",
+    onClick: () => { setViewMode('events'); updateURLForNav('events'); window.scrollTo(0, 0); }
+  }, "이벤트")));
   var renderOhIcons = () => {
     var list = showAllServices ? HOME_ICON_GRID : HOME_ICON_GRID.slice(0, 7);
     return React.createElement("div", {
@@ -12968,7 +13068,7 @@ React.createElement("div", {
     '방문택배 신청': '우체국에 가기 어려우면 기사님이 찾아가요',
     '모델 변경': '다른 기기로 바꾸고 싶을 때',
     '주소 변경': '받으실 주소가 바뀌었을 때',
-    '취소/환불': '예약을 취소하고 환불받고 싶을 때'
+    '취소/환불': '예약을 취소하고 싶을 때'
   };
   // -1 = 취소
   var ohResStep = item => {
@@ -12992,7 +13092,7 @@ React.createElement("div", {
     var cancelReq = getLinkedRequests(item).find(r => r.category === '취소신청');
     var ordered = item.orderTime ? ohMD(item.orderTime).replace(/\(.\)$/, '') : '';
     var sd = ohMD(item.startDate), ed = ohMD(item.endDate);
-    var subs = [ordered ? `${ordered} 주문 · ${step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인'}` : step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인', step === 0 ? '입금 확인 후 확정돼요' : [sd && `${sd} 수령`, item.delivery].filter(Boolean).join(' · '), [ed && `${ed} 반납`, item.returnMethod].filter(Boolean).join(' · ')];
+    var subs = [ordered ? `${ordered} 주문 · ${step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인'}` : step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인', step === 0 ? '입금 확인 후 확정돼요' : [sd && `${sd} 대여시작`, item.delivery].filter(Boolean).join(' · '), [ed && `${ed} 대여종료`, item.returnMethod].filter(Boolean).join(' · ')];
     return React.createElement("div", {
       className: "oh-now"
     }, React.createElement("div", {
@@ -13031,6 +13131,56 @@ React.createElement("div", {
       style: { padding: 11 }
     }, "후기 작성하기")));
   };
+  // [NEW] 2026-10-24 이벤트 — 배너(A안: 쿠폰 티켓 / 파트너스 사원증) · 팔로우 이벤트(예약 화면 팔로우 인증 재사용) · 파트너스
+  var OH_EVENT_SPARK = (style, size, color) => React.createElement("svg", {
+    className: "tw",
+    style: style,
+    width: size,
+    height: size,
+    viewBox: "0 0 14 14",
+    dangerouslySetInnerHTML: { __html: `<path d="M7 0l1.8 5.2L14 7l-5.2 1.8L7 14 5.2 8.8 0 7l5.2-1.8z" fill="${color || '#fff'}"/>` }
+  });
+  var renderOhEventBanner = (key, hero) => {
+    var isF = key === 'follow';
+    var open = () => { setViewMode(isF ? 'eventFollow' : 'eventPartners'); updateURLForNav(isF ? 'event-follow' : 'event-partners'); window.scrollTo(0, 0); };
+    var x = '<rect width="30" height="30" rx="9" fill="#2F3438"/><path d="M9 8l12 14M21 8L9 22" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>';
+    var ig = '<rect width="30" height="30" rx="9" fill="#F48FB1"/><rect x="7" y="7" width="16" height="16" rx="5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="15" cy="15" r="3.6" fill="none" stroke="#fff" stroke-width="2"/><circle cx="20" cy="10" r="1.2" fill="#fff"/>';
+    var svg = (cls, style, w, h, vb, html) => React.createElement("svg", { className: cls, style: style, width: w, height: h, viewBox: vb, dangerouslySetInnerHTML: { __html: html } });
+    return React.createElement(hero ? "div" : "button", {
+      className: `oh-evb ${isF ? 'sky' : 'lav'}${hero ? ' hero' : ''}`,
+      onClick: hero ? undefined : open
+    }, React.createElement("small", null, isF ? "팔로우 이벤트" : "세린캠 파트너스"), React.createElement("h4", null, isF ? "팔로우만 해도" : "함께할", React.createElement("br", null), isF ? "최대 " + (FOLLOW_DISCOUNT * 2).toLocaleString() + "원 할인" : "파트너스 모집"), !hero && React.createElement("span", {
+      className: "go"
+    }, "자세히 보기 ›"), isF ? React.createElement(React.Fragment, null, svg("wob", { right: 14, top: 30 }, 150, 86, "0 0 150 86", `<path d="M8 0h134a8 8 0 018 8v22a13 13 0 000 26v22a8 8 0 01-8 8H8a8 8 0 01-8-8V56a13 13 0 000-26V8a8 8 0 018-8z" fill="#fff"/><path d="M104 8v70" stroke="#CDEFFB" stroke-width="2" stroke-dasharray="4 4"/><text x="54" y="44" font-size="22" font-weight="900" text-anchor="middle" fill="#13A8DE" textLength="84" lengthAdjust="spacingAndGlyphs">${(FOLLOW_DISCOUNT * 2).toLocaleString()}원</text><text x="54" y="63" font-size="11.5" font-weight="700" text-anchor="middle" fill="#6FB5CC">할인 쿠폰</text><text x="127" y="49" font-size="13" font-weight="900" text-anchor="middle" fill="#13A8DE">%</text>`), svg("bob", { right: 150, top: 18 }, 30, 30, "0 0 30 30", x), svg("bob", { right: 8, top: 100, animationDelay: '.9s' }, 28, 28, "0 0 30 30", ig), OH_EVENT_SPARK({ right: 132, bottom: 18 }, 12)) : React.createElement(React.Fragment, null, svg("wob", { right: 18, top: 24 }, 130, 94, "0 0 130 94", '<rect width="130" height="94" rx="10" fill="#fff"/><rect width="130" height="24" rx="10" fill="#9C8CC8"/><rect y="14" width="130" height="10" fill="#9C8CC8"/><text x="65" y="17" font-size="11" font-weight="900" text-anchor="middle" fill="#fff" letter-spacing="2">PARTNERS</text><circle cx="32" cy="56" r="16" fill="#EEE8FA"/><circle cx="32" cy="51" r="6" fill="#9C8CC8"/><path d="M21 66a11 8 0 0122 0" fill="#9C8CC8"/><rect x="56" y="44" width="56" height="7" rx="3.5" fill="#E5DCF8"/><rect x="56" y="58" width="40" height="7" rx="3.5" fill="#E5DCF8"/>'), OH_EVENT_SPARK({ right: 156, top: 22 }, 13), OH_EVENT_SPARK({ right: 10, bottom: 12, animationDelay: '.7s' }, 10, '#9C8CC8')));
+  };
+  var renderEventsPage = () => React.createElement("div", null, ohPageHead("이벤트"), React.createElement("div", {
+    className: "oh-evlead"
+  }, React.createElement("b", null, "진행 중인 이벤트 2"), "세린캠에서 준비한 혜택을 확인하세요"), renderOhEventBanner('follow'), renderOhEventBanner('partners'));
+  var renderEventFollowPage = () => {
+    var sum = getFollowDiscount();
+    return React.createElement("div", null, ohPageHead("팔로우 이벤트", () => { setViewMode('events'); updateURLForNav('events'); }), renderOhEventBanner('follow', true), React.createElement("div", {
+      className: "oh-evsec"
+    }, React.createElement("h5", null, "여기서 바로 팔로우 인증하기"), React.createElement("p", {
+      className: "s"
+    }, "팔로우하고 아이디를 확인하면 예약할 때 할인이 그대로 들어가요"), renderFollowSection({ free: true }), React.createElement("div", {
+      className: "oh-evsum"
+    }, React.createElement("span", null, "받을 수 있는 할인"), React.createElement("b", null, sum.toLocaleString(), "원")), React.createElement("button", {
+      className: "oh-evbtn",
+      onClick: () => { updateURLForNav('home'); handleRentalStart(); window.scrollTo(0, 0); }
+    }, sum > 0 ? sum.toLocaleString() + "원 할인 받고 예약하기" : "예약하러 가기"), React.createElement("p", {
+      className: "oh-evnt"
+    }, "· 리뷰 할인과 함께 받을 수 있어요", React.createElement("br", null), "· 예약할 때 팔로우 할인이 이미 선택된 상태로 들어가요 (이 화면을 닫거나 새로고침하면 다시 선택해주세요)")));
+  };
+  var renderEventPartnersPage = () => React.createElement("div", null, ohPageHead("세린캠 파트너스", () => { setViewMode('events'); updateURLForNav('events'); }), renderOhEventBanner('partners', true), React.createElement("div", {
+    className: "oh-evsec"
+  }, React.createElement("h5", null, "세린캠 파트너스를 모집해요"), React.createElement("p", {
+    className: "oh-evnt",
+    style: { marginTop: 6 }
+  }, "세린캠과 함께 공연의 순간을 기록하고 나눌 파트너스를 찾고 있어요.", React.createElement("br", null), "자세한 모집 내용은 곧 안내해 드릴게요. 궁금한 점은 카카오톡 채널로 편하게 물어봐 주세요."), React.createElement("button", {
+    className: "oh-evbtn",
+    style: { background: '#9C8CC8' },
+    onClick: () => window.open('https://pf.kakao.com/_kiQkG/chat', '_blank', 'noopener')
+  }, "카카오톡으로 문의하기")));
   var renderSuccessPage = () => {
     var type = successData ? successData.type : '완료';
     var name = successData ? successData.name : '고객';
@@ -13244,11 +13394,7 @@ React.createElement("div", {
     onBook: () => handleRentalStart(),
     onVenue: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); },
     onPackage: () => setShowPackageList(true)
-  })), renderOhIcons(), renderOhDeal(), hasUpcomingConcerts && renderOhConcerts(), renderOhSeatRec(), renderOhReviews(), React.createElement("button", {
-    onClick: () => handleRentalStart(),
-    className: "oh-fab",
-    "aria-label": "예약하기"
-  }, "+"), React.createElement("div", {
+  })), renderOhIcons(), renderOhDeal(), hasUpcomingConcerts && renderOhConcerts(), renderOhSeatRec(), renderOhReviews(), React.createElement(OhTopFab, null), React.createElement("div", {
     id: "home-tips-section",
     className: "oh-sec"
   }, (() => {
@@ -13427,7 +13573,13 @@ React.createElement("div", {
     className: "oh-page"
   }, renderPrivacyPage()), viewMode === 'venuePickup' && React.createElement("div", {
     className: "oh-page"
-  }, renderVenuePickupPage()), viewMode === 'checklist' && React.createElement("div", {
+  }, renderVenuePickupPage()), viewMode === 'events' && React.createElement("div", {
+    className: "oh-page"
+  }, renderEventsPage()), viewMode === 'eventFollow' && React.createElement("div", {
+    className: "oh-page"
+  }, renderEventFollowPage()), viewMode === 'eventPartners' && React.createElement("div", {
+    className: "oh-page"
+  }, renderEventPartnersPage()), viewMode === 'checklist' && React.createElement("div", {
     className: "oh-page"
   }, renderChecklistPage()), viewMode === 'success' && React.createElement("div", {
     className: "oh-page"
