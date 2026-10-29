@@ -337,6 +337,10 @@
 .oh-rv-item .tx{font-size:14px;line-height:1.6;margin-top:10px;color:#2F3438;white-space:pre-line}
 .oh-rv-item .tx.cl{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .oh-rv-item .more{font-size:13px;color:#828C94;margin-top:4px}
+.oh-rv-more{padding:18px 20px 8px}
+.oh-rv-more button{width:100%;height:46px;border-radius:6px;border:1px solid #DADDE0;background:#fff;color:#2F3438;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+.oh-rv-more button b{color:#13A8DE}.oh-rv-more button span{color:#828C94;font-weight:500}
+.oh-rv-more p{font-size:13px;color:#828C94;text-align:center;padding:6px 0;cursor:pointer}
 .oh-rv-empty{text-align:center;padding:60px 20px;color:#828C94;font-size:14px}
 </style>
 
@@ -1685,6 +1689,9 @@ var Icons = {
   })),
   ChevronLeft: props => React.createElement(Icon, props, React.createElement("polyline", {
     points: "15 18 9 12 15 6"
+  })),
+  ChevronDown: props => React.createElement(Icon, props, React.createElement("polyline", {
+    points: "6 9 12 15 18 9"
   })),
   CheckCircle: props => React.createElement(Icon, props, React.createElement("path", {
     d: "M22 11.08V12a10 10 0 1 1-5.93-9.14"
@@ -9519,7 +9526,14 @@ React.createElement("div", {
   };
   // [NEW] 2026-10-24 예약 화면 (오늘의집 주문/결제) — 주문상품 카드 · 결제금액 표
   var [ohItemOpen, setOhItemOpen] = useState(true);
-  var [ohRvPhotoOnly, setOhRvPhotoOnly] = useState(false); // 리뷰 페이지 '사진 후기만' 
+  var [ohRvPhotoOnly, setOhRvPhotoOnly] = useState(false); // 리뷰 페이지 '사진 후기만'
+  // [NEW] 2026-10-30 후기 목록은 20개씩만 그리고 '후기 더보기'로 이어서 불러온다.
+  // 484개를 한 번에 그리면 스크롤만 해도 사진 수백 장을 받아 Supabase 무료 용량(Cached Egress)을 넘겼음.
+  var OH_RV_PAGE = 20;
+  var [ohRvLimit, setOhRvLimit] = useState(OH_RV_PAGE);
+  useEffect(() => {
+    setOhRvLimit(OH_RV_PAGE);
+  }, [activeReviewTab, ohRvPhotoOnly]);
   var [ohShowGuest, setOhShowGuest] = useState(!KAKAO_LOGIN_ENABLED); // 마이페이지 비회원 조회 펼침
   var ohDayStr = d => d ? `${d.getMonth() + 1}/${d.getDate()}(${daysOfWeek[d.getDay()]})` : '';
   var OH_PICKUP_LABEL = { post: '택배 수령', quick: '퀵 수령', venue: '공연장 수령', office: '사무실 수령' };
@@ -12159,7 +12173,7 @@ React.createElement("div", {
     }, ohRvPhotoOnly && React.createElement(Icons.Check, {
       size: 12,
       className: "text-white"
-    })), "사진 후기만")), shown.length > 0 ? shown.map(review => React.createElement("div", {
+    })), "사진 후기만")), shown.length > 0 ? shown.slice(0, ohRvLimit).map(review => React.createElement("div", {
       key: review.id,
       className: "oh-rv-item"
     }, React.createElement("div", {
@@ -12195,7 +12209,17 @@ React.createElement("div", {
       }))
     }, !collapsedReviews[review.id] ? '더보기' : '접기'))) : React.createElement("div", {
       className: "oh-rv-empty"
-    }, ohRvPhotoOnly ? "사진 후기가 아직 없어요" : "아직 작성된 후기가 없어요 😢"));
+    }, ohRvPhotoOnly ? "사진 후기가 아직 없어요" : "아직 작성된 후기가 없어요 😢"), shown.length > OH_RV_PAGE && React.createElement("div", {
+      className: "oh-rv-more"
+    }, ohRvLimit < shown.length ? React.createElement("button", {
+      // 20 → 40까지는 20개씩, 40개를 본 뒤에는 '모두 보기'로 전부 펼친다 (2026-10-30 사장님 요청)
+      onClick: () => setOhRvLimit(n => n >= OH_RV_PAGE * 2 ? shown.length : n + OH_RV_PAGE)
+    }, ohRvLimit >= OH_RV_PAGE * 2 ? "후기 모두 보기 " : "후기 더보기 ", React.createElement("b", null, Math.min(ohRvLimit, shown.length)), React.createElement("span", null, "/ ", shown.length.toLocaleString()), React.createElement(Icons.ChevronDown, {
+      size: 16,
+      className: "text-gray-400"
+    })) : React.createElement("p", {
+      onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, "모든 후기를 다 봤어요 · 맨 위로 ↑")));
   };
   // [NEW] 예약변경 신청 페이지 (기종/날짜/수령방법 변경 + 예상금액 자동계산)
   // [NEW] 예약변경 페이지 (대여 모델만 변경)
