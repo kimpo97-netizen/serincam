@@ -9396,12 +9396,14 @@ React.createElement("div", {
   }, "홈"), React.createElement("button", {
     onClick: () => handleRentalStart()
   }, "예약하기"), React.createElement("button", {
-    // [NEW] 2026-10-31 홈 탭: 홈 / 예약하기 / 좌석별 추천 모델 / 리뷰 / 자주 묻는 질문
+    // [NEW] 2026-10-31 홈 탭: 홈 / 예약하기 / 추천 모델 / 공연장(픽업존) / 리뷰 / 자주 묻는 질문
     onClick: () => {
       var el = document.getElementById('seat-rec-section');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, "좌석별 추천 모델"), React.createElement("button", {
+  }, "추천 모델"), React.createElement("button", {
+    onClick: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); window.scrollTo(0, 0); }
+  }, "공연장"), React.createElement("button", {
     onClick: () => { setViewMode('reviews'); updateURLForNav('reviews'); }
   }, "리뷰"), React.createElement("button", {
     onClick: () => { setQnaMode('list'); handleNavChange('qna'); updateURLForNav('faq'); }
