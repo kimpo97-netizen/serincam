@@ -405,18 +405,49 @@
 .oh-pk-route b{display:block;font-size:16px;font-weight:800;color:#2F3438;margin:2px 0}
 .oh-pk-route em{font-style:normal;font-size:12px;font-weight:700}
 .oh-pk-note{font-size:12px;color:#A5ADB3;margin-top:8px}
-.oh-tl{position:relative;padding-left:24px}
-.oh-tl::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:#EAEDEF}
-.oh-tl-it{position:relative;padding-bottom:20px}
-.oh-tl-it.last{padding-bottom:0}
-.oh-tl-it .dot{position:absolute;left:-24px;top:3px;width:12px;height:12px;border-radius:50%;background:#13A8DE;box-shadow:0 0 0 3px #fff}
-.oh-tl-it.rose .dot{background:#FF7777}
-.oh-tl-it .wh{font-size:12px;font-weight:700;color:#0A8CBC}
-.oh-tl-it.rose .wh{color:#FF7777}
-.oh-tl-it .ti{font-size:15px;font-weight:700;color:#2F3438;margin-top:2px}
-.oh-tl-it .de{font-size:13px;color:#828C94;line-height:1.55;margin-top:3px;word-break:keep-all}
-.oh-tl-it .de strong{color:#2F3438}
-.oh-tl-it .wa{display:inline-block;font-size:12px;font-weight:600;border-radius:4px;padding:5px 8px;margin-top:7px;line-height:1.45}
+/* [NEW] 2026-10-31 패키지 이용 방법 모션그래픽: 단계가 자동으로 넘어가며 아이콘이 움직임 (누르면 그 단계로) */
+.pkm{border-radius:12px;background:linear-gradient(180deg,#F8FAFC,#fff 70%);border:1px solid #EEF1F4;padding:18px 14px 14px;margin-bottom:22px;overflow:hidden}
+.pkm-scene{display:flex;align-items:center;gap:14px;min-height:86px;padding:0 4px} /* 부제목 3줄까지 높이 고정 (자동 넘김 때 들썩임 방지) */
+.pkm-art{position:relative;width:68px;height:68px;border-radius:20px;display:grid;place-items:center;font-size:28px;flex-shrink:0;transition:background .35s,color .35s}
+.pkm-art i{position:relative;z-index:1}
+.pkm-art .fx{position:absolute;inset:0;border-radius:20px;pointer-events:none}
+.pkm-txt{min-width:0;animation:pkmIn .45s cubic-bezier(.2,.8,.2,1) both}
+.pkm-txt small{display:block;font-size:11px;font-weight:800;letter-spacing:.06em}
+.pkm-txt b{display:block;font-size:16px;font-weight:800;color:#2F3438;margin-top:2px;word-break:keep-all;line-height:1.35}
+.pkm-txt span{display:block;font-size:12.5px;color:#828C94;margin-top:3px;word-break:keep-all}
+.pkm-track{position:relative;display:flex;justify-content:space-between;margin-top:18px}
+.pkm-line,.pkm-fill{position:absolute;left:17px;top:16px;height:3px;border-radius:2px}
+.pkm-line{right:17px;background:#E6EBEE}
+.pkm-fill{background:var(--c);transition:width .6s cubic-bezier(.4,0,.2,1),background .35s}
+.pkm-stop{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:5px;width:34px;background:none}
+.pkm-stop .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:14px;background:#fff;color:#B7C0C6;border:1.5px solid #E6EBEE;transition:all .35s cubic-bezier(.2,.8,.2,1)}
+.pkm-stop.done .ic{background:var(--s);color:var(--c);border-color:var(--s)}
+.pkm-stop.on .ic{background:var(--c);color:#fff;border-color:var(--c);transform:scale(1.18);box-shadow:0 4px 10px -4px var(--c)}
+.pkm-stop em{font-style:normal;font-size:10.5px;font-weight:700;color:#A5ADB3;white-space:nowrap;transition:color .3s}
+.pkm-stop.on em,.pkm-stop.done em{color:#2F3438}
+/* 단계별 움직임 */
+.pkm-a0 .fx{animation:pkmRing 1.2s ease-out .2s infinite}
+.pkm-a0 i{animation:pkmTap 1.2s ease-in-out .2s infinite}
+.pkm-a1 i{animation:pkmDrop .7s cubic-bezier(.3,1.6,.5,1) both}
+.pkm-a1 .fx{animation:pkmRing 1.4s ease-out .5s infinite}
+.pkm-a2 .fx{background:#fff;animation:pkmFlash 1.6s ease-out .3s infinite}
+.pkm-a2 i{animation:pkmShot 1.6s ease-out .3s infinite}
+.pkm-a3 i{transform-origin:50% 10%;animation:pkmBell 1.4s ease-in-out .1s infinite}
+.pkm-a4 i{animation:pkmSlide 1.6s cubic-bezier(.4,0,.2,1) infinite}
+.pkm-a5 i{animation:pkmWrite 1s ease-in-out infinite}
+.pkm-a6 i{animation:pkmStar 1.4s ease-in-out infinite}
+.pkm-a6 .fx{animation:pkmRing 1.4s ease-out .35s infinite}
+@keyframes pkmIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pkmRing{0%{box-shadow:0 0 0 0 var(--c)}100%{box-shadow:0 0 0 14px transparent}}
+@keyframes pkmTap{0%,100%{transform:none}40%{transform:scale(.88)}60%{transform:scale(1.04)}}
+@keyframes pkmDrop{0%{transform:translateY(-26px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pkmFlash{0%{opacity:.95}35%,100%{opacity:0}}
+@keyframes pkmShot{0%{transform:scale(.9)}20%{transform:scale(1.08)}40%,100%{transform:none}}
+@keyframes pkmBell{0%,60%,100%{transform:none}10%{transform:rotate(16deg)}20%{transform:rotate(-14deg)}30%{transform:rotate(10deg)}40%{transform:rotate(-6deg)}}
+@keyframes pkmSlide{0%{transform:translateX(-18px);opacity:0}25%,70%{transform:none;opacity:1}100%{transform:translateX(18px);opacity:0}}
+@keyframes pkmStar{0%,100%{transform:none}30%{transform:scale(1.22) rotate(-12deg)}55%{transform:scale(.95) rotate(6deg)}75%{transform:none}}
+@keyframes pkmWrite{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(3px,-2px) rotate(-8deg)}50%{transform:translate(6px,0) rotate(0)}75%{transform:translate(3px,2px) rotate(8deg)}}
+@media (prefers-reduced-motion:reduce){.pkm *{animation:none!important;transition:none!important}}
 .oh-pk-tip{background:#F7F8FA;border-radius:6px;padding:16px}
 .oh-pk-tip .t{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700;color:#2F3438}
 .oh-pk-tip .t i{color:#13A8DE}
@@ -463,10 +494,22 @@
 .oh-pkc:active{transform:scale(.97)}
 .oh-pkc .im{position:relative;width:132px;height:132px;border-radius:8px;display:grid;place-items:center;font-size:34px}
 .oh-pkc .bd{position:absolute;left:8px;top:8px;font-size:11px;font-weight:700;color:#F0577F;background:#fff;border-radius:4px;padding:2px 7px}
-.oh-pkc .dt{position:absolute;right:8px;bottom:8px;font-size:11px;font-weight:700;color:#5E666C;background:rgba(255,255,255,.85);border-radius:10px;padding:1px 7px}
+.oh-pkc .bd.dd{color:#fff;background:#13A8DE;border-radius:10px;padding:2px 8px}.oh-pkc .bd.dd.today{background:#FF7777}
+.oh-pkc .dt{white-space:nowrap;position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:700;color:#5E666C;background:rgba(255,255,255,.85);border-radius:10px;padding:1px 7px}
 .oh-pkc b{display:block;font-size:14px;font-weight:700;color:#2F3438;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oh-pkc span.v{display:block;font-size:12px;color:#828C94;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oh-pkc .pr{font-size:15px;font-weight:800;color:#2F3438;margin-top:3px}
+/* [NEW] 2026-10-31 패키지 공연 전체 보기 페이지: 2열 카드 */
+.oh-pkl-sub{font-size:13px;color:#828C94;margin:0 0 18px 34px} /* 제목(뒤로 버튼 옆) 시작선에 맞춤 */
+.oh-pkl-cnt{font-size:13px;color:#5E666C;margin-bottom:12px}.oh-pkl-cnt b{color:#13A8DE}
+.oh-pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px 12px}
+.oh-pkgrid .oh-pkc{width:auto;min-width:0}
+.oh-pkgrid .oh-pkc .im{width:100%;height:auto;aspect-ratio:1/1;font-size:40px}
+.oh-pkl-empty{text-align:center;padding:48px 0;color:#A5ADB3;font-size:14px}.oh-pkl-empty i{font-size:34px;margin-bottom:10px;color:#C9D7DD}
+.oh-pkl-more{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:28px;padding:16px;border-radius:8px;background:#F7F8FA;font-size:13px;color:#828C94}
+.oh-pkl-more b{font-size:14px;color:#13A8DE}
+/* [NEW] 2026-10-31 날짜는 이미지 위가 아니라 공연명 아래 */
+.oh-pkc span.d{display:block;font-size:12px;font-weight:600;color:#5E666C;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 
 <style id="serincam-ohouse-seatrec">
@@ -1145,9 +1188,9 @@
 .oh-search{width:100%;height:42px;border-radius:6px;background:#F5F7F8;display:flex;align-items:center;gap:8px;padding:0 12px;font-size:14px;color:#A5ADB3;text-align:left}
 .oh-tabs{display:flex;gap:20px;margin:10px -20px 0;padding:0 20px;border-bottom:1px solid var(--oh-line);overflow-x:auto;white-space:nowrap;scrollbar-width:none}
 .oh-tabs::-webkit-scrollbar{display:none}
-.oh-tabs button{padding:9px 0 10px;font-size:15px;font-weight:600;color:var(--oh-tx);border-bottom:2px solid transparent;flex-shrink:0}
+.oh-tabs button{padding:9px 0 10px;font-size:16px;font-weight:600;color:var(--oh-tx);border-bottom:2px solid transparent;flex-shrink:0}
 .oh-tabs button.on{color:var(--oh);border-bottom-color:var(--oh)}
-.oh-banner{margin:14px 0 4px}
+.oh-banner{margin:14px -20px 0;padding:0 20px 20px;background:#fff;border-bottom:8px solid var(--oh-band)} /* [NEW] 2026-10-31 배너도 다른 섹션처럼 띠로 분리 */
 .oh-icons{display:grid;grid-template-columns:repeat(4,1fr);row-gap:18px;margin:0 -8px}
 .oh-icon{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12px;color:var(--oh-tx);position:relative}
 .oh-icon i{font-size:27px}
@@ -1165,6 +1208,36 @@
 .oh-dt small{font-size:11px;font-weight:600}
 .oh-dd{margin-left:auto;font-size:12px;font-weight:700;color:#fff;background:var(--oh);padding:3px 8px;border-radius:10px;flex-shrink:0}
 .oh-dd.today{background:#FF7777}
+.oh-cs{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}
+.oh-cs .sh{background:#fff;width:100%;max-width:480px;border-radius:16px 16px 0 0;max-height:90vh;display:flex;flex-direction:column;color:#2F3438;animation:ohSheetUp .22s ease-out}
+@keyframes ohSheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.oh-cs .grab{width:36px;height:4px;border-radius:2px;background:#DADDE0;margin:8px auto 0}
+.oh-cs .bd{overflow-y:auto;padding:14px 20px 8px}
+.oh-cs .top{display:flex;gap:12px;align-items:center}
+.oh-cs .top .tile{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.oh-cs .top h3{font-size:18px;font-weight:700;line-height:1.3;word-break:keep-all}
+.oh-cs .top .meta{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:13px;color:#0A8CBC;font-weight:700}
+.oh-cs .top .dd{font-size:11px;font-weight:700;color:#fff;background:#13A8DE;border-radius:10px;padding:2px 8px}
+.oh-cs .top .dd.today{background:#FF7777}
+.oh-cs .x{margin-left:auto;align-self:flex-start;color:#A5ADB3}
+.oh-cs .h{font-size:15px;font-weight:700;margin:22px 0 8px}
+.oh-cs .row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #F1F3F5}
+.oh-cs .row:last-child{border-bottom:0}
+.oh-cs .row .ic{width:32px;height:32px;border-radius:9px;background:#E7F6FC;color:#13A8DE;display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.oh-cs .row .k{font-size:12px;color:#828C94}
+.oh-cs .row .v{font-size:14px;font-weight:700;margin-top:1px;word-break:keep-all}
+.oh-cs .row .s{font-size:12px;color:#5E666C;margin-top:3px;line-height:1.45;white-space:pre-line}
+.oh-cs .row .map{font-size:12px;font-weight:600;color:#13A8DE;margin-top:6px;display:inline-flex;align-items:center;gap:4px}
+.oh-cs .note{font-size:12px;color:#FF7777;background:#FFF5F5;border-radius:6px;padding:9px 11px;margin-top:4px}
+.oh-cs .ft{border-top:1px solid #F1F3F5;padding:12px 20px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px}
+.oh-cs .ft .go{flex:1;background:#13A8DE;color:#fff;border-radius:6px;padding:14px;font-size:15px;font-weight:700;line-height:1.2}
+.oh-cs .ft .sub{flex:0 0 34%;border:1px solid #DADDE0;color:#2F3438;background:#fff;border-radius:6px;padding:14px 0;font-size:15px;font-weight:700}
+/* [NEW] 2026-10-31 배지·칩 글자를 세로 정가운데로: 폰트의 위아래 기본 여백을 잘라내고(text-box) 같은 높이만큼 패딩으로 돌려줘서 크기는 그대로 */
+@supports (text-box: trim-both cap alphabetic) {
+.oh-pkc .bd{--bp:2px}.oh-mb{--bp:1px}.ohb-count{--bp:.25em}.oh-stage .lb{--bp:5px}.oh-stage button em{--bp:2px}.oh-dd{--bp:3px}.oh-write{--bp:5px}.oh-icon .nw{--bp:1px}.oh-rv-chips button{--bp:7px}.oh-cs .top .dd{--bp:2px}.oh-pk-badge{--bp:2px}
+:is(.oh-pkc .bd,.oh-mb,.ohb-count,.oh-stage .lb,.oh-stage button em,.oh-dd,.oh-write,.oh-icon .nw,.oh-rv-chips button,.oh-cs .top .dd,.oh-pk-badge){text-box:trim-both cap alphabetic;padding-top:calc(var(--bp) + (1lh - 1cap) / 2);padding-bottom:calc(var(--bp) + (1lh - 1cap) / 2)}
+}
+.oh-rv-item .av{padding-top:1.5px}
 .oh-gbtn{display:block;width:100%;text-align:center;background:#F5F7F8;border-radius:4px;padding:12px;font-size:14px;font-weight:600;margin-top:12px;color:var(--oh-tx)}
 .oh-models{display:flex;gap:10px;overflow-x:auto;margin:0 -20px;padding:0 20px;scrollbar-width:none}
 .oh-models::-webkit-scrollbar{display:none}
@@ -2826,6 +2899,60 @@ var OhTopFab = () => {
     d: "M12 19V5M5.5 11.5L12 5l6.5 6.5"
   })));
 };
+// [NEW] 2026-10-31 콘서트 패키지 이용 방법 모션그래픽: 6단계를 자동으로 넘기며 단계별 아이콘이 움직임. 누르면 그 단계를 보여주고 잠시 멈춤
+var PkgHowMotion = ({ steps }) => {
+  var [step, setStep] = React.useState(0);
+  var pauseUntil = React.useRef(0);
+  React.useEffect(() => {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    var t = setInterval(() => {
+      if (Date.now() < pauseUntil.current) return;
+      setStep(s => (s + 1) % steps.length);
+    }, 2600);
+    return () => clearInterval(t);
+  }, [steps.length]);
+  var cur = steps[step] || steps[0];
+  var color = cur.color || '#13A8DE';
+  var ink = cur.ink || color;
+  return React.createElement("div", {
+    className: "pkm",
+    style: { '--c': color }
+  }, React.createElement("div", {
+    className: "pkm-scene"
+  }, React.createElement("div", {
+    key: 'art' + step,
+    className: `pkm-art pkm-a${cur.anim != null ? cur.anim : step}`,
+    style: { background: cur.soft || '#E7F6FC', color: ink }
+  }, React.createElement("span", {
+    className: "fx"
+  }), React.createElement("i", {
+    className: `fa-solid ${cur.fa}`
+  })), React.createElement("div", {
+    key: 'txt' + step,
+    className: "pkm-txt"
+  }, React.createElement("small", {
+    style: { color: ink }
+  }, `STEP ${step + 1}`), React.createElement("b", null, cur.title), cur.sub ? React.createElement("span", null, cur.sub) : null)), React.createElement("div", {
+    className: "pkm-track"
+  }, React.createElement("span", {
+    className: "pkm-line"
+  }), React.createElement("span", {
+    className: "pkm-fill",
+    style: { width: `calc((100% - 34px) * ${step / (steps.length - 1)})` }
+  }), steps.map((s, i) => React.createElement("button", {
+    key: i,
+    type: "button",
+    className: `pkm-stop${i === step ? ' on' : i < step ? ' done' : ''}`,
+    style: { '--c': s.color || '#13A8DE', '--s': s.soft || '#E7F6FC' },
+    "aria-label": `${i + 1}단계 ${s.title}`,
+    onClick: () => { setStep(i); pauseUntil.current = Date.now() + 6000; }
+  }, React.createElement("span", {
+    className: "ic"
+  }, React.createElement("i", {
+    className: `fa-solid ${s.fa}`
+  })), React.createElement("em", null, s.short)))));
+};
 var HomeBannerSlider = ({
   followOn,
   maxDiscount,
@@ -2991,6 +3118,7 @@ var PhoneRentalApp = () => {
     models: { activeNav: 'home', viewMode: 'allModels' },
     logout: { activeNav: 'home', viewMode: 'logoutGuide' },
     'venue-pickup': { activeNav: 'home', viewMode: 'venuePickup' },
+    packages: { activeNav: 'home', viewMode: 'packageList' }, // [NEW] 2026-10-31 패키지 공연 전체 보기
     courier: { activeNav: 'mypage', viewMode: 'courierPicker' },
     events: { activeNav: 'home', viewMode: 'events' }, // [NEW] 2026-10-24 이벤트
     'event-follow': { activeNav: 'home', viewMode: 'eventFollow' },
@@ -3475,7 +3603,6 @@ var PhoneRentalApp = () => {
   var [isPackage, setIsPackage] = useState(false);                // [NEW] 콘서트 패키지 예약 모드
   var [packageConcert, setPackageConcert] = useState(null);       // [NEW] 패키지 대상 공연
   var [showKakaoFriendModal, setShowKakaoFriendModal] = useState(false); // [NEW] 예약 시작 시 카카오톡 채널 친구 추가 안내
-  var [showPackageList, setShowPackageList] = useState(false);    // [NEW] 홈 '콘서트 패키지' → 공연 목록 팝업
   var [showAllServices, setShowAllServices] = useState(false); // [NEW] 홈 화면 서비스 아이콘 접기/펼치기
   var [showDateGuide, setShowDateGuide] = useState(false);
   var [showNotFoundGuide, setShowNotFoundGuide] = useState(false);
@@ -4483,58 +4610,30 @@ var PhoneRentalApp = () => {
     setEndDate(d);
     setSelectedPhone(null); // 날짜가 바뀌면 기종별 재고가 달라질 수 있어 다시 고르게 함
   };
-  // 이용 방법 타임라인 한 줄
-  var renderPkgTimelineItem = (item, last) => {
-    // [NEW] 오늘의집 스타일: 점 + 시점 · 제목 · 설명 · 주의 (빨강/주황 연한 칸)
-    var rose = /rose/.test(item.tone || '');
-    var warnTone = /orange/.test(item.warnCls || '') ? { color: '#E8820C', background: '#FFF4E5' } : { color: '#F04452', background: '#FFF1F1' };
-    return React.createElement("div", {
-      key: item.title,
-      className: `oh-tl-it${last ? ' last' : ''}${rose ? ' rose' : ''}`
-    }, React.createElement("span", {
-      className: "dot"
-    }), React.createElement("p", {
-      className: "wh"
-    }, item.when), React.createElement("p", {
-      className: "ti"
-    }, item.title), item.desc ? React.createElement("p", {
-      className: "de"
-    }, item.desc) : null, item.warn ? React.createElement("p", {
-      className: "wa",
-      style: warnTone
-    }, item.warn) : null);
-  };
-  // 1단계: 공연 날짜 선택 + 반납일 자동 + 이용 방법 타임라인
+  // 1단계: 공연 날짜 선택 + 반납일 자동 + 이용 방법 모션그래픽
   var renderPackagePicker = () => {
     var c = packageConcert;
     if (!c) return null;
     var dates = getPackageDates(c);
     var sel = startDate;
     var ret = sel ? getReturnDate(sel, 'post') : null;
-    var dayBefore = ret ? pkgAddDays(ret, -1) : null;
-    var reviewDue = ret ? pkgAddDays(ret, PACKAGE_REVIEW_DAYS) : null;
-    var blueDot = 'bg-blue-50 border-blue-100';
-    var items = [{
-      icon: '📝', bg: blueDot, tone: 'text-blue-500', when: '지금', title: '예약 & 계좌이체 결제',
-      desc: '공연 날짜만 고르면 반납일은 자동으로 정해져요.',
-      warn: '한정 수량으로 진행되며, 예약확정 안내를 받으면 환불이 어려워요.', warnCls: 'text-red-500 bg-red-50 font-bold'
-    }, {
-      icon: '🏟️', bg: blueDot, tone: 'text-blue-500', when: sel ? `${pkgFmt(sel)} 공연 당일` : '공연 당일', title: c.venue ? `${c.venue} 공연장에서 수령` : '공연장에서 수령', // [NEW] 공연장 이름으로 안내
-      desc: '수령 시간·장소는 전날 알림톡으로 안내드려요.',
-      warn: '수령 인원 미달 시 택배수령으로 바뀌며, 공연 전날 도착해요.', warnCls: 'text-orange-500 bg-orange-50'
-    }, {
-      icon: '📸', bg: blueDot, tone: 'text-blue-500', when: sel ? pkgFmt(sel) : '공연 당일', title: '공연 즐기기 & 촬영'
-    }, {
-      icon: '🔔', bg: blueDot, tone: 'text-blue-500', when: dayBefore ? `${pkgFmt(dayBefore)} 반납 전날 오후 5~6시` : '반납 전날 오후 5~6시', title: '반납 안내 알림톡',
-      desc: React.createElement(React.Fragment, null, "우체국 방문이 어렵다면 ", React.createElement("strong", null, dayBefore ? `반납 전날(${pkgFmt(dayBefore)}) 22시까지` : '반납 전날 22시까지'), " 마이페이지 ", React.createElement("strong", null, "[방문택배 신청]"), "을 이용해주세요.")
-    }, {
-      icon: '📦', bg: 'bg-rose-50 border-rose-100', tone: 'text-rose-500', when: ret ? `${pkgFmt(ret)} 반납일` : '반납일 (공연 후 가장 빠른 평일)', title: '우체국 택배로 반납',
-      desc: '오후 4시 전 우체국 창구 접수, 또는 방문택배 신청 시 기사님이 집 앞에서 수거해요.'
-    }, {
-      icon: '✍️', bg: 'bg-sky-50 border-sky-100', tone: 'text-sky-500', when: reviewDue ? `~${pkgFmt(reviewDue)} 반납일로부터 ${PACKAGE_REVIEW_DAYS}일 이내` : `반납일로부터 ${PACKAGE_REVIEW_DAYS}일 이내`, title: '리뷰 작성 (리뷰 할인 선택 시)',
-      warn: '미작성 시 할인받은 금액을 반환해야 해요.', warnCls: 'text-red-500 bg-red-50 font-bold'
-    }];
-    // [NEW] 2026-10-24 오늘의집 구성: 공연 정보 → 관람 날짜(라디오) → 수령·반납 요약 → 이용 방법 타임라인
+    // [NEW] 2026-10-31 패키지 이용 방법 모션그래픽 (공연 정보 바로 아래, 공연 날짜 위). 파스텔 톤
+    // anim: 단계별 움직임 1 핀 · 3 종 · 4 상자 · 5 연필 · 6 별 반짝 / color: 선택 아이콘·진행선 / soft: 연한 배경 / ink: 글자·큰 아이콘
+    var howSec = React.createElement("div", {
+      className: "oh-pk-sec"
+    }, React.createElement("p", {
+      className: "oh-pk-h",
+      style: { marginBottom: 16 }
+    }, "패키지 이용 방법"), React.createElement(PkgHowMotion, {
+      steps: [
+        { fa: 'fa-pencil', anim: 5, short: '예약', title: '예약', sub: '날짜만 고르면 반납일은 자동으로 정해져요.', color: '#86CDA8', soft: '#E9F6EF', ink: '#3E9A6E' },
+        { fa: 'fa-location-dot', anim: 1, short: '수령', title: c.venue ? `수령 (${c.venue})` : '수령', sub: '보통 공연 시작 2시간 전 또는 사운드체크 1시간 전에 진행해요.', color: '#7FC4DE', soft: '#E6F3F8', ink: '#3A92B3' },
+        { fa: 'fa-bell', anim: 3, short: '반납 알림', title: '반납 알림', sub: '반납일 1일 전 오후 6시쯤 반납 안내 드려요.', color: '#F4B786', soft: '#FDF1E6', ink: '#C9773A' },
+        { fa: 'fa-box', anim: 4, short: '반납', title: '반납', sub: '반납 안내에 따라 반납해주시면 돼요.', color: '#F0A3A8', soft: '#FCEDEE', ink: '#CC5F67' },
+        { fa: 'fa-star', anim: 6, short: '리뷰', title: '리뷰', sub: '선택하셨던 리뷰 남겨주시면 돼요.', color: '#EBCF76', soft: '#FBF5DF', ink: '#B08A1F' }
+      ]
+    }));
+    // [NEW] 2026-10-31 구성: 공연 정보 → 패키지 이용 방법 → 관람 날짜(라디오) → 수령·반납 요약
     return React.createElement("div", {
       className: "oh-pk animate-fade-in"
     }, React.createElement("div", {
@@ -4547,9 +4646,7 @@ var PhoneRentalApp = () => {
       className: "oh-pk-venue"
     }, React.createElement("i", {
       className: "fa-solid fa-location-dot"
-    }), c.venue) : null, React.createElement("p", {
-      className: "oh-pk-warn"
-    }, "한정 수량으로 진행되며, 예약확정 안내를 받으면 환불이 어려워요.")), React.createElement("div", {
+    }), c.venue) : null), howSec, React.createElement("div", {
       className: "oh-pk-sec"
     }, React.createElement("p", {
       className: "oh-pk-h"
@@ -4578,14 +4675,7 @@ var PhoneRentalApp = () => {
       style: { color: '#FF7777' }
     }, "우체국 택배"))), React.createElement("p", {
       className: "oh-pk-note"
-    }, "* 반납일은 공연 다음 날부터 가장 빠른 평일(공휴일 제외)로 자동 설정돼요.")), React.createElement("div", {
-      className: "oh-pk-sec"
-    }, React.createElement("p", {
-      className: "oh-pk-h",
-      style: { marginBottom: 16 }
-    }, "패키지 이용 방법"), React.createElement("div", {
-      className: "oh-tl"
-    }, items.map((it, i) => renderPkgTimelineItem(it, i === items.length - 1)))));
+    }, "* 반납일은 공연 다음 날부터 가장 빠른 평일(공휴일 제외)로 자동 설정돼요.")));
   };
   // 1단계: 리뷰 할인 선택 위에 패키지 요금 안내
   var renderPackageReviewNote = () => React.createElement("div", {
@@ -9305,13 +9395,17 @@ React.createElement("div", {
     onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' })
   }, "홈"), React.createElement("button", {
     onClick: () => handleRentalStart()
-  }, "예약하기"), upcomingConcerts.some(c => getPackageDates(c).some(x => !x.disabled)) && React.createElement("button", {
-    onClick: () => setShowPackageList(true)
-  }, "콘서트 패키지"), React.createElement("button", {
-    onClick: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); }
-  }, "공연장 픽업"), React.createElement("button", {
+  }, "예약하기"), React.createElement("button", {
+    // [NEW] 2026-10-31 홈 탭: 홈 / 예약하기 / 좌석별 추천 모델 / 리뷰 / 자주 묻는 질문
+    onClick: () => {
+      var el = document.getElementById('seat-rec-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, "좌석별 추천 모델"), React.createElement("button", {
     onClick: () => { setViewMode('reviews'); updateURLForNav('reviews'); }
-  }, "대여 후기"), OH_EVENTS_ENABLED && React.createElement("button", {
+  }, "리뷰"), React.createElement("button", {
+    onClick: () => { setQnaMode('list'); handleNavChange('qna'); updateURLForNav('faq'); }
+  }, "자주 묻는 질문"), OH_EVENTS_ENABLED && React.createElement("button", {
     className: "ev",
     onClick: () => { setViewMode('events'); updateURLForNav('events'); window.scrollTo(0, 0); }
   }, "이벤트")));
@@ -9335,10 +9429,15 @@ React.createElement("div", {
       className: "oh-icon"
     }, ohIll(showAllServices ? 'fold' : 'all', 48), React.createElement("span", null, showAllServices ? '접기' : '전체 서비스'))));
   };
-  var renderOhDeal = () => {
-    // [NEW] 2026-10-24 인기공연 패키지: 패키지 공연을 한 장씩 (공연 종류 아이콘 · 얌전한 파스텔) → 누르면 그 공연 패키지 예약
-    var pkgList = upcomingConcerts.filter(c => getPackageDates(c).some(x => !x.disabled));
-    if (!pkgList.length) return null;
+  // [NEW] 2026-10-31 패키지 공연 카드 (홈 '세린캠 인기 패키지'와 '패키지 공연 전체 보기' 페이지 공용)
+  var getOhPkgList = () => upcomingConcerts.filter(c => getPackageDates(c).some(x => !x.disabled));
+  var goOhPackageList = () => {
+    setViewMode('packageList');
+    updateURLForNav('packages');
+    window.scrollTo(0, 0);
+  };
+  var renderOhPkgCards = pkgList => {
+    // 공연 종류 아이콘 · 얌전한 파스텔 → 누르면 그 공연 안내 후 패키지 예약
     var minPkg = Math.min.apply(null, [].concat(phones.galaxy, phones.iphone).map(getPackagePrice));
     var SOFT = {
       'fa-heart': ['#FBE9EE', '#E58AA3'],
@@ -9346,39 +9445,72 @@ React.createElement("div", {
     };
     var MIC = [['#E6F2F6', '#6FB5CC'], ['#EAF1EC', '#7DB59A'], ['#EEEAF6', '#9C8CC8']];
     var micN = 0;
-    return React.createElement("div", {
-      className: "oh-sec"
-    }, renderOhHead("세린캠 인기 패키지", null, () => setShowPackageList(true)), React.createElement("p", {
-      className: "text-[13px]",
-      style: { color: '#828C94', margin: '-8px 0 14px' }
-    }, "1일 가격으로 반납일까지 · 공연장 수령"), React.createElement("div", {
-      className: "oh-pkrow"
-    }, pkgList.map((c, i) => {
+    return pkgList.map((c, i) => {
       var ty = getOhConcertType(c);
       var col = SOFT[ty.icon] || MIC[micN++ % MIC.length];
-      var d = c._start;
+      var dd = c._dday === null ? '' : c._dday > 0 ? `D-${c._dday}` : 'D-DAY';
       return React.createElement("button", {
         key: i,
         className: "oh-pkc",
-        onClick: () => startPackageReservation(c)
+        onClick: () => {
+          setSelectedConcert(c);
+          setShowConcertModal(true);
+        }
       }, React.createElement("div", {
         className: "im",
         style: { background: col[0], color: col[1] }
-      }, React.createElement("span", {
-        className: "bd"
-      }, "한정"), React.createElement("i", {
+      }, dd && React.createElement("span", {
+        className: `bd dd${c._dday <= 0 ? ' today' : ''}`
+      }, dd), React.createElement("i", {
         className: `fa-solid ${ty.icon}`
-      }), d && React.createElement("span", {
-        className: "dt"
-      }, d.getMonth() + 1, "/", d.getDate())), React.createElement("b", null, c.artist), React.createElement("span", {
+      })), React.createElement("b", null, c.artist), React.createElement("span", {
+        className: "d"
+      }, formatConcertRange(c)), React.createElement("span", {
         className: "v"
       }, c.venue || '공연장 수령'), React.createElement("p", {
         className: "pr"
       }, minPkg.toLocaleString(), "원~"));
-    })), React.createElement("button", {
-      onClick: () => setShowPackageList(true),
+    });
+  };
+  var renderOhDeal = () => {
+    // [NEW] 2026-10-24 인기공연 패키지: 패키지 공연을 한 장씩 → 누르면 그 공연 패키지 예약
+    var pkgList = getOhPkgList();
+    if (!pkgList.length) return null;
+    return React.createElement("div", {
+      className: "oh-sec"
+    }, renderOhHead("세린캠 인기 패키지", React.createElement("button", {
+      onClick: () => setShowNoConcertModal(true),
+      className: "text-[13px] font-semibold",
+      style: { color: '#13A8DE', whiteSpace: 'nowrap' }
+    }, "찾는 공연이 없나요? ›"), goOhPackageList), React.createElement("p", {
+      className: "text-[13px]",
+      style: { color: '#828C94', margin: '-8px 0 12px' }
+    }, "공연 당일 공연장에서 바로 받아 가세요"), React.createElement("div", {
+      className: "oh-pkrow"
+    }, renderOhPkgCards(pkgList)), React.createElement("button", {
+      onClick: goOhPackageList,
       className: "oh-gbtn"
     }, "패키지 공연 전체 보기"));
+  };
+  // [NEW] 2026-10-31 '패키지 공연 전체 보기' 페이지 (예전 팝업 대신): 지금 예약 가능한 패키지 공연을 2열 카드로 모두
+  var renderOhPackageListPage = () => {
+    var pkgList = getOhPkgList();
+    return React.createElement("div", {
+      className: "animate-slide-in pb-10"
+    }, ohPageHead("세린캠 인기 패키지"), React.createElement("p", {
+      className: "oh-pkl-sub"
+    }, "공연 당일 공연장에서 바로 받아 가세요"), pkgList.length ? React.createElement(React.Fragment, null, React.createElement("p", {
+      className: "oh-pkl-cnt"
+    }, "예약 가능한 공연 ", React.createElement("b", null, pkgList.length), "개"), React.createElement("div", {
+      className: "oh-pkgrid"
+    }, renderOhPkgCards(pkgList))) : React.createElement("div", {
+      className: "oh-pkl-empty"
+    }, React.createElement("i", {
+      className: "fa-solid fa-microphone-lines"
+    }), React.createElement("p", null, "지금 예약 가능한 패키지 공연이 없어요")), React.createElement("button", {
+      onClick: () => setShowNoConcertModal(true),
+      className: "oh-pkl-more"
+    }, React.createElement("span", null, "찾는 공연이 없나요?"), React.createElement("b", null, "원하는 공연도 예약할 수 있어요 ›")));
   };
   // [NEW] 2026-10-24 공연 종류 아이콘: 공연명에 든 단어로 자동 판단 (관리자 입력 불필요)
   var OH_CONCERT_TYPES = [{
@@ -13421,8 +13553,8 @@ React.createElement("div", {
     maxDiscount: 2000 + 5000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0), // 리뷰 2개(간편+SNS) + 팔로우 2개(X·인스타)
     onBook: () => handleRentalStart(),
     onVenue: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); },
-    onPackage: () => setShowPackageList(true)
-  })), renderOhIcons(), renderOhDeal(), hasUpcomingConcerts && renderOhConcerts(), renderOhSeatRec(), renderOhReviews(), React.createElement(OhTopFab, null), React.createElement("div", {
+    onPackage: goOhPackageList
+  })), renderOhDeal(), renderOhSeatRec(), renderOhReviews(), React.createElement(OhTopFab, null), React.createElement("div", {
     id: "home-tips-section",
     className: "oh-sec"
   }, (() => {
@@ -13601,7 +13733,9 @@ React.createElement("div", {
     className: "oh-page"
   }, renderPrivacyPage()), viewMode === 'venuePickup' && React.createElement("div", {
     className: "oh-page"
-  }, renderVenuePickupPage()), viewMode === 'events' && React.createElement("div", {
+  }, renderVenuePickupPage()), viewMode === 'packageList' && React.createElement("div", {
+    className: "oh-page"
+  }, renderOhPackageListPage()), viewMode === 'events' && React.createElement("div", {
     className: "oh-page"
   }, renderEventsPage()), viewMode === 'eventFollow' && React.createElement("div", {
     className: "oh-page"
@@ -15001,103 +15135,90 @@ React.createElement("div", {
   }, React.createElement(Icons.CheckCircle, {
     size: 16
   }), " 이 공연장으로 선택하기")))), showConcertModal && selectedConcert && (() => {
-    // [NEW] 다가오는 공연 상세 모달 — 장소/시간은 "주요 공연장 위치"(venueList) 기준,
-    // 수령시간은 관리자가 입력한 pickupTime이 있으면 그 값 우선
+    // [NEW] 공연 안내 — 오늘의집 톤 바텀시트: 공연 정보 → 공연장 수령 안내 → 하단 [닫기] [다음]
     var c = selectedConcert;
     var info = findVenueInfo(c.venue);
     var timeText = c.pickupTime && c.pickupTime.trim() ? c.pickupTime.trim() : info ? info.time : '';
     var placeMain = info ? info.place : c.venue || '';
     var placeDetail = info ? info.placeDetail : '';
     var noteText = info ? info.note : '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.';
-    var dLabel = formatConcertRange(c);
     var mapQ = placeMain || c.venue || '';
-    var pkgAvailable = getPackageDates(c).some(x => !x.disabled); // [NEW] 패키지로 고를 수 있는 날짜가 남아 있을 때만 패키지 카드 노출
-    var allPhones = [].concat(phones.galaxy, phones.iphone);
-    var minPkgPrice = Math.min.apply(null, allPhones.map(getPackagePrice));
-    var minBasePrice = Math.min.apply(null, allPhones.map(ph => ph.basePrice));
+    var pkgAvailable = getPackageDates(c).some(x => !x.disabled);
+    var ty = getOhConcertType(c);
+    var dd = c._dday === null ? '' : c._dday > 0 ? `D-${c._dday}` : 'D-DAY';
+    var close = () => setShowConcertModal(false);
     return React.createElement("div", {
-      className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
-      onClick: () => setShowConcertModal(false)
+      className: "oh-cs",
+      onClick: close
     }, React.createElement("div", {
-      className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative max-h-[85vh] overflow-y-auto terms-scroll",
+      className: "sh",
       onClick: e => e.stopPropagation()
-    }, React.createElement("button", {
-      onClick: () => setShowConcertModal(false),
-      className: "absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+    }, React.createElement("div", {
+      className: "grab"
+    }), React.createElement("div", {
+      className: "bd"
+    }, React.createElement("div", {
+      className: "top"
+    }, React.createElement("div", {
+      className: "tile",
+      style: { background: ty.bg, color: ty.fg }
+    }, React.createElement("i", {
+      className: `fa-solid ${ty.icon}`
+    })), React.createElement("div", {
+      className: "min-w-0"
+    }, React.createElement("h3", null, c.artist), React.createElement("div", {
+      className: "meta"
+    }, dd && React.createElement("span", {
+      className: `dd${c._dday <= 0 ? ' today' : ''}`
+    }, dd), formatConcertRange(c))), React.createElement("button", {
+      className: "x",
+      onClick: close,
+      "aria-label": "닫기"
     }, React.createElement(Icons.X, {
-      size: 24
-    })), React.createElement("h3", {
-      className: "text-lg font-bold text-gray-800 mb-1 flex items-center gap-2 pr-6"
+      size: 22
+    }))), React.createElement("p", {
+      className: "h"
+    }, "공연장 수령 안내"), React.createElement("div", {
+      className: "row"
     }, React.createElement("span", {
-      className: "text-xl"
-    }, "🎤"), " ", c.artist), dLabel ? React.createElement("div", {
-      className: "flex w-fit items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-1 rounded-lg mt-1 whitespace-nowrap"
-    }, React.createElement(Icons.Calendar, {
-      size: 13,
-      className: "shrink-0"
-    }), " ", dLabel) : null, React.createElement("div", {
-      className: "mt-4 space-y-3"
-    }, React.createElement("div", {
-      className: "bg-gray-50 p-3 rounded-xl border border-gray-100"
+      className: "ic"
+    }, React.createElement("i", {
+      className: "fa-solid fa-location-dot"
+    })), React.createElement("div", {
+      className: "min-w-0"
     }, React.createElement("p", {
-      className: "text-xs font-bold text-gray-600 mb-1"
-    }, "📍 수령/반납 장소"), React.createElement("p", {
-      className: "text-sm font-bold text-blue-600"
-    }, placeMain || '현장 안내'), placeDetail ? React.createElement("div", {
-      className: "mt-2 bg-white p-2 rounded-lg text-xs text-gray-600 border border-gray-100 flex gap-1.5 items-start"
+      className: "k"
+    }, "수령·반납 장소"), React.createElement("p", {
+      className: "v"
+    }, placeMain || '현장 안내'), placeDetail ? React.createElement("p", {
+      className: "s"
+    }, placeDetail) : null, mapQ ? React.createElement("button", {
+      className: "map",
+      onClick: () => window.open(`https://map.naver.com/p/search/${encodeURIComponent(mapQ)}`, '_blank')
+    }, "네이버 지도로 보기 ›") : null)), React.createElement("div", {
+      className: "row"
     }, React.createElement("span", {
-      className: "text-blue-500 mt-0.5"
-    }, "↳"), React.createElement("span", null, placeDetail)) : null, c.venue && placeMain && c.venue !== placeMain ? React.createElement("p", {
-      className: "text-[10px] text-gray-400 mt-1.5"
-    }, "공연장: ", c.venue) : null), React.createElement("div", {
-      className: "bg-gray-50 p-3 rounded-xl border border-gray-100"
+      className: "ic"
+    }, React.createElement("i", {
+      className: "fa-solid fa-clock"
+    })), React.createElement("div", {
+      className: "min-w-0"
     }, React.createElement("p", {
-      className: "text-xs font-bold text-gray-600 mb-1"
-    }, "⏰ 수령 시간"), React.createElement("p", {
-      className: "text-xs text-gray-700 leading-relaxed whitespace-pre-line"
-    }, timeText || '사운드체크 1시간전 또는 공연시작 2시간전 예정')), noteText ? React.createElement("p", {
-      className: "text-[11px] text-red-500 flex items-start gap-1"
-    }, React.createElement("span", null, "*"), " ", noteText) : null), React.createElement("div", {
-      className: "mt-5 flex flex-col gap-3"
-    }, mapQ ? React.createElement("button", {
-      onClick: () => window.open(`https://map.naver.com/p/search/${encodeURIComponent(mapQ)}`, '_blank'),
-      className: "w-full py-2.5 rounded-xl font-bold bg-gray-50 text-gray-600 border border-gray-100 hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 text-xs"
-    }, React.createElement(Icons.MapPin, {
-      size: 13,
-      className: "text-green-500"
-    }), "네이버 지도로 위치 보기", React.createElement(Icons.ExternalLink, {
-      size: 12
-    })) : null, pkgAvailable && React.createElement("div", {
-      className: "rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-pink-50 p-4"
-    }, React.createElement("div", {
-      className: "flex items-center justify-between mb-2"
-    }, React.createElement("span", {
-      className: "text-[10px] font-extrabold text-white bg-gradient-to-r from-pink-500 to-rose-400 px-2 py-0.5 rounded-full"
-    }, "🎁 콘서트 패키지"), React.createElement("span", {
-      className: "text-[10px] font-bold text-gray-400"
-    }, "한정 수량")), React.createElement("p", {
-      className: "text-[15px] font-extrabold text-gray-800 leading-snug"
-    }, "1일 가격으로", React.createElement("br", null), "반납일까지 편하게!"), React.createElement("ul", {
-      className: "mt-2 space-y-1 text-[11px] text-gray-600"
-    }, React.createElement("li", null, "✅ 공연장 수령 · 우체국 택배 반납 (고정)"), React.createElement("li", null, "✅ 반납일은 공연 후 가장 빠른 평일로 자동 설정"), React.createElement("li", null, "✅ 계좌이체 결제 · 리뷰 할인 최대 7,000원")), React.createElement("div", {
-      className: "flex items-end justify-between mt-3"
-    }, React.createElement("span", {
-      className: "text-[11px] text-gray-400 line-through"
-    }, minBasePrice.toLocaleString(), "원"), React.createElement("span", {
-      className: "text-lg font-black text-blue-600"
-    }, React.createElement("span", {
-      className: "text-[10px] font-bold text-gray-400 mr-1"
-    }, "최대 할인 시"), minPkgPrice.toLocaleString(), "원~")), React.createElement("button", {
-      onClick: () => startPackageReservation(c),
-      className: "w-full mt-3 py-3 rounded-xl font-bold bg-blue-500 text-white hover:bg-blue-600 shadow-md transition-colors flex items-center justify-center gap-2 text-sm"
-    }, React.createElement(Icons.Gift, {
-      size: 16
-    }), "패키지로 예약하기")), React.createElement("button", {
-      onClick: () => startConcertReservation(c),
-      className: pkgAvailable ? "w-full py-2.5 rounded-xl font-bold bg-gray-50 text-gray-600 border border-gray-100 hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 text-xs" : "w-full py-3 rounded-xl font-bold bg-blue-500 text-white hover:bg-blue-600 shadow-md transition-colors flex items-center justify-center gap-2 text-sm"
-    }, React.createElement(Icons.Ticket, {
-      size: pkgAvailable ? 14 : 16
-    }), pkgAvailable ? "일반 예약하기 (수령·반납 직접 선택)" : "이 공연으로 예약하기"))));
+      className: "k"
+    }, "수령 시간"), React.createElement("p", {
+      className: "v"
+    }, timeText || '사운드체크 1시간 전 또는 공연 시작 2시간 전'))), noteText ? React.createElement("p", {
+      className: "note"
+    }, noteText) : null), React.createElement("div", {
+      className: "ft"
+    }, React.createElement("button", {
+      className: "sub",
+      onClick: close
+    }, "닫기"), React.createElement("button", {
+      className: "go",
+      // 패키지가 남아 있으면 패키지 예약, 아니면 이 공연으로 일반 예약
+      onClick: () => pkgAvailable ? startPackageReservation(c) : startConcertReservation(c)
+    }, "다음"))));
   })(), showKakaoFriendModal && React.createElement("div", {
     // [NEW] 예약하기·콘서트 패키지 시작 시 먼저 뜨는 카카오톡 채널 친구 추가 안내 (버튼으로만 닫힘)
     className: "fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4 animate-fade-in"
@@ -15154,56 +15275,7 @@ React.createElement("div", {
   }, React.createElement(Icons.CheckCircle, {
     size: 17,
     className: "text-blue-500"
-  }), " 친구추가 했어요")))), showPackageList && (() => {
-    // [NEW] 홈 '콘서트 패키지' 버튼 → 패키지로 예약 가능한 다가오는 공연 목록
-    var pkgList = upcomingConcerts.filter(c => getPackageDates(c).some(x => !x.disabled));
-    return React.createElement("div", {
-      className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
-      onClick: () => setShowPackageList(false)
-    }, React.createElement("div", {
-      className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative flex flex-col max-h-[85vh]",
-      onClick: e => e.stopPropagation()
-    }, React.createElement("div", {
-      className: "flex justify-between items-center mb-1"
-    }, React.createElement("h3", {
-      className: "text-lg font-bold text-gray-800"
-    }, "🎁 콘서트 패키지"), React.createElement("button", {
-      onClick: () => setShowPackageList(false),
-      className: "text-gray-400 hover:text-gray-600"
-    }, React.createElement(Icons.X, {
-      size: 24
-    }))), React.createElement("p", {
-      className: "text-[11px] text-gray-500 mb-3"
-    }, "예약할 공연을 골라주세요. 한정 수량으로 진행돼요."), React.createElement("div", {
-      className: "overflow-y-auto flex-1 space-y-2 pr-1 terms-scroll"
-    }, pkgList.length === 0 ? React.createElement("p", {
-      className: "text-sm text-gray-400 text-center py-6"
-    }, "지금 예약 가능한 패키지 공연이 없어요.") : pkgList.map((c, i) => {
-      var dday = c._dday;
-      var ddayText = dday === null ? '' : dday > 0 ? `D-${dday}` : 'D-DAY';
-      return React.createElement("button", {
-        key: i,
-        onClick: () => {
-          setShowPackageList(false);
-          startPackageReservation(c);
-        },
-        className: "w-full text-left bg-gradient-to-br from-blue-50 to-pink-50 rounded-2xl p-3 border border-blue-100 shadow-sm active:scale-95 transition-all"
-      }, React.createElement("div", {
-        className: "flex items-center justify-between mb-1"
-      }, ddayText ? React.createElement("span", {
-        className: `text-[10px] font-black px-1.5 py-0.5 rounded-md ${dday !== null && dday <= 0 ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'}`
-      }, ddayText) : React.createElement("span", null), React.createElement(Icons.ChevronRight, {
-        size: 14,
-        className: "text-blue-300"
-      })), React.createElement("p", {
-        className: "text-sm font-extrabold text-gray-800 leading-tight break-keep"
-      }, c.artist), React.createElement("p", {
-        className: "text-[11px] font-bold text-blue-500 mt-1"
-      }, formatConcertRange(c)), c.venue ? React.createElement("p", {
-        className: "text-[11px] font-bold text-gray-500 mt-0.5 break-keep"
-      }, "📍 " + c.venue) : null);
-    }))));
-  })(), showNoConcertModal && React.createElement("div", {
+  }), " 친구추가 했어요")))), showNoConcertModal && React.createElement("div", {
     className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
     onClick: () => setShowNoConcertModal(false)
   }, React.createElement("div", {
