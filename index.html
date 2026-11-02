@@ -3429,10 +3429,6 @@ var PhoneRentalApp = () => {
       return React.createElement("div", {
         key: k,
         onClick: () => {
-          if (!opts.free && !selectedPhone && !isPackage) {
-            triggerReviewError();
-            return;
-          }
           setFollows(f => ({ ...f, [k]: !f[k] }));
         },
         className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center active:scale-95 ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : ''}`,
@@ -3456,9 +3452,17 @@ var PhoneRentalApp = () => {
         }
       }, (on ? '✓ ' : '') + FOLLOW_DISCOUNT.toLocaleString() + "원 할인"));
     })), anySel && React.createElement("div", {
-      className: "mt-3 p-4 rounded-xl border animate-fade-in bg-gray-50 border-gray-100"
-    }, React.createElement("p", {
-      className: "text-gray-700 font-bold text-sm mb-2"
+      className: "relative mt-3 p-4 rounded-xl border animate-fade-in bg-gray-50 border-gray-100"
+    }, React.createElement("button", {
+    type: "button",
+    onClick: clearFollowDiscounts,
+    "aria-label": "팔로우 할인 선택 해제",
+    className: "absolute flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600",
+    style: { top: 10, right: 10, width: 28, height: 28 }
+  }, React.createElement(Icons.X, {
+    size: 16
+  })), React.createElement("p", {
+      className: "text-gray-700 font-bold text-sm mb-2 pr-6"
     }, "팔로우한 내 아이디를 적어주세요"), React.createElement("div", {
       className: "space-y-2"
     }, keys.filter(k => follows[k]).map(k => {
@@ -4562,6 +4566,8 @@ var PhoneRentalApp = () => {
   var PACKAGE_REVIEW_DAYS = 5;
   var getPackagePrice = phone => phone.basePrice - PACKAGE_DISCOUNT + PACKAGE_VENUE_FEE;
   // 지금 고른 리뷰 할인까지 반영한 패키지 요금 (옵션 제외) — 기종 카드 표시와 총액 계산 공용
+  // [NEW] 2026-11-02 일반 예약 기종 카드용 — 지금 고른 리뷰·팔로우 할인 합계
+  var getSelectedReviewDiscount = () => (discounts.twitter ? 5000 : 0) + (discounts.blog ? 5000 : 0) + (discounts.kakao ? 2000 : 0) + (discounts.homepage ? 2000 : 0) + getFollowDiscount();
   var getPackageReviewedPrice = phone => phone.basePrice + PACKAGE_VENUE_FEE - 1000 - (discounts.twitter ? 5000 : 0) - (discounts.blog ? 5000 : 0) - (discounts.kakao ? 2000 : 0) - (discounts.homepage ? 2000 : 0) - getFollowDiscount();
   var pkgAddDays = (d, n) => {
     var x = new Date(d);
@@ -4583,6 +4589,20 @@ var PhoneRentalApp = () => {
     }
     return list;
   };
+  // [NEW] 2026-11-02 좌석별 추천·대여모델·패키지에서 안내한 할인가(간편 2,000 + SNS 5,000 + 팔로우)와 예약 금액이 같도록 미리 선택
+  // 고객이 리뷰·팔로우를 하지 않으면 1단계에서 직접 해제(X)할 수 있음
+  var preselectMaxDiscounts = () => {
+    setDiscounts({ twitter: true, blog: false, kakao: false, homepage: true });
+    setFollows(FOLLOW_DISCOUNT_ENABLED ? { x: true, insta: true } : { x: false, insta: false });
+    setFollowIds({ x: '', insta: '' });
+    setFollowStatus({ x: 'idle', insta: 'idle' });
+  };
+  var clearReviewDiscounts = () => setDiscounts({ twitter: false, blog: false, kakao: false, homepage: false });
+  var clearFollowDiscounts = () => {
+    setFollows({ x: false, insta: false });
+    setFollowIds({ x: '', insta: '' });
+    setFollowStatus({ x: 'idle', insta: 'idle' });
+  };
   var startPackageReservation = c => {
     setShowConcertModal(false);
     handleRentalStart('venue');
@@ -4592,10 +4612,7 @@ var PhoneRentalApp = () => {
     setStartDate(null);
     setEndDate(null);
     setSelectedPhone(null);
-    setDiscounts({ twitter: false, blog: false, kakao: false, homepage: false });
-    setFollows({ x: false, insta: false });
-    setFollowIds({ x: '', insta: '' });
-    setFollowStatus({ x: 'idle', insta: 'idle' });
+    preselectMaxDiscounts(); // [NEW] 패키지가(최대 할인가)와 같은 금액으로 시작
     setPaymentMethod('transfer'); // 패키지는 계좌이체 고정
     setUserInfo(u => ({
       ...u,
@@ -9268,7 +9285,10 @@ React.createElement("div", {
       className: "flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors text-sm"
     }, "닫기"), React.createElement("button", {
       onClick: () => {
-        if (viewMode !== 'rental') handleRentalStart();
+        if (viewMode !== 'rental') {
+          handleRentalStart();
+          preselectMaxDiscounts(); // [NEW] 팝업에 안내한 할인가와 예약 금액을 같게
+        }
         setSelectedPhone(phone);
         setPhoneDetailModal(null);
       },
@@ -9287,7 +9307,7 @@ React.createElement("div", {
     opts = opts || {};
     var spec = PHONE_SPECS[phone.id] || {};
     var original = phone.basePrice + 15000;
-    var maxDiscount = 2000 + 5000 + 1000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0); // 리뷰 2개(간편+SNS 2,000+5,000) + 계좌이체(1,000) + 팔로우 2개(X·인스타) 최대 할인 기준
+    var maxDiscount = 2000 + 5000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0); // 리뷰 2개(간편+SNS 2,000+5,000) + 팔로우 2개(X·인스타) — 2026-11-02 예약 1단계 기종 가격과 같게 계좌이체 1,000원은 제외
     var discount = Math.max(0, phone.basePrice - maxDiscount);
     var percent = Math.round((original - discount) / original * 100);
     var reviewCount = phone.reviews + myReviews.filter(r => r.model === phone.name).length;
@@ -13862,13 +13882,15 @@ React.createElement("div", {
     style: { gap: 24 } // 기존 space-y-6 간격과 동일
   }, React.createElement("div", {
     className: "animate-fade-in pt-6 border-t border-gray-100",
-    style: { order: isPackage ? 2 : 0 } // [NEW] 콘서트 패키지는 리뷰 할인을 먼저 고르고 대여 모델 선택
+    style: { order: 2 } // [NEW] 2026-11-02 일반 예약도 콘서트 패키지처럼 리뷰 할인을 먼저 고르고 대여 모델 선택
   }, React.createElement("h3", {
-    className: "font-bold text-gray-800 mb-3 flex items-center gap-2"
+    className: "font-bold text-gray-800 flex items-center gap-2"
   }, React.createElement(Icons.Smartphone, {
     size: 18,
     className: "text-blue-400"
-  }), " ", t('whichModel')), React.createElement("div", {
+  }), " ", t('whichModel')), React.createElement("p", {
+    className: "text-[11px] mt-1 ml-[26px] mb-3 text-gray-500"
+  }, "위에 리뷰 할인 혜택을 선택하면 할인가로 안내해드려요"), React.createElement("div", {
     className: "flex bg-gray-100 p-1 rounded-xl mb-3"
   }, React.createElement("button", {
     onClick: () => setActiveTab('galaxy'),
@@ -13883,7 +13905,7 @@ React.createElement("div", {
     var currentDays = isPackage ? 1 : Math.max(1, calculateDays());
     var calculatedPrice = currentDays <= 1 ? phone.basePrice : phone.basePrice + (currentDays - 1) * phone.addPrice;
     var displayOriginalPrice = isPackage ? phone.basePrice : (phone.basePrice + 15000) * currentDays; // [NEW] 패키지는 1일 요금 대비 표시
-    var currentDiscountPrice = isPackage ? getPackageReviewedPrice(phone) : calculatedPrice;
+    var currentDiscountPrice = isPackage ? getPackageReviewedPrice(phone) : Math.max(0, calculatedPrice - getSelectedReviewDiscount()); // [NEW] 고른 리뷰·팔로우 할인 반영
     var isSel = selectedPhone?.id === phone.id;
     var reviewCount = phone.reviews + myReviews.filter(r => r.model === phone.name).length;
     var spec = PHONE_SPECS[phone.id] || {};
@@ -13928,7 +13950,7 @@ React.createElement("div", {
       className: "soldout"
     }, "예약 마감"));
   }))), isPackage && renderPackageReviewNote(), React.createElement("div", {
-    className: `animate-fade-in pt-6 border-t border-gray-100 transition-all duration-300 ${!selectedPhone && !isPackage ? 'opacity-80' : ''}`,
+    className: "animate-fade-in pt-6 border-t border-gray-100",
     style: { order: 1 }
   }, React.createElement("div", {
     className: "flex items-center justify-between mb-3"
@@ -13937,9 +13959,7 @@ React.createElement("div", {
   }, React.createElement(Icons.Gift, {
     size: 16,
     className: "text-blue-400"
-  }), t('reviewBenefit')), !isPackage && !selectedPhone && reviewError && React.createElement("span", {
-    className: "text-[10px] font-bold px-2 py-0.5 rounded border transition-all text-red-600 bg-red-100 border-red-300 animate-shake shadow-sm"
-  }, "🚨 대여 모델을 먼저 골라주세요!")), React.createElement("p", {
+  }), t('reviewBenefit'))), React.createElement("p", {
     className: "text-[11px] text-gray-400 mb-2.5 -mt-1.5"
   }, "💡 간편 리뷰, SNS리뷰 할인 각 1개씩 선택할 수 있어요 (최대 2개)"), React.createElement("div", {
     className: "space-y-3"
@@ -13949,10 +13969,6 @@ React.createElement("div", {
     className: "oh-clist"
   }, React.createElement("div", {
     onClick: () => {
-      if (!selectedPhone && !isPackage) {
-        triggerReviewError();
-        return;
-      }
       setDiscounts({
         ...discounts,
         kakao: false,
@@ -13968,10 +13984,6 @@ React.createElement("div", {
     className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-blue-600'}`
   }, "2,000원 할인")), React.createElement("div", {
     onClick: () => {
-      if (!selectedPhone && !isPackage) {
-        triggerReviewError();
-        return;
-      }
       setDiscounts({
         ...discounts,
         homepage: false,
@@ -13989,10 +14001,6 @@ React.createElement("div", {
     className: "oh-clist"
   }, React.createElement("div", {
     onClick: () => {
-      if (!selectedPhone && !isPackage) {
-        triggerReviewError();
-        return;
-      }
       setDiscounts({
         ...discounts,
         blog: false,
@@ -14008,10 +14016,6 @@ React.createElement("div", {
     className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-gray-500'}`
   }, "5,000원 할인")), React.createElement("div", {
     onClick: () => {
-      if (!selectedPhone && !isPackage) {
-        triggerReviewError();
-        return;
-      }
       setDiscounts({
         ...discounts,
         twitter: false,
@@ -14024,8 +14028,16 @@ React.createElement("div", {
   }, "네이버블로그"), React.createElement("span", {
     className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-green-600'}`
   }, "5,000원 할인"))))), (discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && React.createElement("div", {
-    className: `mt-3 p-4 rounded-xl border animate-fade-in transition-colors ${discounts.homepage ? 'bg-blue-50 border-blue-100' : discounts.kakao ? 'bg-yellow-50 border-yellow-200' : discounts.twitter ? 'bg-gray-50 border-gray-200' : 'bg-green-50 border-green-200'}`
-  }, React.createElement("div", {
+    className: `relative mt-3 p-4 rounded-xl border animate-fade-in transition-colors ${discounts.homepage ? 'bg-blue-50 border-blue-100' : discounts.kakao ? 'bg-yellow-50 border-yellow-200' : discounts.twitter ? 'bg-gray-50 border-gray-200' : 'bg-green-50 border-green-200'}`
+  }, React.createElement("button", {
+    type: "button",
+    onClick: clearReviewDiscounts,
+    "aria-label": "리뷰 할인 선택 해제",
+    className: "absolute flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600",
+    style: { top: 10, right: 10, width: 28, height: 28 }
+  }, React.createElement(Icons.X, {
+    size: 16
+  })), React.createElement("div", {
     className: "flex items-center gap-1.5 mb-2 pb-2 border-b border-black/5"
   }, React.createElement("span", {
     className: "text-base"
