@@ -6932,7 +6932,9 @@ var PhoneRentalApp = () => {
   var returnTrackTargets = () => (lookupResult || []).filter(r => !REQUEST_CATEGORIES.includes(r.category) && !/취소|환불/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청'));
   var openReturnTrack = () => {
     if (!lookupResult || lookupResult.length === 0) {
-      showAppToast('카카오로 인증하거나 예약을 조회한 뒤 등록할 수 있어요');
+      // 인증 전: 안내 팝업을 먼저 보여주고, 인증·조회가 끝나면 등록 화면으로 이어진다
+      returnTrackAutoOpen.current = true;
+      setReturnTrack({ gate: true });
       return;
     }
     var list = returnTrackTargets();
@@ -7311,7 +7313,7 @@ var PhoneRentalApp = () => {
       }
     }), React.createElement("span", {
       className: "text-[11px] text-gray-400"
-    }, "또는 비회원 조회"), React.createElement("div", {
+    }, "또는 직접 입력하여 조회"), React.createElement("div", {
       className: "flex-1 bg-gray-200",
       style: {
         height: 1
@@ -7736,6 +7738,14 @@ var PhoneRentalApp = () => {
     openReturnTrack();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lookupResult]);
+  // 링크로 들어왔는데 자동 로그인으로도 예약이 안 불러와지면, 본인인증 안내 팝업을 띄운다
+  useEffect(() => {
+    if (!returnTrackAutoOpen.current) return;
+    var t = setTimeout(() => {
+      if (returnTrackAutoOpen.current) setReturnTrack(prev => prev || { gate: true });
+    }, 1200);
+    return () => clearTimeout(t);
+  }, []);
   // [NEW] ?page=venue 링크로 들어오면 홈 화면에서 해당 섹션으로 자동 스크롤
   // 섹션이 비동기로 늦게 그려질 수 있어, 나타날 때까지 잠깐 재시도함
   useEffect(() => {
@@ -8204,7 +8214,7 @@ React.createElement("div", {
       className: "on"
     }, "마이페이지"), canGuest && React.createElement("button", {
       onClick: goGuestLookup
-    }, loggedIn ? "예약 조회" : "비회원 조회")), React.createElement("div", {
+    }, loggedIn ? "예약 조회" : "직접 입력하여 조회")), React.createElement("div", {
       className: "oh-prof"
     }, kakaoProfile ? React.createElement("div", {
       style: KAKAO_YELLOW_STYLE,
@@ -8221,7 +8231,7 @@ React.createElement("div", {
       className: "nm truncate"
     }, formatNameMasking(kakaoProfile ? kakaoProfile.name : lookupName), "님"), React.createElement("p", {
       className: "sb"
-    }, kakaoProfile ? "카카오 인증 회원" : "비회원 조회")) : React.createElement(React.Fragment, null, React.createElement("p", {
+    }, kakaoProfile ? "카카오 인증 회원" : "직접 입력하여 조회")) : React.createElement(React.Fragment, null, React.createElement("p", {
       className: "nm"
     }, "반가워요!"), React.createElement("p", {
       className: "sb"
@@ -8246,7 +8256,7 @@ React.createElement("div", {
       style: { padding: 13, borderRadius: 4, border: '1px solid #13A8DE', color: '#0A8CBC', background: '#fff' }
     }, React.createElement(Icons.Search, {
       size: 16
-    }), "비회원 예약 조회"))), ohNowItem && React.createElement("div", null, React.createElement("div", {
+    }), "직접 입력하여 조회"))), ohNowItem && React.createElement("div", null, React.createElement("div", {
       className: "oh-nowhd"
     }, "최근 예약", React.createElement("div", {
       className: "flex items-center gap-3"
@@ -8909,7 +8919,7 @@ React.createElement("div", {
     // [NEW] 2026-10-24 방문택배는 세린캠 마이페이지에서 신청 (인터넷우체국 직접 예약 안내 대체)
     var steps = [{
       t: '마이페이지 → 방문택배 신청',
-      d: React.createElement(React.Fragment, null, "카카오로 인증하거나 비회원 조회로 내 예약을 불러와요.")
+      d: React.createElement(React.Fragment, null, "카카오로 인증하거나 성함·연락처를 직접 입력해 내 예약을 불러와요.")
     }, {
       t: '반납일 하루 전에 신청',
       d: React.createElement(React.Fragment, null, "예약을 고르고 기사님이 오실 ", React.createElement("strong", {
@@ -10508,7 +10518,7 @@ React.createElement("div", {
         style: canKakao ? undefined : { borderTop: 0, marginTop: 8 }
       }, React.createElement("p", {
         className: "t"
-      }, "비회원 예약 조회"), React.createElement("input", {
+      }, "직접 입력하여 조회"), React.createElement("input", {
         type: "text",
         placeholder: "성함",
         value: lookupName,
@@ -10529,7 +10539,7 @@ React.createElement("div", {
         className: "animate-spin-slow"
       }), " 조회 중...") : React.createElement(React.Fragment, null, React.createElement(Icons.Search, {
         size: 16
-      }), " 비회원 예약 조회")))));
+      }), " 직접 입력하여 조회")))));
     }
     // 2) 조회됐지만 신청 가능한 예약 없음
     // [NEW] 대여연장은 반납일이 지난 예약도 신청 가능해야 하므로 날짜 필터가 없는 기본 목록을 사용
@@ -16333,6 +16343,40 @@ React.createElement("div", {
     className: "flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm"
   }, "로그아웃")))), returnTrack && (() => {
     // [NEW] 2026-11-04 반납 등기번호 등록 팝업
+    if (returnTrack.gate) {
+      // 인증 전 안내 — 카카오 인증 또는 비회원 예약 조회 후 등록 화면으로 이어짐
+      var closeGate = () => { returnTrackAutoOpen.current = false; setReturnTrack(null); };
+      return React.createElement("div", {
+        className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
+        onClick: closeGate
+      }, React.createElement("div", {
+        className: "bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl",
+        onClick: e => e.stopPropagation()
+      }, React.createElement("div", {
+        className: "flex justify-center mb-3"
+      }, ohIll('retno', 56)), React.createElement("h3", {
+        className: "text-lg font-bold text-gray-800 mb-1 text-center"
+      }, "반납 등기번호 등록"), React.createElement("p", {
+        className: "text-[14px] text-center mb-5 leading-relaxed break-keep",
+        style: { color: '#2F3438' }
+      }, "본인인증 후 또는 예약 확인 후", React.createElement("br", null), "등기번호를 등록해주세요"), KAKAO_LOGIN_ENABLED && React.createElement("button", {
+        onClick: () => kakaoUser ? (setReturnTrack(null), openKakaoLink()) : handleKakaoLogin({ returnPage: 'return-tracking' }),
+        style: KAKAO_YELLOW_STYLE,
+        className: "oh-kakao-btn"
+      }, React.createElement(KakaoSymbol, {
+        size: 18
+      }), kakaoUser ? "예약자 정보 연결하기" : "카카오로 본인인증하기"), React.createElement("button", {
+        onClick: () => { setReturnTrack(null); setOhShowGuest(true); handleNavChange('mypage'); },
+        className: "w-full flex items-center justify-center gap-2 font-bold text-[15px]",
+        style: { marginTop: KAKAO_LOGIN_ENABLED ? 8 : 0, padding: 13, borderRadius: 4, border: '1px solid #13A8DE', color: '#0A8CBC', background: '#fff' }
+      }, React.createElement(Icons.Search, {
+        size: 16
+      }), "직접 입력하여 조회"), React.createElement("button", {
+        onClick: closeGate,
+        className: "w-full text-center text-[13px] underline",
+        style: { color: '#828C94', marginTop: 12 }
+      }, "닫기")));
+    }
     var list = returnTrackTargets();
     var digits = (returnTrack.no || '').replace(/\D/g, '');
     var courier = returnTrack.courier || '우체국택배';
