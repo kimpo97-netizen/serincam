@@ -3120,7 +3120,7 @@ var PhoneRentalApp = () => {
     'venue-pickup': { activeNav: 'home', viewMode: 'venuePickup' },
     packages: { activeNav: 'home', viewMode: 'packageList' }, // [NEW] 2026-10-31 패키지 공연 전체 보기
     courier: { activeNav: 'mypage', viewMode: 'courierPicker' },
-    'return-tracking': { activeNav: 'my', viewMode: 'myPage' }, // [NEW] 2026-11-04 마이페이지 + 반납 등기번호 등록 팝업 자동 열기
+    'return-tracking': { activeNav: 'my', viewMode: 'returnTrack' }, // [NEW] 2026-11-04 반납 등기번호 등록 페이지 (인증 → 등록까지 단독)
     events: { activeNav: 'home', viewMode: 'events' }, // [NEW] 2026-10-24 이벤트
     'event-follow': { activeNav: 'home', viewMode: 'eventFollow' },
     'event-partners': { activeNav: 'home', viewMode: 'eventPartners' }
@@ -3708,6 +3708,7 @@ var PhoneRentalApp = () => {
   var [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   // [NEW] 2026-11-04 반납 등기번호 등록 팝업 { id, no, saving }
   var [returnTrack, setReturnTrack] = useState(null);
+  var [rtShowGuest, setRtShowGuest] = useState(false); // 반납 등기번호 페이지: 직접 입력하여 조회 펼침
   var [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   var [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   var [cancelTargetItem, setCancelTargetItem] = useState(null);
@@ -6930,22 +6931,16 @@ var PhoneRentalApp = () => {
   var RETURN_COURIERS = ['우체국택배', 'CJ대한통운', '한진택배', '롯데택배', '로젠택배', 'CU 편의점택배', 'GS 편의점택배', '기타'];
   var isReturnTrackValid = (courier, no) => (courier || '우체국택배') === '우체국택배' ? RETURN_TRACK_RE.test(no) : /^\d{1,30}$/.test(no);
   var returnTrackTargets = () => (lookupResult || []).filter(r => !REQUEST_CATEGORIES.includes(r.category) && !/취소|환불/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청'));
-  var openReturnTrack = () => {
-    if (!lookupResult || lookupResult.length === 0) {
-      // 인증 전: 안내 팝업을 먼저 보여주고, 인증·조회가 끝나면 등록 화면으로 이어진다
-      returnTrackAutoOpen.current = true;
-      setReturnTrack({ gate: true });
-      return;
-    }
-    var list = returnTrackTargets();
-    if (list.length === 0) {
-      showAppToast('등기번호를 등록할 예약이 없어요');
-      return;
-    }
-    var first = list.find(r => !r.returnTrackingNumber) || list[0];
-    pickReturnTrack(first);
+  var returnTrackFormFor = item => ({ id: item.id, no: item.returnTrackingNumber || '', courier: item.returnCourier || '우체국택배', saving: false });
+  var pickReturnTrack = item => setReturnTrack(returnTrackFormFor(item));
+  // [NEW] 반납 등기번호 등록 페이지로 이동 (item을 주면 그 예약을 선택한 채로 연다)
+  var openReturnTrack = item => {
+    setReturnTrack(item ? returnTrackFormFor(item) : null);
+    setActiveNav('my');
+    setViewMode('returnTrack');
+    updateURLForNav('return-tracking');
+    window.scrollTo(0, 0);
   };
-  var pickReturnTrack = item => setReturnTrack({ id: item.id, no: item.returnTrackingNumber || '', courier: item.returnCourier || '우체국택배', saving: false });
   var submitReturnTrack = async () => {
     var no = (returnTrack.no || '').replace(/\D/g, '');
     if (!isReturnTrackValid(returnTrack.courier, no)) {
@@ -6962,8 +6957,8 @@ var PhoneRentalApp = () => {
         p_courier: returnTrack.courier || '우체국택배'
       });
       if (error) throw error;
-      setReturnTrack(null);
-      showAppToast('반납 등기번호를 등록했어요 📦');
+      setReturnTrack(Object.assign({}, returnTrack, { no: no, saving: false, done: true }));
+      window.scrollTo(0, 0);
       handleRefresh();
     } catch (e) {
       console.error('register_return_tracking error:', e);
@@ -7727,25 +7722,14 @@ var PhoneRentalApp = () => {
     setOpenNavMenu(null);
     setIsLookupMenuOpen(false);
   }, [step, viewMode, activeNav]);
-  // [NEW] 2026-11-04 ?page=return-tracking 링크 — 예약이 조회되면(카카오 자동 로그인·비회원 조회 후) 등기번호 등록 팝업을 한 번 연다
-  // (비회원 조회 화면을 거치면 주소가 ?page=lookup으로 바뀌므로 처음 들어온 주소 기준으로 판단)
-  var returnTrackAutoOpen = useRef(initialPageParam === 'return-tracking');
+  // [NEW] 2026-11-04 반납 등기번호 페이지 — 예약이 조회되면(카카오 자동 로그인·직접 입력 조회 후) 등록할 예약을 기본 선택
   useEffect(() => {
-    if (!returnTrackAutoOpen.current || !lookupResult || lookupResult.length === 0) return;
-    returnTrackAutoOpen.current = false;
-    if (viewMode !== 'myPage') { setActiveNav('my'); setViewMode('myPage'); }
-    updateURLForNav('mypage');
-    openReturnTrack();
+    if (viewMode !== 'returnTrack' || !lookupResult || lookupResult.length === 0) return;
+    if (returnTrack && returnTrack.id && lookupResult.some(r => r.id === returnTrack.id)) return;
+    var list = returnTrackTargets();
+    if (list.length > 0) pickReturnTrack(list.find(r => !r.returnTrackingNumber) || list[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lookupResult]);
-  // 링크로 들어왔는데 자동 로그인으로도 예약이 안 불러와지면, 본인인증 안내 팝업을 띄운다
-  useEffect(() => {
-    if (!returnTrackAutoOpen.current) return;
-    var t = setTimeout(() => {
-      if (returnTrackAutoOpen.current) setReturnTrack(prev => prev || { gate: true });
-    }, 1200);
-    return () => clearTimeout(t);
-  }, []);
+  }, [viewMode, lookupResult]);
   // [NEW] ?page=venue 링크로 들어오면 홈 화면에서 해당 섹션으로 자동 스크롤
   // 섹션이 비동기로 늦게 그려질 수 있어, 나타날 때까지 잠깐 재시도함
   useEffect(() => {
@@ -13259,7 +13243,7 @@ React.createElement("div", {
       onClick: () => copyToClipboard(item.trackingNumber),
       style: { color: '#0A8CBC', cursor: 'pointer' }
     }, item.trackingNumber, " 복사")), item.returnTrackingNumber && React.createElement("div", null, React.createElement("span", null, "반납 등기번호"), React.createElement("b", {
-      onClick: () => pickReturnTrack(item),
+      onClick: () => openReturnTrack(item),
       style: { color: '#0A8CBC', cursor: 'pointer' }
     }, item.returnCourier && item.returnCourier !== '우체국택배' ? `${item.returnCourier} ` : '', item.returnTrackingNumber, " 수정")), React.createElement("div", null, React.createElement("span", null, "파손 보장"), React.createElement("b", null, item.insurance || '미가입')), item.review && item.review !== '선택안함' && React.createElement("div", null, React.createElement("span", null, "리뷰 할인"), React.createElement("b", null, item.review.replace(/^선택안함 \/ /, '')))), React.createElement("div", {
       className: "fin"
@@ -13378,7 +13362,7 @@ React.createElement("div", {
     }, x, React.createElement("small", null, subs[i], i === 1 && step >= 1 && item.trackingNumber && React.createElement("u", {
       onClick: () => copyToClipboard(item.trackingNumber)
     }, "송장 ", item.trackingNumber, " 복사"), i === 2 && step >= 1 && (item.returnTrackingNumber || /택배/.test(item.returnMethod || '')) && React.createElement("u", {
-      onClick: () => pickReturnTrack(item)
+      onClick: () => openReturnTrack(item)
     }, item.returnTrackingNumber ? `반납 ${item.returnCourier && item.returnCourier !== '우체국택배' ? item.returnCourier : '등기'} ${item.returnTrackingNumber}` : "반납 등기번호 등록"))))), step === 0 && React.createElement(React.Fragment, null, React.createElement("div", {
       className: "acc"
     }, React.createElement("div", null, React.createElement("small", null, "입금 계좌 · 예금주 한승윤"), React.createElement("b", null, "카카오뱅크 3333-20-9712773")), React.createElement("button", {
@@ -13422,6 +13406,186 @@ React.createElement("div", {
     }, React.createElement("small", null, isF ? "팔로우 이벤트" : "세린캠 파트너스"), React.createElement("h4", null, isF ? "팔로우만 해도" : "함께할", React.createElement("br", null), isF ? "최대 " + (FOLLOW_DISCOUNT * 2).toLocaleString() + "원 할인" : "파트너스 모집"), !hero && React.createElement("span", {
       className: "go"
     }, "자세히 보기 ›"), isF ? React.createElement(React.Fragment, null, svg("wob", { right: 14, top: 30 }, 150, 86, "0 0 150 86", `<path d="M8 0h134a8 8 0 018 8v22a13 13 0 000 26v22a8 8 0 01-8 8H8a8 8 0 01-8-8V56a13 13 0 000-26V8a8 8 0 018-8z" fill="#fff"/><path d="M104 8v70" stroke="#CDEFFB" stroke-width="2" stroke-dasharray="4 4"/><text x="54" y="44" font-size="22" font-weight="900" text-anchor="middle" fill="#13A8DE" textLength="84" lengthAdjust="spacingAndGlyphs">${(FOLLOW_DISCOUNT * 2).toLocaleString()}원</text><text x="54" y="63" font-size="11.5" font-weight="700" text-anchor="middle" fill="#6FB5CC">할인 쿠폰</text><text x="127" y="49" font-size="13" font-weight="900" text-anchor="middle" fill="#13A8DE">%</text>`), svg("bob", { right: 150, top: 18 }, 30, 30, "0 0 30 30", x), svg("bob", { right: 8, top: 100, animationDelay: '.9s' }, 28, 28, "0 0 30 30", ig), OH_EVENT_SPARK({ right: 132, bottom: 18 }, 12)) : React.createElement(React.Fragment, null, svg("wob", { right: 18, top: 24 }, 130, 94, "0 0 130 94", '<rect width="130" height="94" rx="10" fill="#fff"/><rect width="130" height="24" rx="10" fill="#9C8CC8"/><rect y="14" width="130" height="10" fill="#9C8CC8"/><text x="65" y="17" font-size="11" font-weight="900" text-anchor="middle" fill="#fff" letter-spacing="2">PARTNERS</text><circle cx="32" cy="56" r="16" fill="#EEE8FA"/><circle cx="32" cy="51" r="6" fill="#9C8CC8"/><path d="M21 66a11 8 0 0122 0" fill="#9C8CC8"/><rect x="56" y="44" width="56" height="7" rx="3.5" fill="#E5DCF8"/><rect x="56" y="58" width="40" height="7" rx="3.5" fill="#E5DCF8"/>'), OH_EVENT_SPARK({ right: 156, top: 22 }, 13), OH_EVENT_SPARK({ right: 10, bottom: 12, animationDelay: '.7s' }, 10, '#9C8CC8')));
+  };
+  // [NEW] 2026-11-04 반납 등기번호 등록 페이지 (?page=return-tracking) — 본인인증/직접 입력 조회 → 예약 선택 → 택배사·번호 입력 → 등록
+  var renderReturnTrackPage = () => {
+    var goMy = () => { setReturnTrack(null); setViewMode('myPage'); updateURLForNav('mypage'); window.scrollTo(0, 0); };
+    var head = ohPageHead("반납 등기번호 등록", goMy);
+    var sec = (children, style) => React.createElement("div", {
+      style: Object.assign({ background: '#fff', borderRadius: 12, border: '1px solid #EAEDEF', padding: 18, marginTop: 12 }, style)
+    }, children);
+    var secTitle = (n, t) => React.createElement("p", {
+      className: "font-bold text-[15px] mb-3",
+      style: { color: '#2F3438' }
+    }, t);
+    var verified = !!(lookupResult && lookupResult.length > 0);
+    var intro = React.createElement("div", {
+      className: "text-center",
+      style: { padding: '8px 0 4px' }
+    }, React.createElement("div", {
+      className: "flex justify-center mb-2"
+    }, ohIll('retno', 64)), React.createElement("p", {
+      className: "text-[14px] leading-relaxed break-keep",
+      style: { color: '#828C94' }
+    }, verified ? "반납하신 택배의 등기번호를 알려주세요" : React.createElement(React.Fragment, null, "본인인증 후 또는 예약 확인 후", React.createElement("br", null), "등기번호를 등록해주세요")));
+
+    // 1) 인증 전 — 카카오 본인인증 버튼 먼저, "카카오 인증이 어려우신가요?"를 누르면 직접 입력하여 조회 (페이지 안에서 바로)
+    if (!verified) {
+      var showGuest = !KAKAO_LOGIN_ENABLED || rtShowGuest;
+      return React.createElement("div", {
+        className: "animate-slide-in"
+      }, head, intro, sec(React.createElement(React.Fragment, null, KAKAO_LOGIN_ENABLED && React.createElement(React.Fragment, null, React.createElement("button", {
+        onClick: () => kakaoUser ? openKakaoLink() : handleKakaoLogin({ returnPage: 'return-tracking' }),
+        style: KAKAO_YELLOW_STYLE,
+        className: "oh-kakao-btn"
+      }, React.createElement(KakaoSymbol, {
+        size: 18
+      }), kakaoUser ? "예약자 정보 연결하기" : "카카오로 본인인증하기"), !rtShowGuest && React.createElement("button", {
+        onClick: () => setRtShowGuest(true),
+        className: "oh-guest-link"
+      }, "카카오 인증이 어려우신가요?")), showGuest && React.createElement("div", {
+        className: "oh-guest",
+        style: KAKAO_LOGIN_ENABLED ? undefined : { borderTop: 0, marginTop: 0, paddingTop: 0 }
+      }, React.createElement("p", {
+        className: "t"
+      }, "직접 입력하여 조회"), React.createElement("input", {
+        type: "text",
+        placeholder: "성함",
+        value: lookupName,
+        onChange: e => setLookupName(stripSpaces(e.target.value))
+      }), React.createElement("input", {
+        type: "text",
+        placeholder: "연락처 (010-0000-0000)",
+        value: lookupPhone,
+        onChange: e => setLookupPhone(formatPhone(e.target.value)),
+        onKeyPress: e => e.key === 'Enter' && handleLookup()
+      }), React.createElement("button", {
+        onClick: () => handleLookup(),
+        disabled: isSearching,
+        className: "go",
+        style: isSearching ? { opacity: .6 } : undefined
+      }, isSearching ? React.createElement(React.Fragment, null, React.createElement(Icons.RefreshCw, {
+        size: 16,
+        className: "animate-spin-slow"
+      }), " 조회 중...") : React.createElement(React.Fragment, null, React.createElement(Icons.Search, {
+        size: 16
+      }), " 직접 입력하여 조회"))))));
+    }
+
+    var list = returnTrackTargets();
+    // 2) 조회됐지만 등록할 예약 없음
+    if (list.length === 0) {
+      return React.createElement("div", {
+        className: "animate-slide-in"
+      }, head, intro, sec(React.createElement(React.Fragment, null, React.createElement("p", {
+        className: "text-[14px] text-center mb-4",
+        style: { color: '#2F3438' }
+      }, "등기번호를 등록할 예약이 없어요"), React.createElement("a", {
+        href: "https://pf.kakao.com/_kiQkG/chat",
+        target: "_blank",
+        rel: "noopener",
+        className: "oh-kakao-cta"
+      }, React.createElement(Icons.MessageLines, {
+        size: 18
+      }), "1:1 카카오톡 문의하기"))));
+    }
+
+    var form = returnTrack && returnTrack.id ? returnTrack : null;
+    var sel = form ? list.find(r => r.id === form.id) : null;
+    // 3) 등록 완료
+    if (form && form.done) {
+      return React.createElement("div", {
+        className: "animate-slide-in"
+      }, head, sec(React.createElement("div", {
+        className: "text-center",
+        style: { padding: '10px 0' }
+      }, React.createElement("div", {
+        className: "flex justify-center mb-3"
+      }, ohIll('retno', 64)), React.createElement("p", {
+        className: "text-[17px] font-bold mb-1",
+        style: { color: '#2F3438' }
+      }, "반납 등기번호를 등록했어요"), React.createElement("p", {
+        className: "text-[13px] mb-4",
+        style: { color: '#828C94' }
+      }, "도착하면 확인 후 반납 처리해드릴게요"), React.createElement("div", {
+        className: "text-[14px]",
+        style: { background: '#F7F9FA', borderRadius: 8, padding: 12, color: '#2F3438' }
+      }, sel && React.createElement("p", {
+        className: "truncate mb-1",
+        style: { color: '#828C94' }
+      }, sel.model), React.createElement("b", {
+        className: "tracking-wider"
+      }, form.courier || '우체국택배', " ", form.no)))), React.createElement("div", {
+        className: "flex gap-2",
+        style: { marginTop: 14 }
+      }, list.length > 1 && React.createElement("button", {
+        onClick: () => { var others = list.filter(r => r.id !== form.id); pickReturnTrack(others.find(r => !r.returnTrackingNumber) || others[0]); },
+        className: "ohg-btn g flex-1",
+        style: { padding: 13 }
+      }, "다른 예약 등록"), React.createElement("button", {
+        onClick: goMy,
+        className: "ohg-btn o flex-1",
+        style: { padding: 13 }
+      }, "마이페이지로")));
+    }
+
+    // 4) 예약 선택 → 택배사·번호 입력
+    var digits = form ? (form.no || '').replace(/\D/g, '') : '';
+    var courier = form && form.courier || '우체국택배';
+    var isEpost = courier === '우체국택배';
+    var valid = !!form && isReturnTrackValid(courier, digits);
+    var hint = !digits || !isEpost ? '' : !/^[67]/.test(digits) ? '6 또는 7로 시작해야 해요' : digits.length !== 13 ? `13자리 중 ${digits.length}자리 입력했어요` : '';
+    var setForm = patch => setReturnTrack(Object.assign({}, form, patch));
+    return React.createElement("div", {
+      className: "animate-slide-in"
+    }, head, intro, sec(React.createElement(React.Fragment, null, secTitle(1, "반납할 예약"), React.createElement("div", {
+      className: "space-y-1.5"
+    }, list.map(r => {
+      var on = form && r.id === form.id;
+      return React.createElement("button", {
+        key: r.id,
+        onClick: () => pickReturnTrack(r),
+        className: "w-full text-left text-[13px]",
+        style: { padding: '11px 12px', borderRadius: 8, border: `1px solid ${on ? '#13A8DE' : '#EAEDEF'}`, background: on ? '#F0FAFE' : '#fff' }
+      }, React.createElement("b", {
+        className: "block truncate",
+        style: { color: '#2F3438' }
+      }, r.model || '-'), React.createElement("span", {
+        style: { color: '#828C94' }
+      }, [r.scheduleName, r.startDate ? `${formatDisplayDate(r.startDate)} ~ ${formatDisplayDate(r.endDate)}` : ''].filter(Boolean).join(' · ')), r.returnTrackingNumber && React.createElement("span", {
+        className: "block",
+        style: { color: '#0A8CBC' }
+      }, "등록됨 ", r.returnCourier && r.returnCourier !== '우체국택배' ? `${r.returnCourier} ` : '', r.returnTrackingNumber));
+    })))), form && sec(React.createElement(React.Fragment, null, secTitle(2, "택배사 · 등기번호"), React.createElement("div", {
+      className: "flex mb-3",
+      style: { flexWrap: 'wrap', gap: 6 }
+    }, RETURN_COURIERS.map(c => React.createElement("button", {
+      key: c,
+      onClick: () => setForm({ courier: c, no: c === '우체국택배' ? digits.slice(0, 13) : digits }),
+      className: "text-[12px] font-bold whitespace-nowrap shrink-0",
+      style: { padding: '6px 10px', borderRadius: 999, border: `1px solid ${c === courier ? '#13A8DE' : '#EAEDEF'}`, background: c === courier ? '#F0FAFE' : '#fff', color: c === courier ? '#0A8CBC' : '#828C94' }
+    }, c))), React.createElement("p", {
+      className: "text-[12px] mb-1.5",
+      style: { color: '#828C94' }
+    }, isEpost ? "우체국 영수증에 적힌 등기번호 13자리 (6 또는 7로 시작)" : "택배 영수증에 적힌 송장번호 (숫자만)"), React.createElement("input", {
+      type: "text",
+      inputMode: "numeric",
+      // maxLength를 걸면 '6012-3456-78901'처럼 붙여넣을 때 하이픈 포함 글자수로 먼저 잘려서, 숫자만 거른 뒤 onChange에서 자른다
+      value: digits,
+      placeholder: isEpost ? "예) 6012345678901" : "송장번호 (숫자만)",
+      onChange: e => setForm({ no: e.target.value.replace(/\D/g, '').slice(0, isEpost ? 13 : 30) }),
+      onKeyPress: e => e.key === 'Enter' && valid && !form.saving && submitReturnTrack(),
+      className: "w-full text-center text-[17px] font-bold tracking-wider outline-none",
+      style: { padding: 13, borderRadius: 8, border: `1px solid ${hint ? '#F04452' : '#DADDE0'}`, color: '#2F3438' }
+    }), React.createElement("p", {
+      className: "text-[12px] mt-1.5 text-center",
+      style: { color: '#F04452', minHeight: 18 }
+    }, hint))), form && React.createElement("button", {
+      onClick: submitReturnTrack,
+      disabled: !valid || form.saving,
+      className: `w-full text-white font-bold text-[16px] ${!valid || form.saving ? 'opacity-40' : ''}`,
+      style: { marginTop: 14, padding: 15, borderRadius: 8, background: '#13A8DE' }
+    }, form.saving ? '등록 중...' : sel && sel.returnTrackingNumber ? '수정하기' : '등록하기'));
   };
   var renderEventsPage = () => React.createElement("div", null, ohPageHead("이벤트"), React.createElement("div", {
     className: "oh-evlead"
@@ -13847,7 +14011,9 @@ React.createElement("div", {
     className: "oh-page"
   }, renderOhPackageListPage()), viewMode === 'events' && React.createElement("div", {
     className: "oh-page"
-  }, renderEventsPage()), viewMode === 'eventFollow' && React.createElement("div", {
+  }, renderEventsPage()), viewMode === 'returnTrack' && React.createElement("div", {
+    className: "oh-page"
+  }, renderReturnTrackPage()), viewMode === 'eventFollow' && React.createElement("div", {
     className: "oh-page"
   }, renderEventFollowPage()), viewMode === 'eventPartners' && React.createElement("div", {
     className: "oh-page"
@@ -16341,114 +16507,7 @@ React.createElement("div", {
   }, "취소"), React.createElement("button", {
     onClick: handleLogoutConfirm,
     className: "flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors text-sm"
-  }, "로그아웃")))), returnTrack && (() => {
-    // [NEW] 2026-11-04 반납 등기번호 등록 팝업
-    if (returnTrack.gate) {
-      // 인증 전 안내 — 카카오 인증 또는 비회원 예약 조회 후 등록 화면으로 이어짐
-      var closeGate = () => { returnTrackAutoOpen.current = false; setReturnTrack(null); };
-      return React.createElement("div", {
-        className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
-        onClick: closeGate
-      }, React.createElement("div", {
-        className: "bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl",
-        onClick: e => e.stopPropagation()
-      }, React.createElement("div", {
-        className: "flex justify-center mb-3"
-      }, ohIll('retno', 56)), React.createElement("h3", {
-        className: "text-lg font-bold text-gray-800 mb-1 text-center"
-      }, "반납 등기번호 등록"), React.createElement("p", {
-        className: "text-[14px] text-center mb-5 leading-relaxed break-keep",
-        style: { color: '#2F3438' }
-      }, "본인인증 후 또는 예약 확인 후", React.createElement("br", null), "등기번호를 등록해주세요"), KAKAO_LOGIN_ENABLED && React.createElement("button", {
-        onClick: () => kakaoUser ? (setReturnTrack(null), openKakaoLink()) : handleKakaoLogin({ returnPage: 'return-tracking' }),
-        style: KAKAO_YELLOW_STYLE,
-        className: "oh-kakao-btn"
-      }, React.createElement(KakaoSymbol, {
-        size: 18
-      }), kakaoUser ? "예약자 정보 연결하기" : "카카오로 본인인증하기"), React.createElement("button", {
-        onClick: () => { setReturnTrack(null); setOhShowGuest(true); handleNavChange('mypage'); },
-        className: "w-full flex items-center justify-center gap-2 font-bold text-[15px]",
-        style: { marginTop: KAKAO_LOGIN_ENABLED ? 8 : 0, padding: 13, borderRadius: 4, border: '1px solid #13A8DE', color: '#0A8CBC', background: '#fff' }
-      }, React.createElement(Icons.Search, {
-        size: 16
-      }), "직접 입력하여 조회"), React.createElement("button", {
-        onClick: closeGate,
-        className: "w-full text-center text-[13px] underline",
-        style: { color: '#828C94', marginTop: 12 }
-      }, "닫기")));
-    }
-    var list = returnTrackTargets();
-    var digits = (returnTrack.no || '').replace(/\D/g, '');
-    var courier = returnTrack.courier || '우체국택배';
-    var isEpost = courier === '우체국택배';
-    var valid = isReturnTrackValid(courier, digits);
-    var hint = !digits || !isEpost ? '' : !/^[67]/.test(digits) ? '6 또는 7로 시작해야 해요' : digits.length !== 13 ? `13자리 중 ${digits.length}자리 입력했어요` : '';
-    return React.createElement("div", {
-      className: "fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 animate-fade-in",
-      onClick: () => !returnTrack.saving && setReturnTrack(null)
-    }, React.createElement("div", {
-      className: "bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl",
-      onClick: e => e.stopPropagation()
-    }, React.createElement("div", {
-      className: "flex justify-center mb-3"
-    }, ohIll('retno', 56)), React.createElement("h3", {
-      className: "text-lg font-bold text-gray-800 mb-1 text-center"
-    }, "반납 등기번호 등록"), React.createElement("p", {
-      className: "text-[13px] text-center mb-4 leading-relaxed",
-      style: { color: '#828C94' }
-    }, isEpost ? "우체국 영수증에 적힌 등기번호 13자리를 입력해주세요" : "택배 영수증에 적힌 송장번호를 입력해주세요"), React.createElement("div", {
-      className: "flex justify-center mb-3",
-      style: { flexWrap: 'wrap', gap: 6 }
-    }, RETURN_COURIERS.map(c => React.createElement("button", {
-      key: c,
-      onClick: () => setReturnTrack(Object.assign({}, returnTrack, { courier: c, no: c === '우체국택배' ? digits.slice(0, 13) : digits })),
-      className: "text-[12px] font-bold whitespace-nowrap shrink-0",
-      style: { padding: '6px 10px', borderRadius: 999, border: `1px solid ${c === courier ? '#13A8DE' : '#EAEDEF'}`, background: c === courier ? '#F0FAFE' : '#fff', color: c === courier ? '#0A8CBC' : '#828C94' }
-    }, c))), list.length > 1 && React.createElement("div", {
-      className: "mb-3 space-y-1.5 max-h-48 overflow-y-auto"
-    }, list.map(r => {
-      var on = r.id === returnTrack.id;
-      return React.createElement("button", {
-        key: r.id,
-        onClick: () => pickReturnTrack(r),
-        className: "w-full text-left text-[13px]",
-        style: { padding: '10px 12px', borderRadius: 8, border: `1px solid ${on ? '#13A8DE' : '#EAEDEF'}`, background: on ? '#F0FAFE' : '#fff' }
-      }, React.createElement("b", {
-        className: "block truncate",
-        style: { color: '#2F3438' }
-      }, r.model || '-'), React.createElement("span", {
-        style: { color: '#828C94' }
-      }, [r.scheduleName, r.startDate ? `${formatDisplayDate(r.startDate)} ~ ${formatDisplayDate(r.endDate)}` : ''].filter(Boolean).join(' · ')), r.returnTrackingNumber && React.createElement("span", {
-        className: "block",
-        style: { color: '#0A8CBC' }
-      }, "등록됨 ", r.returnCourier && r.returnCourier !== '우체국택배' ? `${r.returnCourier} ` : '', r.returnTrackingNumber));
-    })), React.createElement("input", {
-      type: "text",
-      inputMode: "numeric",
-      autoFocus: true,
-      // maxLength를 걸면 '6012-3456-78901'처럼 붙여넣을 때 하이픈 포함 글자수로 먼저 잘려서, 숫자만 거른 뒤 onChange에서 자른다
-      value: digits,
-      placeholder: isEpost ? "예) 6012345678901" : "송장번호 (숫자만)",
-      onChange: e => setReturnTrack(Object.assign({}, returnTrack, { no: e.target.value.replace(/\D/g, '').slice(0, isEpost ? 13 : 30) })),
-      onKeyPress: e => e.key === 'Enter' && valid && !returnTrack.saving && submitReturnTrack(),
-      className: "w-full text-center text-[17px] font-bold tracking-wider outline-none",
-      style: { padding: 13, borderRadius: 8, border: `1px solid ${hint ? '#F04452' : '#DADDE0'}`, color: '#2F3438' }
-    }), React.createElement("p", {
-      className: "text-[12px] mt-1.5 text-center",
-      style: { color: '#F04452', minHeight: 18 }
-    }, hint), React.createElement("div", {
-      className: "flex gap-2 mt-2"
-    }, React.createElement("button", {
-      onClick: () => setReturnTrack(null),
-      disabled: returnTrack.saving,
-      className: "flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold text-sm"
-    }, "취소"), React.createElement("button", {
-      onClick: submitReturnTrack,
-      disabled: !valid || returnTrack.saving,
-      className: `flex-1 py-3 rounded-xl text-white font-bold text-sm ${!valid || returnTrack.saving ? 'opacity-40' : ''}`,
-      style: { background: '#13A8DE' }
-    }, returnTrack.saving ? '등록 중...' : '등록하기'))));
-  })(), kakaoLinkOpen && renderKakaoLinkModal(), showWhyVerify && renderWhyVerifyModal(), isBlogConfirmOpen && (() => {
+  }, "로그아웃")))), kakaoLinkOpen && renderKakaoLinkModal(), showWhyVerify && renderWhyVerifyModal(), isBlogConfirmOpen && (() => {
     // [NEW] 이동 대상에 따라 문구/아이콘 자동 전환 (네이버 블로그 / 카카오맵 / X)
     var url = blogTargetUrl || '';
     var dest = {
