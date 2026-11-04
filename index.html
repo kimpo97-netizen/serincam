@@ -6930,7 +6930,8 @@ var PhoneRentalApp = () => {
   // 우체국택배가 아니면 택배사를 고르고 숫자는 자유롭게 입력
   var RETURN_COURIERS = ['우체국택배', 'CJ대한통운', '한진택배', '롯데택배', '로젠택배', 'CU 편의점택배', 'GS 편의점택배', '기타'];
   var isReturnTrackValid = (courier, no) => (courier || '우체국택배') === '우체국택배' ? RETURN_TRACK_RE.test(no) : /^\d{1,30}$/.test(no);
-  var returnTrackTargets = () => (lookupResult || []).filter(r => !REQUEST_CATEGORIES.includes(r.category) && !/취소|환불/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청'));
+  // 관리자가 삭제한 예약(deleted_at)은 등록 불가라 목록에서 뺀다
+  var returnTrackTargets = () => (lookupResult || []).filter(r => !r.deleted_at && !REQUEST_CATEGORIES.includes(r.category) && !/취소|환불/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청'));
   var returnTrackFormFor = item => ({ id: item.id, no: item.returnTrackingNumber || '', courier: item.returnCourier || '우체국택배', saving: false });
   var pickReturnTrack = item => setReturnTrack(returnTrackFormFor(item));
   // [NEW] 반납 등기번호 등록 페이지로 이동 (item을 주면 그 예약을 선택한 채로 연다)
@@ -6949,9 +6950,11 @@ var PhoneRentalApp = () => {
     }
     setReturnTrack(Object.assign({}, returnTrack, { saving: true }));
     try {
+      // 입력칸 값 대신 조회된 예약에 저장된 성함·연락처를 그대로 보내야 서버에서 정확히 일치한다
+      var row = (lookupResult || []).find(r => r.id === returnTrack.id) || {};
       var { error } = await sb.rpc('register_return_tracking', {
-        p_name: lookupName.trim(),
-        p_phone: lookupPhone.trim(),
+        p_name: row.name || lookupName.trim(),
+        p_phone: row.phone || lookupPhone.trim(),
         p_id: returnTrack.id,
         p_tracking: no,
         p_courier: returnTrack.courier || '우체국택배'
@@ -6963,7 +6966,8 @@ var PhoneRentalApp = () => {
     } catch (e) {
       console.error('register_return_tracking error:', e);
       setReturnTrack(Object.assign({}, returnTrack, { saving: false }));
-      showAppToast(/invalid_tracking/.test(e && e.message || '') ? '번호 형식을 다시 확인해주세요' : '등록 중 오류가 발생했어요.\n다시 시도해주세요. 🚨');
+      var msg = e && e.message || '';
+      showAppToast(/invalid_tracking/.test(msg) ? '번호 형식을 다시 확인해주세요' : /not_found/.test(msg) ? '예약 정보를 찾지 못했어요.\n새로고침 후 다시 시도하거나 카카오톡으로 문의해주세요.' : '등록 중 오류가 발생했어요.\n다시 시도해주세요. 🚨');
     }
   };
   var handleLogoutClick = () => {
