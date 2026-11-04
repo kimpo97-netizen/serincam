@@ -4226,15 +4226,22 @@ var PhoneRentalApp = () => {
         place: '고척돔 주차장',
         placeDetail: '서울 구로구 고척동 76-4 (구로성심병원 별관 맞은편)',
         time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.',
+        images: [
+          { src: 'gocheok.jpg', caption: '고척돔 주차장 오는 길' }
+        ]
       }
     }, {
       name: '티켓링크 아레나',
       info: {
-        place: '올림픽공원테니스경기장방면주차장',
-        placeDetail: '올림픽공원 투썸플레이스 건너편 주차장',
+        place: '동2문주차장 또는 올림픽공원역 3번출구',
+        placeDetail: '동2문주차장: 투썸플레이스 건너편 주차장',
         time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.',
+        images: [
+          { src: 'olympic-east2-parking.jpg', caption: '동2문주차장 오는 길' },
+          { src: 'olympic-station-exit3.jpg', caption: '올림픽공원역 3번출구' }
+        ]
       }
     }, {
       name: '블루스퀘어',
@@ -4255,10 +4262,14 @@ var PhoneRentalApp = () => {
     }, {
       name: 'KSPO DOME',
       info: {
-        place: '올림픽공원테니스경기장방면주차장',
-        placeDetail: '올림픽공원 투썸플레이스 건너편 주차장',
+        place: '동2문주차장 또는 올림픽공원역 3번출구',
+        placeDetail: '동2문주차장: 투썸플레이스 건너편 주차장',
         time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.',
+        images: [
+          { src: 'olympic-east2-parking.jpg', caption: '동2문주차장 오는 길' },
+          { src: 'olympic-station-exit3.jpg', caption: '올림픽공원역 3번출구' }
+        ]
       }
     }, {
       name: '고려대 화정체육관',
@@ -4307,7 +4318,12 @@ var PhoneRentalApp = () => {
         place: '인스파이어 버스정류장',
         placeDetail: '정류장번호: 35900 (풍림1차205동 방면)',
         time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.',
+        images: [
+          { src: 'inspire-spot.jpg', caption: '수령/반납 장소 위치' },
+          { src: 'inspire-route.jpg', caption: '인스파이어 실내에서 오는 길' },
+          { src: 'inspire-map.jpg', caption: '지도에서 보기' }
+        ]
       }
     }, {
       name: '아시아드 주경기장',
@@ -4348,7 +4364,10 @@ var PhoneRentalApp = () => {
         place: '킨텍스역 1번출구',
         placeDetail: '1번출구 지상 입구쪽',
         time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
-        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.'
+        note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.',
+        images: [
+          { src: 'kintex-locker.jpg', caption: '근처 물품보관함 (Keep24 킨텍스역점)' }
+        ]
       }
     }]
   };
@@ -15675,6 +15694,11 @@ React.createElement("div", {
     onClick: () => setShowVenueInfoModal(false)
   }, React.createElement("div", {
     className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative",
+    style: {
+      maxHeight: '88vh',
+      overflowY: 'auto',
+      overscrollBehavior: 'contain'
+    },
     onClick: e => e.stopPropagation()
   }, React.createElement("button", {
     onClick: () => setShowVenueInfoModal(false),
@@ -15705,7 +15729,30 @@ React.createElement("div", {
     className: "text-xs text-gray-700 leading-relaxed"
   }, selectedVenue.info.time)), selectedVenue.info.note && React.createElement("p", {
     className: "text-[11px] text-red-500 mt-2 flex items-start gap-1"
-  }, React.createElement("span", null, "*"), " ", selectedVenue.info.note)), React.createElement("div", {
+  }, React.createElement("span", null, "*"), " ", selectedVenue.info.note), (selectedVenue.info.images || []).length > 0 && React.createElement("div", {
+    className: "bg-gray-50 p-3 rounded-xl border border-gray-100"
+  }, React.createElement("p", {
+    className: "text-xs font-bold text-gray-600 mb-2"
+  }, "🚶 오는 길"), React.createElement("div", {
+    className: "space-y-3"
+  }, selectedVenue.info.images.map((im, i) => {
+    // [NEW] 공연장 오는 길 사진 — serincam.com/venue-route/ 에 올린 사진 (다른 주소에서 열어도 serincam.com 사진을 불러와요)
+    var base = /(^|\.)serincam\.com$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? 'venue-route/' : 'https://serincam.com/venue-route/';
+    var url = /^https?:/.test(im.src) ? im.src : base + im.src;
+    return React.createElement("div", {
+      key: i
+    }, im.caption && React.createElement("p", {
+      className: "text-[11px] font-bold text-gray-500 mb-1"
+    }, im.caption), React.createElement("img", {
+      src: url,
+      alt: im.caption || selectedVenue.name + ' 오는 길',
+      loading: "lazy",
+      onClick: () => window.open(url, '_blank'),
+      className: "w-full rounded-lg border border-gray-200 bg-white cursor-zoom-in"
+    }));
+  })), React.createElement("p", {
+    className: "text-[10.5px] text-gray-400 mt-2"
+  }, "사진을 누르면 크게 볼 수 있어요"))), React.createElement("div", {
     className: "mt-6 flex flex-col gap-2"
   }, React.createElement("button", {
     onClick: () => window.open(`https://map.naver.com/p/search/${selectedVenue.info.place}`, '_blank'),
