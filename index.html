@@ -3121,6 +3121,7 @@ var PhoneRentalApp = () => {
     packages: { activeNav: 'home', viewMode: 'packageList' }, // [NEW] 2026-10-31 패키지 공연 전체 보기
     courier: { activeNav: 'mypage', viewMode: 'courierPicker' },
     'return-tracking': { activeNav: 'my', viewMode: 'returnTrack' }, // [NEW] 2026-11-04 반납 등기번호 등록 페이지 (인증 → 등록까지 단독)
+    'pickup-time': { activeNav: 'my', viewMode: 'pickupTime' }, // [NEW] 2026-11-04 공연장 수령 희망 시간 조사 페이지
     events: { activeNav: 'home', viewMode: 'events' }, // [NEW] 2026-10-24 이벤트
     'event-follow': { activeNav: 'home', viewMode: 'eventFollow' },
     'event-partners': { activeNav: 'home', viewMode: 'eventPartners' }
@@ -3709,6 +3710,7 @@ var PhoneRentalApp = () => {
   // [NEW] 2026-11-04 반납 등기번호 등록 팝업 { id, no, saving }
   var [returnTrack, setReturnTrack] = useState(null);
   var [rtShowGuest, setRtShowGuest] = useState(false); // 반납 등기번호 페이지: 직접 입력하여 조회 펼침
+  var [pickupTime, setPickupTime] = useState(null); // [NEW] 공연장 수령 시간 조사: { id, prefs[], note, saving, done }
   var [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   var [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   var [cancelTargetItem, setCancelTargetItem] = useState(null);
@@ -4093,6 +4095,16 @@ var PhoneRentalApp = () => {
     }),
     accent: 'bg-blue-100 text-blue-500',
     onClick: () => openReturnTrack()
+  }, {
+    // [NEW] 2026-11-04 공연장 수령 희망 시간 조사 (관리자 PC·모바일 🕒 수령시간 조사에서 확인)
+    label: '수령 시간 조사',
+    fullLabel: '공연장 수령 시간 알려주기',
+    icon: () => React.createElement("i", {
+      className: "fa-regular fa-clock",
+      style: { fontSize: 16 }
+    }),
+    accent: 'bg-blue-100 text-blue-500',
+    onClick: () => openPickupTime()
   }]);
 
   var [isChangeConfirmOpen, setIsChangeConfirmOpen] = useState(false);
@@ -6934,6 +6946,12 @@ var PhoneRentalApp = () => {
   var returnTrackTargets = () => (lookupResult || []).filter(r => !r.deleted_at && !REQUEST_CATEGORIES.includes(r.category) && !/취소|환불/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청'));
   var returnTrackFormFor = item => ({ id: item.id, no: item.returnTrackingNumber || '', courier: item.returnCourier || '우체국택배', saving: false });
   var pickReturnTrack = item => setReturnTrack(returnTrackFormFor(item));
+  // 오늘 기준 반납일(endDate)이 가장 가까운 예약 (같으면 아직 번호를 등록하지 않은 예약 먼저)
+  var closestReturnTrack = list => {
+    var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var gap = r => { var d = ohParseDay(r.endDate); return d ? Math.abs(d.getTime() - today) : Infinity; };
+    return list.slice().sort((a, b) => gap(a) - gap(b) || !!a.returnTrackingNumber - !!b.returnTrackingNumber)[0];
+  };
   // [NEW] 반납 등기번호 등록 페이지로 이동 (item을 주면 그 예약을 선택한 채로 연다)
   var openReturnTrack = item => {
     setReturnTrack(item ? returnTrackFormFor(item) : null);
@@ -6968,6 +6986,58 @@ var PhoneRentalApp = () => {
       setReturnTrack(Object.assign({}, returnTrack, { saving: false }));
       var msg = e && e.message || '';
       showAppToast(/invalid_tracking/.test(msg) ? '번호 형식을 다시 확인해주세요' : /not_found/.test(msg) ? '예약 정보를 찾지 못했어요.\n새로고침 후 다시 시도하거나 카카오톡으로 문의해주세요.' : '등록 중 오류가 발생했어요.\n다시 시도해주세요. 🚨');
+    }
+  };
+  // [NEW] 2026-11-04 공연장 수령 시간 조사 — 보기는 DB 함수(register_pickup_time)와 같아야 저장된다
+  // 11:00 ~ 18:00, 30분 간격 15개 + '시간 상관없어요' (저장 값은 24시간제 '13:30'), 최대 2개 선택
+  var PICKUP_TIME_MAX = 2;
+  var PICKUP_TIME_OPTIONS = Array.from({ length: 15 }, (_, i) => ({ v: `${11 + Math.floor(i / 2)}:${i % 2 ? '30' : '00'}` }))
+    .concat([{ v: '시간 상관없어요', d: '세린캠이 정한 시간에 맞출게요' }]);
+  // '13:30' → '1:30' (12시간제, 오전/오후 없이)
+  var ptRangeLabel = t => t.replace(/\d+(?=:)/g, h => (+h > 12 ? +h - 12 : +h));
+  // 저장 값 '11:30, 13:00' → 화면용 '오전 11:30 · 오후 1:00'
+  var fmtPickupTimes = v => (Array.isArray(v) ? v : String(v || '').split(', ')).filter(Boolean).map(t => {
+    var h = parseInt(t, 10);
+    return isNaN(h) ? t : `${h < 12 ? '오전' : '오후'} ${ptRangeLabel(t)}`;
+  }).join(' · ');
+  // 반납일이 지나지 않은 공연장 수령 원예약만 (삭제·취소·신청 건 제외)
+  var pickupTimeTargets = () => {
+    var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    return (lookupResult || []).filter(r => !r.deleted_at && r.delivery === '공연장수령' && !REQUEST_CATEGORIES.includes(r.category) && !/취소|환불|반납/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청') && (() => { var d = ohParseDay(r.endDate || r.startDate); return !d || d.getTime() >= today; })())
+      .sort((a, b) => ((ohParseDay(a.startDate) || 0) - (ohParseDay(b.startDate) || 0)) || !!a.pickupTimePref - !!b.pickupTimePref);
+  };
+  var pickupTimeFormFor = item => ({ id: item.id, prefs: item.pickupTimePref ? item.pickupTimePref.split(', ') : [], note: item.pickupTimeNote || '', saving: false });
+  var pickPickupTime = item => setPickupTime(pickupTimeFormFor(item));
+  // [NEW] 수령 시간 조사 페이지로 이동 (item을 주면 그 예약을 선택한 채로 연다)
+  var openPickupTime = item => {
+    setPickupTime(item ? pickupTimeFormFor(item) : null);
+    setActiveNav('my');
+    setViewMode('pickupTime');
+    updateURLForNav('pickup-time');
+    window.scrollTo(0, 0);
+  };
+  var submitPickupTime = async () => {
+    if (!pickupTime || pickupTime.prefs.length === 0) { showAppToast('희망 시간을 하나 이상 골라주세요'); return; }
+    setPickupTime(Object.assign({}, pickupTime, { saving: true }));
+    try {
+      // 입력칸 값 대신 조회된 예약에 저장된 성함·연락처를 그대로 보내야 서버에서 정확히 일치한다
+      var row = (lookupResult || []).find(r => r.id === pickupTime.id) || {};
+      var { error } = await sb.rpc('register_pickup_time', {
+        p_name: row.name || lookupName.trim(),
+        p_phone: row.phone || lookupPhone.trim(),
+        p_id: pickupTime.id,
+        p_pref: pickupTime.prefs.join(','),
+        p_note: (pickupTime.note || '').trim()
+      });
+      if (error) throw error;
+      setPickupTime(Object.assign({}, pickupTime, { saving: false, done: true }));
+      window.scrollTo(0, 0);
+      handleRefresh();
+    } catch (e) {
+      console.error('register_pickup_time error:', e);
+      setPickupTime(Object.assign({}, pickupTime, { saving: false }));
+      var msg = e && e.message || '';
+      showAppToast(/not_found/.test(msg) ? '예약 정보를 찾지 못했어요.\n새로고침 후 다시 시도하거나 카카오톡으로 문의해주세요.' : '저장 중 오류가 발생했어요.\n다시 시도해주세요. 🚨');
     }
   };
   var handleLogoutClick = () => {
@@ -7021,7 +7091,9 @@ var PhoneRentalApp = () => {
     var resume = !!(opts && opts.resumeBooking);
     if (resume) saveBookingResume();
     // [NEW] 반납 등기번호 링크(?page=return-tracking)에서 로그인하면 돌아와서 등록 팝업이 바로 열리도록 유지
-    var stayPage = (() => { try { return new URLSearchParams(window.location.search).get('page'); } catch (e) { return null; } })() === 'return-tracking' ? 'return-tracking' : 'mypage';
+    // [NEW] 2026-11-04 공연장 수령 시간 조사(?page=pickup-time)도 같은 방식으로 돌아온다
+    var stayPage = (() => { try { return new URLSearchParams(window.location.search).get('page'); } catch (e) { return null; } })();
+    if (stayPage !== 'return-tracking' && stayPage !== 'pickup-time') stayPage = 'mypage';
     try {
       var {
         error
@@ -7731,7 +7803,15 @@ var PhoneRentalApp = () => {
     if (viewMode !== 'returnTrack' || !lookupResult || lookupResult.length === 0) return;
     if (returnTrack && returnTrack.id && lookupResult.some(r => r.id === returnTrack.id)) return;
     var list = returnTrackTargets();
-    if (list.length > 0) pickReturnTrack(list.find(r => !r.returnTrackingNumber) || list[0]);
+    if (list.length > 0) pickReturnTrack(closestReturnTrack(list));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode, lookupResult]);
+  // [NEW] 2026-11-04 공연장 수령 시간 조사 페이지 — 예약이 조회되면 가장 가까운 공연장 수령 예약을 기본 선택
+  useEffect(() => {
+    if (viewMode !== 'pickupTime' || !lookupResult || lookupResult.length === 0) return;
+    if (pickupTime && pickupTime.id && lookupResult.some(r => r.id === pickupTime.id)) return;
+    var list = pickupTimeTargets();
+    if (list.length > 0) pickPickupTime(list.find(r => !r.pickupTimePref) || list[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode, lookupResult]);
   // [NEW] ?page=venue 링크로 들어오면 홈 화면에서 해당 섹션으로 자동 스크롤
@@ -7886,8 +7966,8 @@ var PhoneRentalApp = () => {
       className: "flex items-center gap-1.5"
     }, React.createElement("span", {
       onClick: cancelReq ? () => openRequestPopup(cancelReq) : undefined,
-      className: `text-[10px] font-bold px-2 py-0.5 rounded-md ${cancelReq ? `cursor-pointer bg-red-100 text-red-600 ${cancelDone ? '' : 'animate-soft-glow-badge'}` : (item.status || '').includes('확정') ? 'bg-green-100 text-green-600' : (item.status || '').includes('취소') || (item.status || '').includes('환불') ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-500'}`
-    }, cancelReq ? cancelDone ? '취소' : '취소 처리중' : item.status || '접수대기'), backupReq && React.createElement("span", {
+      className: `text-[10px] font-bold px-2 py-0.5 rounded-md ${cancelReq ? `cursor-pointer bg-red-100 text-red-600 ${cancelDone ? '' : 'animate-soft-glow-badge'}` : ohResPhase(item).step >= 1 ? 'bg-green-100 text-green-600' : ohResPhase(item).step < 0 ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-500'}`
+    }, cancelReq ? cancelDone ? '취소' : '취소 처리중' : ohResPhase(item).label), backupReq && React.createElement("span", {
       onClick: () => openRequestPopup(backupReq),
       className: "text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-600 animate-soft-glow-badge cursor-pointer"
     }, "백업신청"));
@@ -13228,8 +13308,9 @@ React.createElement("div", {
     var cancelReq = linked.find(r => r.category === '취소신청');
     var cancelDone = cancelReq && /확정|완료/.test(cancelReq.status || '');
     var st = item.status || '접수대기';
-    var label = cancelReq ? cancelDone ? '취소' : '취소 처리중' : st;
-    var tone = cancelReq || /취소|환불/.test(st) ? 'no' : st.includes('확정') ? 'ok' : 'wait';
+    var phase = ohResPhase(item);
+    var label = cancelReq ? cancelDone ? '취소' : '취소 처리중' : phase.label;
+    var tone = phase.step < 0 ? 'no' : phase.step >= 1 ? 'ok' : 'wait';
     var waitingPay = (!item.status || item.status === '예약신청') && !cancelReq;
     return React.createElement("div", {
       className: "oh-rc2",
@@ -13243,7 +13324,10 @@ React.createElement("div", {
       className: "dt"
     }, item.orderTime ? String(item.orderTime).includes('T') ? formatDisplayDate(item.orderTime) : item.orderTime : '')), ohSvcItem(item, [item.scheduleName, item.startDate ? `${formatDisplayDate(item.startDate)} ~ ${formatDisplayDate(item.endDate)}` : ''].filter(Boolean).join(' · ')), React.createElement("div", {
       className: "rows"
-    }, React.createElement("div", null, React.createElement("span", null, "수령 / 반납"), React.createElement("b", null, item.delivery || '-', " / ", item.returnMethod || '-')), item.trackingNumber && React.createElement("div", null, React.createElement("span", null, "송장번호"), React.createElement("b", {
+    }, React.createElement("div", null, React.createElement("span", null, "수령 / 반납"), React.createElement("b", null, item.delivery || '-', " / ", item.returnMethod || '-')), item.delivery === '공연장수령' && React.createElement("div", null, React.createElement("span", null, "희망 수령 시간"), React.createElement("b", {
+      onClick: () => openPickupTime(item),
+      style: { color: '#0A8CBC', cursor: 'pointer' }
+    }, item.pickupTimePref ? `${fmtPickupTimes(item.pickupTimePref)} 수정` : "알려주기")), item.trackingNumber && React.createElement("div", null, React.createElement("span", null, "송장번호"), React.createElement("b", {
       onClick: () => copyToClipboard(item.trackingNumber),
       style: { color: '#0A8CBC', cursor: 'pointer' }
     }, item.trackingNumber, " 복사")), item.returnTrackingNumber && React.createElement("div", null, React.createElement("span", null, "반납 등기번호"), React.createElement("b", {
@@ -13292,6 +13376,7 @@ React.createElement("div", {
       recommend: `${bg()}${phone}<path d="M31 8l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="${Y}" stroke="${W}" stroke-width="1"/>`,
       pickup: `${bg()}${box}<circle cx="22" cy="10" r="5.5" fill="${S}"/><path d="M22 7.3v5.4M19.8 10.6l2.2 2.2 2.2-2.2" stroke="${W}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
       ret: `${bg()}${box}<circle cx="31" cy="12" r="6" fill="${S}"/><path d="M33.3 13.5a2.8 2.8 0 11-.4-3.7M33.2 8.2v1.9h-1.9" stroke="${W}" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+      clock: `${bg()}<circle cx="22" cy="22" r="12" fill="${W}" stroke="${S}" stroke-width="2.2"/><path d="M22 15v7l4.5 3" stroke="${S}" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="12" r="3" fill="${Y}"/>`,
       retno: `${bg()}${box}<rect x="21" y="7" width="16" height="11" rx="2.5" fill="${W}" stroke="${S}" stroke-width="1.8"/><path d="M24.5 10v5M27 10v5M29.5 10v5M32 10v5M34 10v5" stroke="${S}" stroke-width="1.3" stroke-linecap="round"/>`,
       all: `${bg()}<rect x="12" y="12" width="9" height="9" rx="2.5" fill="${S}"/><rect x="23" y="12" width="9" height="9" rx="2.5" fill="${L}"/><rect x="12" y="23" width="9" height="9" rx="2.5" fill="${L}"/><rect x="23" y="23" width="9" height="9" rx="4.5" fill="${Y}"/>`,
       lookup: `${bg()}<rect x="11" y="9" width="18" height="24" rx="3" fill="${W}" stroke="${S}" stroke-width="2"/><path d="M15 15h10M15 20h7" stroke="${L}" stroke-width="2.2" stroke-linecap="round"/><circle cx="27" cy="27" r="5.5" fill="${W}" stroke="${S}" stroke-width="2.2"/><path d="M31 31l3.5 3.5" stroke="${S}" stroke-width="2.6" stroke-linecap="round"/>`,
@@ -13309,15 +13394,16 @@ React.createElement("div", {
       faq: `${bg()}<path d="M10 13a4 4 0 014-4h16a4 4 0 014 4v10a4 4 0 01-4 4h-1v5l-6-5h-9a4 4 0 01-4-4z" fill="${W}" stroke="${S}" stroke-width="2"/><path d="M19 15.5a3 3 0 115 2.2c-1 .7-2 1.3-2 2.8" stroke="${S}" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="22" cy="23.5" r="1.3" fill="${S}"/>`
     };
   })();
-  var OH_ILL_BY_LABEL = { '대여 연장': 'extend', '대여연장': 'extend', '백업 신청': 'backup', '데이터백업': 'backup', '방문택배 신청': 'courier', '방문택배': 'courier', '반납 등기번호': 'retno', '모델 변경': 'model', '주소 변경': 'address', '취소/환불': 'cancel', '내 예약 보기': 'lookup', '예약하기': 'reserve', '꿀팁': 'tip', '모델 추천': 'recommend', '수령방법': 'pickup', '반납방법': 'ret', '카메라설정': 'camera', '공연장 픽업존': 'venue', '리뷰': 'review', '수령·반납 변경': 'method', '초기화': 'reset', '자주 묻는 질문': 'faq', 'AI 챗봇 상담': 'chatbot' };
+  var OH_ILL_BY_LABEL = { '대여 연장': 'extend', '대여연장': 'extend', '백업 신청': 'backup', '데이터백업': 'backup', '방문택배 신청': 'courier', '방문택배': 'courier', '반납 등기번호': 'retno', '수령 시간 조사': 'clock', '모델 변경': 'model', '주소 변경': 'address', '취소/환불': 'cancel', '내 예약 보기': 'lookup', '예약하기': 'reserve', '꿀팁': 'tip', '모델 추천': 'recommend', '수령방법': 'pickup', '반납방법': 'ret', '카메라설정': 'camera', '공연장 픽업존': 'venue', '리뷰': 'review', '수령·반납 변경': 'method', '초기화': 'reset', '자주 묻는 질문': 'faq', 'AI 챗봇 상담': 'chatbot' };
   var ohIll = (key, size = 44) => React.createElement("span", {
     className: "oh-ill",
     style: { width: size, height: size },
     dangerouslySetInnerHTML: { __html: `<svg viewBox="0 0 44 44" width="${size}" height="${size}" aria-hidden="true">${OH_ILL[key] || OH_ILL.all}</svg>` }
   });
-  var OH_STEPS = ['예약신청', '예약확정', '반납완료'];
-  var OH_MANAGE_ORDER = ['대여 연장', '백업 신청', '방문택배 신청', '반납 등기번호', '모델 변경', '주소 변경', '취소/환불'];
+  var OH_STEPS = ['예약신청', '예약확정', '대여중', '반납완료'];
+  var OH_MANAGE_ORDER = ['수령 시간 조사', '대여 연장', '백업 신청', '방문택배 신청', '반납 등기번호', '모델 변경', '주소 변경', '취소/환불'];
   var OH_MANAGE_SUB = {
+    '수령 시간 조사': '공연장에서 받기 편한 시간을 알려주세요',
     '반납 등기번호': '택배로 보낸 뒤 등기번호를 알려주세요',
     '대여 연장': '반납일을 며칠 더 늘리고 싶을 때',
     '백업 신청': '사진·영상 백업, 세린캠이 대신 해드려요',
@@ -13326,14 +13412,31 @@ React.createElement("div", {
     '주소 변경': '받으실 주소가 바뀌었을 때',
     '취소/환불': '예약을 취소하고 싶을 때'
   };
-  // -1 = 취소
-  var ohResStep = item => {
-    var st = item.status || '예약신청';
-    if (/취소|환불/.test(st) || getLinkedRequests(item).some(q => q.category === '취소신청')) return -1;
-    if (/반납/.test(st)) return 2;
-    if (st.includes('확정')) return 1;
-    return 0;
+  // '2026-10-25' / '2026. 9. 28' / ISO → 그날 0시 (실패 시 null)
+  var ohParseDay = v => {
+    if (!v) return null;
+    var m = String(v).match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
   };
+  // [NEW] 2026-11-04 예약 상태 → 손님용 단계·문구. step: -1 취소 / 0 예약신청 / 1 예약확정 / 2 발송·대여중 / 3 반납
+  //   관리자 상태값: 예약신청·대기·확정·반품·반납완료·취소. '확정'은 송장·대여일로 발송완료/대여중/반납중을 나눈다
+  var ohResPhase = item => {
+    var st = item.status || '';
+    if (/취소|환불/.test(st) || getLinkedRequests(item).some(q => q.category === '취소신청')) return { step: -1, label: '취소' };
+    if (/반납/.test(st)) return { step: 3, label: '반납완료' };
+    if (/반품/.test(st)) return { step: 3, label: '반납중' };
+    if (st.includes('확정')) {
+      var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var sd = ohParseDay(item.startDate), ed = ohParseDay(item.endDate);
+      if (item.returnTrackingNumber || ed && today > ed) return { step: 3, label: '반납중' };
+      if (sd && today >= sd) return { step: 2, label: '대여중' };
+      if (item.trackingNumber) return { step: 2, label: '발송완료' };
+      return { step: 1, label: '예약확정' };
+    }
+    if (st === '대기') return { step: 0, label: '확인 중' };
+    return { step: 0, label: '입금 대기' };
+  };
+  var ohResStep = item => ohResPhase(item).step;
   // 10.25(토) 형식 (실패 시 기존 표시)
   var ohMD = v => {
     if (!v) return '';
@@ -13344,11 +13447,13 @@ React.createElement("div", {
     return `${d.getMonth() + 1}.${d.getDate()}(${'일월화수목금토'[d.getDay()]})`;
   };
   var renderOhNowCard = item => {
-    var step = ohResStep(item);
+    var phase = ohResPhase(item), step = phase.step;
     var cancelReq = getLinkedRequests(item).find(r => r.category === '취소신청');
     var ordered = item.orderTime ? ohMD(item.orderTime).replace(/\(.\)$/, '') : '';
     var sd = ohMD(item.startDate), ed = ohMD(item.endDate);
-    var subs = [ordered ? `${ordered} 주문 · ${step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인'}` : step === 0 ? '아래 계좌로 입금해 주세요' : '입금 확인', step === 0 ? '입금 확인 후 확정돼요' : [sd && `${sd} 대여시작`, item.delivery].filter(Boolean).join(' · '), [ed && `${ed} 대여종료`, item.returnMethod].filter(Boolean).join(' · ')];
+    var payMsg = step === 0 ? phase.label === '확인 중' ? '담당자가 확인하고 있어요' : '아래 계좌로 입금해 주세요' : '입금 확인';
+    var subs = [ordered ? `${ordered} 주문 · ${payMsg}` : payMsg, step === 0 ? '입금 확인 후 확정돼요' : step === 1 ? '기기를 준비하고 있어요' : '예약이 확정됐어요', [sd && `${sd} 대여시작`, item.delivery].filter(Boolean).join(' · '), step === 3 && phase.label === '반납중' ? '도착하면 확인 후 반납 처리해드려요' : [ed && `${ed} 대여종료`, item.returnMethod].filter(Boolean).join(' · ')];
+    var stepNames = OH_STEPS.map((x, i) => i === step ? phase.label : x);
     return React.createElement("div", {
       className: "oh-now"
     }, React.createElement("div", {
@@ -13360,12 +13465,14 @@ React.createElement("div", {
       onClick: cancelReq ? () => openRequestPopup(cancelReq) : undefined
     }, cancelReq && !/확정|완료/.test(cancelReq.status || '') ? '취소 처리중' : '취소')), step >= 0 && React.createElement("div", {
       className: "oh-vt"
-    }, OH_STEPS.map((x, i) => React.createElement("div", {
-      key: x,
+    }, stepNames.map((x, i) => React.createElement("div", {
+      key: i,
       className: i < step ? 'done' : i === step ? 'on' : ''
-    }, x, React.createElement("small", null, subs[i], i === 1 && step >= 1 && item.trackingNumber && React.createElement("u", {
+    }, x, React.createElement("small", null, subs[i], i === 2 && step >= 1 && item.trackingNumber && React.createElement("u", {
       onClick: () => copyToClipboard(item.trackingNumber)
-    }, "송장 ", item.trackingNumber, " 복사"), i === 2 && step >= 1 && (item.returnTrackingNumber || /택배/.test(item.returnMethod || '')) && React.createElement("u", {
+    }, "송장 ", item.trackingNumber, " 복사"), i === 2 && step <= 2 && item.delivery === '공연장수령' && React.createElement("u", {
+      onClick: () => openPickupTime(item)
+    }, item.pickupTimePref ? `희망 수령 ${fmtPickupTimes(item.pickupTimePref)}` : "희망 수령 시간 알려주기"), i === 3 && step >= 1 && (item.returnTrackingNumber || /택배/.test(item.returnMethod || '')) && React.createElement("u", {
       onClick: () => openReturnTrack(item)
     }, item.returnTrackingNumber ? `반납 ${item.returnCourier && item.returnCourier !== '우체국택배' ? item.returnCourier : '등기'} ${item.returnTrackingNumber}` : "반납 등기번호 등록"))))), step === 0 && React.createElement(React.Fragment, null, React.createElement("div", {
       className: "acc"
@@ -13542,7 +13649,7 @@ React.createElement("div", {
     var setForm = patch => setReturnTrack(Object.assign({}, form, patch));
     return React.createElement("div", {
       className: "animate-slide-in"
-    }, head, intro, sec(React.createElement(React.Fragment, null, secTitle(1, "반납할 예약"), React.createElement("div", {
+    }, head, intro, sec(React.createElement(React.Fragment, null, secTitle(1, "예약목록"), React.createElement("div", {
       className: "space-y-1.5"
     }, list.map(r => {
       var on = form && r.id === form.id;
@@ -13590,6 +13697,215 @@ React.createElement("div", {
       className: `w-full text-white font-bold text-[16px] ${!valid || form.saving ? 'opacity-40' : ''}`,
       style: { marginTop: 14, padding: 15, borderRadius: 8, background: '#13A8DE' }
     }, form.saving ? '등록 중...' : sel && sel.returnTrackingNumber ? '수정하기' : '등록하기'));
+  };
+  // [NEW] 2026-11-04 공연장 수령 시간 조사 페이지 (?page=pickup-time) — 본인인증/직접 입력 조회 → 예약 선택 → 희망 시간(복수) → 저장
+  var renderPickupTimePage = () => {
+    var goMy = () => { setPickupTime(null); setViewMode('myPage'); updateURLForNav('mypage'); window.scrollTo(0, 0); };
+    var head = ohPageHead("공연장 수령 시간 조사", goMy);
+    var sec = (children, style) => React.createElement("div", {
+      style: Object.assign({ background: '#fff', borderRadius: 12, border: '1px solid #EAEDEF', padding: 18, marginTop: 12 }, style)
+    }, children);
+    var secTitle = t => React.createElement("p", {
+      className: "font-bold text-[15px] mb-3",
+      style: { color: '#2F3438' }
+    }, t);
+    var verified = !!(lookupResult && lookupResult.length > 0);
+    var intro = React.createElement("div", {
+      className: "text-center",
+      style: { padding: '8px 0 4px' }
+    }, React.createElement("div", {
+      className: "flex justify-center mb-2"
+    }, ohIll('clock', 64)), React.createElement("p", {
+      className: "text-[14px] leading-relaxed break-keep",
+      style: { color: '#828C94' }
+    }, verified ? React.createElement(React.Fragment, null, "공연장에서 받기 편한 시간을 알려주세요", React.createElement("br", null), "많이 고른 시간으로 수령 시간을 정해요") : React.createElement(React.Fragment, null, "본인인증 후 또는 예약 확인 후", React.createElement("br", null), "희망 수령 시간을 알려주세요")));
+
+    // 1) 인증 전 — 반납 등기번호 페이지와 같은 흐름 (직접 입력 펼침 상태는 rtShowGuest 공유)
+    if (!verified) {
+      var showGuest = !KAKAO_LOGIN_ENABLED || rtShowGuest;
+      return React.createElement("div", {
+        className: "animate-slide-in"
+      }, head, intro, sec(React.createElement(React.Fragment, null, KAKAO_LOGIN_ENABLED && React.createElement(React.Fragment, null, React.createElement("button", {
+        onClick: () => kakaoUser ? openKakaoLink() : handleKakaoLogin({ returnPage: 'pickup-time' }),
+        style: KAKAO_YELLOW_STYLE,
+        className: "oh-kakao-btn"
+      }, React.createElement(KakaoSymbol, {
+        size: 18
+      }), kakaoUser ? "예약자 정보 연결하기" : "카카오로 본인인증하기"), !rtShowGuest && React.createElement("button", {
+        onClick: () => setRtShowGuest(true),
+        className: "oh-guest-link"
+      }, "카카오 인증이 어려우신가요?")), showGuest && React.createElement("div", {
+        className: "oh-guest",
+        style: KAKAO_LOGIN_ENABLED ? undefined : { borderTop: 0, marginTop: 0, paddingTop: 0 }
+      }, React.createElement("p", {
+        className: "t"
+      }, "직접 입력하여 조회"), React.createElement("input", {
+        type: "text",
+        placeholder: "성함",
+        value: lookupName,
+        onChange: e => setLookupName(stripSpaces(e.target.value))
+      }), React.createElement("input", {
+        type: "text",
+        placeholder: "연락처 (010-0000-0000)",
+        value: lookupPhone,
+        onChange: e => setLookupPhone(formatPhone(e.target.value)),
+        onKeyPress: e => e.key === 'Enter' && handleLookup()
+      }), React.createElement("button", {
+        onClick: () => handleLookup(),
+        disabled: isSearching,
+        className: "go",
+        style: isSearching ? { opacity: .6 } : undefined
+      }, isSearching ? React.createElement(React.Fragment, null, React.createElement(Icons.RefreshCw, {
+        size: 16,
+        className: "animate-spin-slow"
+      }), " 조회 중...") : React.createElement(React.Fragment, null, React.createElement(Icons.Search, {
+        size: 16
+      }), " 직접 입력하여 조회"))))));
+    }
+
+    var list = pickupTimeTargets();
+    // 2) 조회됐지만 공연장 수령 예약 없음
+    if (list.length === 0) {
+      return React.createElement("div", {
+        className: "animate-slide-in"
+      }, head, intro, sec(React.createElement(React.Fragment, null, React.createElement("p", {
+        className: "text-[14px] text-center mb-4",
+        style: { color: '#2F3438' }
+      }, "공연장 수령 예약이 없어요"), React.createElement("a", {
+        href: "https://pf.kakao.com/_kiQkG/chat",
+        target: "_blank",
+        rel: "noopener",
+        className: "oh-kakao-cta"
+      }, React.createElement(Icons.MessageLines, {
+        size: 18
+      }), "1:1 카카오톡 문의하기"))));
+    }
+
+    var form = pickupTime && pickupTime.id ? pickupTime : null;
+    var sel = form ? list.find(r => r.id === form.id) : null;
+    // 3) 저장 완료
+    if (form && form.done) {
+      var rest = list.filter(r => r.id !== form.id);
+      return React.createElement("div", {
+        className: "animate-slide-in"
+      }, head, sec(React.createElement("div", {
+        className: "text-center",
+        style: { padding: '10px 0' }
+      }, React.createElement("div", {
+        className: "flex justify-center mb-3"
+      }, ohIll('clock', 64)), React.createElement("p", {
+        className: "text-[17px] font-bold mb-1",
+        style: { color: '#2F3438' }
+      }, "희망 수령 시간을 받았어요"), React.createElement("p", {
+        className: "text-[13px] mb-4 break-keep",
+        style: { color: '#828C94' }
+      }, "정확한 장소와 시간은 대여 시작일 1일 전에 알림톡으로 안내해드릴게요"), React.createElement("div", {
+        className: "text-[14px]",
+        style: { background: '#F7F9FA', borderRadius: 8, padding: 12, color: '#2F3438' }
+      }, sel && React.createElement("p", {
+        className: "truncate mb-1",
+        style: { color: '#828C94' }
+      }, sel.scheduleName || sel.model), React.createElement("b", null, fmtPickupTimes(form.prefs)), form.note && React.createElement("p", {
+        className: "text-[13px] mt-1 break-keep",
+        style: { color: '#828C94' }
+      }, form.note)))), React.createElement("div", {
+        className: "flex gap-2",
+        style: { marginTop: 14 }
+      }, rest.length > 0 && React.createElement("button", {
+        onClick: () => pickPickupTime(rest.find(r => !r.pickupTimePref) || rest[0]),
+        className: "ohg-btn g flex-1",
+        style: { padding: 13 }
+      }, "다른 예약도 답하기"), React.createElement("button", {
+        onClick: goMy,
+        className: "ohg-btn o flex-1",
+        style: { padding: 13 }
+      }, "마이페이지로")));
+    }
+
+    // 4) 예약 선택 → 희망 시간(여러 개 선택 가능) + 요청사항
+    var prefs = form ? form.prefs : [];
+    var setForm = patch => setPickupTime(Object.assign({}, form, patch));
+    var toggle = v => {
+      // '시간 상관없어요'는 다른 보기와 함께 고를 수 없다
+      if (v === '시간 상관없어요') return setForm({ prefs: prefs.includes(v) ? [] : [v] });
+      var next = prefs.filter(x => x !== '시간 상관없어요');
+      if (!next.includes(v) && next.length >= PICKUP_TIME_MAX) return showAppToast(`최대 ${PICKUP_TIME_MAX}개까지 고를 수 있어요`);
+      setForm({ prefs: next.includes(v) ? next.filter(x => x !== v) : PICKUP_TIME_OPTIONS.map(o => o.v).filter(x => x === v || next.includes(x)) });
+    };
+    var valid = !!form && prefs.length > 0;
+    return React.createElement("div", {
+      className: "animate-slide-in"
+    }, head, intro, sec(React.createElement(React.Fragment, null, secTitle("공연장 수령 예약"), React.createElement("div", {
+      className: "space-y-1.5"
+    }, list.map(r => {
+      var on = form && r.id === form.id;
+      return React.createElement("button", {
+        key: r.id,
+        onClick: () => pickPickupTime(r),
+        className: "w-full text-left text-[13px]",
+        style: { padding: '11px 12px', borderRadius: 8, border: `1px solid ${on ? '#13A8DE' : '#EAEDEF'}`, background: on ? '#F0FAFE' : '#fff' }
+      }, React.createElement("b", {
+        className: "block truncate",
+        style: { color: '#2F3438' }
+      }, r.scheduleName || r.model || '-'), React.createElement("span", {
+        style: { color: '#828C94' }
+      }, [r.startDate ? formatDisplayDate(r.startDate) : '', r.model].filter(Boolean).join(' · ')), r.pickupTimePref && React.createElement("span", {
+        className: "block",
+        style: { color: '#0A8CBC' }
+      }, "응답함 · ", fmtPickupTimes(r.pickupTimePref)));
+    })))), form && sec(React.createElement(React.Fragment, null, secTitle(`받기 편한 시간 (최대 ${PICKUP_TIME_MAX}개 선택)`), React.createElement("p", {
+      className: "text-[13px] break-keep",
+      style: { color: '#828C94', marginTop: -6, marginBottom: 12 }
+    }, "가장 많이 선택한 시간대로 진행될 예정이에요."), [['오전', o => parseInt(o.v, 10) < 12], ['오후', o => parseInt(o.v, 10) >= 12]].map(([label, test], gi) => React.createElement("div", {
+      key: label,
+      style: { marginTop: gi ? 14 : 0 }
+    }, React.createElement("p", {
+      className: "text-[13px] font-bold mb-1.5",
+      style: { color: '#828C94' }
+    }, label), React.createElement("div", {
+      style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }
+    }, PICKUP_TIME_OPTIONS.filter(o => o.v !== '시간 상관없어요' && test(o)).map(o => {
+      var on = prefs.includes(o.v);
+      return React.createElement("button", {
+        key: o.v,
+        onClick: () => toggle(o.v),
+        className: "text-[15px] font-bold",
+        style: { padding: '11px 0', borderRadius: 8, border: `1px solid ${on ? '#13A8DE' : '#EAEDEF'}`, background: on ? '#F0FAFE' : '#fff', color: on ? '#0A8CBC' : '#2F3438', fontVariantNumeric: 'tabular-nums' }
+      }, ptRangeLabel(o.v));
+    })))), PICKUP_TIME_OPTIONS.filter(o => o.v === '시간 상관없어요').map(o => {
+      var on = prefs.includes(o.v);
+      return React.createElement("button", {
+        key: o.v,
+        onClick: () => toggle(o.v),
+        className: "w-full text-left flex items-center gap-3 mt-2",
+        style: { padding: '12px 14px', borderRadius: 8, border: `1px solid ${on ? '#13A8DE' : '#EAEDEF'}`, background: on ? '#F0FAFE' : '#fff' }
+      }, React.createElement("span", {
+        className: "shrink-0 flex items-center justify-center text-white text-[12px] font-bold",
+        style: { width: 20, height: 20, borderRadius: 6, border: `1.5px solid ${on ? '#13A8DE' : '#C2C8CC'}`, background: on ? '#13A8DE' : '#fff' }
+      }, on ? '✓' : ''), React.createElement("span", null, React.createElement("b", {
+        className: "block text-[14px]",
+        style: { color: '#2F3438' }
+      }, o.v), o.d && React.createElement("span", {
+        className: "text-[12px]",
+        style: { color: '#828C94' }
+      }, o.d)));
+    }), React.createElement("p", {
+      className: "text-[12px] mt-4 mb-1.5",
+      style: { color: '#828C94' }
+    }, "요청사항 (선택)"), React.createElement("textarea", {
+      value: form.note,
+      maxLength: 200,
+      rows: 2,
+      placeholder: "예) 18시 이후에만 도착할 수 있어요",
+      onChange: e => setForm({ note: e.target.value }),
+      className: "w-full text-[14px] outline-none resize-none",
+      style: { padding: 12, borderRadius: 8, border: '1px solid #DADDE0', color: '#2F3438' }
+    }))), form && React.createElement("button", {
+      onClick: submitPickupTime,
+      disabled: !valid || form.saving,
+      className: `w-full text-white font-bold text-[16px] ${!valid || form.saving ? 'opacity-40' : ''}`,
+      style: { marginTop: 14, padding: 15, borderRadius: 8, background: '#13A8DE' }
+    }, form.saving ? '저장 중...' : sel && sel.pickupTimePref ? '수정하기' : '제출하기'));
   };
   var renderEventsPage = () => React.createElement("div", null, ohPageHead("이벤트"), React.createElement("div", {
     className: "oh-evlead"
@@ -14017,7 +14333,9 @@ React.createElement("div", {
     className: "oh-page"
   }, renderEventsPage()), viewMode === 'returnTrack' && React.createElement("div", {
     className: "oh-page"
-  }, renderReturnTrackPage()), viewMode === 'eventFollow' && React.createElement("div", {
+  }, renderReturnTrackPage()), viewMode === 'pickupTime' && React.createElement("div", {
+    className: "oh-page"
+  }, renderPickupTimePage()), viewMode === 'eventFollow' && React.createElement("div", {
     className: "oh-page"
   }, renderEventFollowPage()), viewMode === 'eventPartners' && React.createElement("div", {
     className: "oh-page"
