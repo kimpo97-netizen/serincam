@@ -1065,6 +1065,80 @@
 .oh-clist>div>span:last-child{font-size:13px!important;color:#FF7777!important}
 .oh-clist>div:not(.border-gray-100):not(.border-red-400){background:var(--oh-soft)!important}
 .oh-clist>div:not(.border-gray-100):not(.border-red-400)::before{background-color:var(--oh);border-color:var(--oh);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");animation:ohCheck .3s}
+/* [2026-11-09] 리뷰 할인 2열 카드 (간결·시인성) */
+.oh-rgl{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--oh-tx3);margin:0 0 6px}
+.oh-rgl i{font-style:normal;font-size:10px;font-weight:700;color:var(--oh-ink);background:var(--oh-soft);border-radius:3px;padding:1px 5px}
+.oh-rg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.oh-dc{display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:11px 12px;border:1.5px solid #DADDE0;border-radius:8px;background:#fff;cursor:pointer;transition:border-color .2s,background-color .2s,transform .12s;user-select:none}
+.oh-dc:active{transform:scale(.97)}
+.oh-dc .n{font-size:13px;font-weight:600;color:var(--oh-tx);line-height:1.3;word-break:keep-all}
+.oh-dc .n .oh-hotb{margin-left:4px}
+.oh-dc .b{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.oh-dc .a{font-size:16px;font-weight:800;color:#FF5A5A;letter-spacing:-.02em;white-space:nowrap}
+.oh-dc .a small{font-size:12px;font-weight:700;margin-left:1px}
+.oh-dc .b::after{content:'';flex:0 0 20px;height:20px;border-radius:50%;border:1.5px solid #C2C8CC;box-sizing:border-box;background:#fff center/12px no-repeat}
+.oh-dc.on{border-color:var(--oh);background:var(--oh-soft);animation:ohPop .32s cubic-bezier(.3,1.5,.5,1)}
+.oh-dc.on .b::after{background-color:var(--oh);border-color:var(--oh);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");animation:ohCheck .3s}
+.oh-dc.err{border-color:#F87171;background:#FEF2F2}
+.oh-fc{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid;cursor:pointer;transition:transform .12s;user-select:none}
+.oh-fc:active{transform:scale(.97)}
+.oh-fc .t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.oh-fc .t b{font-size:13px;font-weight:700}
+.oh-fc .t span{font-size:15px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+/* [2026-11-09] 리뷰·팔로우 할인 접기형 바 */
+.oh-dbar{display:flex;align-items:center;gap:12px;width:100%;padding:13px 14px;border-radius:8px;background:var(--oh-soft);border:1.5px solid var(--oh);text-align:left;cursor:pointer;transition:transform .12s}
+.oh-dbar:active{transform:scale(.98)}
+.oh-dbar .ic{width:36px;height:36px;flex-shrink:0;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--oh)}
+.oh-dbar .tx{flex:1;min-width:0;line-height:1.35}
+.oh-dbar .tx small{display:block;font-size:12px;color:var(--oh-tx3);font-weight:600}
+.oh-dbar .tx b{font-size:15px;font-weight:800;color:var(--oh-tx)}
+.oh-dbar .tx b em{font-style:normal;color:#FF5A5A}
+.oh-dbar .chev{color:var(--oh-ink);flex-shrink:0;transition:transform .2s}
+.oh-dbar.open .chev{transform:rotate(180deg)}
+.oh-dbody{margin-top:14px;animation:ohUp .3s ease both}
+.oh-dguide{display:flex;align-items:center;gap:8px;margin-top:8px;padding:9px 10px;border-radius:8px;background:var(--oh-soft);font-size:12.5px;color:#5E666C;line-height:1.4;word-break:keep-all;animation:ohUp .25s ease both}
+.oh-dguide svg{flex:0 0 16px;width:16px;height:16px;fill:none;stroke:var(--oh-ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.oh-dguide>span{flex:1;min-width:0}
+.oh-dguide strong{color:var(--oh-tx);font-weight:700}
+.oh-dguide .hs{color:#1D9BF0;font-weight:700;white-space:nowrap}
+.oh-dguide .cp{flex-shrink:0;font-size:11px;font-weight:700;color:var(--oh-ink);background:#fff;border:1px solid #CDEBF6;border-radius:4px;padding:2px 7px}
+.oh-dcn{display:flex;align-items:center;gap:6px}
+.oh-dcn svg{width:15px;height:15px;flex-shrink:0}
+/* [2026-11-09] 모든 선택지 = A안 카드 (테두리 카드 + 오른쪽 체크) */
+.oh-flow .oh-optlist{border-top:0;gap:8px}
+.oh-flow .oh-opt{border:1.5px solid #DADDE0;border-radius:8px;padding:12px 12px 12px 10px;margin:0;background:#fff;gap:10px}
+.oh-flow .oh-opt .ph{width:54px;height:54px}
+.oh-flow .oh-opt .ph img{width:48px;height:48px}
+.oh-flow .oh-opt>.min-w-0{min-width:0!important;overflow:hidden}
+.oh-flow .oh-opt .nm{font-size:14px}
+.oh-flow .oh-opt .pr b{font-size:15px}
+.oh-flow .oh-opt .pr em{margin-right:2px}
+.oh-flow .oh-opt.sel{margin:0;padding:12px 12px 12px 10px;border-color:var(--oh);background:var(--oh-soft)}
+.oh-flow .oh-radio{width:20px;height:20px;border:1.5px solid #C2C8CC;background:#fff center/12px no-repeat}
+.oh-flow .oh-radio.on{border:1.5px solid var(--oh);background-color:var(--oh);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");animation:ohCheck .3s}
+.oh-flow .oh-opt .soldout{top:6px;right:10px}
+.oh-flow .oh-addon{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border:1.5px solid #DADDE0;border-radius:8px;background:#fff;cursor:pointer}
+.oh-flow .oh-addon .ic{background:var(--oh-band);color:#828C94}
+.oh-flow .oh-addon.on{border-color:var(--oh);background:var(--oh-soft);animation:ohPop .32s cubic-bezier(.3,1.5,.5,1)}
+.oh-flow .oh-addon.on .ic{background:#fff;color:var(--oh)}
+.oh-flow .oh-addon p.font-bold.text-sm{color:var(--oh-tx)}
+.oh-flow .oh-pay{gap:8px!important;border:0!important}
+.oh-flow .oh-pay>div{border:1.5px solid #DADDE0!important;border-radius:8px!important;padding:18px 8px 14px!important;background:#fff!important;box-shadow:none!important}
+.oh-flow .oh-pay>div+div{border-left:1.5px solid #DADDE0!important}
+.oh-flow .oh-pay>div::after{content:'';position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;border:1.5px solid #C2C8CC;box-sizing:border-box;background:#fff center/12px no-repeat}
+.oh-flow .oh-pay>div.border-blue-500,.oh-flow .oh-pay>div.border-green-500{border-color:var(--oh)!important;background:var(--oh-soft)!important;color:var(--oh-ink)!important}
+.oh-flow .oh-pay>div.border-blue-500::after,.oh-flow .oh-pay>div.border-green-500::after{background-color:var(--oh);border-color:var(--oh);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");animation:ohCheck .3s}
+.oh-flow .oh-pay>div.border-red-400{border-color:#F87171!important;background:#FEF2F2!important}
+.oh-flow .oh-rlist{border-top:0!important;gap:8px}
+.oh-flow .oh-rlist>div{grid-template-columns:1fr auto 20px!important;padding:13px 14px!important;border:1.5px solid #DADDE0!important;border-radius:8px!important;background:#fff!important;box-shadow:none!important}
+.oh-flow .oh-rlist>div::before{grid-column:3;grid-row:1/span 2;width:20px;height:20px;border:1.5px solid #C2C8CC;background:#fff center/12px no-repeat}
+.oh-flow .oh-rlist>div>div:first-child{grid-column:1}
+.oh-flow .oh-rlist>div>p:nth-child(2):not(:last-child){grid-column:1}
+.oh-flow .oh-rlist>div>p:last-child{grid-column:2}
+.oh-flow .oh-rlist>div>div.post-rtimer{grid-column:1/span 3}
+.oh-flow .oh-rlist>div[class*="border-sky-500"],.oh-flow .oh-rlist>div[class*="border-rose-500"],.oh-flow .oh-rlist>div[class*="border-green-500"]{border-color:var(--oh)!important;background:var(--oh-soft)!important;box-shadow:none!important}
+.oh-flow .oh-rlist>div[class*="border-sky-500"]::before,.oh-flow .oh-rlist>div[class*="border-rose-500"]::before,.oh-flow .oh-rlist>div[class*="border-green-500"]::before{border:1.5px solid var(--oh);background-color:var(--oh);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E")}
+.oh-flow .oh-rlist>div[class*="border-red-400"]{border-color:#F87171!important;background:#FEF2F2!important}
 /* 정보 입력: 오늘의집 입력칸 */
 .oh-flow .bg-white.p-5.rounded-2xl{padding:0!important;border:0!important}
 .oh-h{font-size:17px;font-weight:700;color:var(--oh-tx);margin:4px 0 2px}
@@ -3468,6 +3542,39 @@ var PhoneRentalApp = () => {
   });
   // [NEW] 팔로우 할인 (리뷰 할인과 별도, 중복 가능) — X @serin_cam / 인스타 @serincam.official 각 2,000원, 매 예약마다
   var [follows, setFollows] = useState({ x: false, insta: false });
+  // [2026-11-09] 리뷰·팔로우 할인 접기형 바 (펼치면 2열 카드)
+  var [reviewOpen, setReviewOpen] = useState(true); // 11-09 기본 펼침
+  var getReviewSum = () => ((discounts.homepage || discounts.kakao) ? 2000 : 0) + ((discounts.twitter || discounts.blog) ? 5000 : 0) + (FOLLOW_DISCOUNT_ENABLED ? ((follows.x ? FOLLOW_DISCOUNT : 0) + (follows.insta ? FOLLOW_DISCOUNT : 0)) : 0);
+  // [2026-11-09] 리뷰 카드 바로 아래 한 줄 작성 안내 (3안)
+  var REVIEW_TAGS = '#세린울트라대여 #울트라대여';
+  var renderReviewGuide = k => React.createElement("div", {
+    key: k + '-guide',
+    className: "oh-dguide"
+  }, React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true"
+  }, React.createElement("path", {
+    d: "M9 18l6-6-6-6"
+  })), React.createElement("span", null, k === 'homepage' ? [React.createElement("strong", {
+    key: 1
+  }, "마이페이지 › 후기 작성하기"), "에서 사진과 함께 작성"] : k === 'kakao' ? ["카카오맵에서 ", React.createElement("strong", {
+    key: 1
+  }, "‘세린캠’"), " 검색 → 사진 + 별점 리뷰"] : k === 'twitter' ? ["사진 + 해시태그 ", React.createElement("b", {
+    key: 1,
+    className: "hs"
+  }, REVIEW_TAGS)] : ["장소 추가에 ", React.createElement("strong", {
+    key: 1
+  }, "‘세린캠’"), " → 사진 + 상세 후기"]), k === 'twitter' && React.createElement("button", {
+    type: "button",
+    className: "cp",
+    onClick: () => {
+      try {
+        navigator.clipboard.writeText(REVIEW_TAGS);
+        showAppToast('해시태그를 복사했어요');
+      } catch (e) {}
+    }
+  }, "복사"));
+  var getReviewMax = () => 7000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0);
   var [followIds, setFollowIds] = useState({ x: '', insta: '' });
   var FOLLOW_DISCOUNT = 2000; // 2026-10-18 4,000원 → 2,000원으로 조정
   // [NEW] 팔로우 할인 공개 여부 (2026-10-14 숨김 → 2026-10-18 다시 공개). false 로 바꾸면 예약 1단계 팔로우 할인·모델 카드 최대 할인가·패키지 가격에서 빠짐
@@ -3581,45 +3688,45 @@ var PhoneRentalApp = () => {
     var anySel = follows.x || follows.insta;
     return React.createElement("div", {
       id: opts.free ? undefined : "follow-discount-section",
-      className: opts.free ? "mt-3" : "mt-4 pt-4 border-t border-dashed border-gray-200"
-    }, !opts.free && React.createElement("div", {
-      className: "flex items-center gap-1.5 mb-1"
-    }, React.createElement("p", {
-      className: "text-[11px] font-bold text-gray-500"
-    }, "세린캠 SNS 팔로우 & 인증 이벤트"), React.createElement("span", {
-      className: "text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-500 border border-rose-100"
-    }, "NEW")), React.createElement("p", {
+      className: opts.free ? "mt-3" : "mt-3"
+    }, !opts.free && React.createElement("p", {
+      className: "oh-rgl"
+    }, "SNS 팔로우 할인", React.createElement("i", null, "둘 다 선택 가능")), !opts.free && React.createElement("div", {
+      className: "oh-rg"
+    }, keys.map(k => React.createElement("div", {
+      key: k,
+      role: "checkbox",
+      "aria-checked": !!follows[k],
+      onClick: () => {
+        setFollows(f => ({ ...f, [k]: !f[k] }));
+      },
+      className: `oh-dc${reviewError ? ' animate-shake err' : follows[k] ? ' on' : ''}`
+    }, React.createElement("span", {
+      className: "n oh-dcn"
+    }, renderFollowBrandIcon(k, k === 'x' ? '#000' : '#D62976'), k === 'x' ? "X 팔로우" : "인스타 팔로우"), React.createElement("span", {
+      className: "b"
+    }, React.createElement("span", {
+      className: "a"
+    }, FOLLOW_DISCOUNT.toLocaleString(), "원", React.createElement("small", null, " 할인")))))), opts.free && React.createElement("p", {
       className: "text-[11px] text-gray-400 mb-1.5"
-    }, opts.free ? "💡 X·인스타 중 팔로우한 계정을 눌러주세요 (둘 다 선택 가능)" : "💡 리뷰 할인과 함께 받을 수 있어요 (둘 다 선택 가능)"), React.createElement("div", {
+    }, "💡 X·인스타 중 팔로우한 계정을 눌러주세요 (둘 다 선택 가능)"), opts.free && React.createElement("div", {
       className: "grid grid-cols-2 gap-2"
     }, keys.map(k => {
-      var acc = FOLLOW_ACCOUNTS[k];
       var on = follows[k];
+      var fg = reviewError ? '#EF4444' : on ? '#fff' : k === 'x' ? '#000' : '#C13584';
       return React.createElement("div", {
         key: k,
+        role: "checkbox",
+        "aria-checked": !!on,
         onClick: () => {
           setFollows(f => ({ ...f, [k]: !f[k] }));
         },
-        className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center active:scale-95 ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : ''}`,
+        className: `oh-fc ${reviewError ? 'animate-shake border-red-400 bg-red-50' : ''}`,
         style: reviewError ? undefined : getFollowCardStyle(k, on)
-      }, React.createElement("div", {
-        className: "mb-1"
-      }, renderFollowBrandIcon(k, reviewError ? '#EF4444' : on ? '#fff' : k === 'x' ? '#000' : '#D62976')), React.createElement("span", {
-        className: "text-xs font-bold mb-0.5 break-keep",
-        style: reviewError ? undefined : {
-          color: on ? '#fff' : k === 'x' ? '#000' : '#C13584'
-        }
-      }, acc.cta), React.createElement("span", {
-        className: "text-[10px] mb-0.5 break-all",
-        style: {
-          color: on && !reviewError ? 'rgba(255,255,255,0.8)' : '#9CA3AF'
-        }
-      }, acc.handle), React.createElement("span", {
-        className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : ''}`,
-        style: reviewError ? undefined : {
-          color: on ? '#fff' : k === 'x' ? '#000' : '#D62976'
-        }
-      }, (on ? '✓ ' : '') + FOLLOW_DISCOUNT.toLocaleString() + "원 할인"));
+      }, renderFollowBrandIcon(k, fg), React.createElement("span", {
+        className: "t",
+        style: { color: fg }
+      }, React.createElement("b", null, k === 'x' ? "X 팔로우" : "인스타 팔로우"), React.createElement("span", null, (on ? '✓ ' : '') + FOLLOW_DISCOUNT.toLocaleString() + "원 할인")));
     })), anySel && React.createElement("div", {
       className: "relative mt-3 p-4 rounded-xl border animate-fade-in bg-gray-50 border-gray-100"
     }, React.createElement("button", {
@@ -3638,7 +3745,7 @@ var PhoneRentalApp = () => {
       var acc = FOLLOW_ACCOUNTS[k];
       var st = followStatus[k];
       var stMsg = {
-        idle: ['text-gray-400', '팔로우한 뒤 아이디를 적고 확인을 눌러주세요'],
+        idle: ['text-gray-400', '팔로우 후 아이디 입력 → 확인'],
         checking: ['text-gray-500', '팔로우 정보를 확인하고 있어요'],
         ok: ['text-emerald-600', '✅ 팔로우가 확인됐어요 · ' + FOLLOW_DISCOUNT.toLocaleString() + '원 할인 적용'],
         notfound: ['text-red-500', '❌ 팔로우 상태 또는 아이디를 확인해주세요.'],
@@ -3694,7 +3801,7 @@ var PhoneRentalApp = () => {
         style: {
           color: k === 'x' ? '#000' : '#D62976'
         }
-      }, acc.cta)), st === 'pending' && React.createElement("a", {
+      }, acc.handle + " 열기 ↗")), st === 'pending' && React.createElement("a", {
         // [NEW] 2026-10-24 확인 응답이 없을 때 고객센터(카카오톡 채널) 연결
         href: "https://pf.kakao.com/_kiQkG/chat",
         target: "_blank",
@@ -3705,8 +3812,8 @@ var PhoneRentalApp = () => {
         size: 24
       }), "카카오톡 채널로 문의하기"));
     })), React.createElement("ul", {
-      className: "mt-3 text-[11px] text-gray-600 leading-relaxed space-y-0.5"
-    }, React.createElement("li", null, "· 예약 확정 전에 팔로우 여부를 확인해요"), React.createElement("li", null, "· 반납일까지 팔로우를 유지해주세요. 그 전에 언팔로우하면 할인 금액이 청구될 수 있어요"))));
+      className: "mt-3 text-[11px] text-gray-500 leading-relaxed"
+    }, React.createElement("li", null, "· 반납일까지 팔로우 유지 (언팔로우 시 할인 금액 청구)"))));
   };
   var [paymentMethod, setPaymentMethod] = useState(null);
   var [userInfo, setUserInfo] = useState({
@@ -15004,134 +15111,51 @@ React.createElement("div", {
   }))), isPackage && renderPackageReviewNote(), React.createElement("div", {
     className: "animate-fade-in pt-6 border-t border-gray-100",
     style: { order: 1 }
-  }, React.createElement("div", {
-    className: "flex items-center justify-between mb-3"
-  }, React.createElement("h3", {
-    className: "font-bold text-gray-800 flex items-center gap-2 text-sm"
-  }, React.createElement(Icons.Gift, {
-    size: 16,
-    className: "text-blue-400"
-  }), t('reviewBenefit'))), React.createElement("p", {
-    className: "text-[11px] text-gray-400 mb-2.5 -mt-1.5"
-  }, "💡 간편 리뷰, SNS리뷰 할인 각 1개씩 선택할 수 있어요 (최대 2개)"), React.createElement("div", {
-    className: "space-y-3"
-  }, React.createElement("div", null, React.createElement("p", {
-    className: "text-[11px] font-bold text-gray-500 mb-1.5"
-  }, "간편 리뷰 할인"), React.createElement("div", {
-    className: "oh-clist"
-  }, React.createElement("div", {
-    onClick: () => {
-      setDiscounts({
-        ...discounts,
-        kakao: false,
-        homepage: !discounts.homepage
-      });
-    },
-    className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : discounts.homepage ? 'border-blue-400 bg-blue-50' : 'border-gray-100 bg-white'}`
-  }, React.createElement("span", {
-    className: "text-xs font-bold mb-1 break-keep"
-  }, "세린캠 홈페이지", React.createElement("em", {
-    className: "oh-hotb"
-  }, "인기")), React.createElement("span", {
-    className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-blue-600'}`
-  }, "2,000원 할인")), React.createElement("div", {
-    onClick: () => {
-      setDiscounts({
-        ...discounts,
-        homepage: false,
-        kakao: !discounts.kakao
-      });
-    },
-    className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : discounts.kakao ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`
-  }, React.createElement("span", {
-    className: "text-xs font-bold mb-1 break-keep"
-  }, "카카오맵"), React.createElement("span", {
-    className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-yellow-600'}`
-  }, "2,000원 할인")))), React.createElement("div", null, React.createElement("p", {
-    className: "text-[11px] font-bold text-gray-500 mb-1.5"
-  }, "SNS 리뷰 할인"), React.createElement("div", {
-    className: "oh-clist"
-  }, React.createElement("div", {
-    onClick: () => {
-      setDiscounts({
-        ...discounts,
-        blog: false,
-        twitter: !discounts.twitter
-      });
-    },
-    className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : discounts.twitter ? 'border-gray-800 bg-gray-50' : 'border-gray-100 bg-white'}`
-  }, React.createElement("span", {
-    className: "text-xs font-bold mb-1 break-keep"
-  }, "X(트위터)", React.createElement("em", {
-    className: "oh-hotb"
-  }, "인기")), React.createElement("span", {
-    className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-gray-500'}`
-  }, "5,000원 할인")), React.createElement("div", {
-    onClick: () => {
-      setDiscounts({
-        ...discounts,
-        twitter: false,
-        blog: !discounts.blog
-      });
-    },
-    className: `p-3 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center justify-center text-center ${reviewError ? 'animate-shake border-red-400 bg-red-50 text-red-600' : discounts.blog ? 'border-green-400 bg-green-50' : 'border-gray-100 bg-white'}`
-  }, React.createElement("span", {
-    className: "text-xs font-bold mb-1 break-keep"
-  }, "네이버블로그"), React.createElement("span", {
-    className: `text-[10px] font-bold transition-colors ${reviewError ? 'text-red-500' : 'text-green-600'}`
-  }, "5,000원 할인"))))), (discounts.twitter || discounts.blog || discounts.kakao || discounts.homepage) && React.createElement("div", {
-    className: `relative mt-3 p-4 rounded-xl border animate-fade-in transition-colors ${discounts.homepage ? 'bg-blue-50 border-blue-100' : discounts.kakao ? 'bg-yellow-50 border-yellow-200' : discounts.twitter ? 'bg-gray-50 border-gray-200' : 'bg-green-50 border-green-200'}`
   }, React.createElement("button", {
     type: "button",
-    onClick: clearReviewDiscounts,
-    "aria-label": "리뷰 할인 선택 해제",
-    className: "absolute flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600",
-    style: { top: 10, right: 10, width: 28, height: 28 }
-  }, React.createElement(Icons.X, {
-    size: 16
-  })), React.createElement("div", {
-    className: "flex items-center gap-1.5 mb-2 pb-2 border-b border-black/5"
+    className: `oh-dbar${reviewOpen || reviewError ? ' open' : ''}`,
+    "aria-expanded": !!(reviewOpen || reviewError),
+    onClick: () => setReviewOpen(o => !o)
   }, React.createElement("span", {
-    className: "text-base"
-  }, "🎁"), React.createElement("span", {
-    className: "text-gray-700 font-bold text-sm"
-  }, "선택한 리뷰 할인")), React.createElement("div", {
-    className: "flex flex-col gap-1 mb-1"
-  }, discounts.homepage && React.createElement("span", {
-    className: "text-blue-700 font-bold text-sm"
-  }, "홈페이지 리뷰 (2,000원 할인)"), discounts.kakao && React.createElement("span", {
-    className: "text-yellow-700 font-bold text-sm"
-  }, "카카오맵 리뷰 (2,000원 할인)"), discounts.twitter && React.createElement("span", {
-    className: "text-gray-800 font-bold text-sm"
-  }, "X(트위터) 리뷰 (5,000원 할인)"), discounts.blog && React.createElement("span", {
-    className: "text-green-700 font-bold text-sm"
-  }, "네이버 블로그 리뷰 (5,000원 할인)")), React.createElement("div", {
-    className: "text-xs leading-relaxed text-gray-600"
-  }, discounts.homepage && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-blue-600 mb-1 mt-3"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "홈화면에 있는 ", React.createElement("strong", {
-    className: "text-gray-800"
-  }, "생생한 대여 후기 작성하기"), " 버튼을 눌러  사진과 함께 작성해주시면 됩니다!"), React.createElement("p", {
-    className: "text-[11px] text-blue-500 bg-white px-2 py-1 rounded-lg border border-blue-100 inline-block mt-2 font-medium"
-  }, "SNS 안 하시는 분들에게 적극 추천드려요! 👍")), discounts.kakao && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-yellow-600 mb-1 mt-3"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "카카오맵에서 ", React.createElement("strong", {
-    className: "text-gray-800"
-  }, "'세린캠'"), " 검색 후 사진과 함께 별점 리뷰를 남겨주시면 됩니다!"), React.createElement("p", {
-    className: "text-[11px] text-yellow-600 bg-white px-2 py-1 rounded-lg border border-yellow-100 inline-block mt-2 font-medium"
-  }, "빠르고 간단한 작성을 원하시는 분들께 추천드려요! ⚡")), discounts.twitter && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-gray-700 mb-1 mt-3"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "사진과 함께 ", React.createElement("strong", {
-    className: "text-blue-500"
-  }, "#세린울트라대여 #울트라대여"), " 해시태그를 포함하여 후기를 남겨주세요!"), React.createElement("p", {
-    className: "text-[11px] text-gray-500 bg-white px-2 py-1 rounded-lg border border-gray-200 inline-block mt-2 font-medium"
-  }, "콘서트/팬미팅 후기를 트친들과 공유해보세요! 💙")), discounts.blog && React.createElement(React.Fragment, null, React.createElement("p", {
-    className: "font-bold text-green-600 mb-1 mt-3"
-  }, "💡 작성 방법 안내"), React.createElement("p", null, "게시글 장소 추가에 ", React.createElement("strong", {
-    className: "text-gray-800"
-  }, "'세린캠'"), "을 추가하고 사진과 함께 상세한 후기를 남겨주세요!"), React.createElement("p", {
-    className: "text-[11px] text-green-600 bg-white px-2 py-1 rounded-lg border border-green-100 inline-block mt-2 font-medium"
-  }, "나만의 덕질 일상을 꼼꼼하게 기록하시는 분들께 추천드려요! ✍️")))), FOLLOW_DISCOUNT_ENABLED && renderFollowSection()))), step === 2 && React.createElement("div", {
+    className: "ic"
+  }, React.createElement(Icons.Gift, {
+    size: 20
+  })), React.createElement("span", {
+    className: "tx"
+  }, React.createElement("small", null, FOLLOW_DISCOUNT_ENABLED ? "리뷰·팔로우 할인" : t('reviewBenefit')), getReviewSum() > 0 ? React.createElement("b", null, React.createElement("em", null, getReviewSum().toLocaleString(), "원"), " 할인 선택됨") : React.createElement("b", null, "최대 ", React.createElement("em", null, getReviewMax().toLocaleString(), "원"), " 할인 받기")), React.createElement(Icons.ChevronDown, {
+    size: 20,
+    className: "chev"
+  })), (reviewOpen || reviewError) && React.createElement("div", {
+    className: "oh-dbody"
+  }, React.createElement("div", {
+    className: "space-y-3"
+  }, [["간편 리뷰", [["homepage", "kakao", "세린캠 홈페이지", true, 2000], ["kakao", "homepage", "카카오맵", false, 2000]]], ["SNS 리뷰", [["twitter", "blog", "X(트위터)", true, 5000], ["blog", "twitter", "네이버블로그", false, 5000]]]].map(([gl, items]) => React.createElement("div", {
+    key: gl
+  }, React.createElement("p", {
+    className: "oh-rgl"
+  }, gl, React.createElement("i", null, "1개 선택")), React.createElement("div", {
+    className: "oh-rg"
+  }, items.map(([k, other, nm, hot, amt]) => React.createElement("div", {
+    key: k,
+    role: "checkbox",
+    "aria-checked": !!discounts[k],
+    onClick: () => {
+      setDiscounts({
+        ...discounts,
+        [other]: false,
+        [k]: !discounts[k]
+      });
+    },
+    className: `oh-dc${reviewError ? ' animate-shake err' : discounts[k] ? ' on' : ''}`
+  }, React.createElement("span", {
+    className: "n"
+  }, nm, hot && React.createElement("em", {
+    className: "oh-hotb"
+  }, "인기")), React.createElement("span", {
+    className: "b"
+  }, React.createElement("span", {
+    className: "a"
+  }, amt.toLocaleString(), "원", React.createElement("small", null, " 할인")))))), items.filter(it => discounts[it[0]]).map(it => renderReviewGuide(it[0]))))), FOLLOW_DISCOUNT_ENABLED && renderFollowSection())))), step === 2 && React.createElement("div", {
     className: "space-y-8 animate-slide-in"
   }, React.createElement("div", null, React.createElement("h2", {
     className: "text-2xl font-bold text-gray-800 whitespace-nowrap tracking-tight"
@@ -15430,14 +15454,13 @@ React.createElement("div", {
     className: "text-yellow-500"
   }), " ", t('addService')), React.createElement("div", {
     onClick: () => setBatteryCount(batteryCount === 0 ? 1 : 0),
-    className: `p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all mb-2 ${batteryCount > 0 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-100 bg-white'}`
+    className: `oh-addon${batteryCount > 0 ? ' on' : ''}`
   }, React.createElement("div", {
     className: "flex items-center gap-3"
   }, React.createElement("div", {
-    className: `w-10 h-10 rounded-full flex items-center justify-center ${batteryCount > 0 ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-400'}`
+    className: "w-10 h-10 rounded-full flex items-center justify-center ic"
   }, React.createElement(Icons.Zap, {
-    size: 20,
-    className: batteryCount > 0 ? 'fill-yellow-400 text-yellow-500' : 'text-gray-600'
+    size: 20
   })), React.createElement("div", null, React.createElement("p", {
     className: "font-bold text-gray-800"
   }, "보조배터리 추가"), React.createElement("p", {
@@ -15445,10 +15468,9 @@ React.createElement("div", {
   }, "C타입 5000mAh (1개)"))), React.createElement("div", {
     className: "flex items-center gap-2"
   }, React.createElement("p", {
-    className: `font-bold text-sm ${batteryCount > 0 ? 'text-yellow-600' : 'text-gray-500'}`
-  }, "+3,000원"), batteryCount > 0 && React.createElement(Icons.CheckCircle, {
-    size: 18,
-    className: "text-yellow-500"
+    className: "font-bold text-sm"
+  }, "+3,000원"), React.createElement("span", {
+    className: "oh-radio" + (batteryCount > 0 ? " on" : "")
   }))))), step === 3 && React.createElement("div", {
     className: "space-y-6 animate-slide-in pb-10"
   }, React.createElement("div", null, React.createElement("h2", {
@@ -15856,8 +15878,11 @@ React.createElement("div", {
         if (followUnchecked('x') || followUnchecked('insta')) {
           var followNotFound = ['x', 'insta'].some(k => follows[k] && followStatus[k] === 'notfound');
           showAppToast(followNotFound ? '팔로우가 확인되지 않았어요. 아이디를 고치거나 팔로우 할인 선택을 해제해주세요' : '팔로우 할인을 받으려면 아이디를 적고 확인을 눌러주세요');
-          var followSec = document.getElementById('follow-discount-section');
-          if (followSec) followSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setReviewOpen(true); // 접혀 있으면 펼친 뒤 이동
+          setTimeout(() => {
+            var followSec = document.getElementById('follow-discount-section');
+            if (followSec) followSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 60);
           return;
         }
       }
