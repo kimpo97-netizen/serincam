@@ -672,6 +672,16 @@
 .ohg-dt small{display:block;font-size:12px;color:#828C94;margin-top:1px}
 .ohg-ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:#5E666C;word-break:keep-all}
 .ohg-ul li{list-style:disc;margin-bottom:2px}
+.ohg-post{background:#F2FAFD;border:1px solid #D3EEF8;border-radius:12px;padding:14px;margin:12px 0 4px}
+.ohg-post .lb{font-size:12px;color:#5E666C;margin:0}
+.ohg-post .ar{font-size:16px;color:#2F3438;margin:2px 0 10px;font-weight:700}
+.ohg-post .ar b{color:#13A8DE;font-size:19px;font-weight:800}
+.ohg-post .tm{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-radius:8px;padding:9px 12px;font-size:12px;color:#5E666C}
+.ohg-post .tm strong{font-size:18px;color:#2F3438;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.ohg-post .tm.u strong{color:#F04452}
+.ohg-post .nx{font-size:11.5px;color:#828C94;margin:8px 0 0;word-break:keep-all}
+.ohg-post .sat{font-size:12px;color:#B5590A;background:#FFF6EC;border-radius:8px;padding:9px 11px;margin:8px 0 0;line-height:1.55;word-break:keep-all}
+.ohg-post .sat b{font-weight:800;margin-right:2px}
 .ohg-ul strong{color:#2F3438}
 .ohg-ul .warn{color:#F04452}
 .ohg-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;border-radius:4px;padding:13px;font-size:14px;font-weight:700;margin-top:14px}
@@ -1023,6 +1033,7 @@
 .oh-rlist>div>div:first-child br{display:none}
 .oh-rlist>div>p:nth-child(2):not(:last-child){grid-column:2;grid-row:2;margin:0!important}
 .oh-rlist>div>p:last-child{grid-column:3;grid-row:1/span 2;margin:0!important;font-size:14px!important;text-align:right}
+.oh-rlist>div>div.post-rtimer{grid-column:2/span 2;grid-row:3;margin-top:6px!important}
 .oh-rlist>div[class*="border-sky-500"],.oh-rlist>div[class*="border-rose-500"],.oh-rlist>div[class*="border-green-500"]{background:var(--oh-soft)!important}
 .oh-rlist>div[class*="border-sky-500"]::before,.oh-rlist>div[class*="border-rose-500"]::before,.oh-rlist>div[class*="border-green-500"]::before{border:6.5px solid var(--oh);animation:ohCheck .3s}
 .oh-rlist>div[class*="border-red-400"]::before{border-color:#FF7777}
@@ -1175,7 +1186,8 @@
 .oh-row .ar{margin-left:auto;color:#C2C8CC;transition:transform .2s}
 .oh-row .ar.op{transform:rotate(90deg)}
 .oh-ans{font-size:13px;color:#5E666C;line-height:1.65;padding:4px 2px 14px;white-space:pre-line;animation:ohUp .25s ease both}
-.oh-kakao-cta{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:14px;border-radius:4px;background:#FEE500;color:#191919;font-size:15px;font-weight:700}
+.kch-bar{background:#FFDF00!important;color:#191919!important}.kch-bar:hover{filter:brightness(.96)}
+.oh-kakao-cta{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:14px;border-radius:4px;background:#FFDF00;color:#191919;font-size:15px;font-weight:700}
 </style>
 
 <style id="serincam-ohouse">
@@ -1342,6 +1354,19 @@ var KakaoSymbol = ({
 }, React.createElement("path", {
   d: "M12 3C6.48 3 2 6.48 2 10.8c0 2.78 1.86 5.22 4.66 6.6l-.95 3.48c-.08.3.26.54.52.37l4.15-2.74c.53.06 1.07.09 1.62.09 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"
 }));
+// [NEW] 2026-11-09 카카오톡 채널 문의 아이콘 (노란 Ch 말풍선, 투명 배경 · 이미지/카카오톡_채널문의_아이콘.svg — 벡터라 축소해도 가장자리 빛 번짐 없음, 상자색 #FFDF00 = .kch-bar) — 로그인 버튼은 KakaoSymbol 유지
+var KAKAO_CH_INQUIRY_ICON = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzOTcgMzk1Ij48cmVjdCB3aWR0aD0iMzk3IiBoZWlnaHQ9IjM5NSIgcng9IjU4IiBmaWxsPSIjRkZERjAwIi8+PHBhdGggZmlsbD0iIzIzMTgxNSIgZD0iTTE4NyA1NGgyNHYxaC0yNHpNMTc3IDU1aDQzdjFoLTQzek0xNzEgNTZoNTV2MWgtNTV6TTE2NiA1N2g2NnYxaC02NnpNMTYxIDU4aDc1djFoLTc1ek0xNTggNTloODJ2MWgtODJ6TTE1NCA2MGg4OXYxaC04OXpNMTUxIDYxaDk2djFoLTk2ek0xNDggNjJoMTAydjFoLTEwMnpNMTQ1IDYzaDEwN3YxaC0xMDd6TTE0MiA2NGgxMTN2MWgtMTEzek0xNDAgNjVoMTE4djFoLTExOHpNMTM3IDY2aDEyM3YxaC0xMjN6TTEzNSA2N2gxMjd2MWgtMTI3ek0xMzMgNjhoMTMxdjFoLTEzMXpNMTMxIDY5aDEzNnYxaC0xMzZ6TTEyOSA3MGgxNDB2MWgtMTQwek0xMjcgNzFoMTQ0djFoLTE0NHpNMTI1IDcyaDE0N3YxaC0xNDd6TTEyMyA3M2gxNTF2MWgtMTUxek0xMjEgNzRoMTU1djFoLTE1NXpNMTIwIDc1aDE1OHYxaC0xNTh6TTExOCA3NmgxNjF2MWgtMTYxek0xMTcgNzdoMTY0djFoLTE2NHpNMTE1IDc4aDE2N3YxaC0xNjd6TTExNCA3OWgxNzB2MWgtMTcwek0xMTIgODBoMTczdjFoLTE3M3pNMTExIDgxaDE3NnYxaC0xNzZ6TTEwOSA4MmgxNzl2MWgtMTc5ek0xMDggODNoMTgydjFoLTE4MnpNMTA3IDg0aDE4NHYxaC0xODR6TTEwNSA4NWgxODd2MWgtMTg3ek0xMDQgODZoMTg5djFoLTE4OXpNMTAzIDg3aDE5MnYxaC0xOTJ6TTEwMSA4OGgxOTV2MWgtMTk1ek0xMDAgODloMTk3djFoLTE5N3pNOTkgOTBoMTk5djFoLTE5OXpNOTggOTFoMjAxdjFoLTIwMXpNOTcgOTJoMjA0djFoLTIwNHpNOTYgOTNoMjA2djFoLTIwNnpNOTUgOTRoMjA4djFoLTIwOHpNOTQgOTVoMjEwdjFoLTIxMHpNOTMgOTZoMjEydjFoLTIxMnpNOTIgOTdoMjE0djFoLTIxNHpNOTEgOThoMjE2djFoLTIxNnpNOTAgOTloMjE4djFoLTIxOHpNODkgMTAwaDIyMHYxaC0yMjB6TTg4IDEwMWgyMjJ2MWgtMjIyek04NyAxMDJoMjI0djFoLTIyNHpNODYgMTAzaDIyNXYxaC0yMjV6TTg1IDEwNGgyMjd2MWgtMjI3ek04NCAxMDVoMjI5djFoLTIyOXpNODMgMTA2aDIzMXYxaC0yMzF6TTgzIDEwN2gyMzJ2MWgtMjMyek04MiAxMDhoMjM0djFoLTIzNHpNODEgMTA5aDIzNXYxaC0yMzV6TTgwIDExMGgyMzd2MWgtMjM3ek03OSAxMTFoMjM5djFoLTIzOXpNNzkgMTEyaDI0MHYxaC0yNDB6TTc4IDExM2gyNDF2MWgtMjQxek03NyAxMTRoMjQzdjFoLTI0M3pNNzcgMTE1aDI0NHYxaC0yNDR6TTc2IDExNmgyNDZ2MWgtMjQ2ek03NSAxMTdoMjQ3djFoLTI0N3pNNzUgMTE4aDI0OHYxaC0yNDh6TTc0IDExOWgyNTB2MWgtMjUwek03MyAxMjBoMjUxdjFoLTI1MXpNNzMgMTIxaDI1MnYxaC0yNTJ6TTcyIDEyMmgyNTN2MWgtMjUzek03MSAxMjNoMjU1djFoLTI1NXpNNzEgMTI0aDI1NnYxaC0yNTZ6TTcwIDEyNWgyNTd2MWgtMjU3ek03MCAxMjZoMjU4djFoLTI1OHpNNjkgMTI3aDI1OXYxaC0yNTl6TTY5IDEyOGgyNjB2MWgtMjYwek02OCAxMjloMjYxdjFoLTI2MXpNNjcgMTMwaDI2M3YyaC0yNjN6TTY2IDEzMmgyNjV2MWgtMjY1ek02NiAxMzNoODB2MWgtODB6TTE1NCAxMzNoMTc3djFoLTE3N3pNNjYgMTM0aDcydjFoLTcyek0xNjIgMTM0aDU3djFoLTU3ek0yMzggMTM0aDk0djJoLTk0ek02NSAxMzVoNjl2MWgtNjl6TTE2NiAxMzVoNTN2MWgtNTN6TTY1IDEzNmg2NnYxaC02NnpNMTY5IDEzNmg1MHYxaC01MHpNMjM4IDEzNmg5NXYyaC05NXpNNjQgMTM3aDY0djFoLTY0ek0xNzEgMTM3aDQ4djFoLTQ4ek02NCAxMzhoNjJ2MWgtNjJ6TTE3NCAxMzhoNDV2MWgtNDV6TTIzOCAxMzhoOTZ2MmgtOTZ6TTYzIDEzOWg2MXYxaC02MXpNMTc2IDEzOWg0M3YxaC00M3pNNjMgMTQwaDU5djFoLTU5ek0xNzcgMTQwaDQydjFoLTQyek0yMzggMTQwaDk3djNoLTk3ek02MiAxNDFoNTl2MWgtNTl6TTE3OSAxNDFoNDB2MWgtNDB6TTYyIDE0Mmg1N3YxaC01N3pNMTgwIDE0MmgzOXYxaC0zOXpNNjIgMTQzaDU1djFoLTU1ek0xODIgMTQzaDM3djFoLTM3ek0yMzggMTQzaDk4djNoLTk4ek02MSAxNDRoNTV2MWgtNTV6TTE4MyAxNDRoMzZ2MWgtMzZ6TTYxIDE0NWg1NHYxaC01NHpNMTg0IDE0NWgzNXYxaC0zNXpNNjEgMTQ2aDUzdjFoLTUzek0xODUgMTQ2aDM0djFoLTM0ek0yMzggMTQ2aDk5djJoLTk5ek02MCAxNDdoNTN2MWgtNTN6TTE4NyAxNDdoMzJ2MWgtMzJ6TTYwIDE0OGg1MXYxaC01MXpNMTg4IDE0OGgzMXYyaC0zMXpNMjM4IDE0OGgxMDB2NGgtMTAwek02MCAxNDloNTB2MWgtNTB6TTU5IDE1MGg1MXYxaC01MXpNMTg5IDE1MGgzMHYxaC0zMHpNNTkgMTUxaDUwdjFoLTUwek0xOTAgMTUxaDI5djFoLTI5ek01OSAxNTJoNDl2MWgtNDl6TTE5MSAxNTJoMjh2MWgtMjh6TTIzOCAxNTJoMTAxdjNoLTEwMXpNNTggMTUzaDQ5djFoLTQ5ek0xNDUgMTUzaDl2MWgtOXpNMTkyIDE1M2gyN3YyaC0yN3pNNTggMTU0aDQ4djFoLTQ4ek0xNDAgMTU0aDE5djFoLTE5ek01OCAxNTVoNDd2MmgtNDd6TTEzNyAxNTVoMjV2MWgtMjV6TTE5MyAxNTVoMjZ2MWgtMjZ6TTIzOCAxNTVoMTAydjRoLTEwMnpNMTM0IDE1NmgzMXYxaC0zMXpNMTk0IDE1NmgyNXYyaC0yNXpNNTcgMTU3aDQ3djFoLTQ3ek0xMzIgMTU3aDM1djFoLTM1ek01NyAxNThoNDZ2MmgtNDZ6TTEzMSAxNThoMzd2MWgtMzd6TTE5NSAxNThoMjR2MWgtMjR6TTEyOSAxNTloNDF2MWgtNDF6TTE5NiAxNTloMjN2MmgtMjN6TTIzOCAxNTloMTAzdjRoLTEwM3pNNTcgMTYwaDQ1djFoLTQ1ek0xMjggMTYwaDQzdjFoLTQzek01NiAxNjFoNDZ2MWgtNDZ6TTEyNyAxNjFoNDV2MWgtNDV6TTE5NyAxNjFoMjJ2MmgtMjJ6TTU2IDE2Mmg0NXYyaC00NXpNMTI2IDE2Mmg0N3YxaC00N3pNMTI1IDE2M2g0OXYxaC00OXpNMTk4IDE2M2gyMXYzaC0yMXpNMjM4IDE2M2gxN3YxaC0xN3pNMjY2IDE2M2g3NXYxaC03NXpNNTYgMTY0aDQ0djJoLTQ0ek0xMjQgMTY0aDUxdjFoLTUxek0yMzggMTY0aDEydjFoLTEyek0yNzAgMTY0aDcydjFoLTcyek0xMjMgMTY1aDUzdjFoLTUzek0yMzggMTY1aDEwdjFoLTEwek0yNzMgMTY1aDY5djFoLTY5ek01NSAxNjZoNDR2M2gtNDR6TTEyMiAxNjZoNTR2MWgtNTR6TTE5OSAxNjZoMjB2M2gtMjB6TTIzOCAxNjZoOHYxaC04ek0yNzUgMTY2aDY3djFoLTY3ek0xMjIgMTY3aDU1djFoLTU1ek0yMzggMTY3aDZ2MWgtNnpNMjc2IDE2N2g2NnYxaC02NnpNMTIxIDE2OGg1N3YxaC01N3pNMjM4IDE2OGg1djFoLTV6TTI3OCAxNjhoNjR2MWgtNjR6TTU1IDE2OWg0M3YzaC00M3pNMTIwIDE2OWg1OHYxaC01OHpNMjAwIDE2OWgxOXYzaC0xOXpNMjM4IDE2OWg0djFoLTR6TTI3OSAxNjloNjN2MWgtNjN6TTEyMCAxNzBoNTl2MWgtNTl6TTIzOCAxNzBoM3YxaC0zek0yODAgMTcwaDYzdjFoLTYzek0xMTkgMTcxaDYwdjJoLTYwek0yMzggMTcxaDJ2MWgtMnpNMjgxIDE3MWg2MnYxaC02MnpNNTUgMTcyaDQydjFoLTQyek0yMDEgMTcyaDE4djRoLTE4ek0yMzggMTcyaDF2MWgtMXpNMjgyIDE3Mmg2MXYxaC02MXpNNTQgMTczaDQzdjNoLTQzek0xMTkgMTczaDYxdjFoLTYxek0yODMgMTczaDYwdjJoLTYwek0xMTggMTc0aDYydjJoLTYyek0yODQgMTc1aDU5djFoLTU5ek01NCAxNzZoNDJ2OWgtNDJ6TTExNyAxNzZoMTAydjVoLTEwMnpNMjg1IDE3Nmg1OHYyaC01OHpNMjg2IDE3OGg1N3YxaC01N3pNMjg2IDE3OWg1OHYyaC01OHpNMTE2IDE4MWgxMDN2MTNoLTEwM3pNMjUwIDE4MWg5djFoLTl6TTI4NyAxODFoNTd2M2gtNTd6TTI0NyAxODJoMTV2MWgtMTV6TTI0NSAxODNoMTl2MWgtMTl6TTI0NCAxODRoMjF2MWgtMjF6TTI4OCAxODRoNTZ2NmgtNTZ6TTU0IDE4NWg0MXY1aC00MXpNMjQzIDE4NWgyM3YxaC0yM3pNMjQyIDE4NmgyNXYxaC0yNXpNMjQxIDE4N2gyNnYxaC0yNnpNMjQxIDE4OGgyN3YxaC0yN3pNMjQwIDE4OWgyOHYxaC0yOHpNNTQgMTkwaDQydjloLTQyek0yNDAgMTkwaDI5djFoLTI5ek0yODkgMTkwaDU1djdoLTU1ek0yMzkgMTkxaDMwdjRoLTMwek0xMTcgMTk0aDEwMnY0aC0xMDJ6TTIzOCAxOTVoMzF2NDRoLTMxek0yODkgMTk3aDU0djloLTU0ek0xMTggMTk4aDEwMXYyaC0xMDF6TTU0IDE5OWg0M3Y0aC00M3pNMTE4IDIwMGg2MnYxaC02MnpNMjAxIDIwMGgxOHYzaC0xOHpNMTE5IDIwMWg2MXYxaC02MXpNMTE5IDIwMmg2MHYxaC02MHpNNTQgMjAzaDQ0djJoLTQ0ek0xMjAgMjAzaDU5djFoLTU5ek0yMDAgMjAzaDE5djNoLTE5ek0xMjAgMjA0aDU4djFoLTU4ek01NSAyMDVoNDN2MWgtNDN6TTEyMSAyMDVoNTd2MWgtNTd6TTU1IDIwNmg0NHYzaC00NHpNMTIyIDIwNmg1NXYyaC01NXpNMTk5IDIwNmgyMHYzaC0yMHpNMjg5IDIwNmg1M3Y2aC01M3pNMTIzIDIwOGg1M3YxaC01M3pNNTUgMjA5aDQ1djJoLTQ1ek0xMjQgMjA5aDUxdjFoLTUxek0xOTggMjA5aDIxdjNoLTIxek0xMjUgMjEwaDUwdjFoLTUwek01NSAyMTFoNDZ2MmgtNDZ6TTEyNiAyMTFoNDh2MWgtNDh6TTEyNyAyMTJoNDZ2MWgtNDZ6TTE5NyAyMTJoMjJ2MmgtMjJ6TTI4OSAyMTJoNTJ2NGgtNTJ6TTU2IDIxM2g0NnYyaC00NnpNMTI4IDIxM2g0NHYxaC00NHpNMTI5IDIxNGg0MnYxaC00MnpNMTk2IDIxNGgyM3YyaC0yM3pNNTYgMjE1aDQ3djJoLTQ3ek0xMzAgMjE1aDM5djFoLTM5ek0xMzIgMjE2aDM2djFoLTM2ek0xOTUgMjE2aDI0djFoLTI0ek0yODkgMjE2aDUxdjRoLTUxek01NiAyMTdoNDh2MWgtNDh6TTEzNCAyMTdoMzJ2MWgtMzJ6TTE5NCAyMTdoMjV2MmgtMjV6TTU3IDIxOGg0OHYyaC00OHpNMTM2IDIxOGgyOHYxaC0yOHpNMTM4IDIxOWgyNHYxaC0yNHpNMTkzIDIxOWgyNnYxaC0yNnpNNTcgMjIwaDQ5djFoLTQ5ek0xNDEgMjIwaDE4djFoLTE4ek0xOTIgMjIwaDI3djJoLTI3ek0yODkgMjIwaDUwdjRoLTUwek01NyAyMjFoNTB2MWgtNTB6TTE0OCAyMjFoNHYxaC00ek01NyAyMjJoNTF2MWgtNTF6TTE5MSAyMjJoMjh2MWgtMjh6TTU4IDIyM2g1MXYyaC01MXpNMTkwIDIyM2gyOXYxaC0yOXpNMTg5IDIyNGgzMHYxaC0zMHpNMjg5IDIyNGg0OXYzaC00OXpNNTggMjI1aDUydjFoLTUyek0xODggMjI1aDMxdjJoLTMxek01OCAyMjZoNTN2MWgtNTN6TTU5IDIyN2g1M3YxaC01M3pNMTg3IDIyN2gzMnYxaC0zMnpNMjg5IDIyN2g0OHYzaC00OHpNNTkgMjI4aDU1djFoLTU1ek0xODYgMjI4aDMzdjFoLTMzek01OSAyMjloNTZ2MWgtNTZ6TTE4NCAyMjloMzV2MWgtMzV6TTYwIDIzMGg1NnYxaC01NnpNMTgzIDIzMGgzNnYxaC0zNnpNMjg5IDIzMGg0N3YyaC00N3pNNjAgMjMxaDU3djFoLTU3ek0xODIgMjMxaDM3djFoLTM3ek02MCAyMzJoNTl2MWgtNTl6TTE4MSAyMzJoMzh2MWgtMzh6TTI4OSAyMzJoNDZ2M2gtNDZ6TTYxIDIzM2g1OXYxaC01OXpNMTc5IDIzM2g0MHYxaC00MHpNNjEgMjM0aDYxdjFoLTYxek0xNzcgMjM0aDQydjFoLTQyek02MSAyMzVoNjN2MWgtNjN6TTE3NiAyMzVoNDN2MWgtNDN6TTI4OSAyMzVoNDV2MmgtNDV6TTYyIDIzNmg2NHYxaC02NHpNMTc0IDIzNmg0NXYxaC00NXpNNjIgMjM3aDY2djFoLTY2ek0xNzEgMjM3aDQ4djFoLTQ4ek0yODkgMjM3aDQ0djJoLTQ0ek02MyAyMzhoNjh2MWgtNjh6TTE2OSAyMzhoNTB2MWgtNTB6TTYzIDIzOWg3MXYxaC03MXpNMTY2IDIzOWg1M3YxaC01M3pNMjM4IDIzOWgzMnYxaC0zMnpNMjg4IDIzOWg0NXYxaC00NXpNNjMgMjQwaDc1djFoLTc1ek0xNjIgMjQwaDE3MHYxaC0xNzB6TTY0IDI0MWg4MnYxaC04MnpNMTU0IDI0MWgxNzh2MWgtMTc4ek02NCAyNDJoMjY3djFoLTI2N3pNNjUgMjQzaDI2NnYxaC0yNjZ6TTY1IDI0NGgyNjV2MWgtMjY1ek02NiAyNDVoMjY0djFoLTI2NHpNNjYgMjQ2aDI2M3YxaC0yNjN6TTY3IDI0N2gyNjJ2MWgtMjYyek02NyAyNDhoMjYxdjFoLTI2MXpNNjggMjQ5aDI1OXYyaC0yNTl6TTY5IDI1MWgyNTd2MWgtMjU3ek03MCAyNTJoMjU2djFoLTI1NnpNNzAgMjUzaDI1NXYxaC0yNTV6TTcxIDI1NGgyNTN2MWgtMjUzek03MiAyNTVoMjUydjFoLTI1MnpNNzIgMjU2aDI1MXYxaC0yNTF6TTczIDI1N2gyNDl2MWgtMjQ5ek03NCAyNThoMjQ4djFoLTI0OHpNNzQgMjU5aDI0N3YxaC0yNDd6TTc1IDI2MGgyNDV2MWgtMjQ1ek03NiAyNjFoMjQ0djFoLTI0NHpNNzcgMjYyaDI0MnYxaC0yNDJ6TTc3IDI2M2gyNDF2MWgtMjQxek03OCAyNjRoMjM5djFoLTIzOXpNNzkgMjY1aDIzOHYxaC0yMzh6TTgwIDI2NmgyMzZ2MWgtMjM2ek04MSAyNjdoMjM0djFoLTIzNHpNODIgMjY4aDIzMnYxaC0yMzJ6TTgzIDI2OWgyMzB2MWgtMjMwek04NCAyNzBoMjI5djFoLTIyOXpNODQgMjcxaDIyOHYxaC0yMjh6TTg1IDI3MmgyMjZ2MWgtMjI2ek04NiAyNzNoMjI0djFoLTIyNHpNODcgMjc0aDIyMnYxaC0yMjJ6TTg4IDI3NWgyMjB2MWgtMjIwek05MCAyNzZoMjE3djFoLTIxN3pNOTEgMjc3aDIxNXYxaC0yMTV6TTkyIDI3OGgyMTN2MWgtMjEzek05MyAyNzloMjExdjFoLTIxMXpNOTQgMjgwaDIwOXYxaC0yMDl6TTk1IDI4MWgyMDd2MWgtMjA3ek05NiAyODJoMjA1djFoLTIwNXpNOTcgMjgzaDIwM3YxaC0yMDN6TTk5IDI4NGgyMDB2MWgtMjAwek0xMDAgMjg1aDE5N3YxaC0xOTd6TTEwMSAyODZoMTk1djFoLTE5NXpNMTAyIDI4N2gxOTN2MWgtMTkzek0xMDQgMjg4aDE5MHYxaC0xOTB6TTEwNSAyODloMTg4djFoLTE4OHpNMTA2IDI5MGgxODV2MWgtMTg1ek0xMDcgMjkxaDE4M3YxaC0xODN6TTEwOCAyOTJoMTgxdjFoLTE4MXpNMTA4IDI5M2gxNzl2MWgtMTc5ek0xMDggMjk0aDE3OHYxaC0xNzh6TTEwOCAyOTVoMTc2djFoLTE3NnpNMTA4IDI5NmgxNzV2MWgtMTc1ek0xMDggMjk3aDE3M3YxaC0xNzN6TTEwOCAyOThoMTcydjFoLTE3MnpNMTA4IDI5OWgxNzB2MWgtMTcwek0xMDggMzAwaDE2OHYxaC0xNjh6TTEwOCAzMDFoMTY3djFoLTE2N3pNMTA4IDMwMmgxNjV2MWgtMTY1ek0xMDggMzAzaDE2M3YxaC0xNjN6TTEwOCAzMDRoMTYxdjFoLTE2MXpNMTA4IDMwNWgxNTl2MWgtMTU5ek0xMDggMzA2aDE1N3YxaC0xNTd6TTEwOCAzMDdoMTU1djFoLTE1NXpNMTA4IDMwOGgxNTN2MWgtMTUzek0xMDggMzA5aDE1MHYxaC0xNTB6TTEwOCAzMTBoMTQ4djFoLTE0OHpNMTA4IDMxMWgxNDV2MWgtMTQ1ek0xMDggMzEyaDE0M3YxaC0xNDN6TTEwOCAzMTNoMTQwdjFoLTE0MHpNMTA4IDMxNGgxMzZ2MWgtMTM2ek0xMDggMzE1aDEzM3YxaC0xMzN6TTEwOCAzMTZoMTI5djFoLTEyOXpNMTA4IDMxN2gxMjV2MWgtMTI1ek0xMDggMzE4aDYxdjFoLTYxek0xNzAgMzE4aDU4djFoLTU4ek0xMDggMzE5aDU5djFoLTU5ek0xNzUgMzE5aDQ4djFoLTQ4ek0xMDggMzIwaDU4djFoLTU4ek0xODMgMzIwaDMydjFoLTMyek0xMDggMzIxaDU3djFoLTU3ek0xMDggMzIyaDU1djFoLTU1ek0xMDggMzIzaDU0djFoLTU0ek0xMDggMzI0aDUzdjFoLTUzek0xMDggMzI1aDUxdjFoLTUxek0xMDggMzI2aDUwdjFoLTUwek0xMDggMzI3aDQ4djFoLTQ4ek0xMDggMzI4aDQ3djFoLTQ3ek0xMDggMzI5aDQ2djFoLTQ2ek0xMDggMzMwaDQ0djFoLTQ0ek0xMDggMzMxaDQzdjFoLTQzek0xMDggMzMyaDQydjFoLTQyek0xMDggMzMzaDQwdjFoLTQwek0xMDggMzM0aDM5djFoLTM5ek0xMDggMzM1aDM4djFoLTM4ek0xMDggMzM2aDM2djFoLTM2ek0xMDggMzM3aDM1djFoLTM1ek0xMDggMzM4aDM0djFoLTM0ek0xMDggMzM5aDMydjFoLTMyek0xMDggMzQwaDMxdjFoLTMxek0xMDggMzQxaDI5djFoLTI5ek0xMDggMzQyaDI4djFoLTI4ek0xMDggMzQzaDI3djFoLTI3ek0xMDggMzQ0aDI1djFoLTI1ek0xMDggMzQ1aDI0djFoLTI0ek0xMDggMzQ2aDIzdjFoLTIzek0xMDggMzQ3aDIxdjFoLTIxek0xMDggMzQ4aDIwdjFoLTIwek0xMDggMzQ5aDE5djFoLTE5ek0xMDggMzUwaDE3djFoLTE3ek0xMDggMzUxaDE2djFoLTE2ek0xMDggMzUyaDE1djFoLTE1ek0xMDggMzUzaDEzdjFoLTEzek0xMDggMzU0aDEydjFoLTEyek0xMDggMzU1aDEwdjFoLTEwek0xMDggMzU2aDl2MWgtOXpNMTA5IDM1N2g3djFoLTd6TTEwOSAzNThoNXYxaC01ek0xMTEgMzU5aDF2MWgtMXoiLz48L3N2Zz4=";
+var KakaoChIcon = ({
+  size = 18
+}) => React.createElement("img", {
+  src: KAKAO_CH_INQUIRY_ICON,
+  width: size,
+  height: size,
+  alt: "",
+  "aria-hidden": "true",
+  draggable: false,
+  style: { width: size, height: size, flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }
+});
 var KAKAO_YELLOW_STYLE = {
   backgroundColor: '#FEE500',
   color: 'rgba(0, 0, 0, 0.85)'
@@ -2874,6 +2899,133 @@ var OhFollowProgress = ({ st, handle, cls, msg }) => {
     style: st === 'checking' ? { color: '#0A8CBC' } : st === 'pending' ? { color: '#E8820C' } : undefined
   }, text));
 };
+// [NEW 11-07] 택배 수령 접수 마감 타이머 (대한민국 시간 기준)
+// - 접수 마감: 발송일 오후 3시. 발송일 = 월~금(공휴일 제외). 토요일은 발송 안 함.
+// - 도착 예정 = 발송일 다음 배송일(월~토, 공휴일 제외). 일요일·공휴일엔 배송 없음.
+//   예) 목 3시 전 → 금 도착 / 목 3시 후 → (금 발송) 토 도착 / 금 3시 후 → (월 발송) 화 도착
+var POST_CUTOFF_HOUR = 15;
+var POST_EXTRA_OFF_DAYS = ['2028-1-1', '2028-1-26', '2028-1-27', '2028-1-28', '2028-3-1', '2028-4-12', '2028-5-1', '2028-5-2', '2028-5-5', '2028-6-6', '2028-8-15', '2028-10-2', '2028-10-3', '2028-10-4', '2028-10-5', '2028-10-9', '2028-12-25'];
+var isPostOffDay = d => { // 배송 없는 날. d: KST 날짜를 UTC 필드에 담은 Date
+  if (d.getUTCDay() === 0) return true; // 일요일
+  var k = `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
+  return !!HOLIDAYS[k] || POST_EXTRA_OFF_DAYS.indexOf(k) >= 0;
+};
+var isPostNoShipDay = d => d.getUTCDay() === 6 || isPostOffDay(d); // 발송 없는 날 (토요일 포함)
+var getPostSchedule = (nowMs = Date.now()) => {
+  var KST = 9 * 3600000;
+  var k = new Date(nowMs + KST); // UTC 필드 = 한국 시각
+  var day = new Date(Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate()));
+  var cutoffOf = d => d.getTime() + POST_CUTOFF_HOUR * 3600000 - KST; // 그 날 오후 3시(실제 시각)
+  var guard = 0;
+  while ((isPostNoShipDay(day) || nowMs >= cutoffOf(day)) && guard++ < 30) day = new Date(day.getTime() + 86400000);
+  var ship = day;
+  var arrive = new Date(ship.getTime() + 86400000);
+  guard = 0;
+  while (isPostOffDay(arrive) && guard++ < 30) arrive = new Date(arrive.getTime() + 86400000);
+  var todayKey = k.getUTCDate() + '/' + k.getUTCMonth();
+  return {
+    cutoffMs: cutoffOf(ship),
+    shipIsToday: ship.getUTCDate() + '/' + ship.getUTCMonth() === todayKey,
+    ship,
+    arrive,
+    isSaturday: arrive.getUTCDay() === 6
+  };
+};
+var postDateLabel = d => `${d.getUTCMonth() + 1}/${d.getUTCDate()}(${['일', '월', '화', '수', '목', '금', '토'][d.getUTCDay()]})`;
+// [NEW 11-07] 예약용: 대여 시작일(startDate, 로컬 자정 Date) 기준 택배 도착 예정일
+// - 원칙: 대여 시작일 전의 마지막 배송일(일요일·공휴일이면 그 앞 배송일)에 도착
+// - 지금 신청해서 그날까지 못 받으면 → 가장 빠른 도착일이 대여 시작일 당일이면 당일 도착, 그보다 늦으면 택배 불가
+var getPostArrivalForStart = (startDate, nowMs = Date.now()) => {
+  if (!startDate) return null;
+  var DAY = 86400000;
+  var S = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()));
+  var target = new Date(S.getTime() - DAY);
+  var guard = 0;
+  while (isPostOffDay(target) && guard++ < 30) target = new Date(target.getTime() - DAY);
+  var sch = getPostSchedule(nowMs);
+  var arrive;
+  if (sch.arrive.getTime() <= target.getTime()) arrive = target;else if (sch.arrive.getTime() <= S.getTime()) arrive = sch.arrive;else return {
+    blocked: true,
+    earliest: sch.arrive
+  };
+  // 이 도착일을 맞추기 위한 마지막 발송일 → 그날 오후 3시가 예약 마감
+  var lastShip = new Date(arrive.getTime() - DAY);
+  guard = 0;
+  while (isPostNoShipDay(lastShip) && guard++ < 30) lastShip = new Date(lastShip.getTime() - DAY);
+  return {
+    blocked: false,
+    arrive,
+    label: postDateLabel(arrive),
+    sameDay: arrive.getTime() === S.getTime(),
+    isSaturday: arrive.getUTCDay() === 6,
+    deadlineToday: sch.shipIsToday && lastShip.getTime() === sch.ship.getTime(),
+    deadlineLabel: postDateLabel(lastShip),
+    deadlineMs: lastShip.getTime() + (POST_CUTOFF_HOUR - 9) * 3600000 // 이 도착일을 맞출 수 있는 마지막 순간(그 발송일 오후 3시)
+  };
+};
+// [NEW 11-07] 예약 화면용 마감 타이머 — 마감 48시간 전부터 표시, 1초마다 스스로 갱신
+var PostReserveTimer = ({
+  startDate,
+  big
+}) => {
+  var [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => {
+    var id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  var r = getPostArrivalForStart(startDate, now);
+  if (!r || r.blocked) return null;
+  var left = Math.floor((r.deadlineMs - now) / 1000);
+  if (left <= 0 || left > 48 * 3600) return null;
+  var after = getPostArrivalForStart(startDate, r.deadlineMs + 1000);
+  var hh = Math.floor(left / 3600),
+    mm = Math.floor(left % 3600 / 60),
+    ss = left % 60;
+  var p2 = n => String(n).padStart(2, '0');
+  var urgent = left < 3600;
+  var when = r.deadlineToday ? '오늘 오후 3시' : `${r.deadlineLabel} 오후 3시`;
+  var afterTxt = !after || after.blocked ? '택배 수령 마감' : after.sameDay ? `${after.label} 대여 당일 도착` : `${after.label} 도착`;
+  return React.createElement("div", {
+    className: `post-rtimer ${big ? 'rounded-xl px-3 py-2 mt-1 text-xs' : 'rounded-lg px-2 py-1.5 mt-1.5 text-[10.5px]'} ${urgent ? 'bg-red-50 text-red-600' : 'bg-white text-gray-600'} border ${urgent ? 'border-red-100' : 'border-sky-100'} leading-snug break-keep text-left`
+  }, React.createElement("div", {
+    className: "flex items-center justify-between gap-2"
+  }, React.createElement("span", null, "⏰ ", when, " 마감까지"), React.createElement("b", {
+    className: `${big ? 'text-base' : 'text-[13px]'} ${urgent ? 'text-red-500' : 'text-gray-800'}`,
+    style: {
+      fontVariantNumeric: 'tabular-nums'
+    }
+  }, p2(hh), ":", p2(mm), ":", p2(ss))), React.createElement("p", {
+    className: urgent ? 'text-red-400' : 'text-gray-400'
+  }, "마감 후 예약하면 ", afterTxt));
+};
+var PostCutoffTimer = () => {
+  var [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => {
+    var id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  var s = getPostSchedule(now);
+  var left = Math.max(0, Math.floor((s.cutoffMs - now) / 1000));
+  var dd = Math.floor(left / 86400),
+    hh = Math.floor(left % 86400 / 3600),
+    mm = Math.floor(left % 3600 / 60),
+    ss = left % 60;
+  var p2 = n => String(n).padStart(2, '0');
+  var urgent = s.shipIsToday && left < 3600;
+  return React.createElement("div", {
+    className: "ohg-post"
+  }, React.createElement("p", {
+    className: "lb"
+  }, "지금 택배 수령으로 예약하면"), React.createElement("p", {
+    className: "ar"
+  }, React.createElement("b", null, postDateLabel(s.arrive)), " 도착 예정"), React.createElement("div", {
+    className: `tm${urgent ? ' u' : ''}`
+  }, React.createElement("span", null, s.shipIsToday ? '오늘 오후 3시 마감까지' : `${postDateLabel(s.ship)} 오후 3시 마감까지`), React.createElement("strong", null, dd > 0 ? `${dd}일 ` : '', p2(hh), ":", p2(mm), ":", p2(ss))), React.createElement("p", {
+    className: "nx"
+  }, "마감이 지나면 도착 예정일이 다음 배송일로 바뀌어요. (토요일 발송 없음 · 일요일·공휴일 배송 없음)"), s.isSaturday && React.createElement("p", {
+    className: "sat"
+  }, "대부분 토요일에 도착하지만, 우체국 사정에 따라 간혹 배송이 지연될 수 있어요. 이로 인한 환불불가해요."));
+};
 var OhTopFab = () => {
   var [show, setShow] = React.useState(false);
   React.useEffect(() => {
@@ -3533,9 +3685,9 @@ var PhoneRentalApp = () => {
         target: "_blank",
         rel: "noopener noreferrer",
         className: "mt-2 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-[12px] font-bold active:scale-95 transition-all",
-        style: { background: '#FEE500', color: '#191919' }
-      }, React.createElement(KakaoSymbol, {
-        size: 14
+        style: { background: '#FFDF00', color: '#191919' }
+      }, React.createElement(KakaoChIcon, {
+        size: 24
       }), "카카오톡 채널로 문의하기"));
     })), React.createElement("ul", {
       className: "mt-3 text-[11px] text-gray-600 leading-relaxed space-y-0.5"
@@ -3950,7 +4102,7 @@ var PhoneRentalApp = () => {
     }, {
       label: '카카오톡 상담',
       desc: '직원이 직접 답변드려요',
-      icon: Icons.Headphones,
+      icon: KakaoChIcon,
       onClick: () => setShowKakaoModal(true)
     }]
   }];
@@ -4239,7 +4391,7 @@ var PhoneRentalApp = () => {
       name: '고척 스카이돔',
       info: {
         place: '동양미래대학교 8호관 지하 주차장',
-        placeDetail: '서울 구로구 경인로 445 8호관 지하1층 (투썸플레이스 동양미래대점 바로 옆)',
+        placeDetail: '서울 구로구 경인로 445 8호관 지하1층 (써브웨이 동양미래대점 지하 1층)',
         mapQuery: '동양미래대학교 8호관',
         time: '사운드체크 1시간전 또는 공연시작 2시간전 예정',
         note: '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.',
@@ -5611,12 +5763,29 @@ var PhoneRentalApp = () => {
     var dateKey = `${year}-${month + 1}-${day}`;
     return startDate.getDay() === 0 || !!HOLIDAYS[dateKey];
   })();
+  // [NEW 11-07] 택배 도착 예정일 (오후 3시 마감·토요일 미발송·일요일/공휴일 미배송 반영)
+  var postArrival = startDate ? getPostArrivalForStart(startDate) : null;
+  var isPostTooLate = !!(postArrival && postArrival.blocked);
+  // 마감(오후 3시) 순간에 화면을 다시 그려 도착 예정일·택배 마감 여부를 자동 갱신
+  var [postCutoffTick, setPostCutoffTick] = useState(0);
+  var postDeadlineMs = postArrival && !postArrival.blocked ? postArrival.deadlineMs : 0;
+  useEffect(() => {
+    if (!postDeadlineMs) return;
+    var wait = postDeadlineMs - Date.now() + 500;
+    if (wait <= 0 || wait > 2147483000) return;
+    var id = setTimeout(() => setPostCutoffTick(t => t + 1), wait);
+    return () => clearTimeout(id);
+  }, [postDeadlineMs, postCutoffTick]);
+  // 마감이 지나 택배로 대여일까지 못 받게 되면, 이미 고른 택배 수령을 해제
+  useEffect(() => {
+    if (isPostTooLate && deliveryMethod === 'post') setDeliveryMethod(null);
+  }, [isPostTooLate, deliveryMethod]);
   var isPostPickupBlocked = startDate && (() => {
     var year = startDate.getFullYear();
     var month = startDate.getMonth() + 1;
     var day = startDate.getDate();
     var dateKey = `${year}-${month}-${day}`;
-    return BLOCKED_POST_PICKUP_DATES.includes(dateKey);
+    return BLOCKED_POST_PICKUP_DATES.includes(dateKey) || isPostTooLate;
   })();
   var isVenuePickupBlocked = startDate && (() => {
     var year = startDate.getFullYear();
@@ -6978,11 +7147,11 @@ var PhoneRentalApp = () => {
       await handleLookup(lookupName, lookupPhone, true);
     }
   };
-  // [NEW] 2026-11-04 반납 등기번호 — 우체국 등기번호는 6 또는 7로 시작하는 13자리 숫자
-  var RETURN_TRACK_RE = /^[67]\d{12}$/;
-  // 우체국택배가 아니면 택배사를 고르고 숫자는 자유롭게 입력
+  // [NEW] 2026-11-04 반납 등기번호 — 2026-11-09 시작 숫자(6/7) 제한 삭제: 모든 택배사 숫자만, 최대 13자리
+  var RETURN_TRACK_MAX = 13;
+  var RETURN_TRACK_RE = /^\d{1,13}$/;
   var RETURN_COURIERS = ['우체국택배', 'CJ대한통운', '한진택배', '롯데택배', '로젠택배', 'CU 편의점택배', 'GS 편의점택배', '기타'];
-  var isReturnTrackValid = (courier, no) => (courier || '우체국택배') === '우체국택배' ? RETURN_TRACK_RE.test(no) : /^\d{1,30}$/.test(no);
+  var isReturnTrackValid = (courier, no) => RETURN_TRACK_RE.test(no);
   // 관리자가 삭제한 예약(deleted_at)은 등록 불가라 목록에서 뺀다
   var returnTrackTargets = () => (lookupResult || []).filter(r => !r.deleted_at && !REQUEST_CATEGORIES.includes(r.category) && !/취소|환불/.test(r.status || '') && !getLinkedRequests(r).some(q => q.category === '취소신청'));
   var returnTrackFormFor = item => ({ id: item.id, no: item.returnTrackingNumber || '', courier: item.returnCourier || '우체국택배', saving: false });
@@ -7004,7 +7173,7 @@ var PhoneRentalApp = () => {
   var submitReturnTrack = async () => {
     var no = (returnTrack.no || '').replace(/\D/g, '');
     if (!isReturnTrackValid(returnTrack.courier, no)) {
-      showAppToast(returnTrack.courier === '우체국택배' ? '등기번호는 6 또는 7로 시작하는 13자리 숫자예요' : '송장번호를 숫자로 입력해주세요');
+      showAppToast('등기번호를 숫자로 입력해주세요 (최대 13자리)');
       return;
     }
     setReturnTrack(Object.assign({}, returnTrack, { saving: true }));
@@ -7951,9 +8120,9 @@ var PhoneRentalApp = () => {
     className: "text-[11px] text-gray-500 mb-4 leading-snug bg-white p-2 rounded-lg border border-gray-100 text-center"
   }, "단, 밤~새벽시간대는 답변이 늦을 순 있으나", React.createElement("br", null), "정상적으로 대여하실 수 있게", React.createElement("br", null), "최대한 도움 드리도록 하겠습니다!"), React.createElement("button", {
     onClick: () => setShowKakaoModal(true),
-    className: "w-full bg-[#FAE100] text-[#373737] py-3.5 rounded-xl text-sm font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-2"
-  }, React.createElement(Icons.MessageLines, {
-    size: 18
+    className: "w-full kch-bar py-3.5 rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2"
+  }, React.createElement(KakaoChIcon, {
+    size: 26
   }), " 카카오톡 채널 문의하기")))));
   // [NEW] 예약 최종 확인 단계: 카카오톡 채널 친구 추가 권장 안내 (일반 예약·콘서트 패키지 공용)
   // 홈 화면 체크 카드(파란 체크 원 + 연한 파란 카드)와 같은 스타일
@@ -8430,8 +8599,8 @@ React.createElement("div", {
       target: "_blank",
       rel: "noopener",
       className: "oh-kakao-cta"
-    }, React.createElement(Icons.MessageLines, {
-      size: 18
+    }, React.createElement(KakaoChIcon, {
+      size: 26
     }), "1:1 카카오톡 문의하기")));
   };
     var renderQnaPage = () => {
@@ -8655,14 +8824,154 @@ React.createElement("div", {
         className: "bg-red-50 p-3 rounded-xl border border-red-100 text-[11px] text-red-600 font-bold text-center break-keep leading-snug"
       }, "🚨 택배 발송 이후 또는 당일 예약은 환불이 불가합니다."), React.createElement("p", {
         className: "text-center text-[11px] break-keep mt-2 text-gray-500 leading-snug"
-      }, "취소를 원하신다면 아래 버튼을 눌러 카카오톡 채널로 문의해주세요. 직원이 빠르게 도와드릴게요! 💖"), React.createElement("button", {
-        onClick: () => setShowKakaoModal(true),
-        className: "w-full bg-yellow-400 text-white py-3 rounded-xl font-bold shadow-sm hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2"
-      }, React.createElement(Icons.MessageLines, {
-        size: 18
-      }), " 카카오톡 1:1 취소 접수하기"))
+      }, "취소를 원하시면 아래 버튼을 눌러 마이페이지에서 바로 신청해 주세요. 확인 후 알림톡으로 안내해 드릴게요! 💖"), React.createElement("button", {
+        // [NEW] 2026-11-09 취소는 마이페이지에서 직접 신청 가능 → 카카오 상담 대신 취소·환불 신청 화면으로
+        onClick: () => {
+          setServiceTarget(null);
+          setActiveNav('my');
+          setViewMode('cancelPicker');
+          window.scrollTo(0, 0);
+        },
+        className: "w-full bg-red-50 text-red-500 border border-red-100 py-3 rounded-xl font-bold shadow-sm hover:bg-red-100 transition-colors flex items-center justify-center gap-2 text-sm"
+      }, React.createElement("i", {
+        className: "fa-solid fa-calendar-xmark"
+      }), " 마이페이지에서 취소·환불 신청하기"))
     }];
-    // [NEW] 키워드 기반 폴백 (AI 실패/미설정 시 사용) — 기존 로직 보존
+    // [NEW] 2026-11-09 챗봇 업그레이드 — 마이페이지에서 손님이 직접 처리할 수 있는 일은 상담원 대신 해당 화면 버튼으로 안내
+    // 챗봇 버튼이 이동할 화면 (마이페이지 '예약 관리' 메뉴와 같은 동작)
+    var goMy = vm => () => {
+      setServiceTarget(null);
+      setActiveNav('my');
+      setViewMode(vm);
+      window.scrollTo(0, 0);
+    };
+    var CHAT_GO = {
+      extend: { label: '대여 연장 신청하기', fa: 'fa-calendar-plus', run: goMy('extension') },
+      cancel: { label: '예약 취소·환불 신청하기', fa: 'fa-calendar-xmark', run: goMy('cancelPicker') },
+      change: { label: '대여 모델 변경 신청하기', fa: 'fa-mobile-screen-button', run: goMy('changePicker') },
+      address: { label: '배송지 주소 변경하기', fa: 'fa-house', run: goMy('addressPicker') },
+      courier: { label: '방문택배 신청하기', fa: 'fa-truck-fast', run: () => { goMy('courierPicker')(); updateURLForNav('courier'); } },
+      backupApply: { label: '데이터 백업 대행 신청하기', fa: 'fa-hard-drive', run: goMy('backupApply') },
+      backupChoice: { label: '백업 방법 고르기', fa: 'fa-cloud-arrow-up', run: () => { setViewMode('backupChoice'); updateURLForNav('backup-choice'); window.scrollTo(0, 0); } },
+      returnTrack: { label: '반납 등기번호 등록하기', fa: 'fa-barcode', run: () => openReturnTrack() },
+      pickupTime: { label: '수령 희망 시간 알려주기', fa: 'fa-clock', run: () => openPickupTime() },
+      lookup: { label: '내 예약 조회하기', fa: 'fa-magnifying-glass', run: () => handleNavChange('mypage') },
+      rental: { label: '바로 예약하기', fa: 'fa-calendar-check', run: () => handleRentalStart() },
+      returnGuide: { label: '반납 방법 자세히 보기', fa: 'fa-box', run: () => { setViewMode('returnGuide'); updateURLForNav('return'); window.scrollTo(0, 0); } },
+      pickupGuide: { label: '수령 방법 자세히 보기', fa: 'fa-box-open', run: () => { setViewMode('pickupGuide'); updateURLForNav('pickup'); window.scrollTo(0, 0); } },
+      venuePickup: { label: '공연장 픽업존 보기', fa: 'fa-location-dot', run: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); window.scrollTo(0, 0); } },
+      camera: { label: '카메라 세팅 가이드 보기', fa: 'fa-camera', run: () => { setViewMode('cameraSettings'); updateURLForNav('camera-galaxy'); window.scrollTo(0, 0); } },
+      logout: { label: '로그아웃·초기화 방법 보기', fa: 'fa-arrows-rotate', run: () => { setViewMode('logoutGuide'); updateURLForNav('logout'); window.scrollTo(0, 0); } },
+      tips: { label: '대여 꿀팁 보기', fa: 'fa-lightbulb', run: () => { setViewMode('tipsGuide'); updateURLForNav('tips'); window.scrollTo(0, 0); } }
+    };
+    // 의도 목록 — 위에서부터 우선. test는 공백 없앤 소문자 문장(q)으로 판단
+    var CHANGE_WORD = '(변경|바꾸|바꿔|바꿀|바꾼|바뀌|교체|수정)';
+    var CHAT_INTENTS = [{
+      id: 'method',
+      test: q => new RegExp(`(수령|반납|받는|배송)(하는)?(방법|방식)(을|도)?${CHANGE_WORD}|(택배|공연장|퀵|사무실|방문)(수령|반납)?으로${CHANGE_WORD}`).test(q),
+      text: '수령·반납 방법 변경은 일정과 기사님 배정을 함께 확인해야 해서 홈페이지에서 직접 바꿀 수 없어요 🙏\n\n아래 카카오톡 상담으로 예약자 성함과 바꾸고 싶은 방법을 남겨주시면 확인 후 바로 변경해 드릴게요!',
+      kakao: true
+    }, {
+      id: 'returnTrack',
+      test: q => /등기|운송장|택배번호|송장/.test(q) && (/등기/.test(q) || /반납|보냈|부쳤|붙였|접수했|입력|등록|알려드|알려줘야|어디에|어디다/.test(q)),
+      text: '반납하실 때 받은 등기(송장)번호는 마이페이지 [반납 등기번호]에서 직접 등록하실 수 있어요! 📮\n\n예약자 확인 → 예약 선택 → 택배사·번호 입력 순서로 1분이면 끝나요. 등록해 주시면 저희가 바로 배송 상황을 확인할게요.',
+      go: ['returnTrack']
+    }, {
+      id: 'pickupTime',
+      test: q => /(수령|픽업|받는|받을|만나는|만날|전달)(희망)?(시간|시각)|몇시(쯤|에)?(수령|받|만나|픽업|전달)|희망시간|수령시간|시간조사/.test(q),
+      text: '공연장 수령을 원하시는 시간은 마이페이지 [수령 시간 조사]에서 직접 골라 알려주실 수 있어요! 🕒\n(최대 2개 선택, \'시간 상관없어요\'도 가능)\n\n보통 사운드체크 1시간 전 또는 공연 2시간 전쯤 공연장 근처에서 전달해 드리고, 확정된 장소·시간은 대여 시작 1일 전 알림톡으로 안내해 드려요.',
+      go: ['pickupTime', 'venuePickup']
+    }, {
+      id: 'extend',
+      test: q => /연장|하루더|이틀더|며칠더|더(쓰|빌리|빌릴|사용)|기간(을)?(늘|추가)|반납일(을)?(미루|늦추|변경|바꾸|바꿀)/.test(q),
+      text: '대여 연장은 마이페이지 [대여 연장]에서 직접 신청하실 수 있어요! 📅\n\n다음 예약 일정이 비어 있다면 연장 가능하고, 신청하시면 확인 후 알림톡으로 안내해 드려요. 반납 예정일 전에 미리 신청해 주시는 게 가장 좋아요!',
+      go: ['extend']
+    }, {
+      id: 'late',
+      test: q => /늦을|늦어|늦게|지연|연체|못보낼|못부칠|반납(을)?못/.test(q),
+      text: '반납이 늦어질 것 같으시다면 먼저 마이페이지 [대여 연장]으로 기간을 늘려 주세요! 📅\n\n사전 연락 없이 반납이 늦어지면 다음 고객님께 피해가 가서 연체료가 발생할 수 있어요. 연장이 어려운 급한 상황이라면 카카오톡으로 바로 알려주세요 🙏',
+      go: ['extend'],
+      kakao: true
+    }, {
+      id: 'change',
+      test: q => new RegExp(`(모델|기종|기기|폰|핸드폰|휴대폰|갤럭시|아이폰|울트라|프로맥스|플러스|s\\d+|z?플립|폴드).*${CHANGE_WORD}|${CHANGE_WORD}.*(모델|기종)|다른(모델|기종|폰)`).test(q),
+      text: '대여 모델 변경은 마이페이지 [모델 변경]에서 직접 신청하실 수 있어요! 📱\n\n원하시는 기종이 같은 날짜에 남아 있으면 변경되고, 차액이 있으면 신청 화면에서 함께 안내해 드려요.',
+      go: ['change']
+    }, {
+      id: 'address',
+      test: q => /배송지|받는곳|받을곳|이사/.test(q) || new RegExp(`주소.*(${CHANGE_WORD.slice(1, -1)}|잘못|틀렸|틀려|다른)|(${CHANGE_WORD.slice(1, -1)}).*주소`).test(q) && !/사무실/.test(q),
+      text: '택배 받으실 주소는 마이페이지 [주소 변경]에서 직접 바꾸실 수 있어요! 🏠\n\n다만 이미 발송된 뒤에는 주소를 바꿀 수 없으니, 발송 전에 꼭 미리 변경해 주세요.',
+      go: ['address']
+    }, {
+      id: 'cancel',
+      test: q => /취소|환불|위약금|못가|못갈|안가게|안갈|일정이?(생겨|바뀌|꼬)|티켓(팅)?(실패|망|못)/.test(q) && !/취소표/.test(q),
+      text: '예약 취소·환불은 마이페이지 [취소/환불]에서 직접 신청하실 수 있어요 😢\n\n📌 환불 규정\n· 결제 24시간 이내: 전액 환불\n· 결제 24시간 이후: 위약금 차감 후 환불\n· 대여 2일 전부터, 택배 발송 이후, 당일 예약: 환불 불가\n\n신청해 주시면 확인 후 알림톡으로 처리 결과를 안내해 드려요.',
+      go: ['cancel']
+    }, {
+      id: 'courier',
+      test: q => /방문택배|방문접수|수거|기사님(이|을|께)?(오|와|부르|불러|픽업|가져)|택배(기사)?(를)?(불러|예약|신청)|집(에서|앞)(으로|에서)?(반납|보내)/.test(q),
+      text: '집에서 편하게 반납하고 싶으시면 마이페이지 [방문택배 신청]을 이용해 주세요! 🚚\n\n신청해 두시면 반납일에 우체국 기사님이 방문해서 기기를 수거해 가요. 반납일 전날까지 미리 신청해 주시는 게 좋아요.',
+      go: ['courier', 'returnGuide']
+    }, {
+      id: 'backupApply',
+      test: q => /백업|옮겨|데이터|촬영본|원본/.test(q) && /신청|맡기|맡길|대행|해주|해줄|부탁/.test(q),
+      text: '촬영본 백업을 저희가 대신 해드리는 [백업 대행]은 마이페이지 [백업 신청]에서 직접 신청하실 수 있어요! 💾\n\n직접 옮기고 싶으시면 [백업 방법 고르기]에서 마이박스 등 셀프 백업 방법도 확인하실 수 있어요.',
+      go: ['backupApply', 'backupChoice']
+    }, {
+      id: 'lookup',
+      test: q => /예약(이)?(확인|조회|내역|됐|되었|된건|상태|잘|들어)|내예약|입금(확인|했|완료)|결제(했|확인|완료|됐)|확정(됐|되었|확인|이)|신청(확인|내역|됐)/.test(q),
+      text: '예약 상태는 [내 예약 조회]에서 성함과 연락처만 입력하시면 바로 확인하실 수 있어요! 🔍\n\n결제 후 확정까지는 보통 조금 걸리고, 확정되면 알림톡으로도 안내해 드려요.',
+      go: ['lookup']
+    }, {
+      id: 'human',
+      test: q => /상담원|상담사|상담(하고|원해|받고|연결|가능)|사람(이랑|과|한테|이)?(연결|얘기|대화|상담)|직원(이랑|과|한테|분)?(연결|얘기|대화|상담)|카톡(으로)?(상담|문의)|카카오톡(으로)?(상담|문의)|전화(번호|상담|연결|하고)|고객센터|연결해/.test(q),
+      text: '상담원 연결을 원하시는군요! 💬\n\n아래 버튼을 눌러 카카오톡 채널로 남겨주시면 직원이 직접 답변드려요. (평일 10:00~17:00)\n\n💡 연장·취소·모델 변경·주소 변경·등기번호 등록은 마이페이지에서 바로 신청하실 수 있어 더 빨라요!',
+      kakao: true,
+      suggest: ['대여 연장', '예약 취소', '모델 변경', '반납 등기번호 등록']
+    }];
+    // FAQ 답변에 붙일 관련 화면 버튼
+    var FAQ_GO = {
+      "택배 수령은 언제 도착하나요? 송장번호는요?": ['lookup', 'pickupGuide'],
+      "공연장 수령은 언제, 어디서 만나나요?": ['pickupTime', 'venuePickup'],
+      "택배 반납 방법 알려주세요! (직접방문/방문택배)": ['courier', 'returnGuide'],
+      "공연장 반납(당일 반납)은 어떻게 진행되나요?": ['returnGuide'],
+      "사무실로 직접 반납하고 싶어요! 주소와 시간은요?": ['returnGuide'],
+      "반납일을 연장하고 싶어요 / 실수로 늦으면 어떻게 되나요?": ['extend'],
+      "사진이나 영상 백업(옮기기)은 어떻게 하나요?": ['backupChoice', 'backupApply'],
+      "대여기기 로그아웃은 어떻게 하나요?": ['logout'],
+      "예약 확정(결제)은 어떻게 확인하나요?": ['lookup'],
+      "예약 취소하고 싶어요. 환불 규정이 어떻게 되나요?": ['cancel']
+    };
+    var normQ = text => (text || '').toLowerCase().replace(/[\s?!.,~^ㅠㅜ]+/g, '');
+    var detectIntents = text => {
+      var q = normQ(text);
+      if (!q) return [];
+      var hits = CHAT_INTENTS.filter(it => it.test(q));
+      // 같은 일을 겹쳐 안내하지 않도록 정리
+      var ids = hits.map(h => h.id);
+      if (ids.includes('extend')) hits = hits.filter(h => h.id !== 'late' || !/연장/.test(q));
+      if (ids.includes('method')) hits = hits.filter(h => h.id !== 'change' && h.id !== 'address');
+      if (ids.includes('returnTrack')) hits = hits.filter(h => h.id !== 'courier' && h.id !== 'lookup');
+      if (ids.includes('backupApply')) hits = hits.filter(h => h.id !== 'lookup');
+      return hits.slice(0, 3);
+    };
+    // 의도 → 봇 메시지 (직접 처리 안내가 있으면 '상담원' 안내는 카카오 버튼만 덧붙임)
+    var buildIntentReply = hits => {
+      var self = hits.filter(h => h.id !== 'human');
+      var wantHuman = hits.some(h => h.id === 'human');
+      var main = self.length ? self : hits;
+      var go = [];
+      main.forEach(h => (h.go || []).forEach(g => { if (!go.includes(g)) go.push(g); }));
+      return {
+        sender: 'bot',
+        text: main.map(h => h.text).join('\n\n─────────\n\n'),
+        actions: go.slice(0, 3),
+        showKakaoBtn: wantHuman || main.some(h => h.kakao),
+        suggestions: main.length === 1 && main[0].suggest || null,
+        intentIds: main.map(h => h.id)
+      };
+    };
+    // 키워드 기반 폴백 (AI 실패/미설정 시 사용) — 기존 로직 보존 + 관련 화면 버튼/추천 질문 추가
     var getKeywordFallback = text => {
       var query = text.toLowerCase().replace(/\s+/g, '');
       var foundAnswer = null;
@@ -8683,13 +8992,15 @@ React.createElement("div", {
         if (score > 0 && score > maxScore) {
           maxScore = score;
           bestMatchAnswer = faq.a;
+          var bestFaqQ = faq.q;
         }
       }
       if (bestMatchAnswer) foundAnswer = bestMatchAnswer;
-      if (!foundAnswer) {
+      if (!foundAnswer && query.length > 1) {
         for (var _faq of faqsData) {
           if (typeof _faq.a === 'string' && _faq.a.toLowerCase().replace(/\s+/g, '').includes(query)) {
             foundAnswer = _faq.a;
+            bestFaqQ = _faq.q;
             break;
           }
         }
@@ -8708,26 +9019,41 @@ React.createElement("div", {
           isLookupInquiry = true;
         }
       }
+      if (!foundAnswer) {
+        // 모르는 질문: 바로 상담원으로 넘기기 전에 자주 찾는 메뉴를 먼저 제안
+        return {
+          sender: 'bot',
+          text: '앗, 질문을 정확히 이해하지 못했어요 😢\n\n혹시 아래 중에 찾으시는 내용이 있나요? 눌러보시면 바로 안내해 드릴게요.\n찾는 내용이 없으면 상담원에게 연결해 드릴게요!',
+          suggestions: ['대여 연장', '예약 취소', '모델 변경', '반납 등기번호 등록', '택배 반납 방법', '내 예약 조회'],
+          showKakaoBtn: true
+        };
+      }
       return {
         sender: 'bot',
-        text: foundAnswer ? foundAnswer : '앗, 죄송해요! 질문하신 내용은 아직 제가 완벽하게 배우지 못했어요 😢\n\n정확하고 빠른 안내를 위해 아래 카카오톡 상담 버튼을 눌러주세요!',
-        showKakaoBtn: !isRentalInquiry && !isLookupInquiry && (!foundAnswer || query.includes('카톡') || query.includes('상담') || query.includes('사람') || query.includes('환불') || query.includes('취소')),
+        text: foundAnswer,
+        actions: !isRentalInquiry && !isLookupInquiry && FAQ_GO[bestFaqQ] || null,
+        showKakaoBtn: !isRentalInquiry && !isLookupInquiry && /카톡|상담|사람|직원/.test(query),
         showRentalBtn: isRentalInquiry,
         showLookupBtn: isLookupInquiry
       };
     };
-    // [NEW] 봇 응답 텍스트로 상황 버튼(예약/조회/카톡) 자동 판단
+    // [NEW] 봇 응답 텍스트로 상황 버튼(예약/조회/마이페이지 기능/카톡) 자동 판단
     var deriveActionFlags = answer => {
       var a = (answer || '').toLowerCase();
       var wantRental = /예약하기|예약 화면|바로 예약|대여 가능|요금|금액|얼마|가격/.test(a);
       var wantLookup = /예약 조회|내 예약|조회하기|예약 내역/.test(a);
-      var wantKakao = /카카오톡|상담|환불|취소|직원/.test(a);
+      // 답변에 마이페이지 기능이 나오면 그 화면 버튼을 붙이고, 상담원 버튼은 정말 필요할 때만
+      var actions = detectIntents(a).filter(h => h.go && h.id !== 'lookup').reduce((acc, h) => acc.concat(h.go[0]), []).slice(0, 2);
+      var wantKakao = /상담원|카카오톡(으로|채널)?\s*(문의|상담|연락)|직원이 직접/.test(a);
       return {
-        showRentalBtn: wantRental && !wantLookup,
+        actions: actions.length ? actions : null,
+        showRentalBtn: wantRental && !wantLookup && !actions.length,
         showLookupBtn: wantLookup,
-        showKakaoBtn: wantKakao && !wantRental && !wantLookup
+        showKakaoBtn: wantKakao && !actions.length && !wantRental && !wantLookup
       };
     };
+    // 짧은 되묻기("어디서 해요?", "버튼 주세요")는 바로 앞 답변의 의도를 이어받음
+    var isFollowUp = q => q.length <= 12 && /^(그거|그건|그럼|그러면|거기|어디|어떻게|버튼|링크|바로가기|방법)|어디서|어디에|어떻게해|하는법/.test(q);
     var handleSendChatMessage = async text => {
       if (!text.trim() || isBotTyping) return;
       var userText = text;
@@ -8743,6 +9069,20 @@ React.createElement("div", {
       setChatMessages(prev => [...prev, newUserMsg]);
       setChatInput('');
       setIsBotTyping(true);
+      // [NEW] 2026-11-09 마이페이지에서 직접 처리할 수 있는 요청·상담 요청은 AI 대신 정해진 안내로 바로 답변 (항상 정확한 화면 버튼)
+      var hits = detectIntents(userText);
+      if (!hits.length && isFollowUp(normQ(userText))) {
+        var lastBot = chatMessages.slice().reverse().find(m => m.sender === 'bot' && m.intentIds && m.intentIds.length);
+        if (lastBot) hits = CHAT_INTENTS.filter(it => lastBot.intentIds.includes(it.id));
+      }
+      if (hits.length) {
+        var reply = buildIntentReply(hits);
+        setTimeout(() => {
+          setChatMessages(prev => [...prev, reply]);
+          setIsBotTyping(false);
+        }, 450);
+        return;
+      }
       // AI 호출을 위한 Edge Function URL (config에서 주입, 없으면 프로젝트 기본 경로)
       var fnBase = (window.SERINCAM_CONFIG && window.SERINCAM_CONFIG.SUPABASE_URL) || SUPABASE_URL;
       var aiUrl = fnBase ? fnBase.replace(/\/$/, '') + '/functions/v1/chatbot' : null;
@@ -8776,13 +9116,22 @@ React.createElement("div", {
         var data = await resp.json();
         var answer = (data && (data.reply || data.answer || data.text) || '').trim();
         if (!answer) throw new Error('빈 응답');
+        // [NEW] 2026-11-09 AI가 쓰는 마크다운 기호(**굵게**, # 제목)는 말풍선에서 그대로 보이므로 제거
+        answer = answer.replace(/\*\*(.+?)\*\*/g, '$1').replace(/^#{1,6}\s*/gm, '').replace(/^\s*[-*]\s+/gm, '· ');
         var flags = deriveActionFlags(answer);
+        // 같은 질문의 FAQ 매칭 결과에 관련 화면 버튼이 있으면 그걸 우선 사용
+        var faqFb = getKeywordFallback(userText);
+        var aiActions = faqFb.actions || flags.actions;
+        // AI도 이해 못 한 질문이면 추천 질문 + 상담원 버튼
+        var aiConfused = /이해하지 못|이해하기 어렵|잘 모르겠|답변드리기 어렵|정확히 이해/.test(answer) && !aiActions;
         pushBot({
           sender: 'bot',
           text: answer,
-          showKakaoBtn: flags.showKakaoBtn,
-          showRentalBtn: flags.showRentalBtn,
-          showLookupBtn: flags.showLookupBtn
+          actions: aiActions,
+          suggestions: aiConfused ? ['대여 연장', '예약 취소', '모델 변경', '반납 등기번호 등록', '택배 반납 방법', '내 예약 조회'] : null,
+          showRentalBtn: flags.showRentalBtn && !aiActions,
+          showLookupBtn: flags.showLookupBtn && !aiActions,
+          showKakaoBtn: aiConfused || flags.showKakaoBtn && !aiActions
         });
       } catch (e) {
         // 네트워크/키/타임아웃 실패 → 키워드 폴백으로 자연스럽게 대체
@@ -8800,7 +9149,7 @@ React.createElement("div", {
       var matchesAnswer = typeof faq.a === 'string' && faq.a.toLowerCase().includes(query);
       return matchesCategory && (matchesQuestion || matchesAnswer);
     });
-    var quickReplies = ["택배 반납 방법", "당일 수령 가능한가요?", "카메라 세팅 꿀팁", "반납 지연 시", "데이터 백업", "예약 어떻게 하나요?"];
+    var quickReplies = ["대여 연장", "예약 취소", "모델 변경", "반납 등기번호 등록", "공연장 수령 시간", "택배 반납 방법", "데이터 백업", "카메라 세팅 꿀팁", "예약 어떻게 하나요?"];
     return React.createElement("div", {
       className: "animate-slide-in space-y-4 pb-20"
     }, React.createElement("div", {
@@ -8841,11 +9190,28 @@ React.createElement("div", {
       className: `max-w-[75%] p-3.5 text-[13px] leading-relaxed rounded-2xl shadow-sm ${msg.sender === 'user' ? 'bg-blue-500 text-white rounded-tr-sm' : 'bg-white text-gray-700 border border-gray-100 rounded-tl-sm'}`
     }, React.createElement("div", {
       className: "whitespace-pre-wrap font-medium break-keep"
-    }, msg.text), msg.showKakaoBtn && React.createElement("button", {
+    }, msg.text), msg.actions && msg.actions.length > 0 && React.createElement("div", {
+      className: "mt-3 space-y-1.5"
+    }, msg.actions.filter(k => CHAT_GO[k]).map((k, i) => React.createElement("button", {
+      key: k,
+      onClick: CHAT_GO[k].run,
+      className: `w-full py-2.5 px-3 rounded-xl text-[11px] font-bold shadow-sm transition-colors flex items-center justify-center gap-1.5 ${i === 0 ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-white text-blue-500 border border-blue-200 hover:bg-blue-50'}`
+    }, React.createElement("i", {
+      className: `fa-solid ${CHAT_GO[k].fa}`,
+      style: { fontSize: 12 }
+    }), " ", CHAT_GO[k].label, React.createElement(Icons.ChevronRight, {
+      size: 12
+    })))), msg.suggestions && msg.suggestions.length > 0 && React.createElement("div", {
+      className: "mt-3 flex flex-wrap gap-1.5"
+    }, msg.suggestions.map(s => React.createElement("button", {
+      key: s,
+      onClick: () => handleSendChatMessage(s),
+      className: "px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 text-[11px] font-bold rounded-full hover:bg-blue-100 transition-colors"
+    }, s))), msg.showKakaoBtn && React.createElement("button", {
       onClick: () => setShowKakaoModal(true),
-      className: "mt-3 w-full bg-[#FAE100] text-[#373737] py-2.5 rounded-xl text-[11px] font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-1.5"
-    }, React.createElement(Icons.MessageLines, {
-      size: 14
+      className: "mt-3 w-full kch-bar py-2.5 rounded-xl text-[11px] font-bold shadow-sm transition-colors flex items-center justify-center gap-1.5"
+    }, React.createElement(KakaoChIcon, {
+      size: 22
     }), " 상담원 연결하기"), msg.showRentalBtn && React.createElement("button", {
       onClick: () => handleRentalStart(),
       className: "mt-3 w-full bg-blue-500 text-white py-2.5 rounded-xl text-[11px] font-bold shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-1.5"
@@ -8984,9 +9350,9 @@ React.createElement("div", {
       className: "text-[11px] text-gray-500 mb-5 leading-relaxed"
     }, "카카오톡으로 언제든지 편하게 문의해주세요!", React.createElement("br", null), "친절하고 빠르게 답변해 드릴게요 😊"), React.createElement("button", {
       onClick: () => setShowKakaoModal(true),
-      className: "w-full bg-[#FAE100] text-[#373737] py-3.5 rounded-xl font-bold shadow-sm hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-2 text-sm"
-    }, React.createElement(Icons.MessageLines, {
-      size: 18
+      className: "w-full kch-bar py-3.5 rounded-xl font-bold shadow-sm transition-colors flex items-center justify-center gap-2 text-sm"
+    }, React.createElement(KakaoChIcon, {
+      size: 26
     }), " 카카오톡 1:1 문의하기")));
   };
   var renderBlogModal = () => React.createElement("div", {
@@ -11466,9 +11832,9 @@ React.createElement("div", {
       className: "text-[10px] text-gray-400 mt-1 break-keep"
     }, "⚠️ 거리 기반 추정 금액으로 실제 카카오T퀵 요금과 다를 수 있어요."))))), React.createElement("button", {
       onClick: () => setShowKakaoModal(true),
-      className: "w-full bg-yellow-400 text-gray-800 py-3.5 rounded-2xl font-bold shadow-sm hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 text-sm"
-    }, React.createElement(Icons.MessageLines, {
-      size: 16
+      className: "w-full kch-bar py-3.5 rounded-2xl font-bold shadow-sm transition-colors flex items-center justify-center gap-2 text-sm"
+    }, React.createElement(KakaoChIcon, {
+      size: 24
     }), " 더 궁금한 점은 카카오톡 문의"));
   };
   // [NEW] 반납 방법 안내 페이지
@@ -11566,9 +11932,9 @@ React.createElement("div", {
       className: seg.indexOf('⚠️') === 0 ? "text-red-500" : "text-gray-800"
     }, seg) : seg))))))), React.createElement("button", {
       onClick: () => setShowKakaoModal(true),
-      className: "w-full bg-yellow-400 text-gray-800 py-3.5 rounded-2xl font-bold shadow-sm hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 text-sm"
-    }, React.createElement(Icons.MessageLines, {
-      size: 16
+      className: "w-full kch-bar py-3.5 rounded-2xl font-bold shadow-sm transition-colors flex items-center justify-center gap-2 text-sm"
+    }, React.createElement(KakaoChIcon, {
+      size: 24
     }), " 더 궁금한 점은 카카오톡 문의"));
   };
   // [NEW] 로그아웃 방법 전용 페이지 (기존 로그아웃 안내 팝업과 동일한 내용, 페이지로 분리)
@@ -11972,7 +12338,8 @@ React.createElement("div", {
     className: "ohg-note"
   }, "예약할 때 편하신 수령 방법을 고를 수 있어요. 날짜·지역에 따라 일부 방법은 마감될 수 있어요."), ['방법', '요금', '받는 때'], [{
     tab: '택배', icon: Icons.Truck, title: '택배 수령', fee: '+4,000원', when: '대여 하루 전 도착', badge: '가장 많이 이용',
-    points: ['대여 시작일 **1일 전 도착**을 원칙으로 우체국 택배로 보내요.', '예) 1월 10일 대여 → **1월 9일 도착 예정**', '송장번호는 발송 당일 저녁 **알림톡**으로 안내드려요.', '정확한 도착 시간은 담당 우체국 기사님께 문의하시면 가장 정확해요.']
+    points: ['대여 시작일 **1일 전 도착**을 원칙으로 우체국 택배로 보내요.', '택배 접수 마감은 **오후 3시**예요. 마감 후 예약하면 **다음 배송일**에 도착해요. (일요일·공휴일 제외)', '예) 목요일 오후 3시 전 → **금요일 도착** / 오후 3시 후 → **토요일 도착**', '**토요일은 발송하지 않아요.** 예) 금요일 오후 3시 후 → 월요일 발송 → **화요일 도착**', '**토요일 도착**은 대부분 도착하지만, 당일 우체국 사정에 따라 늦어질 수 있어요. **이로 인한 환불은 어려워요.**', '송장번호는 발송 당일 저녁 **알림톡**으로 안내드려요.'],
+    cta: React.createElement(PostCutoffTimer, null)
   }, {
     tab: '퀵', icon: Icons.Rocket, title: '퀵 수령', fee: '거리 비례', when: '주문 후 6시간 이내', badge: '당일 가능', hasQuickFee: true,
     points: ['카카오T 퀵으로 원하시는 장소까지 **바로 배송**해드려요.', '주문 후 **6시간 이내 도착** 예정이에요.', '요금은 거리에 따라 달라져요. 아래에서 미리 확인해보세요!']
@@ -12348,9 +12715,9 @@ React.createElement("div", {
     size: 16
   })), React.createElement("button", {
     onClick: () => setShowKakaoModal(true),
-    className: "w-full mt-3 bg-yellow-50 text-yellow-600 border border-yellow-100 py-4 rounded-xl font-bold hover:bg-yellow-100 transition-colors flex items-center justify-center gap-2"
-  }, React.createElement(Icons.MessageLines, {
-    size: 18
+    className: "w-full mt-3 kch-bar py-4 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
+  }, React.createElement(KakaoChIcon, {
+    size: 26
   }), " 1:1 문의하기")));
   var renderChecklistPage = () => React.createElement("div", {
     className: "animate-slide-in space-y-6"
@@ -13637,8 +14004,8 @@ React.createElement("div", {
         target: "_blank",
         rel: "noopener",
         className: "oh-kakao-cta"
-      }, React.createElement(Icons.MessageLines, {
-        size: 18
+      }, React.createElement(KakaoChIcon, {
+        size: 26
       }), "1:1 카카오톡 문의하기"))));
     }
 
@@ -13686,7 +14053,7 @@ React.createElement("div", {
     var courier = form && form.courier || '우체국택배';
     var isEpost = courier === '우체국택배';
     var valid = !!form && isReturnTrackValid(courier, digits);
-    var hint = !digits || !isEpost ? '' : !/^[67]/.test(digits) ? '6 또는 7로 시작해야 해요' : digits.length !== 13 ? `13자리 중 ${digits.length}자리 입력했어요` : '';
+    var hint = '';
     var setForm = patch => setReturnTrack(Object.assign({}, form, patch));
     return React.createElement("div", {
       className: "animate-slide-in"
@@ -13713,19 +14080,19 @@ React.createElement("div", {
       style: { flexWrap: 'wrap', gap: 6 }
     }, RETURN_COURIERS.map(c => React.createElement("button", {
       key: c,
-      onClick: () => setForm({ courier: c, no: c === '우체국택배' ? digits.slice(0, 13) : digits }),
+      onClick: () => setForm({ courier: c, no: digits.slice(0, RETURN_TRACK_MAX) }),
       className: "text-[12px] font-bold whitespace-nowrap shrink-0",
       style: { padding: '6px 10px', borderRadius: 999, border: `1px solid ${c === courier ? '#13A8DE' : '#EAEDEF'}`, background: c === courier ? '#F0FAFE' : '#fff', color: c === courier ? '#0A8CBC' : '#828C94' }
     }, c))), React.createElement("p", {
       className: "text-[12px] mb-1.5",
       style: { color: '#828C94' }
-    }, isEpost ? "우체국 영수증에 적힌 등기번호 13자리 (6 또는 7로 시작)" : "택배 영수증에 적힌 송장번호 (숫자만)"), React.createElement("input", {
+    }, isEpost ? "우체국 영수증에 적힌 등기번호 (숫자만, 최대 13자리)" : "택배 영수증에 적힌 송장번호 (숫자만, 최대 13자리)"), React.createElement("input", {
       type: "text",
       inputMode: "numeric",
       // maxLength를 걸면 '6012-3456-78901'처럼 붙여넣을 때 하이픈 포함 글자수로 먼저 잘려서, 숫자만 거른 뒤 onChange에서 자른다
       value: digits,
       placeholder: isEpost ? "예) 6012345678901" : "송장번호 (숫자만)",
-      onChange: e => setForm({ no: e.target.value.replace(/\D/g, '').slice(0, isEpost ? 13 : 30) }),
+      onChange: e => setForm({ no: e.target.value.replace(/\D/g, '').slice(0, RETURN_TRACK_MAX) }),
       onKeyPress: e => e.key === 'Enter' && valid && !form.saving && submitReturnTrack(),
       className: "w-full text-center text-[17px] font-bold tracking-wider outline-none",
       style: { padding: 13, borderRadius: 8, border: `1px solid ${hint ? '#F04452' : '#DADDE0'}`, color: '#2F3438' }
@@ -13817,8 +14184,8 @@ React.createElement("div", {
         target: "_blank",
         rel: "noopener",
         className: "oh-kakao-cta"
-      }, React.createElement(Icons.MessageLines, {
-        size: 18
+      }, React.createElement(KakaoChIcon, {
+        size: 26
       }), "1:1 카카오톡 문의하기"))));
     }
 
@@ -14726,6 +15093,10 @@ React.createElement("div", {
         triggerDeliveryErr('post', "🚨 당일 대여는 택배수령 불가");
         return;
       }
+      if (isPostTooLate) {
+        triggerDeliveryErr('post', "🚨 오후 3시 마감이 지나 대여일까지 도착이 어려워요");
+        return;
+      }
       if (isPostPickupBlocked) {
         triggerDeliveryErr('post', "🚨 해당 일자 택배수령 마감");
         return;
@@ -14742,14 +15113,13 @@ React.createElement("div", {
     className: deliveryErr === 'post' ? 'text-red-500' : isSameDayStart || isPostPickupBlocked ? 'text-gray-400' : 'text-blue-400'
   })), React.createElement("p", {
     className: "text-[11px] text-gray-400 mt-2 text-left leading-tight break-keep"
-  }, startDate ? (() => {
-    var prevDate = new Date(startDate);
-    prevDate.setDate(startDate.getDate() - 1);
-    var dayStr = daysOfWeek[prevDate.getDay()];
-    return React.createElement("span", {
-      className: "text-sky-600 font-bold"
-    }, prevDate.getMonth() + 1, "/", prevDate.getDate(), "(", dayStr, ") 택배 도착예정");
-  })() : '대여시작일 1일전 도착예정'), React.createElement("p", {
+  }, startDate && postArrival ? postArrival.blocked ? React.createElement("span", {
+    className: "text-gray-400 font-bold"
+  }, "가장 빠른 도착 ", postDateLabel(postArrival.earliest)) : React.createElement("span", {
+    className: `${postArrival.sameDay ? 'text-orange-500' : 'text-sky-600'} font-bold`
+  }, postArrival.label, postArrival.sameDay ? " 대여 당일 도착예정" : " 택배 도착예정") : '대여시작일 1일전 도착예정'), startDate && !isSameDayStart && !isPostPickupBlocked && React.createElement(PostReserveTimer, {
+    startDate: startDate
+  }), React.createElement("p", {
     className: `font-bold text-xs text-right mt-auto ${isSameDayStart || isPostPickupBlocked ? 'text-gray-400' : 'text-gray-700'}`
   }, isSameDayStart || isPostPickupBlocked ? '마감' : '+4,000원')), React.createElement("div", {
     onClick: () => {
@@ -15512,9 +15882,9 @@ React.createElement("div", {
   }, React.createElement("div", {
     className: "bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center transform scale-100 transition-all"
   }, React.createElement("div", {
-    className: "w-14 h-14 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4"
-  }, React.createElement(Icons.MessageLines, {
-    size: 28
+    className: "w-14 h-14 flex items-center justify-center mx-auto mb-4"
+  }, React.createElement(KakaoChIcon, {
+    size: 56
   })), React.createElement("h3", {
     className: "text-lg font-bold text-gray-800 mb-2"
   }, "카카오톡 상담 연결"), React.createElement("p", {
@@ -15576,13 +15946,16 @@ React.createElement("div", {
     className: "text-lg font-bold text-gray-800 mb-3 text-center"
   }, deliveryConfirmPopup === 'post' ? '택배 수령' : deliveryConfirmPopup === 'quick' ? '퀵 서비스' : deliveryConfirmPopup === 'venue' ? '공연장 수령' : '사무실 수령'), React.createElement("div", {
     className: "bg-sky-50 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed space-y-2 mb-5"
-  }, deliveryConfirmPopup === 'post' && React.createElement(React.Fragment, null, startDate && (() => {
-    var prevDate = new Date(startDate);
-    prevDate.setDate(startDate.getDate() - 1);
-    return React.createElement("p", {
-      className: "font-bold text-sky-600"
-    }, "📅 ", prevDate.getMonth() + 1, "/", prevDate.getDate(), "(", daysOfWeek[prevDate.getDay()], ") 도착예정");
-  })(), React.createElement("p", null, "우체국 택배로 안전하게 보내드려요."), React.createElement("p", {
+  }, deliveryConfirmPopup === 'post' && React.createElement(React.Fragment, null, postArrival && !postArrival.blocked && React.createElement("p", {
+    className: "font-bold text-sky-600"
+  }, "📅 ", postArrival.label, postArrival.sameDay ? " 도착예정 (대여 시작일 당일)" : " 도착예정"), postArrival && !postArrival.blocked && React.createElement(PostReserveTimer, {
+    startDate: startDate,
+    big: true
+  }), postArrival && !postArrival.blocked && postArrival.sameDay && React.createElement("p", {
+    className: "text-xs text-orange-600"
+  }, "오후 3시 마감이 지나 대여 시작일 당일에 도착해요. 일찍 받아야 한다면 다른 수령 방법을 골라주세요."), postArrival && !postArrival.blocked && postArrival.isSaturday && React.createElement("p", {
+    className: "text-xs text-orange-700 bg-orange-50 rounded-lg p-2 leading-relaxed"
+  }, "대부분 토요일에 도착하지만, 우체국 사정에 따라 간혹 배송이 지연될 수 있어요. 이로 인한 환불불가해요."), React.createElement("p", null, "우체국 택배로 안전하게 보내드려요."), React.createElement("p", {
     className: "text-xs text-gray-500"
   }, "⚠️ 배송 지연이 예상되는 경우, 공연장 수령으로 변경될 수 있어요.")), deliveryConfirmPopup === 'quick' && React.createElement(React.Fragment, null, React.createElement("p", {
     className: "font-bold text-sky-600"
