@@ -1033,8 +1033,27 @@
 .oh-rlist>div>div:first-child br{display:none}
 .oh-rlist>div>p:nth-child(2):not(:last-child){grid-column:2;grid-row:2;margin:0!important}
 .oh-rlist>div>p:last-child{grid-column:3;grid-row:1/span 2;margin:0!important;font-size:14px!important;text-align:right}
-.oh-rlist>div>div.post-rtimer{grid-column:2/span 2;grid-row:3;margin-top:6px!important}
-.oh-rlist>div[class*="border-sky-500"],.oh-rlist>div[class*="border-rose-500"],.oh-rlist>div[class*="border-green-500"]{background:var(--oh-soft)!important}
+.oh-rlist>div>div.post-rtimer{grid-column:2/span 2;grid-row:3;margin-top:8px!important}
+/* [NEW] 2026-11-09 공연장 안내 팝업 — 오는 길 사진 · 네이버 지도 버튼 (오늘의집 톤 A안) */
+.oh-vroute .h{font-size:15px;font-weight:700;color:#2F3438;margin:6px 0 10px}
+.oh-vroute .space-y-3>div{position:relative}
+.oh-vroute .space-y-3>div>p{font-size:12px;font-weight:600;color:#5E666C;margin-bottom:6px}
+.oh-vroute .pic{display:block;width:100%;border-radius:6px;background:#F7F8FA}
+.oh-vroute .chip{position:absolute;right:8px;bottom:8px;background:rgba(47,52,56,.72);color:#fff;font-size:11px;font-weight:600;border-radius:12px;padding:4px 9px;display:flex;align-items:center;gap:4px;pointer-events:none}
+.oh-vmap{width:100%;height:48px;border:1px solid #DADDE0;background:#fff;color:#2F3438;font-size:14px;font-weight:700;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s}
+.oh-vmap:hover{background:#F7F8FA}
+.oh-vmap .nmark{width:18px;height:18px;border-radius:4px;background:#03C75A;color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center;line-height:1}
+/* [NEW] 2026-11-09 예약 화면 택배 마감 타이머 — 오늘의집 톤 A안 (홈 배너 .ohg-post 타이머와 같은 회색 띠) */
+.oh-ptm{background:#F7F8FA;border-radius:6px;padding:9px 11px;text-align:left;word-break:keep-all}
+.oh-ptm.big{background:#fff;margin-top:4px}
+.oh-ptm .l{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#5E666C;line-height:1.3}
+.oh-ptm .l span{display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:0}
+.oh-ptm .l i{color:#13A8DE;font-size:12px}
+.oh-ptm strong{font-size:15px;font-weight:700;color:#2F3438;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.oh-ptm p{font-size:11.5px;color:#828C94;margin:4px 0 0;line-height:1.4}
+.oh-ptm.u .l i,.oh-ptm.u strong{color:#F04452}
+/* [CHANGED] 2026-11-09 선택된 수령·반납 방법: 하늘색 바탕 → 흰 바탕 + 하늘색 테두리 (오늘의집 선택 카드, A안) */
+.oh-rlist>div[class*="border-sky-500"],.oh-rlist>div[class*="border-rose-500"],.oh-rlist>div[class*="border-green-500"]{background:#fff!important;box-shadow:inset 0 0 0 1.5px var(--oh)!important;border-radius:6px!important}
 .oh-rlist>div[class*="border-sky-500"]::before,.oh-rlist>div[class*="border-rose-500"]::before,.oh-rlist>div[class*="border-green-500"]::before{border:6.5px solid var(--oh);animation:ohCheck .3s}
 .oh-rlist>div[class*="border-red-400"]::before{border-color:#FF7777}
 .oh-rlist .text-rose-500,.oh-rlist .text-sky-600{color:var(--oh-ink)!important}
@@ -2985,18 +3004,14 @@ var PostReserveTimer = ({
   var urgent = left < 3600;
   var when = r.deadlineToday ? '오늘 오후 3시' : `${r.deadlineLabel} 오후 3시`;
   var afterTxt = !after || after.blocked ? '택배 수령 마감' : after.sameDay ? `${after.label} 대여 당일 도착` : `${after.label} 도착`;
+  // [NEW] 2026-11-09 오늘의집 톤(A안) — 홈 배너 타이머처럼 회색 띠 + 시계 라인 아이콘, 마감 1시간 전부터 빨간색
   return React.createElement("div", {
-    className: `post-rtimer ${big ? 'rounded-xl px-3 py-2 mt-1 text-xs' : 'rounded-lg px-2 py-1.5 mt-1.5 text-[10.5px]'} ${urgent ? 'bg-red-50 text-red-600' : 'bg-white text-gray-600'} border ${urgent ? 'border-red-100' : 'border-sky-100'} leading-snug break-keep text-left`
+    className: `post-rtimer oh-ptm${big ? ' big' : ''}${urgent ? ' u' : ''}`
   }, React.createElement("div", {
-    className: "flex items-center justify-between gap-2"
-  }, React.createElement("span", null, "⏰ ", when, " 마감까지"), React.createElement("b", {
-    className: `${big ? 'text-base' : 'text-[13px]'} ${urgent ? 'text-red-500' : 'text-gray-800'}`,
-    style: {
-      fontVariantNumeric: 'tabular-nums'
-    }
-  }, p2(hh), ":", p2(mm), ":", p2(ss))), React.createElement("p", {
-    className: urgent ? 'text-red-400' : 'text-gray-400'
-  }, "마감 후 예약하면 ", afterTxt));
+    className: "l"
+  }, React.createElement("span", null, React.createElement("i", {
+    className: "fa-regular fa-clock"
+  }), when, " 마감"), React.createElement("strong", null, p2(hh), ":", p2(mm), ":", p2(ss))), React.createElement("p", null, "마감 후 예약하면 ", afterTxt));
 };
 var PostCutoffTimer = () => {
   var [now, setNow] = React.useState(Date.now());
@@ -16135,10 +16150,11 @@ React.createElement("div", {
   }, selectedVenue.info.time)), selectedVenue.info.note && React.createElement("p", {
     className: "text-[11px] text-red-500 mt-2 flex items-start gap-1"
   }, React.createElement("span", null, "*"), " ", selectedVenue.info.note), getVenueView(selectedVenue).images.length > 0 && React.createElement("div", {
-    className: "bg-gray-50 p-3 rounded-xl border border-gray-100"
+    // [CHANGED] 2026-11-09 오늘의집 톤 A안 — 회색 박스·이모지 제목 제거, '크게 보기'는 사진 위 칩으로
+    className: "oh-vroute"
   }, React.createElement("p", {
-    className: "text-xs font-bold text-gray-600 mb-2"
-  }, "🚶 오는 길"), React.createElement("div", {
+    className: "h"
+  }, "오는 길"), React.createElement("div", {
     className: "space-y-3"
   }, getVenueView(selectedVenue).images.map((im, i) => {
     // [NEW] 공연장 오는 길 사진 — serincam.com/venue-route/ 에 올린 사진 (다른 주소에서 열어도 serincam.com 사진을 불러와요)
@@ -16196,18 +16212,21 @@ React.createElement("div", {
         document.body.appendChild(ov);
         document.body.style.overflow = 'hidden';
       },
-      className: "w-full rounded-lg border border-gray-200 bg-white cursor-zoom-in"
-    }));
-  })), React.createElement("p", {
-    className: "text-[10.5px] text-gray-400 mt-2"
-  }, "사진을 누르면 크게 볼 수 있어요"))), React.createElement("div", {
-    className: "mt-6 flex flex-col gap-2"
+      className: "pic cursor-zoom-in"
+    }), React.createElement("span", {
+      className: "chip",
+      "aria-hidden": "true"
+    }, React.createElement("i", {
+      className: "fa-solid fa-magnifying-glass-plus"
+    }), " 크게 보기"));
+  })))), React.createElement("div", {
+    className: "mt-5 flex flex-col gap-2"
   }, React.createElement("button", {
     onClick: () => window.open(`https://map.naver.com/p/search/${encodeURIComponent(getVenueView(selectedVenue).mapQuery)}`, '_blank'),
-    className: `w-full py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 text-sm ${viewMode === 'rental' && step === 3 ? 'bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 shadow-sm' : 'bg-green-500 text-white hover:bg-green-600 shadow-md'}`
-  }, "네이버 지도로 자세히 보기 ", React.createElement(Icons.ExternalLink, {
-    size: 14
-  })), viewMode === 'rental' && step === 3 && React.createElement("button", {
+    className: "oh-vmap"
+  }, React.createElement("span", {
+    className: "nmark"
+  }, "N"), "네이버 지도로 보기"), viewMode === 'rental' && step === 3 && React.createElement("button", {
     onClick: () => {
       setUserInfo({
         ...userInfo,
@@ -16216,10 +16235,9 @@ React.createElement("div", {
       });
       setShowVenueInfoModal(false);
     },
-    className: "w-full bg-blue-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
-  }, React.createElement(Icons.CheckCircle, {
-    size: 16
-  }), " 이 공연장으로 선택하기")))), showConcertModal && selectedConcert && (() => {
+    className: "w-full h-[50px] rounded-md font-bold transition-colors flex items-center justify-center text-[15px] text-white",
+    style: { background: '#13A8DE' }
+  }, "이 공연장으로 선택하기")))), showConcertModal && selectedConcert && (() => {
     // [NEW] 공연 안내 — 오늘의집 톤 바텀시트: 공연 정보 → 공연장 수령 안내 → 하단 [닫기] [다음]
     var c = selectedConcert;
     var info = findVenueInfo(c.venue);
