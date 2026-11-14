@@ -14744,7 +14744,41 @@ React.createElement("div", {
     onBook: () => handleRentalStart(),
     onVenue: () => { setViewMode('venuePickup'); updateURLForNav('venue-pickup'); },
     onPackage: goOhPackageList
-  })), renderOhDeal(), renderOhSeatRec(), renderOhReviews(), React.createElement(OhTopFab, null), React.createElement("div", {
+  })), /* [CHANGED] 2026-11-14 홈 순서: 패키지 → 리뷰 → 좌석별 추천 → 공연장 → 가이드북 → 다른 플랫폼 후기 */ renderOhDeal(), renderOhReviews(), renderOhSeatRec(), React.createElement(OhTopFab, null), React.createElement("div", {
+    id: "venue-section",
+    className: "oh-sec scroll-mt-24"
+  }, (() => {
+    // [NEW] 오늘의집 구성: 밑줄 지역 탭(공연장 수) → 2줄 목록(아이콘 · 이름 · 정보보기)
+    var clean = v => String(v || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').trim();
+    return React.createElement(React.Fragment, null, renderOhHead(clean(t('venueTitle')), React.createElement("span", {
+      className: "oh-vbadge"
+    }, clean(t('venueBadge')))), React.createElement("div", {
+      className: "oh-vtabs"
+    }, ['Seoul', 'Incheon', 'Gyeonggi'].map(region => React.createElement("button", {
+      key: region,
+      className: venueTab === region ? 'on' : '',
+      onClick: () => setVenueTab(region)
+    }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기', React.createElement("span", null, (venueList[region] || []).length)))), React.createElement("div", {
+      className: "oh-vlist",
+      key: venueTab
+    }, venueList[venueTab].map((v, i) => React.createElement("button", {
+      key: i,
+      onClick: () => {
+        if (v.info) {
+          setSelectedVenue(v);
+          setShowVenueInfoModal(true);
+        } else {
+          window.open(`https://map.naver.com/p/search/${v.name}`, '_blank');
+        }
+      }
+    }, React.createElement("div", {
+      className: "ic"
+    }, React.createElement("i", {
+      className: "fa-solid fa-location-dot"
+    })), React.createElement("div", {
+      className: "min-w-0"
+    }, React.createElement("b", null, v.name), React.createElement("span", null, v.info ? '정보보기 ›' : '위치보기 ›'))))));
+  })()), React.createElement("div", {
     id: "home-tips-section",
     className: "oh-sec"
   }, (() => {
@@ -14791,40 +14825,6 @@ React.createElement("div", {
       onClick: goTips,
       className: "oh-gbtn"
     }, "꿀팁 더 보기"));
-  })()), React.createElement("div", {
-    id: "venue-section",
-    className: "oh-sec scroll-mt-24"
-  }, (() => {
-    // [NEW] 오늘의집 구성: 밑줄 지역 탭(공연장 수) → 2줄 목록(아이콘 · 이름 · 정보보기)
-    var clean = v => String(v || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').trim();
-    return React.createElement(React.Fragment, null, renderOhHead(clean(t('venueTitle')), React.createElement("span", {
-      className: "oh-vbadge"
-    }, clean(t('venueBadge')))), React.createElement("div", {
-      className: "oh-vtabs"
-    }, ['Seoul', 'Incheon', 'Gyeonggi'].map(region => React.createElement("button", {
-      key: region,
-      className: venueTab === region ? 'on' : '',
-      onClick: () => setVenueTab(region)
-    }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기', React.createElement("span", null, (venueList[region] || []).length)))), React.createElement("div", {
-      className: "oh-vlist",
-      key: venueTab
-    }, venueList[venueTab].map((v, i) => React.createElement("button", {
-      key: i,
-      onClick: () => {
-        if (v.info) {
-          setSelectedVenue(v);
-          setShowVenueInfoModal(true);
-        } else {
-          window.open(`https://map.naver.com/p/search/${v.name}`, '_blank');
-        }
-      }
-    }, React.createElement("div", {
-      className: "ic"
-    }, React.createElement("i", {
-      className: "fa-solid fa-location-dot"
-    })), React.createElement("div", {
-      className: "min-w-0"
-    }, React.createElement("b", null, v.name), React.createElement("span", null, v.info ? '정보보기 ›' : '위치보기 ›'))))));
   })()), React.createElement("div", {
     className: "oh-sec",
     style: { borderBottom: 0, marginBottom: 24 }
