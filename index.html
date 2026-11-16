@@ -3910,6 +3910,7 @@ var PhoneRentalApp = () => {
   var [selectedConcert, setSelectedConcert] = useState(null);     // [NEW] 선택된 공연
   var [isPackage, setIsPackage] = useState(false);                // [NEW] 콘서트 패키지 예약 모드
   var [packageConcert, setPackageConcert] = useState(null);       // [NEW] 패키지 대상 공연
+  var [packageDates, setPackageDates] = useState([]);             // [NEW] 2026-11-17 관람할 공연 날짜 (여러 날 선택 가능, 오름차순)
   var [showKakaoFriendModal, setShowKakaoFriendModal] = useState(false); // [NEW] 예약 시작 시 카카오톡 채널 친구 추가 안내
   var [showAllServices, setShowAllServices] = useState(false); // [NEW] 홈 화면 서비스 아이콘 접기/펼치기
   var [showDateGuide, setShowDateGuide] = useState(false);
@@ -4925,13 +4926,26 @@ var PhoneRentalApp = () => {
   // [NEW] 2026-11-09 패키지 수령 방법 추가 — 공연장 2,000(패키지 할인) · 택배 4,000 · 사무실 무료 (일반 예약과 같은 요금)
   var PACKAGE_PICKUP_FEES = { venue: PACKAGE_VENUE_FEE, post: 4000, office: 0 };
   var getPackagePickupFee = () => PACKAGE_PICKUP_FEES[deliveryMethod] != null ? PACKAGE_PICKUP_FEES[deliveryMethod] : PACKAGE_VENUE_FEE;
-  var getPackageReviewedPrice = phone => phone.basePrice + getPackagePickupFee() - 1000 - (discounts.twitter ? 5000 : 0) - (discounts.blog ? 5000 : 0) - (discounts.kakao ? 2000 : 0) - (discounts.homepage ? 2000 : 0) - getFollowDiscount();
+  // [CHANGED] 2026-11-17 관람 날짜 여러 개 → 예약하기와 같은 요금: 1일 요금 + (대여일수 − 1) × 추가 1일 요금
+  // 대여일수 = 고른 관람 날짜 수만 (11/21·11/23 선택 → 2일, 사이 날짜는 계산 안 함). 수령비·계좌이체·리뷰 할인은 예약 1건당 한 번
+  var getPackageDayCount = () => Math.max(1, packageDates.length);
+  var getPackageRentalPrice = phone => {
+    var n = getPackageDayCount();
+    return n <= 1 ? phone.basePrice : phone.basePrice + (n - 1) * phone.addPrice;
+  };
+  var getPackageReviewedPrice = phone => getPackageRentalPrice(phone) + getPackagePickupFee() - 1000 - (discounts.twitter ? 5000 : 0) - (discounts.blog ? 5000 : 0) - (discounts.kakao ? 2000 : 0) - (discounts.homepage ? 2000 : 0) - getFollowDiscount();
   var pkgAddDays = (d, n) => {
     var x = new Date(d);
     x.setDate(x.getDate() + n);
     return x;
   };
   var pkgFmt = d => `${d.getMonth() + 1}/${d.getDate()}(${CONCERT_WEEKDAYS[d.getDay()]})`;
+  // [NEW] 2026-11-17 고른 관람 날짜 표시: 모두 이어지면 '첫날~마지막날', 아니면 쉼표로 한 줄
+  var pkgDatesLabel = list => {
+    if (list.length < 2) return list.length ? pkgFmt(list[0]) : '';
+    var linked = list.every((d, i) => i === 0 || Math.round((d - list[i - 1]) / 86400000) === 1);
+    return linked ? `${pkgFmt(list[0])}~${pkgFmt(list[list.length - 1])}` : list.map(pkgFmt).join(', ');
+  };
   // 공연 기간 중 패키지로 고를 수 있는 날짜 (지난 날짜·공연장 수령 마감일은 비활성)
   var getPackageDates = c => {
     if (!c || !c._start) return [];
@@ -4970,7 +4984,11 @@ var PhoneRentalApp = () => {
     setStartDate(null);
     setEndDate(null);
     setSelectedPhone(null);
-    preselectMaxDiscounts(); // [NEW] 패키지가(최대 할인가)와 같은 금액으로 시작
+    setPackageDates([]);
+    // [CHANGED] 2026-11-17 리뷰·팔로우 할인은 미리 선택하지 않음 → '리뷰 할인이 필요하신가요?'를 눌러 직접 선택
+    clearReviewDiscounts();
+    clearFollowDiscounts();
+    setReviewOpen(true); // [CHANGED] 2026-11-17 리뷰 할인은 펼친 상태가 기본 (선택은 안 된 상태)
     setPaymentMethod('transfer'); // 패키지는 계좌이체 고정
     setUserInfo(u => ({
       ...u,
@@ -4980,9 +4998,14 @@ var PhoneRentalApp = () => {
       // [NEW] 환불 계좌는 일반 예약처럼 3단계에서 입력받으므로 이미 입력한 값은 그대로 둠
     }));
   };
+  // [CHANGED] 2026-11-17 관람 날짜 중복 선택 — 누르면 추가/해제. 수령 = 첫 날짜, 반납 = 마지막 날짜 기준 자동
   var selectPackageDate = d => {
-    setStartDate(d);
-    setEndDate(d);
+    var t = d.getTime();
+    var next = packageDates.some(x => x.getTime() === t) ? packageDates.filter(x => x.getTime() !== t) : [...packageDates, new Date(d)];
+    next.sort((a, b) => a - b);
+    setPackageDates(next);
+    setStartDate(next.length ? next[0] : null);
+    setEndDate(next.length ? next[next.length - 1] : null);
     setSelectedPhone(null); // 날짜가 바뀌면 기종별 재고가 달라질 수 있어 다시 고르게 함
   };
   // 1단계: 공연 날짜 선택 + 반납일 자동 + 이용 방법 모션그래픽
@@ -4991,7 +5014,8 @@ var PhoneRentalApp = () => {
     if (!c) return null;
     var dates = getPackageDates(c);
     var sel = startDate;
-    var ret = sel ? getReturnDate(sel, 'post') : null;
+    var ret = endDate ? getReturnDate(endDate, 'post') : null; // [CHANGED] 2026-11-17 마지막 관람 날짜 기준
+    var selCount = packageDates.length;
     // [NEW] 2026-10-31 패키지 이용 방법 모션그래픽 (공연 정보 바로 아래, 공연 날짜 위). 파스텔 톤
     // anim: 단계별 움직임 1 핀 · 3 종 · 4 상자 · 5 연필 · 6 별 반짝 / color: 선택 아이콘·진행선 / soft: 연한 배경 / ink: 글자·큰 아이콘
     var howSec = React.createElement("div", {
@@ -5025,10 +5049,12 @@ var PhoneRentalApp = () => {
       className: "oh-pk-sec"
     }, React.createElement("p", {
       className: "oh-pk-h"
-    }, "관람할 공연 날짜"), React.createElement("div", {
+    }, "관람할 공연 날짜", React.createElement("span", {
+      style: { marginLeft: 6, fontSize: 12, fontWeight: 600, color: '#828C94' }
+    }, "여러 날 선택 가능")), React.createElement("div", {
       className: "oh-pk-dates"
     }, dates.map(it => {
-      var on = sel && sel.getTime() === it.date.getTime();
+      var on = packageDates.some(x => x.getTime() === it.date.getTime());
       return React.createElement("button", {
         key: it.date.getTime(),
         type: "button",
@@ -5041,16 +5067,16 @@ var PhoneRentalApp = () => {
       }), React.createElement("b", null, pkgFmt(it.date)), React.createElement("span", null, it.disabled ? it.reason : on ? '선택됨' : ''));
     })), sel && React.createElement("div", {
       className: "oh-pk-route"
-    }, React.createElement("div", null, React.createElement("small", null, "수령"), React.createElement("b", null, deliveryMethod === 'post' && postArrival && !postArrival.blocked ? postArrival.label : pkgFmt(sel)), React.createElement("em", {
+    }, React.createElement("div", null, React.createElement("small", null, "예약일"), React.createElement("b", null, deliveryMethod === 'post' && postArrival && !postArrival.blocked ? postArrival.label : packageDates.length ? pkgDatesLabel(packageDates) : pkgFmt(sel)) /* [CHANGED] 2026-11-17 이어진 날짜는 12/18(금)~12/20(일), 떨어진 날짜는 12/18(금), 12/20(일) */, React.createElement("em", {
       style: { color: '#0A8CBC' }
     }, PACKAGE_METHOD_LABEL[deliveryMethod] || '수령 방법 선택')), React.createElement(Icons.ChevronRight, {
       size: 18,
       className: "text-gray-300 shrink-0"
-    }), React.createElement("div", null, React.createElement("small", null, "반납 (자동)"), React.createElement("b", null, pkgFmt(ret)), React.createElement("em", {
+    }), React.createElement("div", null, React.createElement("small", null, "반납일"), React.createElement("b", null, pkgFmt(ret)), React.createElement("em", {
       style: { color: '#FF7777' }
     }, "우체국 택배"))), React.createElement("p", {
       className: "oh-pk-note"
-    }, "* 반납일은 공연 다음 날부터 가장 빠른 평일(공휴일 제외)로 자동 설정돼요. 수령 방법(공연장·택배·사무실)은 다음 단계에서 고를 수 있어요.")));
+    }, "* 반납일은 마지막 공연 다음 날부터 가장 빠른 평일(공휴일 제외)로 자동 설정돼요. 수령 방법(공연장·택배·사무실)은 다음 단계에서 고를 수 있어요.")));
   };
   var PACKAGE_METHOD_LABEL = { venue: '공연장 수령', post: '택배 수령', office: '사무실 수령' };
   // [NEW] 2026-11-09 패키지 수령 방법 선택 — 공연장은 공연장 정보로, 택배·사무실은 3단계에서 주소를 받도록 비워둠
@@ -5071,7 +5097,7 @@ var PhoneRentalApp = () => {
     className: "t"
   }, React.createElement("i", {
     className: "fa-solid fa-circle-info"
-  }), "리뷰 할인을 먼저 골라주세요"), React.createElement("p", null, "고른 리뷰 할인(최대 7,000원)이 아래 대여 모델 가격에 바로 반영돼요. 계좌이체 할인과 수령비(공연장 수령 기준)는 이미 포함돼 있어요. 택배·사무실 수령은 다음 단계에서 고를 수 있어요. 선택한 리뷰는 ", React.createElement("strong", null, `반납일로부터 ${PACKAGE_REVIEW_DAYS}일 이내`), " 작성해주세요. 미작성 시 할인받은 금액을 반환해야 해요."), React.createElement("p", {
+  }), "리뷰 할인은 원할 때만 선택하세요"), React.createElement("p", null, "아래 '리뷰 할인이 필요하신가요?'를 누르면 고를 수 있어요. 고른 리뷰 할인(최대 7,000원)은 대여 모델 가격에 바로 반영돼요. 계좌이체 할인과 수령비(공연장 수령 기준)는 이미 포함돼 있어요. 택배·사무실 수령은 다음 단계에서 고를 수 있어요. 선택한 리뷰는 ", React.createElement("strong", null, `반납일로부터 ${PACKAGE_REVIEW_DAYS}일 이내`), " 작성해주세요. 미작성 시 할인받은 금액을 반환해야 해요."), React.createElement("p", {
     style: { color: '#828C94' }
   }, "파손 보장 옵션 · 보조배터리는 다음 단계에서 선택할 수 있어요.")));
   // 3단계: 배송지 대신 고정된 공연장 수령 장소
@@ -5500,6 +5526,13 @@ var PhoneRentalApp = () => {
     if (modelName.includes('18 프로')) return '18P';
     return modelName;
   };
+  // [NEW] 2026-11-15 리뷰 화면 표시용: 약어(23U·17P) 대신 기기 모델명 (내부 tag 매칭은 getReviewTag 유지)
+  var getReviewModelLabel = modelName => {
+    var m = String(modelName || "");
+    var map = [["S23","S23울트라"],["S24","S24울트라"],["S25","S25울트라"],["S26","S26울트라"],["17 프로맥스","17프로맥스"],["17 프로","17프로"],["18 프로맥스","18프로맥스"],["18 프로","18프로"]];
+    var hit = map.find(x => m.includes(x[0]));
+    return hit ? hit[1] : m;
+  };
   var phones = {
     galaxy: [{
       id: 'g23',
@@ -5728,7 +5761,7 @@ var PhoneRentalApp = () => {
       insurance: setInsurance, batteryCount: setBatteryCount, deliveryMethod: setDeliveryMethod, returnMethod: setReturnMethod,
       dataBackup: setDataBackup, discounts: setDiscounts, follows: setFollows, followIds: setFollowIds, paymentMethod: setPaymentMethod,
       userInfo: setUserInfo, quickFeeAddress: setQuickFeeAddress, quickFeeResult: setQuickFeeResult, agreements: setAgreements,
-      selectedVenue: setSelectedVenue, selectedConcert: setSelectedConcert, isPackage: setIsPackage, packageConcert: setPackageConcert,
+      selectedVenue: setSelectedVenue, selectedConcert: setSelectedConcert, isPackage: setIsPackage, packageConcert: setPackageConcert, packageDates: setPackageDates,
       currentMonth: setCurrentMonth, isManualAddress: setIsManualAddress
     };
     Object.keys(setters).forEach(k => {
@@ -7141,6 +7174,7 @@ var PhoneRentalApp = () => {
     setConcertDateHint(null); // [NEW]
     setIsPackage(false); // [NEW] 콘서트 패키지 모드 해제
     setPackageConcert(null);
+    setPackageDates([]);
     setInsurance('none');
     setUserInfo({
       name: '',
@@ -7476,7 +7510,7 @@ var PhoneRentalApp = () => {
           activeNav, viewMode, step, activeTab, selectedPhone, startDate, endDate, usageDays, concertDateHint,
           insurance, batteryCount, deliveryMethod, returnMethod, dataBackup, discounts, follows, followIds,
           followStatus, paymentMethod, userInfo, quickFeeAddress, quickFeeResult, agreements, selectedVenue,
-          selectedConcert, isPackage, packageConcert, currentMonth, isManualAddress
+          selectedConcert, isPackage, packageConcert, packageDates, currentMonth, isManualAddress
         }
       }));
     } catch (e) {}
@@ -7967,6 +8001,8 @@ var PhoneRentalApp = () => {
   };
   var handleRentalStart = (method, concertRange) => {
     setIsPackage(false); // [NEW] 일반 예약으로 들어오면 콘서트 패키지 모드 해제 (패키지 시작 시에는 직후 다시 켬)
+    setPackageDates([]);
+    setReviewOpen(true); // 일반 예약은 리뷰 할인 펼친 상태 그대로 (패키지 시작 시에는 직후 접음)
     setPackageConcert(null);
     if (method) setDeliveryMethod(method);else {
       setDeliveryMethod(null);
@@ -10412,9 +10448,9 @@ React.createElement("div", {
       className: "m"
     }, React.createElement("span", {
       className: "oh-st"
-    }, "★ ", r.rating, ".0"), getReviewTag(r.model) && React.createElement("span", {
+    }, "★ ", r.rating, ".0"), getReviewModelLabel(r.model) && React.createElement("span", {
       className: "oh-mb"
-    }, getReviewTag(r.model))))))), !list.length && React.createElement("p", {
+    }, getReviewModelLabel(r.model))))))), !list.length && React.createElement("p", {
       className: "text-sm py-6 text-center",
       style: { color: '#828C94' }
     }, "아직 후기가 없어요"), React.createElement("button", {
@@ -10440,7 +10476,7 @@ React.createElement("div", {
     if (!selectedPhone || !startDate || !endDate) return [];
     var rows = [];
     var days = Math.max(1, calculateDays());
-    if (isPackage) rows.push(['콘서트 패키지 금액', getPackageReviewedPrice(selectedPhone)]);
+    if (isPackage) rows.push([`콘서트 패키지 금액 (${getPackageDayCount()}일)`, getPackageReviewedPrice(selectedPhone)]);
     else rows.push([`대여 금액 (${days}일)`, days <= 1 ? selectedPhone.basePrice : selectedPhone.basePrice + (days - 1) * selectedPhone.addPrice]);
     if (!isPackage && deliveryMethod) rows.push(['수령 비용', deliveryMethod === 'post' || deliveryMethod === 'venue' ? 4000 : 0]);
     if (!isPackage && returnMethod) rows.push(['반납 비용', returnMethod === 'pickup' ? 4000 : returnMethod === 'sameday' ? 15000 : 0]);
@@ -10490,7 +10526,8 @@ React.createElement("div", {
     className: "nm"
   }, selectedPhone.name), React.createElement("p", {
     className: "op"
-  }, "· 촬영일 ", ohDayStr(startDate), startDate.getTime() !== endDate.getTime() ? ` ~ ${ohDayStr(endDate)}` : '', ` (${Math.max(1, calculateDays())}일 사용)`, React.createElement("br", null), "· 반납일 ", ohDayStr(getReturnDate(endDate)), deliveryMethod || returnMethod ? React.createElement(React.Fragment, null, React.createElement("br", null), "· ", OH_PICKUP_LABEL[deliveryMethod] || '수령 미선택', " / ", OH_RETURN_LABEL[returnMethod] || '반납 미선택') : null), React.createElement("p", {
+  }, isPackage && packageDates.length ? `· 관람일 ${packageDates.map(ohDayStr).join(', ')} (${packageDates.length}일)` // [NEW] 2026-11-17 패키지는 고른 날짜만
+  : React.createElement(React.Fragment, null, "· 촬영일 ", ohDayStr(startDate), startDate.getTime() !== endDate.getTime() ? ` ~ ${ohDayStr(endDate)}` : '', ` (${Math.max(1, calculateDays())}일 사용)`), React.createElement("br", null), "· 반납일 ", ohDayStr(getReturnDate(endDate)), deliveryMethod || returnMethod ? React.createElement(React.Fragment, null, React.createElement("br", null), "· ", OH_PICKUP_LABEL[deliveryMethod] || '수령 미선택', " / ", OH_RETURN_LABEL[returnMethod] || '반납 미선택') : null), React.createElement("p", {
     className: "pr"
   }, calculateTotal().toLocaleString(), "원"))))) : null;
   var renderOhPriceBox = () => React.createElement("div", {
@@ -12983,28 +13020,28 @@ React.createElement("div", {
       label: '전체'
     }, {
       id: '갤럭시 S23 울트라',
-      label: 'S23U'
+      label: 'S23울트라'
     }, {
       id: '갤럭시 S24 울트라',
-      label: 'S24U'
+      label: 'S24울트라'
     }, {
       id: '갤럭시 S25 울트라',
-      label: 'S25U'
+      label: 'S25울트라'
     }, {
       id: '갤럭시 S26 울트라',
-      label: 'S26U'
+      label: 'S26울트라'
     }, {
       id: '아이폰 17 프로',
-      label: '17P'
+      label: '17프로'
     }, {
       id: '아이폰 17 프로맥스',
-      label: '17PM'
+      label: '17프로맥스'
     }, {
       id: '아이폰 18 프로',
-      label: '18P'
+      label: '18프로'
     }, {
       id: '아이폰 18 프로맥스',
-      label: '18PM'
+      label: '18프로맥스'
     }];
     var filteredReviews = activeReviewTab === 'all' ? reviews : reviews.filter(r => r.model === activeReviewTab);
     // [NEW] 2026-10-24 오늘의집 상품 리뷰 구성: 평점 요약 → 포토 후기 → 기종 칩·사진 후기만 → 후기 목록
@@ -13089,9 +13126,9 @@ React.createElement("div", {
       className: "oh-st"
     }, starRow(Number(review.rating) || 0)), String(review.date || '').replace(/\s*(오전|오후).*$/, '')))), React.createElement("div", {
       className: "tags"
-    }, getReviewTag(review.model) && React.createElement("span", {
+    }, getReviewModelLabel(review.model) && React.createElement("span", {
       className: "oh-mb"
-    }, getReviewTag(review.model)), (review.venue || review.seat) && React.createElement("span", null, "📍 ", review.venue, " ", review.seat)), review.image && React.createElement("button", {
+    }, getReviewModelLabel(review.model)), (review.venue || review.seat) && React.createElement("span", null, "📍 ", review.venue, " ", review.seat)), review.image && React.createElement("button", {
       className: "ph",
       onClick: () => setSelectedImage(review.image)
     }, React.createElement("img", {
@@ -15074,9 +15111,10 @@ React.createElement("div", {
     className: "oh-optlist"
   }, phones[activeTab].map(phone => {
     var blocked = isModelBlocked(phone.name);
-    var currentDays = isPackage ? 1 : Math.max(1, calculateDays());
+    var currentDays = isPackage ? getPackageDayCount() : Math.max(1, calculateDays());
     var calculatedPrice = currentDays <= 1 ? phone.basePrice : phone.basePrice + (currentDays - 1) * phone.addPrice;
-    var displayOriginalPrice = isPackage ? phone.basePrice : (phone.basePrice + 15000) * currentDays; // [NEW] 패키지는 1일 요금 대비 표시
+    // [CHANGED] 2026-11-17 패키지 정상가 = 예약하기 대여 요금 + 일반 공연장 수령비 4,000 (할인 미선택이어도 패키지가가 더 비싸 보이지 않게)
+    var displayOriginalPrice = isPackage ? calculatedPrice + 4000 : (phone.basePrice + 15000) * currentDays; // [NEW] 패키지는 1일 요금 대비 표시
     var currentDiscountPrice = isPackage ? getPackageReviewedPrice(phone) : Math.max(0, calculatedPrice - getSelectedReviewDiscount()); // [NEW] 고른 리뷰·팔로우 할인 반영
     var isSel = selectedPhone?.id === phone.id;
     var reviewCount = phone.reviews + myReviews.filter(r => r.model === phone.name).length;
@@ -15121,7 +15159,7 @@ React.createElement("div", {
     }), blocked && React.createElement("span", {
       className: "soldout"
     }, "예약 마감"));
-  }))), isPackage && renderPackageReviewNote(), React.createElement("div", {
+  }))), React.createElement("div", { // [CHANGED] 2026-11-17 패키지 리뷰 안내 박스(renderPackageReviewNote) 삭제 → 기한 안내는 리뷰 선택 시 작성 방법 아래로
     className: "animate-fade-in pt-6 border-t border-gray-100",
     style: { order: 1 }
   }, React.createElement("button", {
@@ -15135,7 +15173,7 @@ React.createElement("div", {
     size: 20
   })), React.createElement("span", {
     className: "tx"
-  }, React.createElement("small", null, FOLLOW_DISCOUNT_ENABLED ? "리뷰·팔로우 할인" : t('reviewBenefit')), getReviewSum() > 0 ? React.createElement("b", null, React.createElement("em", null, getReviewSum().toLocaleString(), "원"), " 할인 선택됨") : React.createElement("b", null, "최대 ", React.createElement("em", null, getReviewMax().toLocaleString(), "원"), " 할인 받기")), React.createElement(Icons.ChevronDown, {
+  }, React.createElement("small", null, FOLLOW_DISCOUNT_ENABLED ? "리뷰·팔로우 할인" : t('reviewBenefit')), getReviewSum() > 0 ? React.createElement("b", null, React.createElement("em", null, getReviewSum().toLocaleString(), "원"), " 할인 선택됨") : isPackage ? React.createElement("b", null, "최대 ", React.createElement("em", null, getReviewMax().toLocaleString(), "원"), " 할인") : React.createElement("b", null, "최대 ", React.createElement("em", null, getReviewMax().toLocaleString(), "원"), " 할인 받기")), React.createElement(Icons.ChevronDown, {
     size: 20,
     className: "chev"
   })), (reviewOpen || reviewError) && React.createElement("div", {
