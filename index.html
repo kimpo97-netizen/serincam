@@ -5526,13 +5526,6 @@ var PhoneRentalApp = () => {
     if (modelName.includes('18 프로')) return '18P';
     return modelName;
   };
-  // [NEW] 2026-11-15 리뷰 화면 표시용: 약어(23U·17P) 대신 기기 모델명 (내부 tag 매칭은 getReviewTag 유지)
-  var getReviewModelLabel = modelName => {
-    var m = String(modelName || "");
-    var map = [["S23","S23울트라"],["S24","S24울트라"],["S25","S25울트라"],["S26","S26울트라"],["17 프로맥스","17프로맥스"],["17 프로","17프로"],["18 프로맥스","18프로맥스"],["18 프로","18프로"]];
-    var hit = map.find(x => m.includes(x[0]));
-    return hit ? hit[1] : m;
-  };
   var phones = {
     galaxy: [{
       id: 'g23',
@@ -10448,9 +10441,9 @@ React.createElement("div", {
       className: "m"
     }, React.createElement("span", {
       className: "oh-st"
-    }, "★ ", r.rating, ".0"), getReviewModelLabel(r.model) && React.createElement("span", {
+    }, "★ ", r.rating, ".0"), getReviewTag(r.model) && React.createElement("span", {
       className: "oh-mb"
-    }, getReviewModelLabel(r.model))))))), !list.length && React.createElement("p", {
+    }, getReviewTag(r.model))))))), !list.length && React.createElement("p", {
       className: "text-sm py-6 text-center",
       style: { color: '#828C94' }
     }, "아직 후기가 없어요"), React.createElement("button", {
@@ -13020,28 +13013,28 @@ React.createElement("div", {
       label: '전체'
     }, {
       id: '갤럭시 S23 울트라',
-      label: 'S23울트라'
+      label: 'S23U'
     }, {
       id: '갤럭시 S24 울트라',
-      label: 'S24울트라'
+      label: 'S24U'
     }, {
       id: '갤럭시 S25 울트라',
-      label: 'S25울트라'
+      label: 'S25U'
     }, {
       id: '갤럭시 S26 울트라',
-      label: 'S26울트라'
+      label: 'S26U'
     }, {
       id: '아이폰 17 프로',
-      label: '17프로'
+      label: '17P'
     }, {
       id: '아이폰 17 프로맥스',
-      label: '17프로맥스'
+      label: '17PM'
     }, {
       id: '아이폰 18 프로',
-      label: '18프로'
+      label: '18P'
     }, {
       id: '아이폰 18 프로맥스',
-      label: '18프로맥스'
+      label: '18PM'
     }];
     var filteredReviews = activeReviewTab === 'all' ? reviews : reviews.filter(r => r.model === activeReviewTab);
     // [NEW] 2026-10-24 오늘의집 상품 리뷰 구성: 평점 요약 → 포토 후기 → 기종 칩·사진 후기만 → 후기 목록
@@ -13126,9 +13119,9 @@ React.createElement("div", {
       className: "oh-st"
     }, starRow(Number(review.rating) || 0)), String(review.date || '').replace(/\s*(오전|오후).*$/, '')))), React.createElement("div", {
       className: "tags"
-    }, getReviewModelLabel(review.model) && React.createElement("span", {
+    }, getReviewTag(review.model) && React.createElement("span", {
       className: "oh-mb"
-    }, getReviewModelLabel(review.model)), (review.venue || review.seat) && React.createElement("span", null, "📍 ", review.venue, " ", review.seat)), review.image && React.createElement("button", {
+    }, getReviewTag(review.model)), (review.venue || review.seat) && React.createElement("span", null, "📍 ", review.venue, " ", review.seat)), review.image && React.createElement("button", {
       className: "ph",
       onClick: () => setSelectedImage(review.image)
     }, React.createElement("img", {
