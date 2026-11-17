@@ -4911,19 +4911,19 @@ var PhoneRentalApp = () => {
     handleRentalStart(null, { start: c._start, end: c._end || c._start });
     if (c._start) setCurrentMonth(new Date(c._start.getFullYear(), c._start.getMonth(), 1)); // 공연 달로 캘린더 자동 이동
   };
-  // ===== [NEW] 콘서트 패키지 — '다가오는 공연' 전용, 수령은 공연장·택배·사무실 중 선택(11-09), 반납은 우체국 택배 고정 =====
-  // 패키지 요금 = 1일 요금 + 공연장 수령비 2,000원 − 계좌이체 1,000원(고정) − 선택한 리뷰 할인(간편 2,000 + SNS 5,000, 최대 7,000원)
-  // 화면에 보이는 '최대 할인가'(getPackagePrice)는 리뷰·팔로우 할인을 모두 받았을 때 = 1일 요금 − 12,000원 + 공연장 수령비 2,000원
+  // ===== [NEW] 콘서트 패키지 — '다가오는 공연' 전용, 수령은 공연장·택배·사무실 중 선택(11-09), 반납은 우체국 택배(기본)·사무실 중 선택(11-17) =====
+  // 패키지 요금 = 1일 요금 + 공연장 수령비 3,000원 − 계좌이체 1,000원(고정) − 선택한 리뷰 할인(간편 2,000 + SNS 5,000, 최대 7,000원)
+  // 화면에 보이는 '최대 할인가'(getPackagePrice)는 리뷰·팔로우 할인을 모두 받았을 때 = 1일 요금 − 12,000원 + 공연장 수령비 3,000원
   // 반납일 = 공연일 다음 날부터 가장 빠른 평일(공휴일 제외) → getReturnDate(공연일, 'post')와 동일
   // [NEW] 팔로우 할인 포함 — 리뷰 7,000 + 계좌이체 1,000 + 팔로우(X·인스타 각 FOLLOW_DISCOUNT)
   var PACKAGE_DISCOUNT = 8000 + (FOLLOW_DISCOUNT_ENABLED ? FOLLOW_DISCOUNT * 2 : 0); // 팔로우 할인 숨김 중이면 8,000원
-  var PACKAGE_VENUE_FEE = 2000;
+  var PACKAGE_VENUE_FEE = 3000; // [CHANGED] 2026-11-17 2,000 → 3,000
   var PACKAGE_REVIEW_DAYS = 5;
   var getPackagePrice = phone => phone.basePrice - PACKAGE_DISCOUNT + PACKAGE_VENUE_FEE;
   // 지금 고른 리뷰 할인까지 반영한 패키지 요금 (옵션 제외) — 기종 카드 표시와 총액 계산 공용
   // [NEW] 2026-11-02 일반 예약 기종 카드용 — 지금 고른 리뷰·팔로우 할인 합계
   var getSelectedReviewDiscount = () => (discounts.twitter ? 5000 : 0) + (discounts.blog ? 5000 : 0) + (discounts.kakao ? 2000 : 0) + (discounts.homepage ? 2000 : 0) + getFollowDiscount();
-  // [NEW] 2026-11-09 패키지 수령 방법 추가 — 공연장 2,000(패키지 할인) · 택배 4,000 · 사무실 무료 (일반 예약과 같은 요금)
+  // [NEW] 2026-11-09 패키지 수령 방법 추가 — 공연장 3,000(패키지 할인, 11-17 변경) · 택배 4,000 · 사무실 무료 (일반 예약과 같은 요금)
   var PACKAGE_PICKUP_FEES = { venue: PACKAGE_VENUE_FEE, post: 4000, office: 0 };
   var getPackagePickupFee = () => PACKAGE_PICKUP_FEES[deliveryMethod] != null ? PACKAGE_PICKUP_FEES[deliveryMethod] : PACKAGE_VENUE_FEE;
   // [CHANGED] 2026-11-17 관람 날짜 여러 개 → 예약하기와 같은 요금: 1일 요금 + (대여일수 − 1) × 추가 1일 요금
@@ -5126,7 +5126,27 @@ var PhoneRentalApp = () => {
   // 2단계: 수령 방법 선택(공연장·택배·사무실) + 반납 고정 안내
   // [CHANGED] 2026-11-09 공연장 수령 고정 → 공연장(패키지 할인 2,000) · 택배(4,000) · 사무실(무료) 중 선택
   var renderPackageMethodSummary = () => {
-    var ret = startDate ? getReturnDate(startDate, 'post') : null;
+    // [CHANGED] 2026-11-17 반납 방법: 우체국택배(기본) · 사무실 반납 선택 — 반납일은 마지막 관람 날짜 기준
+    var retBase = endDate || startDate;
+    var ret = retBase ? getReturnDate(retBase, 'post') : null;
+    var retOffice = retBase ? getReturnDate(retBase, 'office') : null;
+    var pickPackageReturn = m => {
+      if (returnMethod === m) return;
+      setReturnMethod(m);
+      if (m === 'office') setReturnConfirmPopup('office');
+    };
+    var retOpts = [{
+      m: 'post',
+      title: '우체국택배 반납',
+      hot: '기본',
+      sub: ret ? `${pkgFmt(ret)} 오후 4시까지 접수` : '공연 후 가장 빠른 평일',
+      price: '고객부담'
+    }, {
+      m: 'office',
+      title: '사무실 반납',
+      sub: retOffice ? `${pkgFmt(retOffice)} 오전 10시까지 반납` : '사무실로 직접 반납',
+      price: '무료'
+    }];
     var postOff = isSameDayStart || isPostPickupBlocked;
     var opts = [{
       m: 'venue',
@@ -5141,7 +5161,7 @@ var PhoneRentalApp = () => {
       }, "+4,000원"), React.createElement("span", {
         className: "font-bold",
         style: { color: '#2F3438' }
-      }, "+2,000원"))
+      }, `+${PACKAGE_VENUE_FEE.toLocaleString()}원`))
     }, {
       m: 'post',
       title: '택배 수령',
@@ -5189,19 +5209,24 @@ var PhoneRentalApp = () => {
     }, React.createElement(Icons.Truck, {
       size: 18,
       className: "text-sky-500"
-    }), " 반납 (패키지 고정)"), React.createElement("div", {
+    }), " 반납 방법"), React.createElement("div", {
       className: "oh-rlist"
-    }, React.createElement("div", {
-      className: "border-sky-500"
+    }, retOpts.map(o => React.createElement("div", {
+      key: o.m,
+      onClick: () => pickPackageReturn(o.m),
+      className: `cursor-pointer ${(returnMethod || 'post') === o.m ? 'border-sky-500' : 'border-gray-100'}`
     }, React.createElement("div", null, React.createElement("span", {
       className: "font-bold text-gray-800"
-    }, "우체국택배 반납")), React.createElement("p", {
+    }, o.title), o.hot && React.createElement("span", {
+      className: "oh-hotb",
+      style: { marginLeft: 0 }
+    }, o.hot)), React.createElement("p", {
       className: "text-[12px] font-bold",
       style: { color: '#0A8CBC' }
-    }, ret ? `${pkgFmt(ret)} 오후 4시까지 접수` : '공연 후 가장 빠른 평일'), React.createElement("p", {
+    }, o.sub), React.createElement("p", {
       className: "font-bold",
       style: { color: '#2F3438' }
-    }, "고객부담"))), deliveryMethod === 'venue' && React.createElement("p", {
+    }, o.price)))), deliveryMethod === 'venue' && React.createElement("p", {
       className: "text-[13px] leading-snug",
       style: { color: '#828C94' }
     }, "공연장 수령 인원이 부족하면 택배수령으로 바뀌며, 공연 전날 도착하게 보내드려요."));
@@ -17159,7 +17184,7 @@ React.createElement("div", {
     className: "font-bold text-rose-500 mb-1.5 text-sm"
   }, "제15조 (콘서트 패키지 특약) 🎁"), React.createElement("ul", {
     className: "list-disc pl-4 space-y-1 text-[11px] text-gray-500"
-  }, React.createElement("li", null, "콘서트 패키지는 홈페이지 '다가오는 공연'에 등록된 공연에만 적용되며, ", React.createElement("strong", null, "한정 수량"), "으로 진행됩니다."), React.createElement("li", null, "요금은 1일 요금에 공연장 수령비 2,000원을 더하고 계좌이체 할인 1,000원을 뺀 금액이며, 리뷰 할인(최대 7,000원)은 일반 예약과 같이 선택할 수 있습니다. 결제는 계좌이체로만 가능합니다."), React.createElement("li", null, "수령은 ", React.createElement("strong", null, "공연장 수령"), ", 반납은 ", React.createElement("strong", null, "우체국 택배 반납"), "으로 고정되며 일정명은 공연명으로 지정됩니다. 단, 공연장 수령 인원이 미달되면 택배 수령으로 변경될 수 있습니다."), React.createElement("li", null, "반납일은 선택한 공연일 다음 날부터 가장 빠른 평일(공휴일 제외)로 자동 설정됩니다."), React.createElement("li", null, React.createElement("span", {
+  }, React.createElement("li", null, "콘서트 패키지는 홈페이지 '다가오는 공연'에 등록된 공연에만 적용되며, ", React.createElement("strong", null, "한정 수량"), "으로 진행됩니다."), React.createElement("li", null, "요금은 1일 요금에 공연장 수령비 3,000원을 더하고 계좌이체 할인 1,000원을 뺀 금액이며, 리뷰 할인(최대 7,000원)은 일반 예약과 같이 선택할 수 있습니다. 결제는 계좌이체로만 가능합니다."), React.createElement("li", null, "수령은 ", React.createElement("strong", null, "공연장 수령"), ", 반납은 ", React.createElement("strong", null, "우체국 택배 반납"), "이 기본이며 ", React.createElement("strong", null, "사무실 반납"), "도 선택할 수 있습니다. 일정명은 공연명으로 지정됩니다. 단, 공연장 수령 인원이 미달되면 택배 수령으로 변경될 수 있습니다."), React.createElement("li", null, "반납일은 우체국 택배 반납 시 마지막 공연일 다음 날부터 가장 빠른 평일(공휴일 제외), 사무실 반납 시 마지막 공연일 다음 날로 자동 설정됩니다."), React.createElement("li", null, React.createElement("span", {
     className: "text-red-500 font-bold"
   }, "예약확정 안내를 받은 후에는 취소·환불이 불가합니다.")), React.createElement("li", null, "리뷰 할인을 선택한 경우 반납일로부터 5일 이내에 해당 리뷰를 작성해야 하며, 기한 내 미작성 시 할인받은 금액을 반환해야 합니다."), React.createElement("li", null, "우체국 방문이 어려운 경우 반납일 전날 22시까지 홈페이지에서 방문택배를 신청할 수 있습니다."), React.createElement("li", null, "그 밖의 사항은 이 약관의 일반 규정을 따릅니다."))), React.createElement("div", {
     id: "terms-t15"
