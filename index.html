@@ -4957,7 +4957,11 @@ var PhoneRentalApp = () => {
       var past = d.getTime() < today.getTime();
       // [CHANGED] 2026-11-09 택배·사무실 수령도 있으니 수령 방법이 모두 마감된 날만 막음 (공연장만 마감이면 2단계에서 다른 방법 선택)
       var closed = BLOCKED_VENUE_PICKUP_DATES.includes(key) && BLOCKED_POST_PICKUP_DATES.includes(key) && BLOCKED_OFFICE_PICKUP_DATES.includes(key);
-      list.push({ date: new Date(d), disabled: past || closed, reason: past ? '지난 날짜' : closed ? '수령 마감' : '' });
+      // [NEW] 2026-11-17 예약하기에서 그날 공연장 수령 장소가 지정돼 있으면(관리자 venue_available_dates) 그 공연장 공연만 패키지로 열어둠
+      // 예) 11/21은 킨텍스만 가능 → 다른 공연장 공연의 11/21은 막고, 고를 날짜가 하나도 없으면 인기 패키지에서 숨김
+      var wl = VENUE_AVAILABLE_DATES && VENUE_AVAILABLE_DATES[key];
+      var venueOff = !!(wl && Array.isArray(wl.venues) && wl.venues.length > 0 && !wl.venues.includes(String(c.venue || '').trim()));
+      list.push({ date: new Date(d), disabled: past || closed || venueOff, reason: past ? '지난 날짜' : closed ? '수령 마감' : venueOff ? '수령 불가' : '' });
     }
     return list;
   };
