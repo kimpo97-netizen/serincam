@@ -15023,9 +15023,14 @@ React.createElement("div", {
     style: { position: 'relative' },
     className: `flex-1 py-3.5 rounded-xl border-2 transition-all flex flex-col items-center justify-center ${usageDays === opt ? 'border-blue-400 bg-blue-50 shadow-sm' : 'border-white bg-white hover:border-blue-200 hover:bg-blue-50 shadow-sm'}`
   }, (opt === '2' || opt === '3') && React.createElement("span", {
-    // [NEW] 2026-10-24 하루 추가 금액 팻말 (갤럭시 S23~S25 울트라 기준, 기종을 고르면 그 기종 금액)
+    // [NEW] 2026-11-17 팻말: 1일 요금×일수 대비 최대 할인율 (기종을 고르면 그 기종, 아니면 현재 탭 기종 중 최대)
     className: "oh-daysign"
-  }, "+", ((selectedPhone ? selectedPhone.addPrice : 10000) * (Number(opt) - 1)).toLocaleString(), "원", selectedPhone ? '' : '~'), React.createElement("span", {
+  }, "최대 ", (() => {
+    var n = Number(opt);
+    var list = selectedPhone ? [selectedPhone] : (phones[activeTab] || []);
+    if (!list.length) list = [].concat(phones.galaxy || [], phones.iphone || []);
+    return Math.max(0, ...list.map(p => Math.floor((1 - (p.basePrice + (n - 1) * p.addPrice) / (p.basePrice * n)) * 100)));
+  })(), "% 할인"), React.createElement("span", {
     className: `font-bold text-sm whitespace-nowrap ${usageDays === opt ? 'text-blue-600' : 'text-gray-700'}`
   }, opt === 'direct' ? t('directSelect') : `${opt}일`))))), React.createElement("div", {
     className: `transition-all duration-500 ${!usageDays ? 'opacity-40 grayscale-[30%]' : 'opacity-100'}`
