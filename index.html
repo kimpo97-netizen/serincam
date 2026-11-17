@@ -4958,10 +4958,10 @@ var PhoneRentalApp = () => {
       // [CHANGED] 2026-11-09 택배·사무실 수령도 있으니 수령 방법이 모두 마감된 날만 막음 (공연장만 마감이면 2단계에서 다른 방법 선택)
       var closed = BLOCKED_VENUE_PICKUP_DATES.includes(key) && BLOCKED_POST_PICKUP_DATES.includes(key) && BLOCKED_OFFICE_PICKUP_DATES.includes(key);
       // [NEW] 2026-11-17 예약하기에서 그날 공연장 수령 장소가 지정돼 있으면(관리자 venue_available_dates) 그 공연장 공연만 패키지로 열어둠
-      // 예) 11/21은 킨텍스만 가능 → 다른 공연장 공연의 11/21은 막고, 고를 날짜가 하나도 없으면 인기 패키지에서 숨김
+      // 예) 11/21은 킨텍스만 가능 → 다른 공연장 공연의 11/21은 '마감'으로 막음. 공연 자체는 홈·패키지 목록에 그대로 표시 (11-17 사용자 요청)
       var wl = VENUE_AVAILABLE_DATES && VENUE_AVAILABLE_DATES[key];
-      var venueOff = !!(wl && Array.isArray(wl.venues) && wl.venues.length > 0 && !wl.venues.includes(String(c.venue || '').trim()));
-      list.push({ date: new Date(d), disabled: past || closed || venueOff, reason: past ? '지난 날짜' : closed ? '수령 마감' : venueOff ? '수령 불가' : '' });
+      var venueOff = !past && !closed && !!(wl && Array.isArray(wl.venues) && wl.venues.length > 0 && !wl.venues.includes(String(c.venue || '').trim()));
+      list.push({ date: new Date(d), disabled: past || closed || venueOff, venueOff, reason: past ? '지난 날짜' : closed ? '수령 마감' : venueOff ? '마감' : '' });
     }
     return list;
   };
@@ -10254,7 +10254,7 @@ React.createElement("div", {
     }, ohIll(showAllServices ? 'fold' : 'all', 48), React.createElement("span", null, showAllServices ? '접기' : '전체 서비스'))));
   };
   // [NEW] 2026-10-31 패키지 공연 카드 (홈 '세린캠 인기 패키지'와 '패키지 공연 전체 보기' 페이지 공용)
-  var getOhPkgList = () => upcomingConcerts.filter(c => getPackageDates(c).some(x => !x.disabled));
+  var getOhPkgList = () => upcomingConcerts.filter(c => getPackageDates(c).some(x => !x.disabled || x.venueOff)); // [CHANGED] 11-17 공연장 지정으로 마감된 날짜만 있어도 목록에는 표시
   var goOhPackageList = () => {
     setViewMode('packageList');
     updateURLForNav('packages');
@@ -16402,7 +16402,7 @@ React.createElement("div", {
     var placeDetail = info ? info.placeDetail : '';
     var noteText = info ? info.note : '당일 현장 상황에 따라 장소 및 시간은 변경될 수 있어요.';
     var mapQ = placeMain || c.venue || '';
-    var pkgAvailable = getPackageDates(c).some(x => !x.disabled);
+    var pkgAvailable = getPackageDates(c).some(x => !x.disabled || x.venueOff); // [CHANGED] 11-17 공연장 지정 마감이어도 패키지 화면에서 날짜를 마감으로 보여줌
     var ty = getOhConcertType(c);
     var dd = c._dday === null ? '' : c._dday > 0 ? `D-${c._dday}` : 'D-DAY';
     var close = () => setShowConcertModal(false);
