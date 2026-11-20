@@ -4702,6 +4702,11 @@ var PhoneRentalApp = () => {
     var key = `${y}-${m}-${d}`;
     return VENUE_AVAILABLE_DATES[key] || null;
   };
+  // [NEW] 2026-11-20 그 날짜 항목이 있는데 공연장이 하나도 켜져 있지 않으면 = 그날 공연장 수령 전체 마감
+  var isVenueDateAllOff = key => {
+    var e = VENUE_AVAILABLE_DATES && VENUE_AVAILABLE_DATES[key];
+    return !!(e && Array.isArray(e.venues) && e.venues.length === 0);
+  };
   var hasVenueWhitelistNow = () => { // [NEW] 현재 선택된 대여시작일에 공연장 화이트리스트가 지정되어 있는지
     var e = getVenueDateEntry();
     return !!(e && e.venues && e.venues.length > 0);
@@ -4712,7 +4717,8 @@ var PhoneRentalApp = () => {
     if (!VENUE_AVAILABLE_DATES) return true;
     if (!startDate) return true;
     var entry = getVenueDateEntry();
-    if (!entry || !entry.venues || entry.venues.length === 0) return true;
+    if (!entry || !Array.isArray(entry.venues)) return true;
+    if (entry.venues.length === 0) return false; // [FIX] 2026-11-20 공연장 모두 끔 = 그날 공연장 수령 마감
     return entry.venues.includes(venueName);
   };
   var venueList = (() => {
@@ -4961,7 +4967,9 @@ var PhoneRentalApp = () => {
       // 예) 11/21은 킨텍스만 가능 → 다른 공연장 공연의 11/21은 '마감'으로 막음. 공연 자체는 홈·패키지 목록에 그대로 표시 (11-17 사용자 요청)
       var wl = VENUE_AVAILABLE_DATES && VENUE_AVAILABLE_DATES[key];
       var venueOff = !past && !closed && !!(wl && Array.isArray(wl.venues) && wl.venues.length > 0 && !wl.venues.includes(String(c.venue || '').trim()));
-      list.push({ date: new Date(d), disabled: past || closed || venueOff, venueOff, reason: past ? '지난 날짜' : closed ? '수령 마감' : venueOff ? '마감' : '' });
+      // [FIX] 2026-11-20 관리자에서 그 날짜 공연장을 모두 끄면(마감) 패키지 날짜도 마감 → 남은 날짜가 없으면 홈 인기 패키지·패키지 목록에서 빠짐
+      var allOff = !past && !closed && isVenueDateAllOff(key);
+      list.push({ date: new Date(d), disabled: past || closed || venueOff || allOff, venueOff, reason: past ? '지난 날짜' : closed ? '수령 마감' : venueOff || allOff ? '마감' : '' });
     }
     return list;
   };
@@ -5672,7 +5680,10 @@ var PhoneRentalApp = () => {
   var AVAILABLE_ONSITE_DATES = (remoteSettings && remoteSettings.available_onsite_dates) || ['2025-5-5', '2025-12-25', '2026-1-1', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-', '2026-3-'];
   var _blockedDelivery = (remoteSettings && remoteSettings.blocked_delivery_dates) || {};
   var BLOCKED_POST_PICKUP_DATES = _blockedDelivery.post || ['2026-7-4', '2026-7-5', '2026-6-14', '2026-6-10'];
-  var BLOCKED_VENUE_PICKUP_DATES = _blockedDelivery.venue || ['2026-6-12', '2026-6-13', '2026-6-10', '2026-6-15', '2026-6-8'];
+  var BLOCKED_VENUE_PICKUP_DATES = (_blockedDelivery.venue || ['2026-6-12', '2026-6-13', '2026-6-10', '2026-6-15', '2026-6-8']).concat(
+  // [FIX] 2026-11-20 관리자 '공연장 수령 위치'에서 그 날짜의 공연장을 모두 끈 날(venues: [])은 공연장 수령 마감으로 처리
+  // (관리자 화면 기준 '기본은 전부 불가' — 예전엔 빈 목록을 '제한 없음'으로 읽어서 마감해도 공연장 수령·인기 패키지가 그대로 보였음)
+  VENUE_AVAILABLE_DATES ? Object.keys(VENUE_AVAILABLE_DATES).filter(k => isVenueDateAllOff(k)) : []);
   var BLOCKED_QUICK_PICKUP_DATES = _blockedDelivery.quick || [];
   var BLOCKED_OFFICE_PICKUP_DATES = _blockedDelivery.office || [];
   useEffect(() => {
