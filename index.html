@@ -383,6 +383,13 @@
 .oh-vlist b{display:block;font-size:14px;font-weight:600;color:#2F3438;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oh-vlist span{font-size:12px;color:#828C94}
 .oh-vlist button.on b{color:#13A8DE}
+/* [NEW] 11-25 공연장 목록 가로 슬라이드 */
+.oh-vslide{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;margin:12px -20px 12px;padding:2px 20px 4px;scroll-padding:0 20px;-webkit-overflow-scrolling:touch}
+.oh-vslide::-webkit-scrollbar{display:none}
+.oh-vslide button{flex:0 0 auto;width:auto;min-width:140px;padding:10px 12px;gap:9px;border:1px solid #EAEDEF;border-radius:12px;background:#fff;scroll-snap-align:start}
+.oh-vslide .ic{width:32px;height:32px;border-radius:10px;font-size:14px}
+.oh-vslide button.on{border-color:#13A8DE;background:#F2FAFE}
+.oh-vslide b{overflow:visible;text-overflow:clip;padding-right:2px}
 .oh-vbadge{font-size:12px;color:#828C94;font-weight:500}
 .oh-sns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .oh-sns button{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;transition:transform .12s}
@@ -1068,6 +1075,9 @@
 .oh-kmap .fly.done .bar span{animation:none;transform:scaleX(1);transition:transform .15s}
 @keyframes kmapBar{from{transform:scaleX(0)}to{transform:scaleX(.92)}}
 .oh-kmap .fly.done{opacity:0;transition:opacity .3s .15s}
+.oh-kmap .lock{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px;cursor:pointer}
+.oh-kmap .lock span{background:rgba(25,25,25,.72);color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:16px}
+.oh-kmap .relock{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;background:#fff;border:1px solid #DADDE0;border-radius:16px;padding:5px 12px;font-size:12px;font-weight:700;color:#2F3438;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .oh-kmap .all{position:absolute;left:8px;top:8px;z-index:3;background:#fff;border:1px solid #DADDE0;border-radius:16px;padding:5px 10px;font-size:12px;font-weight:700;color:#2F3438;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .oh-kmap .ld{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;color:#828C94}
 .oh-kmap .pins{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -1594,7 +1604,22 @@ var VenueKakaoMap = ({ spots, active, onSelect, hidePins, tagsAll = true, onOpen
   var flyRef = React.useRef(0); // [NEW] 11-23 연속으로 누르면 이전 이동 애니메이션은 취소
   var fittedRef = React.useRef(false);
   var homeRef = React.useRef(null); // 수도권 전체 화면(레벨·중심) 기억
-  var [fly, setFly] = React.useState(null); // [NEW] 11-23 이동 중 안내 { label, ms, key, done }
+  var [fly, setFly] = React.useState(null);
+  // [NEW] 11-25 휴대폰에서 화면을 스크롤할 때 지도가 손가락을 가로채지 않게: 처음엔 잠금 → 지도를 누르면 움직일 수 있고, 지도가 화면 밖으로 나가면 다시 잠금
+  var touchDev = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  var [locked, setLocked] = React.useState(touchDev);
+  var outerRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!touchDev || locked) return;
+    var onScroll = () => {
+      var el = outerRef.current; if (!el) return;
+      var r = el.getBoundingClientRect();
+      var vis = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0); // 화면에 보이는 지도 높이
+      if (vis < r.height * 0.5) setLocked(true); // 지도가 절반 넘게 화면 밖으로 나가면 다시 고정
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [locked]); // [NEW] 11-23 이동 중 안내 { label, ms, key, done }
   var [failed, setFailed] = React.useState(!KAKAO_MAP_JS_KEY);
   var [ready, setReady] = React.useState(false);
   var [positions, setPositions] = React.useState([]);
@@ -1763,8 +1788,11 @@ var VenueKakaoMap = ({ spots, active, onSelect, hidePins, tagsAll = true, onOpen
   var curPos = positions[ci] || null;
   var picked = !(active < 0);
   return React.createElement("div", { className: "oh-kmap" },
-    React.createElement("div", { className: "box", style: height ? { height } : null },
+    React.createElement("div", { className: "box", ref: outerRef, style: height ? { height } : null },
       React.createElement("div", { ref: boxRef, className: "cv" }),
+      ready && touchDev && (locked
+        ? React.createElement("div", { className: "lock", onClick: () => setLocked(false) }, React.createElement("span", null, React.createElement("i", { className: "fa-solid fa-hand-pointer" }), " 지도를 누르면 움직일 수 있어요"))
+        : React.createElement("button", { type: "button", className: "relock", onClick: () => setLocked(true) }, React.createElement("i", { className: "fa-solid fa-lock" }), " 지도 고정")),
       ready && allLabel && picked && React.createElement("button", { type: "button", className: "all", onClick: () => selRef.current && selRef.current(-1) }, React.createElement("i", { className: "fa-solid fa-expand" }), " ", allLabel),
       !ready && React.createElement("span", { className: "ld" }, "지도를 불러오는 중…"),
       fly && fly.label && React.createElement("div", { className: `fly${fly.done ? ' done' : ''}`, key: fly.key, role: "status" },
@@ -4238,6 +4266,28 @@ var PhoneRentalApp = () => {
   }));
   // [CHANGED] 2026-11-23 사무실은 인천 목록 안에 다른 공연장처럼 한 줄로 (지도 준비 전엔 수령 방법의 사무실 안내로)
   var pickupRegionCount = r => (venueList[r] || []).length + (r === 'Incheon' ? 1 : 0);
+  // [NEW] 11-25 사용자 요청: 공연장 목록을 지역 탭 바로 밑에 가로 슬라이드로 (그 아래 지도) — 홈·픽업존 공용
+  var pickupSlideRef = React.useRef(null);
+  React.useEffect(() => { // 지도에서 핀을 누르면 해당 카드가 슬라이드 가운데로 오게
+    var box = pickupSlideRef.current; if (!box) return;
+    var on = box.querySelector('button.on'); if (!on) return;
+    box.scrollTo({ left: on.offsetLeft - (box.clientWidth - on.offsetWidth) / 2, behavior: 'smooth' });
+  }, [pickupMapIdx, venueTab]);
+  var renderPickupVenueSlide = () => React.createElement("div", {
+    className: "oh-vlist oh-vslide",
+    key: venueTab,
+    ref: pickupSlideRef
+  }, venueList[venueTab].map((v, i) => React.createElement("button", {
+    key: i,
+    className: pickupRowOn(i) ? 'on' : '',
+    onClick: () => pickupRowClick(v, i)
+  }, React.createElement("div", {
+    className: "ic"
+  }, React.createElement("i", {
+    className: "fa-solid fa-location-dot"
+  })), React.createElement("div", {
+    className: "min-w-0"
+  }, React.createElement("b", null, v.name), React.createElement("span", null, v.info ? '정보보기 ›' : '위치보기 ›')))), venueTab === 'Incheon' && renderPickupOfficeRow());
   var renderPickupOfficeRow = () => React.createElement("button", {
     key: 'office',
     className: pickupMapReady && pickupMapIdx === pickupOfficeIdx() ? 'on' : '',
@@ -13194,20 +13244,7 @@ React.createElement("div", {
     onClick: () => setVenueTab(region)
   }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기', React.createElement("span", {
     style: { fontSize: 12, color: venueTab === region ? '#13A8DE' : '#A5ADB3', marginLeft: 3, fontWeight: 500 }
-  }, pickupRegionCount(region))))), renderPickupMap(400), React.createElement("div", {
-    className: "oh-vlist",
-    key: venueTab
-  }, venueList[venueTab].map((v, i) => React.createElement("button", {
-    key: i,
-    className: pickupRowOn(i) ? 'on' : '',
-    onClick: () => pickupRowClick(v, i)
-  }, React.createElement("div", {
-    className: "ic"
-  }, React.createElement("i", {
-    className: "fa-solid fa-location-dot"
-  })), React.createElement("div", {
-    className: "min-w-0"
-  }, React.createElement("b", null, v.name), React.createElement("span", null, v.info ? '정보보기 ›' : '위치보기 ›')))), venueTab === 'Incheon' && renderPickupOfficeRow()), React.createElement("button", {
+  }, pickupRegionCount(region))))), renderPickupVenueSlide(), renderPickupMap(400), React.createElement("button", {
     onClick: () => handleRentalStart('venue'),
     className: "ohg-btn s"
   }, "공연장 수령으로 예약하기"))));
@@ -15227,21 +15264,7 @@ React.createElement("div", {
       key: region,
       className: venueTab === region ? 'on' : '',
       onClick: () => setVenueTab(region)
-    }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기', React.createElement("span", null, pickupRegionCount(region))))), renderPickupMap(360), React.createElement("div", {
-      // [CHANGED] 2026-11-23 홈에도 수도권 픽업 지도 — 공연장을 누르면 지도가 그 위치로 이동 (지도를 못 불러오면 예전처럼 정보 팝업)
-      className: "oh-vlist",
-      key: venueTab
-    }, venueList[venueTab].map((v, i) => React.createElement("button", {
-      key: i,
-      className: pickupRowOn(i) ? 'on' : '',
-      onClick: () => pickupRowClick(v, i)
-    }, React.createElement("div", {
-      className: "ic"
-    }, React.createElement("i", {
-      className: "fa-solid fa-location-dot"
-    })), React.createElement("div", {
-      className: "min-w-0"
-    }, React.createElement("b", null, v.name), React.createElement("span", null, v.info ? '정보보기 ›' : '위치보기 ›')))), venueTab === 'Incheon' && renderPickupOfficeRow()));
+    }, region === 'Seoul' ? '서울' : region === 'Incheon' ? '인천' : '경기', React.createElement("span", null, pickupRegionCount(region))))), renderPickupVenueSlide(), renderPickupMap(360));
   })()), React.createElement("div", {
     id: "home-tips-section",
     className: "oh-sec"
