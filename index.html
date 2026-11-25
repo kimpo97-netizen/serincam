@@ -1075,6 +1075,8 @@
 .oh-kmap .fly.done .bar span{animation:none;transform:scaleX(1);transition:transform .15s}
 @keyframes kmapBar{from{transform:scaleX(0)}to{transform:scaleX(.92)}}
 .oh-kmap .fly.done{opacity:0;transition:opacity .3s .15s}
+.oh-kmap .tip{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:3;pointer-events:none;white-space:nowrap;background:#fff;color:#2F3438;font-size:12px;font-weight:700;padding:6px 12px;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.16)}
+.oh-kmap .tip i{color:#13A8DE}
 .oh-kmap .lock{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px;cursor:pointer}
 .oh-kmap .lock span{background:rgba(25,25,25,.72);color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:16px}
 .oh-kmap .relock{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;background:#fff;border:1px solid #DADDE0;border-radius:16px;padding:5px 12px;font-size:12px;font-weight:700;color:#2F3438;box-shadow:0 1px 3px rgba(0,0,0,.12)}
@@ -1795,6 +1797,8 @@ var VenueKakaoMap = ({ spots, active, onSelect, hidePins, tagsAll = true, onOpen
         : React.createElement("button", { type: "button", className: "relock", onClick: () => setLocked(true) }, React.createElement("i", { className: "fa-solid fa-lock" }), " 지도 고정")),
       ready && allLabel && picked && React.createElement("button", { type: "button", className: "all", onClick: () => selRef.current && selRef.current(-1) }, React.createElement("i", { className: "fa-solid fa-expand" }), " ", allLabel),
       !ready && React.createElement("span", { className: "ld" }, "지도를 불러오는 중…"),
+      // [CHANGED] 11-25 사용자 요청: 안내 문구를 지도 아래 → 지도 위 가운데(상단)로
+      ready && !picked && React.createElement("span", { className: "tip" }, React.createElement("i", { className: "fa-solid fa-location-dot" }), " ", hint || "공연장을 누르면 지도가 그 위치로 이동해요"),
       fly && fly.label && React.createElement("div", { className: `fly${fly.done ? ' done' : ''}`, key: fly.key, role: "status" },
         React.createElement("p", null, React.createElement("i", { className: "fa-solid fa-location-arrow" }), " ", fly.label, " 수령장소로 이동하고 있어요"),
         // 게이지는 transform 애니메이션이라 지도·화면 계산으로 바쁠 때도 끊기지 않고 차올라요 (92%까지 → 도착하면 100%)
@@ -1808,7 +1812,7 @@ var VenueKakaoMap = ({ spots, active, onSelect, hidePins, tagsAll = true, onOpen
     picked ? React.createElement("a", { className: "route", href: kmapRouteUrl(cur, curPos), target: "_blank", rel: "noopener" },
       // [CHANGED] 11-23 사용자 요청: 'K' 표시 → 카카오맵 앱 아이콘(노란 사각형+파란 핀), 문구 '카카오맵으로 자세히 보기' (길찾기 → 장소 보기 링크)
       React.createElement("span", { className: "kmark", dangerouslySetInnerHTML: { __html: '<svg viewBox="0 0 494 494" width="32" height="32"><rect width="494" height="494" rx="44" fill="#FAE100"/><path d="M247 81c-69 0-125 56-125 125 0 40 23 70 51 104 28 34 47 69 62 113 3 9 22 9 25 0 15-44 34-79 62-113 28-34 51-64 51-104 0-69-56-125-126-125z" fill="#0080FF"/><circle cx="247" cy="206" r="42" fill="#FAE100"/></svg>' } }), "카카오맵으로 자세히 보기")
-      : React.createElement("p", { className: "hint" }, hint || "아래 공연장을 누르면 지도가 그 위치로 이동해요"));
+      : null);
 };
 // [NEW] 친구추가 안내 팝업 예시 화면 (원본: 이미지/카카오톡 채널 세린 친구추가 화면_휴대폰캡처.webp → 프로필·버튼만 재배치해 834px, Ch+ 버튼 강조 · 이미지/카카오톡_친구추가_안내_팝업용.webp)
 // [NEW] 카카오톡 채널추가(Ch+) 아이콘 — 휴대폰 캡처에서 검정 아이콘만 투명 배경으로 추출 (이미지/카카오톡_채널추가_아이콘.png)
